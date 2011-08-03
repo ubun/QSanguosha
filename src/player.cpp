@@ -651,12 +651,16 @@ bool Player::isProhibited(const Player *to, const Card *card) const{
 bool Player::canSlashWithoutCrossbow() const{
     if(hasSkill("paoxiao"))
         return true;
+    if(hasFlag("wenjiu"))
+        return false;
 
     int slash_count = getSlashCount();
+    int allow_count = 1 ;
     if(hasFlag("tianyi_success"))
-        return slash_count < 2;
-    else
-        return slash_count < 1;
+        allow_count ++ ;
+    if(hasSkill("nuhou"))
+        allow_count ++ ;
+    return slash_count < allow_count;
 }
 
 void Player::jilei(const QString &type){
