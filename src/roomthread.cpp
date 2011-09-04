@@ -131,19 +131,8 @@ void RoomThread::addPlayerSkills(ServerPlayer *player, bool invoke_game_start){
     }
 }
 
-void RoomThread::removePlayerSkills(ServerPlayer *player){
-    foreach(const TriggerSkill *skill, player->getTriggerSkills()){
-        if(skill->isLordSkill()){
-            if(!player->isLord() || room->mode == "06_3v3")
-                continue;
-        }
-
-        removeTriggerSkill(skill);
-    }
-}
-
-int RoomThread::getRefCount(const TriggerSkill *skill) const{
-    return refcount.value(skill, 0);
+bool RoomThread::inSkillSet(const TriggerSkill *skill) const{
+    return skillSet.contains(skill);
 }
 
 void RoomThread::constructTriggerTable(const GameRule *rule){
@@ -243,17 +232,10 @@ void RoomThread::run(){
     if(room->mode == "06_3v3"){
         run3v3();
     }else if(room->getMode() == "04_1v3"){
-<<<<<<< HEAD
-        ServerPlayer *shenlubu = room->getLord();
-        if(shenlubu->getGeneralName() == "shenlvbu1"){
-            QList<ServerPlayer *> league = room->players;
-            league.removeOne(shenlubu);
-=======
         ServerPlayer *shenlvbu = room->getLord();
         if(shenlvbu->getGeneralName() == "shenlvbu1"){
             QList<ServerPlayer *> league = room->players;
             league.removeOne(shenlvbu);
->>>>>>> b0b15a7c7cd38ce82d15ad98f0588073b5bd1826
 
             forever{
                 foreach(ServerPlayer *player, league){
@@ -268,16 +250,6 @@ void RoomThread::run(){
                     if(!player->hasFlag("actioned"))
                         room->setPlayerFlag(player, "actioned");
 
-<<<<<<< HEAD
-                    if(shenlubu->getGeneralName() == "shenlvbu2")
-                        goto second_phase;
-
-                    if(player->isAlive()){
-                        room->setCurrent(shenlubu);
-                        trigger(TurnStart, room->getCurrent());
-
-                        if(shenlubu->getGeneralName() == "shenlvbu2")
-=======
                     if(shenlvbu->getGeneralName() == "shenlvbu2")
                         goto second_phase;
 
@@ -286,7 +258,6 @@ void RoomThread::run(){
                         trigger(TurnStart, room->getCurrent());
 
                         if(shenlvbu->getGeneralName() == "shenlvbu2")
->>>>>>> b0b15a7c7cd38ce82d15ad98f0588073b5bd1826
                             goto second_phase;
                     }
                 }
@@ -296,11 +267,7 @@ void RoomThread::run(){
             second_phase:
 
             foreach(ServerPlayer *player, room->players){
-<<<<<<< HEAD
-                if(player != shenlubu){
-=======
                 if(player != shenlvbu){
->>>>>>> b0b15a7c7cd38ce82d15ad98f0588073b5bd1826
                     if(player->hasFlag("actioned"))
                         room->setPlayerFlag(player, "-actioned");
 
@@ -311,11 +278,7 @@ void RoomThread::run(){
                 }
             }
 
-<<<<<<< HEAD
-            room->setCurrent(shenlubu);
-=======
             room->setCurrent(shenlvbu);
->>>>>>> b0b15a7c7cd38ce82d15ad98f0588073b5bd1826
 
             forever{
                 trigger(TurnStart, room->getCurrent());
@@ -365,39 +328,16 @@ bool RoomThread::trigger(TriggerEvent event, ServerPlayer *target){
 }
 
 void RoomThread::addTriggerSkill(const TriggerSkill *skill){
-    int count = refcount.value(skill, 0);
-    if(count != 0){
-        refcount[skill] ++;
+    if(inSkillSet(skill))
         return;
-    }else
-        refcount[skill] = 1;
+    skillSet << skill;
 
     QList<TriggerEvent> events = skill->getTriggerEvents();
     foreach(TriggerEvent event, events){
-        skill_table[event] << skill;
-        qStableSort(skill_table[event].begin(),
-                    skill_table[event].end(),
-                    CompareByPriority);
-    }
-}
+        QList<const TriggerSkill *> &table = skill_table[event];
 
-void RoomThread::removeTriggerSkill(const QString &skill_name){
-    const TriggerSkill *skill = Sanguosha->getTriggerSkill(skill_name);
-    if(skill)
-        removeTriggerSkill(skill);
-}
-
-void RoomThread::removeTriggerSkill(const TriggerSkill *skill){
-    int count = refcount.value(skill, 0);
-    if(count > 1){
-        refcount[skill] --;
-        return;
-    }else
-        refcount.remove(skill);
-
-    QList<TriggerEvent> events = skill->getTriggerEvents();
-    foreach(TriggerEvent event, events){
-        skill_table[event].removeOne(skill);
+        table << skill;
+        qStableSort(table.begin(), table.end(), CompareByPriority);
     }
 }
 
