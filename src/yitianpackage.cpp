@@ -196,8 +196,10 @@ public:
         QString choice = room->askForChoice(shencc, objectName(), "modify+obtain");
 
         if(choice == "modify"){
-            ServerPlayer *to_modify = room->askForPlayerChosen(shencc, room->getOtherPlayers(shencc), objectName());
-            QString kingdom = room->askForKingdom(shencc);
+            PlayerStar to_modify = room->askForPlayerChosen(shencc, room->getOtherPlayers(shencc), objectName());
+            room->setTag("Guixin2Modify", QVariant::fromValue(to_modify));
+            QString kingdom = room->askForChoice(shencc, "guixin2_modify", "wei+shu+wu+qun");
+            room->removeTag("Guixin2Modify");
             QString old_kingdom = to_modify->getKingdom();
             room->setPlayerProperty(to_modify, "kingdom", kingdom);
 
@@ -288,10 +290,25 @@ public:
     }
 };
 
-class Jueji: public TriggerSkill{
+class Jueji: public PhaseChangeSkill{
 public:
-    Jueji():TriggerSkill("jueji"){
+    Jueji():PhaseChangeSkill("jueji"){
         view_as_skill = new JuejiViewAsSkill;
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const{
+        Room *room = target->getRoom();
+        return room->askForUseCard(target, "@@jueji", "@jueji");
+    }
+};
+
+class JuejiGet: public TriggerSkill{
+public:
+    JuejiGet():TriggerSkill("#jueji-get"){
         events << Pindian;
     }
 
@@ -1799,6 +1816,9 @@ YitianPackage::YitianPackage()
 
     General *zhangjunyi = new General(this, "zhangjunyi", "qun");
     zhangjunyi->addSkill(new Jueji);
+    zhangjunyi->addSkill(new JuejiGet);
+
+    related_skills.insertMulti("jueji", "#jueji-get");
 
     General *lukang = new General(this, "lukang", "wu", 3);
     lukang->addSkill("qianxun");
