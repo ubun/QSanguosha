@@ -53,6 +53,7 @@ extern "C" {
     Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
+    Scenario *NewPassModeScenario();
 }
 
 extern "C" {
@@ -93,6 +94,7 @@ Engine::Engine()
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
+    addScenario(NewPassModeScenario());
 
     // available game modes
     modes["02p"] = tr("2 players");

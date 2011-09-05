@@ -5,6 +5,7 @@
 #include "ai.h"
 #include "scenario.h"
 #include "gamerule.h"
+#include "pass-mode-scenario.h"
 #include "scenerule.h"	//changjing
 #include "contestdb.h"
 #include "banpairdialog.h"
@@ -113,6 +114,10 @@ QList<ServerPlayer *> Room::getOtherPlayers(ServerPlayer *except) const{
         other_players << alive_players.at(i);
 
     return other_players;
+}
+
+QList<ServerPlayer *> Room::getPlayers() const{
+    return players ;
 }
 
 QList<ServerPlayer *> Room::getAllPlayers() const{
@@ -1909,7 +1914,7 @@ void Room::startGame(){
         }
     }
 
-    if((Config.Enable2ndGeneral || mode == "08boss") && mode != "02_1v1" && mode != "06_3v3" && mode != "04_1v3"){
+    if((Config.Enable2ndGeneral || mode == "08boss") && mode != "02_1v1" && mode != "06_3v3" && mode != "04_1v3" && mode != "pass_mode"){
         foreach(ServerPlayer *player, players)
             broadcastProperty(player, "general2");
     }
@@ -1961,6 +1966,8 @@ void Room::startGame(){
         game_rule = new BossMode(this);
     else if(mode == "04_1v3")
         game_rule = new HulaoPassMode(this);
+    else if(mode == "pass_mode")
+        game_rule = new PassMode(this);
     else if(Config.EnableScene)	//changjing
         game_rule = new SceneRule(this);	//changjing
     else
