@@ -126,7 +126,33 @@ local function findPlayerForModifyKingdom(self, players)
 	end
 end
 
+local function chooseKingdomForPlayer(self, to_modify)
+	local lord = self.room:getLord()
+	local isGood = self:isFriend(lord)
+	if to_modify:getRole() == "loyalist" or to_modify:getRole() == "renegade" then
+		if isGood then
+			return lord:getKingdom()
+		else
+			local kingdoms = {"wei", "shu", "wu", "qun"}
+			for _, kingdom in ipairs(kingdoms) do
+				if lord:getKingdom() ~= kingdom then
+					return kingdom
+				end
+			end
+		end
+	elseif lord:hasLordSkill("xueyi") then
+		return isGood and "qun" or "wei"
+	end
+
+	return "wei"
+end
+
 sgs.ai_skill_choice.guixin2 = function(self, choices)
+	if choices == "wei+shu+wu+qun" then
+		local to_modify = self.room:getTag("Guixin2Modify"):toPlayer()
+		return chooseKingdomForPlayer(self, to_modify)
+	end
+
 	if choices ~= "modify+obtain" then
 		return choices:split("+")[1]
 	end
@@ -161,30 +187,6 @@ end
 
 sgs.ai_skill_playerchosen.guixin2 = function(self, players)
 	local player = findPlayerForModifyKingdom(self, players)
-	self.player_to_modify = player or players:first()
-	return self.player_to_modify
+	return player or players:first()
 end
 
-sgs.ai_skill_choice.guixin2_modify = function(self, choices)
-	-- there are only four choices:
-	-- wei, shu, wu, qun
-	local to_modify = self.room:getTag("Guixin2Modify"):toPlayer()
-	local lord = self.room:getLord()
-	local isGood = self:isFriend(lord)
-	if to_modify:getRole() == "loyalist" then
-		if isGood then
-			return lord:getKingdom()
-		else
-			local kingdoms = {"wei", "shu", "wu", "qun"}
-			for _, kingdom in ipairs(kingdoms) do
-				if lord:getKingdom() ~= kingdom then
-					return kingdom
-				end
-			end
-		end
-	elseif lord:hasLordSkill("xueyi") then
-		return isGood and "qun" or "wei"
-	end
-
-	return "wei"
-end
