@@ -59,7 +59,7 @@ void PDuanyanCard::onEffect(const CardEffectStruct &effect) const{
     ServerPlayer *target = effect.to;
     Room *room = player->getRoom();
 
-    QString choice = room->askForChoice(player, "pt_duanyan", "slash+jink+peach_analeptic+other");
+    QString choice = room->askForChoice(player, "pt_duanyan", "slash+jink+peatic+other");
 
     int card_id = target->getRandomHandCardId();
     const Card *card = Sanguosha->getCard(card_id);
@@ -82,7 +82,7 @@ void PDuanyanCard::onEffect(const CardEffectStruct &effect) const{
         correct = isSlash ;
     }else if(choice == "jink"){
         correct = isJink ;
-    }else if(choice == "peach_analeptic"){
+    }else if(choice == "peatic"){
         correct = isPna ;
     }else{
         correct = !(isSlash || isJink || isPna);
@@ -92,6 +92,7 @@ void PDuanyanCard::onEffect(const CardEffectStruct &effect) const{
         room->throwCard(card_id);
     }else{
         if(!room->askForDiscard(player, objectName(), 1, true , true)){
+            player->drawCards(1);
             DamageStruct damage;
             damage.card = NULL;
             damage.from = target;
@@ -2072,26 +2073,27 @@ PassModeScenario::PassModeScenario()
     related_skills.insertMulti("qingnang_pass", "#qingnang");
     related_skills.insertMulti("pbadao", "#badao_cost");
 
-    General *shizu = new General(this,"p_shizu","p_evil",3, true, true);
-    shizu->addSkill("ps_shiqi");
+    General *iizu, *gyip, *jjww, *qibq, *huww, *yddd;
+    iizu = new General(this,"p_shizu","p_evil",3, true, true);
+    iizu->addSkill("ps_shiqi");
 
-    General *gongshou = new General(this,"p_gongshou","p_evil",3, false, true);
-    gongshou->addSkill("zhengfeng");
-    gongshou->addSkill("ps_qianggong");
+    gyip = new General(this,"p_gongshou","p_evil",3, false, true);
+    gyip->addSkill("zhengfeng");
+    gyip->addSkill("ps_qianggong");
 
-    General *jianwei = new General(this,"p_jianwei","p_evil",3, false, true);
-    jianwei->addSkill("ps_pojia");
+    jjww = new General(this,"p_jianwei","p_evil",3, false, true);
+    jjww->addSkill("ps_pojia");
 
-    General *qibing = new General(this,"p_qibing","p_evil",3, true, true);
-    qibing->addSkill("ps_qishu");
+    qibq = new General(this,"p_qibing","p_evil",3, true, true);
+    qibq->addSkill("ps_qishu");
 
-    General *huwei = new General(this,"p_huwei","p_evil",3, true, true);
-    huwei->addSkill("ps_chenwen");
-    huwei->addSkill("ps_zhongzhuang");
+    huww = new General(this,"p_huwei","p_evil",3, true, true);
+    huww->addSkill("ps_chenwen");
+    huww->addSkill("ps_zhongzhuang");
 
-    General *yaodao = new General(this,"p_yaodao","p_evil",3, true, true);
-    yaodao->addSkill("ps_yaoshu");
-    yaodao->addSkill("ps_jitian");
+    yddd = new General(this,"p_yaodao","p_evil",3, true, true);
+    yddd->addSkill("ps_yaoshu");
+    yddd->addSkill("ps_jitian");
 
     General *liubei_p = new General(this,"liubei_p","p_hero",4, true, true);
     liubei_p->addSkill("rende_pass");
