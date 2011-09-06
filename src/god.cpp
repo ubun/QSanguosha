@@ -932,9 +932,9 @@ public:
     }
 };
 
-class Baiyin: public PhaseChangeSkill{
+class PBaiyin: public PhaseChangeSkill{
 public:
-    Baiyin():PhaseChangeSkill("baiyin"){
+    PBaiyin():PhaseChangeSkill("baiyin"){
         frequency = Wake;
     }
 
@@ -949,7 +949,7 @@ public:
         Room *room = shensimayi->getRoom();
 
         LogMessage log;
-        log.type = "#BaiyinWake";
+        log.type = "#PBaiyinWake";
         log.from = shensimayi;
         log.arg = QString::number(shensimayi->getMark("@bear"));
         room->sendLog(log);
@@ -1288,7 +1288,7 @@ GodPackage::GodPackage()
 
     General *shensimayi = new General(this, "shensimayi", "god", 4);
     shensimayi->addSkill(new Renjie);
-    shensimayi->addSkill(new Baiyin);
+    shensimayi->addSkill(new PBaiyin);
     shensimayi->addSkill(new Lianpo);
     shensimayi->addSkill(new LianpoCount);
 

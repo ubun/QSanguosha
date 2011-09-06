@@ -323,12 +323,12 @@ public:
     }
 };
 
-XuanhuoCard::XuanhuoCard(){
+PXuanhuoCard::PXuanhuoCard(){
     once = true;
     will_throw = false;
 }
 
-void XuanhuoCard::onEffect(const CardEffectStruct &effect) const{
+void PXuanhuoCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->obtainCard(this);
 
     Room *room = effect.from->getRoom();
@@ -343,14 +343,14 @@ void XuanhuoCard::onEffect(const CardEffectStruct &effect) const{
         room->moveCardTo(card, target, Player::Hand, false);
 }
 
-class Xuanhuo: public OneCardViewAsSkill{
+class PXuanhuo: public OneCardViewAsSkill{
 public:
-    Xuanhuo():OneCardViewAsSkill("xuanhuo"){
+    PXuanhuo():OneCardViewAsSkill("xuanhuo"){
 
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("XuanhuoCard");
+        return ! player->hasUsed("PXuanhuoCard");
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -358,7 +358,7 @@ public:
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
-        XuanhuoCard *card = new XuanhuoCard;
+        PXuanhuoCard *card = new PXuanhuoCard;
         card->addSubcard(card_item->getFilteredCard());
         return card;
     }
@@ -915,7 +915,7 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
 
     General *fazheng = new General(this, "fazheng", "shu", 3);
     fazheng->addSkill(new Enyuan);
-    fazheng->addSkill(new Xuanhuo);
+    fazheng->addSkill(new PXuanhuo);
 
     General *lingtong = new General(this, "lingtong", "wu");
     lingtong->addSkill(new Xuanfeng);
@@ -943,7 +943,7 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
     addMetaObject<GanluCard>();
     addMetaObject<XianzhenCard>();
     addMetaObject<XianzhenSlashCard>();
-    addMetaObject<XuanhuoCard>();
+    addMetaObject<PXuanhuoCard>();
     addMetaObject<XinzhanCard>();
 }
 
