@@ -1925,7 +1925,7 @@ bool PassMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                             if(skill_name == "pt_tipo"){
                                 room->setPlayerProperty(lord, "maxhp", lord->getMaxHP() + 1);
                             }else if(skill_name == "pt_kezhi"){
-                                lord->setXueyi(1);
+                                room->setPlayerProperty(lord, "xueyi", 1);
                             }else if(skill_name == "niepan"){
                                 lord->gainMark("@nirvana");
                             }
