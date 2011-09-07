@@ -1,112 +1,242 @@
 #include "standard.h"
 #include "skill.h"
-#include "gold-seinto.h"
+#include "gold-seinto-pre.h"
 #include "client.h"
 #include "carditem.h"
 #include "engine.h"
 #include "maneuvering.h"
 #include "ai.h"
 
-class Xiufu: public OneCardViewAsSkill{
+class Jingqiang: public PhaseChangeSkill{
 public:
-    Xiufu():OneCardViewAsSkill("xiufu"){
+    Jingqiang():PhaseChangeSkill("jingqiang"){
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("XiufuCard");
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        if(player->getPhase() == Player::Finish && room->askForSkillInvoke(player, objectName())){
+            ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), "jq-choose");
+            target->gainMark("@jq");
+            room->acquireSkill(target, "jqdis");
+        }
+        else if(player->getPhase() == Player::Start){
+            foreach(ServerPlayer *p, room->getAllPlayers()){
+                if(p->getMark("@jq") > 0)
+                    p->loseMark("@jq");
+            }
+        }
+
+        return false;
+    }
+};
+
+class Jingqiangdis: public DistanceSkill{
+public:
+    Jingqiangdis():DistanceSkill("#jqdis"){
+
+    }
+    virtual int getCorrect(const Player *from, const Player *to) const{
+        if(to->getMark("@jq") > 0)
+            return +1;
+        else
+            return 0;
+    }
+};
+
+class Zhuyi: public OneCardViewAsSkill{
+public:
+    Zhuyi():OneCardViewAsSkill("zhuyi"){
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getCard()->getSuit() == Card::Heart;
+        return !to_select->isEquipped() && to_select->getCard()->inherits("EquipCard");
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
-        XiufuCard *card = new XiufuCard;
+        ZhuyiCard *card = new ZhuyiCard;
         card->addSubcard(card_item->getCard()->getId());
 
         return card;
     }
 };
 
-XiufuCard::XiufuCard(){
-    once = true;
-    target_fixed = true;
+ZhuyiCard::ZhuyiCard(){
 }
-void XiufuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    RecoverStruct recover;
-    recover.card = this;
-    recover.who = source;
-    room->recover(source, recover);
+void ZhuyiCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    room->throwCard(this);
+    effect.from->drawCards(1);
+    effect.to->drawCards(1);
 }
 
-class Xingmie: public TriggerSkill{
+class Zhuanling: public PhaseChangeSkill{
 public:
-    Xingmie():TriggerSkill("xingmie"){
-        events << Damage;
-        frequency = Limited;
+    Zhuanling():PhaseChangeSkill("zhuanling$"){
+        frequency = Wake;
+        default_choice = "draw";
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        if(player->getMark("xm") > 0)
-            return false;
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::Start
+                && target->getMark("zhuanling") == 0
+                && target->getHandcardNum() == 0;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
         Room *room = player->getRoom();
-        DamageStruct damage = data.value<DamageStruct>();
-        if(player->askForSkillInvoke(objectName(), data) &&
-           room->askForCard(player, ".S", "xingmie-ask")){
+
+        LogMessage log;
+        log.type = "#ZhuanlingWake";
+        log.from = player;
+        log.arg = QString::number(player->getHandcardNum());
+        room->sendLog(log);
+
+        QString result = room->askForChoice(player ,objectName(), "recover+draw");
+        if(result == "recover"){
+            RecoverStruct recover;
+            recover.card = NULL;
+            recover.who = NULL;
+            room->recover(player, recover);
+        }
+        else if(result == "draw")
+            player->drawCards(2);
+
+        player->setMark("zhuanling", 1);
+
+        room->loseMaxHp(player);
+        room->acquireSkill(player, "jiaohuang");
+
+        return false;
+    }
+};
+
+JiaohuangCard::JiaohuangCard(){
+    once = true;
+}
+
+void JiaohuangCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *header = targets.first();
+    if(header->hasSkill("jiaohuang")){
+        header->obtainCard(this);
+        room->setEmotion(header, "good");
+    }
+}
+
+bool JiaohuangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->hasLordSkill("jiaohuang") && to_select != Self;
+}
+
+class JiaohuangViewAsSkill: public OneCardViewAsSkill{
+public:
+    JiaohuangViewAsSkill():OneCardViewAsSkill("jiaohuangv"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("JiaohuangCard") && player->getKingdom() == "st";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getCard();
+        return !to_select->isEquipped() && card->inherits("EquipCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        JiaohuangCard *card = new JiaohuangCard;
+        card->addSubcard(card_item->getFilteredCard());
+
+        return card;
+    }
+};
+
+class Jiaohuang: public TriggerSkill{
+public:
+    Jiaohuang():TriggerSkill("jiaohuang"){
+        events << GameStart << TurnStart;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        ServerPlayer *aries = target->getRoom()->findPlayerBySkillName(objectName());
+        if(aries->getMark("jhv") == 0)
+            return true;
+        else return false;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *aries, QVariant &) const{
+        Room *room = aries->getRoom();
+        QList<ServerPlayer *> players = room->getAlivePlayers();
+        foreach(ServerPlayer *player, players){
+            room->attachSkillToPlayer(player, "jiaohuangv");
+        }
+        aries->setMark("jhv", 1);
+
+        return false;
+    }
+};
+
+class Haojiao: public PhaseChangeSkill{
+public:
+    Haojiao():PhaseChangeSkill("haojiao"){
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::Finish;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+
+        if(room->askForSkillInvoke(player, objectName())){
+            player->turnOver();
+
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players){
-                if(!player->inMyAttackRange(p)){
-                    DamageStruct damage2;
-                    damage2.nature = damage.nature;
-                    damage2.from = player;
-                    damage2.to = p;
-                    room->damage(damage2);
-                }
+                if(!player->canSlash(p))
+                    players.removeOne(p);
             }
-            player->addMark("xm");
+
+            ServerPlayer *target1 = NULL, *target2 = NULL;
+            if(players.length() > 0){
+                target1 = room->askForPlayerChosen(player, players, "haojiao");
+                players.removeOne(target1);
+            }
+            if(players.length() > 0)
+                target2 = room->askForPlayerChosen(player, players, "haojiao");
+            if(!target1 && !target2)
+                return false;
+
+            Slash *slash = new Slash(Card::NoSuit, 0);
+            slash->setSkillName(objectName());
+
+            CardUseStruct card_use;
+            card_use.card = slash;
+            card_use.from = player;
+            if(target1)
+                card_use.to << target1;
+            if(target2)
+                card_use.to << target2;
+            room->useCard(card_use, false);
         }
+
         return false;
     }
 };
 
-class Hao2jiao: public TriggerSkill{
+class Haojiaof: public MasochismSkill{
 public:
-    Hao2jiao():TriggerSkill("hao2jiao"){
-        events << CardEffect << Predamage;
+    Haojiaof():MasochismSkill("#haojiaof"){
     }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        if(event == Predamage){
-            DamageStruct damage = data.value<DamageStruct>();
-            const Card *card = player->tag["hj"].value<const Card>();
-            if(card->getSuit() == Card::Diamond)
-                damage.damage ++;
-            else if(card->getSuit() == Card::Heart)
-                room->obtainCard(card);
-            data = QVariant::fromValue(damage);
-        }
-        else if(event == CardEffect){
-            CardEffectStruct effect = data.value<CardEffectStruct>();
-            if(effect.card->inherits("Slash")){
-                JudgeStruct judge;
-                judge.reason = objectName();
-                judge.who = player;
-                room->judge(judge);
-                if(judge.card->isRed()){
-                    player->tag["hj"] = judge.card;
-                    room->slashResult(effect, NULL);
-                    return true;
-                }
-            }
-        }
-        return false;
+    virtual void onDamaged(ServerPlayer *taurus, const DamageStruct &) const{
+        if(taurus->faceUp())
+            return;
+        if(!taurus->askForSkillInvoke("haojiao"))
+            return;
+        taurus->turnOver();
     }
 };
 
-//saga
-
-/*
 HuanlongCard::HuanlongCard(){
     will_throw = false;
     once = true;
@@ -201,6 +331,9 @@ public:
         QList<int> stars = gemini->handCards().mid(0, 5);
         foreach(int card_id, stars)
             gemini->addToPile("stars", card_id, false);
+/*        for(int star = 1; star < 5; star++)
+            gemini->addToPile("stars", room->drawCard());
+*/
         gemini->setMark("ciyuan", 1);
 
         room->loseMaxHp(gemini);
@@ -470,6 +603,14 @@ void BaolunCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
         room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, false);
     }
     source->invoke("clearAG");
+/*
+    foreach(int card, source->getPile("guo")){
+        room->moveCardTo(Sanguosha->getCard(card), target, Player::Hand, false);
+        handlog --;
+        if(handlog <= 0)
+            break;
+    }
+*/
 }
 
 class Longba: public TriggerSkill{
@@ -816,6 +957,7 @@ public:
         if(use.to.length() == 1 && use.to.contains(pisces))
             return false;
         if(room->askForCard(pisces, ".C", "mogongshow", false))
+            /*Show(pisces, use.from, objectName())->getSuit() == Card::Club)*/{
             use.to.clear();
             use.to << pisces;
             room->useCard(use);
@@ -846,35 +988,12 @@ public:
         }
     }
 };
-*/
 
-GoldSeintoPackage::GoldSeintoPackage()
-    :Package("goldseinto")
+GoldSeintoPrePackage::GoldSeintoPrePackage()
+    :Package("goldseintopre")
 {
-    General *mu, *aldebaran, *saga, *deathmask,
-    *aiolia, *shaka, *dohko, *milo,
-    *aiolos, *shura, *camus, *aphrodite;
-
-    mu = new General(this, "mu$", "st");
-    mu->addSkill("jingqiang");
-    mu->addSkill(new Xiufu);
-
-    aldebaran = new General(this, "aldebaran", "st");
-    aldebaran->addSkill(new Hao2jiao);
-
-    saga = new General(this, "saga", "st");
-    deathmask = new General(this, "deathmask", "st");
-    aiolia = new General(this, "aiolia", "st");
-    shaka = new General(this, "shaka", "st");
-    dohko = new General(this, "dohko", "st");
-    milo = new General(this, "milo", "st");
-    aiolos = new General(this, "aiolos", "st");
-    shura = new General(this, "shura", "st");
-    camus = new General(this, "camus", "st");
-    aphrodite = new General(this, "aphrodite", "st");
-
-    addMetaObject<XiufuCard>();
-/*    General *aries, *taurus, *gemini, *cancer, *leo, *virgo,
+    // xiaoqiao and yuji is not in this package
+    General *aries, *taurus, *gemini, *cancer, *leo, *virgo,
     *libra, *scorpio, *sagittarius, *capricorn, *aquarius, *pisces;
 
     aries = new General(this, "aries$", "st");
@@ -936,6 +1055,6 @@ GoldSeintoPackage::GoldSeintoPackage()
     addMetaObject<ShengjianCard>();
 
     skills << new Jingqiangdis << new Jiaohuang << new JiaohuangViewAsSkill << new Duanbi;
-*/}
+}
 
-ADD_PACKAGE(GoldSeinto)
+ADD_PACKAGE(GoldSeintoPre)

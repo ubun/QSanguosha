@@ -1,18 +1,17 @@
-#ifndef GOLDSEINTO_H
-#define GOLDSEINTO_H
+#ifndef GOLDSEINTOPRE_H
+#define GOLDSEINTOPRE_H
 
 #include "package.h"
 #include "card.h"
 
-class XiufuCard: public SkillCard{
+class ZhuyiCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE XiufuCard();
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
+    Q_INVOKABLE ZhuyiCard();
+    void onEffect(const CardEffectStruct &effect) const;
 };
 
-/*
 class JiaohuangCard: public SkillCard{
     Q_OBJECT
 
@@ -60,13 +59,12 @@ public:
     Q_INVOKABLE ShengjianCard();
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-*/
 
-class GoldSeintoPackage: public Package{
+class GoldSeintoPrePackage: public Package{
     Q_OBJECT
 
 public:
-    GoldSeintoPackage();
+    GoldSeintoPrePackage();
 };
 
 #endif
