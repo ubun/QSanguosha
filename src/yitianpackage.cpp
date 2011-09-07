@@ -48,6 +48,39 @@ void YitianSword::onMove(const CardMoveStruct &move) const{
     }
 }
 
+class YxSwordSkill: public WeaponSkill{
+public:
+    YxSwordSkill():WeaponSkill("yx_sword"){
+        events << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        Room *room = player->getRoom();
+        if(damage.card && damage.card->inherits("Slash") && room->askForSkillInvoke(player, objectName(), data)){
+            QList<ServerPlayer *> players = room->getOtherPlayers(player);
+            foreach(ServerPlayer *tmp, players){
+                if(!player->inMyAttackRange(tmp))
+                    players.removeOne(tmp);
+            }
+            if(players.isEmpty())
+                return false;
+            ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
+            damage.from = target;
+            data = QVariant::fromValue(damage);
+            room->moveCardTo(player->getWeapon(), damage.from, Player::Hand);
+        }
+        return false;
+    }
+};
+
+YxSword::YxSword(Suit suit, int number)
+    :Weapon(suit, number, 3)
+{
+    setObjectName("yx_sword");
+    skill = new YxSwordSkill;
+}
+
 ChengxiangCard::ChengxiangCard()
 {
 
@@ -198,7 +231,7 @@ public:
         if(choice == "modify"){
             PlayerStar to_modify = room->askForPlayerChosen(shencc, room->getOtherPlayers(shencc), objectName());
             room->setTag("Guixin2Modify", QVariant::fromValue(to_modify));
-            QString kingdom = room->askForChoice(shencc, "guixin2_modify", "wei+shu+wu+qun");
+            QString kingdom = room->askForChoice(shencc, "guixin2", "wei+shu+wu+qun");
             room->removeTag("Guixin2Modify");
             QString old_kingdom = to_modify->getKingdom();
             room->setPlayerProperty(to_modify, "kingdom", kingdom);
@@ -301,8 +334,11 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
-        Room *room = target->getRoom();
-        return room->askForUseCard(target, "@@jueji", "@jueji");
+        if(target->getPhase() == Player::Play){
+            Room *room = target->getRoom();
+            return room->askForUseCard(target, "@@jueji", "@jueji");
+        }else
+            return false;
     }
 };
 
@@ -1797,6 +1833,7 @@ YitianCardPackage::YitianCardPackage()
     :Package("yitian_cards")
 {
     (new YitianSword)->setParent(this);
+    (new YxSword)->setParent(this);
 }
 
 ADD_PACKAGE(YitianCard)
