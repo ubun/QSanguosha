@@ -1067,6 +1067,106 @@ void XianhaiCard::onEffect(const CardEffectStruct &effect) const{
     effect.from->getRoom()->moveCardTo(Sanguosha->getCard(this->getSubcards().first()), effect.to, Player::Judging);
 }
 
+class BaichuEffect: public TriggerSkill{
+public:
+    BaichuEffect():TriggerSkill("#baichueffect"){
+        //view_as_skill = new BaichuViewAsSkill;
+        events << TurnStart << PhaseChange << CardUsed;
+        //frequency = Frequent;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *pp, QVariant &data) const{
+        Room *room = pp->getRoom();
+        ServerPlayer *player = room->findPlayerBySkillName("baichu");
+        if(event == PhaseChange && pp->getPhase() == Player::Finish)
+            player->addMark("begin");
+        if(player->getMark("begin") == 0 && event == TurnStart){
+            player->drawCards(1);
+            const Card *card = room->askForCard(player, ".", "@baichu", false);
+            player->addToPile("ji", card->getId());
+        }
+        if(pp != player)
+            return false;
+        const Card *card = NULL;
+        if(player->getPhase() != Player::NotActive){
+            if(event == CardUsed){
+                CardUseStruct use = data.value<CardUseStruct>();
+                if(use.card->getId() > -1)
+                    card = use.card;
+            }
+            if(card && card->getNumber() < Sanguosha->getCard(player->getPile("ji").first())->getNumber()
+                && room->askForSkillInvoke(player, "baichu", data))
+                    player->drawCards(1);
+        }
+        return false;
+    }
+};
+
+class Baichu:public OneCardViewAsSkill{
+public:
+    Baichu():OneCardViewAsSkill("baichu"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("BaichuCard");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        switch(ClientInstance->getStatus()){
+        case Client::Playing:{
+                return !to_select->isEquipped();
+            }
+
+        case Client::Responsing:{
+                const Card *card = to_select->getFilteredCard();
+                QString pattern = ClientInstance->getPattern();
+                if(pattern == "jink")
+                    return card->getNumber() >= Sanguosha->getCard(Self->getPile("ji").first())->getNumber();
+            }
+
+        default:
+            return false;
+        }
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "jink";
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        bool isactive = Self->getPhase() != Player::NotActive
+                        ? true :false;
+        if(isactive){
+            BaichuCard *card = new BaichuCard;
+            card->addSubcard(card_item->getCard()->getId());
+            return card;
+        }
+        else{
+            const Card *card = card_item->getFilteredCard();
+            Jink *jink = new Jink(card->getSuit(), card->getNumber());
+            jink->addSubcard(card);
+            jink->setSkillName(objectName());
+            return jink;
+        }
+        return NULL;
+    }
+};
+
+BaichuCard::BaichuCard(){
+    once = true;
+    target_fixed = true;
+    will_throw = false;
+}
+
+void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->obtainCard(source, source->getPile("ji").first());
+    source->addToPile("ji", this->getSubcards().first());
+}
+
 WisdomPackage::WisdomPackage()
     :Package("wisdom")
 {
@@ -1150,6 +1250,12 @@ WisdomPackage::WisdomPackage()
 
         related_skills.insertMulti("tongmou", "#tmc");
 
+        General *wisxunyou = new General(this, "wisxunyou", "wei", 3);
+        wisxunyou->addSkill(new Baichu);
+        wisxunyou->addSkill(new BaichuEffect);
+
+        related_skills.insertMulti("baichu", "#baichueffect");
+
         skills << new Shien << new TongmouViewAsSkill;;
         patterns[".K8"] = new EightPattern;
         patterns[".S29"] = new SpatwoninePattern;
@@ -1161,6 +1267,7 @@ WisdomPackage::WisdomPackage()
         addMetaObject<ShouyeCard>();
         addMetaObject<TongmouCard>();
         addMetaObject<XianhaiCard>();
+        addMetaObject<BaichuCard>();
 }
 
 ADD_PACKAGE(Wisdom)

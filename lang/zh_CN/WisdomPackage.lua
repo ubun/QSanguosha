@@ -91,6 +91,14 @@ local t = {
 
 	["designer:zhonghui"] = "宇文天启",
 	["cv:zhonghui"] = "",
+
+	["wisxunyou"] = "荀攸",
+	["baichu"] = "百出",
+	[":baichu"] = "游戏开始时，发给你5张牌，你须将其中1张牌置于你的武将牌上之称为“计”。出牌阶段，你可以打出任意一张手牌替换一次“计”。回合内你每使用一张点数小于“计”的牌时可摸一张牌；回合外你可将点数不小于“计”的牌当【闪】打出",
+	["@baichu"] = "请选择一张手牌作为“计”",
+	["ji"] = "计",
+	["designer:wisxunyou"] = "黄书",
+	["cv:wisxunyou"] = "",
 }
 
 local generals = {"wisxuyou", "wisjiangwei", "wisjiangwan", "wissunce", "wiszhangzhao", "wishuaxiong", "wistianfeng", "wisshuijing"}
