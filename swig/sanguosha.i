@@ -127,7 +127,8 @@ public:
     void acquireSkill(const char *skill_name);
     void loseSkill(const char *skill_name);
     bool hasSkill(const char *skill_name) const;
-	virtual bool hasLordSkill(const char *skill_name) const = 0;
+	bool hasLordSkill(const char *skill_name) const;
+	bool hasInnateSkill(const char *skill_name) const;
 
     void setEquip(const EquipCard *card);
     void removeEquip(const EquipCard *equip);
@@ -736,7 +737,7 @@ public:
     bool askForNullification(const TrickCard *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     bool isCanceled(const CardEffectStruct &effect);
     int askForCardChosen(ServerPlayer *player, ServerPlayer *who, const char *flags, const char *reason);
-    const Card *askForCard(ServerPlayer *player, const char *pattern, const char *prompt, bool throw_it = true);
+    const Card *askForCard(ServerPlayer *player, const char *pattern, const char *prompt, const QVariant &data);
     bool askForUseCard(ServerPlayer *player, const char *pattern, const char *prompt);
     int askForAG(ServerPlayer *player, const QList<int> &card_ids, bool refusable, const char *reason);
     const Card *askForCardShow(ServerPlayer *player, ServerPlayer *requestor, const char *reason);
