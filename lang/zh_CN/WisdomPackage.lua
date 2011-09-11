@@ -15,7 +15,7 @@ local t = {
 
 	["juao"] = "倨傲",
 	[":juao"] = "出牌阶段,你可以选择两张手牌背面向上移出游戏,指定一名角色,被指定的角色到下个回合开始阶段时,跳过摸牌阶段,得到你所移出游戏的两张牌。每回合限一次",
-	["juaocd"] = "趾高气昂",
+	["juaocd"] = "倨傲牌",
 	["#Juao_get"] = "%from 得到了 %to 发动【倨傲】移出游戏的两张牌",
 	["tanlan"] = "贪婪",
 	[":tanlan"] = "你每受到一次伤害,可与伤害来源进行拼点:若你赢,你获得两张拼点牌",
@@ -99,13 +99,22 @@ local t = {
 	["ji"] = "计",
 	["designer:wisxunyou"] = "黄书",
 	["cv:wisxunyou"] = "",
+
+	["cv:wisxuyou"] = "", 
+	["cv:wisjiangwei"] = "", 
+	["cv:wisjiangwan"] = "",
+	["cv:wissunce"] = "",
+	["cv:wiszhangzhao"] = "",
+	["cv:wishuaxiong"] = "",
+	["cv:wistianfeng"] = "",
+	["cv:wisshuijing"] = "",
+
 }
 
 local generals = {"wisxuyou", "wisjiangwei", "wisjiangwan", "wissunce", "wiszhangzhao", "wishuaxiong", "wistianfeng", "wisshuijing"}
 
 for _, general in ipairs(generals) do
 	t["designer:" .. general] = t["designer:wisdoms"]
-	t["cv:" .. general] = t["$blank"]
 end
 
 return t
