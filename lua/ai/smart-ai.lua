@@ -3012,6 +3012,25 @@ function SmartAI:isWeak(player)
 	return player:getHp() <= 2 and player:getHandcardNum() <= 1 and not player:hasSkill("buqu")
 end
 
+function SmartAI:getAoeValue(card, player)
+	player = player or self.player 
+	friends_noself = self:getFriendsNoself(player)
+	enemies = self:getEnemies(player)
+	local good, bad = 0, 0
+	for _, friend in ipairs(friends_noself) do
+		good = good + self:getAoeValueTo(card, friend, player)
+	end
+
+	for _, enemy in ipairs(enemies) do
+		bad = bad + self:getAoeValueTo(card, enemy, player)
+	end
+	
+	if player:hasSkill("jizhi") then
+		good = good + 40	
+	end
+	return good - bad
+end
+
 function SmartAI:getAoeValueTo(card, to , from)
 	if not from then from = self.player end 
 	local value = 0
