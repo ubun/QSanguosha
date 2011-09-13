@@ -339,6 +339,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 foreach(ServerPlayer *chained_player, chained_players){
                     if(chained_player->isChained()){
                         room->getThread()->delay();
+                        room->setPlayerProperty(chained_player, "chained", false);
 
                         LogMessage log;
                         log.type = "#IronChainDamage";
@@ -350,8 +351,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                         chain_damage.chain = true;
 
                         room->damage(chain_damage);
-
-                        break;
                     }
                 }
             }
@@ -824,41 +823,3 @@ bool HulaoPassMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &
     return GameRule::trigger(event, player, data);
 }
 
-HulaoPassThread::HulaoPassThread(Room *room)
-    :room(room)
-{
-}
-
-void HulaoPassThread::run(){
-    // initialize the random seed for this thread
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-
-    ServerPlayer *lord = room->getLord();
-    room->setPlayerProperty(lord, "general", "shenlvbu1");
-
-    const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
-    const Package *windpack = Sanguosha->findChild<const Package *>("wind");
-
-    QList<const General *> generals = stdpack->findChildren<const General *>();
-    generals << windpack->findChildren<const General *>();
-
-    QStringList names;
-    foreach(const General *general, generals){
-        names << general->objectName();
-    }
-
-    names.removeOne("wuxingzhuge");
-    names.removeOne("zhibasunquan");
-
-    foreach(ServerPlayer *player, room->findChildren<ServerPlayer *>()){
-        if(player == lord)
-            continue;
-
-        qShuffle(names);
-        QStringList choices = names.mid(0, 3);
-        QString name = room->askForGeneral(player, choices);
-
-        room->setPlayerProperty(player, "general", name);
-        names.removeOne(name);
-    }
-}

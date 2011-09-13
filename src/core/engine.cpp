@@ -42,10 +42,13 @@ extern "C" {
     Package *NewWisdom();
 
     Package *NewStandardCard();
+    Package *NewStandardExCard();
     Package *NewManeuvering();
     Package *NewNostalgia();
     Package *NewYitianCard();
     Package *NewJoy();
+    Package *NewDisaster();
+    Package *NewJoyEquip();
 
     Scenario *NewGuanduScenario();
     Scenario *NewFanchengScenario();
@@ -73,7 +76,7 @@ Engine::Engine()
     addPackage(NewSP());
     addPackage(NewYJCM());
     addPackage(NewYitian());
-    addPackage(NewWisdom());
+    // addPackage(NewWisdom());
 
     {
         Package *test_package = new Package("test");
@@ -83,10 +86,13 @@ Engine::Engine()
     }
 
     addPackage(NewStandardCard());
+    addPackage(NewStandardExCard());
     addPackage(NewManeuvering());
     addPackage(NewYitianCard());
     addPackage(NewNostalgia());
     addPackage(NewJoy());
+    addPackage(NewDisaster());
+    addPackage(NewJoyEquip());
 
     addScenario(NewGuanduScenario());
     addScenario(NewFanchengScenario());
@@ -382,6 +388,19 @@ QStringList Engine::getKingdoms() const{
     return kingdoms;
 }
 
+QColor Engine::getKingdomColor(const QString &kingdom) const{
+    static QMap<QString, QColor> color_map;
+    if(color_map.isEmpty()){
+        color_map["wei"] = QColor(0x54, 0x79, 0x98);
+        color_map["shu"] = QColor(0xD0, 0x79, 0x6C);
+        color_map["wu"] = QColor(0x4D, 0xB8, 0x73);
+        color_map["qun"] = QColor(0x8A, 0x80, 0x7A);
+        color_map["god"] = QColor(0x96, 0x94, 0x3D);
+    }
+
+    return color_map.value(kingdom);
+}
+
 QString Engine::getSetupString() const{
     int timeout = Config.OperationNoLimit ? 0 : Config.OperationTimeout;
     QString flags;
@@ -504,6 +523,25 @@ void Engine::getRoles(const QString &mode, char *roles) const{
     }
 }
 
+QStringList Engine::getRoleList(const QString &mode) const{
+    char roles[100];
+    getRoles(mode, roles);
+
+    QStringList role_list;
+    for(int i=0; roles[i] != '\0'; i++){
+        QString role;
+        switch(roles[i]){
+        case 'Z': role = "lord"; break;
+        case 'C': role = "loyalist"; break;
+        case 'N': role = "renegade"; break;
+        case 'F': role = "rebel"; break;
+        }
+        role_list << role;
+    }
+
+    return role_list;
+}
+
 int Engine::getCardCount() const{
     return cards.length();
 }
@@ -579,24 +617,13 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set) c
 }
 
 QList<int> Engine::getRandomCards() const{
-    if(Config.GameMode == "04_1v3"){
-        const Package *stdpack = findChild<const Package *>("standard");
-        QList<const Card *> stdcards = stdpack->findChildren<const Card *>();
-        QList<int> card_ids;
+    bool exclude_disaters = false;
 
-        foreach(const Card *card, stdcards){
-            if(card->inherits("Disaster"))
-                continue;
+    if(Config.GameMode == "06_3v3")
+        exclude_disaters = Config.value("3v3/ExcludeDisasters", true).toBool();
 
-            card_ids << card->getId();
-        }
-
-        qShuffle(card_ids);
-        return card_ids;
-    }
-
-    bool exclude_disaters = Config.GameMode == "06_3v3"
-                            && Config.value("3v3/ExcludeDisasters", true).toBool();
+    if(Config.GameMode == "04_1v3")
+        exclude_disaters = true;
 
     QList<int> list;
     foreach(Card *card, cards){

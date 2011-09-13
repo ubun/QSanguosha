@@ -9,6 +9,7 @@
 #include "button.h"
 #include "cardcontainer.h"
 #include "recorder.h"
+#include "indicatoritem.h"
 
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
@@ -60,10 +61,14 @@
 static QPointF DiscardedPos(-6, -2);
 static QPointF DrawPilePos(-102, -2);
 
+RoomScene *RoomSceneInstance;
+
 RoomScene::RoomScene(QMainWindow *main_window)
     :focused(NULL), special_card(NULL), viewing_discards(false),
     main_window(main_window), skill_dock(NULL)
 {
+    RoomSceneInstance = this;
+
     int player_count = Sanguosha->getPlayerCount(ServerInfo.GameMode);
 
     bool circular = Config.value("CircularView", false).toBool();
@@ -2642,11 +2647,7 @@ void RoomScene::doGongxin(const QList<int> &card_ids, bool enable_heart){
 void RoomScene::createStateItem(){
     bool circular = Config.value("CircularView", false).toBool();
 
-    QPixmap state;
-    if(circular)
-        state=QPixmap("image/system/state2.png");
-    else
-        state=QPixmap("image/system/state.png");
+    QPixmap state("image/system/state.png");
 
     QGraphicsItem *state_item = addPixmap(state);//QPixmap("image/system/state.png"));
     state_item->setPos(-110, -90);
@@ -2685,7 +2686,7 @@ void RoomScene::createStateItem(){
     text_item->setDefaultTextColor(Qt::white);
 
     if(circular)
-        state_item->setPos(367, -338);
+        state_item->setPos(367, -320);
 
     if(ServerInfo.EnableAI){
         QRectF state_rect = state_item->boundingRect();
@@ -3120,6 +3121,43 @@ void RoomScene::doHuashen(const QString &name, const QStringList &args){
     Self->tag["Huashens"] = huashen_list;
 }
 
+void RoomScene::showIndicator(const QString &from, const QString &to){
+    if(Config.value("NoIndicator", false).toBool())
+        return;
+
+    QGraphicsObject *obj1 = getAnimationObject(from);
+    QGraphicsObject *obj2 = getAnimationObject(to);
+
+    if(obj1 == NULL || obj2 == NULL || obj1 == obj2)
+        return;
+
+    if(obj1 == avatar)
+        obj1 = dashboard;
+
+    if(obj2 == avatar)
+        obj2 = dashboard;
+
+    QPointF start = obj1->sceneBoundingRect().center();
+    QPointF finish = obj2->sceneBoundingRect().center();
+
+    IndicatorItem *indicator = new IndicatorItem(start,
+                                                 finish,
+                                                 ClientInstance->getPlayer(from));
+
+    qreal x = qMin(start.x(), finish.x());
+    qreal y = qMin(start.y(), finish.y());
+    indicator->setPos(x, y);
+    indicator->setZValue(9.0);
+
+    addItem(indicator);
+
+    indicator->doAnimation();
+}
+
+void RoomScene::doIndicate(const QString &name, const QStringList &args){
+    showIndicator(args.first(), args.last());
+}
+
 void RoomScene::doAnimation(const QString &name, const QStringList &args){
     static QMap<QString, AnimationFunc> map;
     if(map.isEmpty()){
@@ -3132,8 +3170,8 @@ void RoomScene::doAnimation(const QString &name, const QStringList &args){
         map["typhoon"] = &RoomScene::doAppearingAnimation;
 
         map["lightbox"] = &RoomScene::doLightboxAnimation;
-
         map["huashen"] = &RoomScene::doHuashen;
+        map["indicate"] = &RoomScene::doIndicate;
     }
 
     AnimationFunc func = map.value(name, NULL);
@@ -3486,82 +3524,4 @@ void RoomScene::finishArrange(){
     ClientInstance->request("arrange " + names.join("+"));
 }
 
-RoleAssignDialog::RoleAssignDialog(QWidget *parent)
-    :QDialog(parent)
-{
-    setWindowTitle(tr("Assign roles and seats"));
 
-    list = new QListWidget;
-    list->setViewMode(QListView::IconMode);
-    list->setFlow(QListView::TopToBottom);
-    list->setIconSize(General::TinyIconSize);
-    list->setMovement(QListView::Static);
-
-    foreach(const ClientPlayer *player, ClientInstance->getPlayers()){
-        new QListWidgetItem(player->screenName(), list);
-    }
-
-    QVBoxLayout *vlayout = new QVBoxLayout;
-    QPushButton *setGeneralButton = new QPushButton(tr("Set general"));
-
-    role_combobox = new QComboBox;
-    role_combobox->addItem(tr("Lord"));
-    role_combobox->addItem(tr("Loyalist"));
-    role_combobox->addItem(tr("Renegade"));
-    role_combobox->addItem(tr("Rebel"));
-
-    QPushButton *moveUpButton = new QPushButton(tr("Move up"));
-    QPushButton *moveDownButton = new QPushButton(tr("Move down"));
-    QPushButton *okButton = new QPushButton(tr("OK"));
-
-    vlayout->addWidget(setGeneralButton);
-    vlayout->addWidget(role_combobox);
-    vlayout->addWidget(moveUpButton);
-    vlayout->addWidget(moveDownButton);
-    vlayout->addStretch();
-    vlayout->addWidget(okButton);
-
-    QHBoxLayout *layout = new QHBoxLayout();
-    layout->addWidget(list);
-    layout->addLayout(vlayout);
-    setLayout(layout);
-
-    connect(setGeneralButton, SIGNAL(clicked()), this, SLOT(setGeneral()));
-    connect(role_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateRole()));
-    connect(list, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(updateRole()));
-    connect(moveUpButton, SIGNAL(clicked()), this, SLOT(moveUp()));
-    connect(moveDownButton, SIGNAL(clicked()), this, SLOT(moveDown()));
-}
-
-void RoleAssignDialog::accept(){
-
-}
-
-void RoleAssignDialog::setGeneral(){
-
-}
-
-void RoleAssignDialog::updateRole(){
-    if(sender() == role_combobox){
-
-    }else if(sender() == list){
-
-    }
-}
-
-void RoleAssignDialog::moveUp(){
-
-}
-
-void RoleAssignDialog::moveDown(){
-
-}
-
-void RoomScene::startAssign(){
-    RoleAssignDialog *dialog = new RoleAssignDialog(main_window);
-    dialog->exec();
-}
-
-void RoomScene::finishAssign(){
-
-}
