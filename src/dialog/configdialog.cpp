@@ -35,6 +35,7 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     ui->enableBgMusicCheckBox->setChecked(Config.EnableBgMusic);
     ui->fitInViewCheckBox->setChecked(Config.FitInView);
     ui->circularViewCheckBox->setChecked(Config.value("CircularView", false).toBool());
+    ui->noIndicatorCheckBox->setChecked(Config.value("NoIndicator", false).toBool());
 
     ui->volumeSlider->setValue(100 * Config.Volume);
 
@@ -95,7 +96,7 @@ void ConfigDialog::on_resetBgButton_clicked()
 {
     ui->bgPathLineEdit->clear();
 
-    QString filename = "backdrop/guixin.jpg";
+    QString filename = "backdrop/mid-autumn.jpg";
     Config.BackgroundBrush = filename;
     Config.setValue("BackgroundBrush", filename);
 
@@ -138,6 +139,8 @@ void ConfigDialog::saveConfig()
     Config.setValue("FitInView", Config.FitInView);
 
     Config.setValue("CircularView", ui->circularViewCheckBox->isChecked());
+
+    Config.setValue("NoIndicator", ui->noIndicatorCheckBox->isChecked());
 
     Config.NeverNullifyMyTrick = ui->neverNullifyMyTrickCheckBox->isChecked();
     Config.setValue("NeverNullifyMyTrick", Config.NeverNullifyMyTrick);
