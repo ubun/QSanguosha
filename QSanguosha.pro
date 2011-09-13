@@ -6,8 +6,6 @@ QT += network sql
 TEMPLATE = app
 CONFIG += warn_on audio joystick qaxcontainer
 SOURCES += src/main.cpp \
-    	src/gold-seinto.cpp \
-    	src/gold-seinto-pre.cpp \
 	src/client/aux-skills.cpp \
 	src/client/client.cpp \
 	src/client/clientplayer.cpp \
@@ -39,6 +37,8 @@ SOURCES += src/main.cpp \
 	src/package/mountainpackage.cpp \
 	src/package/nostalgia.cpp \
 	src/package/sp-package.cpp \
+	src/package/gold-seinto.cpp \
+    	src/package/gold-seinto-pre.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
@@ -85,9 +85,7 @@ SOURCES += src/main.cpp \
     src/ui/indicatoritem.cpp \
     src/dialog/roleassigndialog.cpp
 	
-HEADERS += src/gold-seinto.h \
-    	src/gold-seinto-pre.h \
-    	src/client/aux-skills.h \
+HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
 	src/client/clientplayer.h \
 	src/client/clientstruct.h \
@@ -118,6 +116,8 @@ HEADERS += src/gold-seinto.h \
 	src/package/mountainpackage.h \
 	src/package/nostalgia.h \
 	src/package/package.h \
+	src/package/gold-seinto.h \
+    	src/package/gold-seinto-pre.h \
 	src/package/sp-package.h \
 	src/package/standard-equips.h \
 	src/package/standard-skillcards.h \
