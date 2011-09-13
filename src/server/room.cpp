@@ -50,6 +50,7 @@ void Room::initCallbacks(){
     callbacks["replyYijiCommand"] = &Room::commonCommand;
     callbacks["replyGuanxingCommand"] = &Room::commonCommand;
     callbacks["replyGongxinCommand"] = &Room::commonCommand;
+    callbacks["assignRolesCommand"] = &Room::commonCommand;
 
     callbacks["addRobotCommand"] = &Room::addRobotCommand;
     callbacks["fillRobotsCommand"] = &Room::fillRobotsCommand;
@@ -886,7 +887,7 @@ void Room::swapPile(){
     if(times == 6)
         gameOver(".");
     if(mode == "04_1v3"){
-        int limit = Config.BanPackages.contains("maneuvering") ? 3 : 2;
+        int limit = Config.BanPackages.contains("maneuvering") ? 2 : 3;
         if(times == limit)
             gameOver(".");
     }
@@ -1107,6 +1108,26 @@ void Room::prepareForStart(){
             else
                 player->setRole("rebel");
             broadcastProperty(player, "role");
+        }
+    }else if(Config.value("FreeAssign", false).toBool() && owner->getState() == "online"){
+        owner->invoke("askForAssign");
+        getResult("assignRolesCommand", owner);
+
+        if(result.isEmpty() || result == ".")
+            assignRoles();
+        else{
+            QStringList assignments = result.split("+");
+            for(int i=0; i<assignments.length(); i++){
+                QString assignment = assignments.at(i);
+                QStringList texts = assignment.split(":");
+                QString name = texts.value(0);
+                QString role = texts.value(1);
+
+                ServerPlayer *player = findChild<ServerPlayer *>(name);
+                setPlayerProperty(player, "role", role);
+
+                players.swap(i, players.indexOf(player));
+            }
         }
     }else{
         assignRoles();
@@ -1404,14 +1425,6 @@ void Room::run(){
     // initialize random seed for later use
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 
-
-    if(Config.value("FreeAssign", false).toBool() && scenario == NULL
-       && !QRegExp("^\\d\\d_\\dv\\d$").exactMatch(mode) && owner->getState() == "online")
-    {
-        owner->invoke("askForAssign");
-        return;
-    }
-
     prepareForStart();
 
     bool using_countdown = true;
@@ -1443,10 +1456,36 @@ void Room::run(){
 
         connect(thread_1v1, SIGNAL(finished()), this, SLOT(startGame()));
     }else if(mode == "04_1v3"){
-        HulaoPassThread *hulao_thread = new HulaoPassThread(this);
-        hulao_thread->start();
+        ServerPlayer *lord = players.first();
+        setPlayerProperty(lord, "general", "shenlvbu1");
 
-        connect(hulao_thread, SIGNAL(finished()), this, SLOT(startGame()));
+        const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
+        const Package *windpack = Sanguosha->findChild<const Package *>("wind");
+
+        QList<const General *> generals = stdpack->findChildren<const General *>();
+        generals << windpack->findChildren<const General *>();
+
+        QStringList names;
+        foreach(const General *general, generals){
+            names << general->objectName();
+        }
+
+        names.removeOne("wuxingzhuge");
+        names.removeOne("zhibasunquan");
+
+        foreach(ServerPlayer *player, players){
+            if(player == lord)
+                continue;
+
+            qShuffle(names);
+            QStringList choices = names.mid(0, 3);
+            QString name = askForGeneral(player, choices);
+
+            setPlayerProperty(player, "general", name);
+            names.removeOne(name);
+        }
+
+        startGame();
     }else{
         chooseGenerals();
         startGame();
@@ -1456,27 +1495,12 @@ void Room::run(){
 void Room::assignRoles(){
     int n = players.count(), i;
 
-    char roles[100];
-    Sanguosha->getRoles(mode, roles);
-
-    for(i=0; i<n; i++){
-        int r = qrand() % (n - i) + i;
-
-        qSwap(roles[i], roles[r]);
-    }
+    QStringList roles = Sanguosha->getRoleList(mode);
+    qShuffle(roles);
 
     for(i=0; i<n; i++){
         ServerPlayer *player = players[i];
-
-        QString role;
-        switch(roles[i]){
-        case 'Z': role = "lord"; break;
-        case 'C': role = "loyalist"; break;
-        case 'F': role = "rebel"; break;
-        case 'N': role = "renegade"; break;
-        }
-
-        Q_ASSERT(!role.isEmpty());
+        QString role = roles.at(i);
 
         player->setRole(role);
         if(role == "lord")
@@ -1621,6 +1645,9 @@ void Room::useCard(const CardUseStruct &card_use, bool add_history){
         new_use.card = card;
         useCard(new_use);
     }
+
+    if(card->isVirtualCard())
+        delete card;
 }
 
 void Room::loseHp(ServerPlayer *victim, int lose){

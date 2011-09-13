@@ -634,6 +634,16 @@ function SmartAI:getFriends(player)
 	end
 end
 
+function SmartAI:getEnemies(player)
+	if self:isFriend(self.player, player) then
+		return self.enemies
+	elseif self:isEnemy(self.player, player) then
+		return self.friends
+	else 
+		return {}
+	end
+end
+
 function SmartAI:isFriend(other, another)
 	if another then 
 		if self.lua_ai:isFriend(other) and self.lua_ai:isFriend(another) then return true end
@@ -1677,6 +1687,27 @@ function SmartAI:getPeachNum()
 	return index
 end
 
+function SmartAI:getAllPeachNum()
+	local n = 0
+	for _, friend in ipairs(self.friends) do
+		n = n + self:getPeachNum(friend)
+	end
+	return n
+end
+
+function SmartAI:getAnalepticNum(player)
+	player = player or self.player
+	local n = 0
+	local cards = player:getCards("h")
+	for _, card in sgs.qlist(cards) do
+		if self:canViewAs(card, "Analeptic", player) then		
+			n = n + 1
+		end
+	end
+	return n
+end
+
+
 function SmartAI:useTrickCard(card, use)
 	if card:inherits("AOE") then
 		if self.player:hasSkill("wuyan") then return end
@@ -2345,6 +2376,14 @@ function SmartAI:askForCardChosen(who, flags, reason)
 				end
 			end
 		end
+		if flags:match("h") then
+			if not who:isKongcheng() then
+				local cards = who:getHandcards()
+				cards = sgs.QList2Table(cards)
+				self:sortByUseValue(cards)
+				return cards[1]:getId()
+			end
+		end
         
         if not who:isKongcheng() then
 			return -1
@@ -3005,6 +3044,26 @@ end
 function SmartAI:getOverflow(player)
 	player = player or self.player
 	return math.max(player:getHandcardNum() - player:getHp(), 0)
+end
+
+function SmartAI:hasSuit(suit_strings, include_equip, player)
+	return self:getSuitNum(suit_strings, include_equip, player) > 0
+end
+
+function SmartAI:getSuitNum(suit_strings, include_equip, player)
+	player = player or self.player
+	local n = 0
+	local flag = "h"
+	if include_equip then flag = "he" end
+	local allcards = player:getCards(flag)	
+	for _, card in sgs.qlist(allcards) do
+		for _, suit_string in ipairs(suit_strings:split("|")) do
+			if card:getSuitString() == suit_string then
+				n = n + 1
+			end
+		end	
+	end
+	return n
 end
 
 function SmartAI:isWeak(player)
