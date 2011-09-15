@@ -1,7 +1,5 @@
 --qiaobian
 local function card_for_qiaobian(self, who, return_prompt)
-	sgs.ai_skill_info.qiaobian["who"] = who
-	
 	local card, target
 	if self:isFriend(who) then
 		local judges = who:getCards("j")
@@ -73,18 +71,11 @@ sgs.ai_skill_cardchosen.qiaobian = function(self, who, flags)
 end
 
 sgs.ai_skill_playerchosen.qiaobian = function(self, targets)
-	local who = sgs.ai_skill_info.qiaobian["who"]
+	local who = self.room:getTag("QiaobianTarget"):toPlayer()
 	if who then
 		return card_for_qiaobian(self, who, "target")
 	end
 end
-
-sgs.ai_skill_info = {}
-
-sgs.ai_skill_info.qiaobian = 
-{
-	who = nil,
-}
 
 sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
     self:updatePlayers()
