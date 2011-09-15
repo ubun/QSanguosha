@@ -77,7 +77,7 @@ Engine::Engine()
     addPackage(NewSP());
     addPackage(NewYJCM());
     addPackage(NewYitian());
-    // addPackage(NewWisdom());
+    addPackage(NewWisdom());
 
     {
         Package *test_package = new Package("test");
@@ -117,12 +117,12 @@ Engine::Engine()
     modes["06_3v3"] = tr("6 players (3v3)");
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
-    /*modes["08pd"] = tr("8 players (2 renegades)");
+    modes["08pd"] = tr("8 players (2 renegades)");
     modes["08boss"] = tr("8 players (boss mode)");
     modes["08same"] = tr("8 players (same mode)");
     modes["09p"] = tr("9 players");
     modes["10p"] = tr("10 players");
-*/
+
     //challenge_mode_set = NULL;
     challenge_mode_set = new ChallengeModeSet(this);
     //addPackage(challenge_mode_set);
