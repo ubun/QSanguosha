@@ -456,6 +456,8 @@ int Player::getMaxCards() const{
                 xueyi += 2;
         }
     }
+    if(hasSkill("pt_kezhi"))
+        xueyi ++;
 
     int shenwei = 0;
     if(hasSkill("shenwei"))
