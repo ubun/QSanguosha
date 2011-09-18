@@ -41,6 +41,7 @@ extern "C" {
     Package *NewYJCM();
     Package *NewGoldSeintoPre();
     Package *NewWisdom();
+    Package *NewTest();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -79,13 +80,7 @@ Engine::Engine()
     addPackage(NewGoldSeintoPre());
     addPackage(NewYitian());
     // addPackage(NewWisdom());
-
-    {
-        Package *test_package = new Package("test");
-        (new General(test_package, "sujiang", "god", 5, true, true));
-        (new General(test_package, "sujiangf", "god", 5, false, true));
-        addPackage(test_package);
-    }
+    addPackage(NewTest());
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
