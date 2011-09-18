@@ -7,64 +7,6 @@
 #include "room.h"
 #include "maneuvering.h"
 
-/*
-class Jiehuo: public TriggerSkill{
-public:
-    Jiehuo():TriggerSkill("jiehuo"){
-        events << CardUsed << CardEffected;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        ServerPlayer *shuijing = room->findPlayerBySkillName(objectName());
-        if(event == CardEffected){
-            CardEffectStruct effect = data.value<CardEffectStruct>();
-
-            if(!(effect.multiple &&
-                (effect.card->inherits("GlobalEffect") ||
-                 effect.card->inherits("AOE"))))
-                return false;
-            foreach(ServerPlayer *p,room->getAlivePlayers())
-                if(p->getMark("jiehuo") > 0)
-                    return false;
-            if(shuijing->getMark("jiehuoover")<1){
-                ServerPlayer *target = room->askForPlayerChosen(shuijing, room->getAlivePlayers(), objectName());
-                if(target){
-                    target->addMark("jiehuo");
-                    shuijing->addMark("jiehuoover");
-                }
-            }
-            else if(shuijing->getMark("jiehuoover")>0 && player->getMark("jiehuo")>0){
-                player->loseAllMarks("juehuo");
-                shuijing->loseAllMarks("jiehuoover");
-                return true;
-            }
-        }
-        else if(event == CardUsed){
-            CardUseStruct effect = data.value<CardUseStruct>();
-
-            if(effect.card->inherits("TrickCard") &&
-               !effect.card->inherits("Collateral") &&
-               effect.to.contains(shuijing) && effect.to.length() > 1){
-                Room *room = player->getRoom();
-                if(room->askForSkillInvoke(shuijing, objectName(), data)){
-                    ServerPlayer *target = room->askForPlayerChosen(shuijing, effect.to, objectName());
-                    if(target)
-                        effect.to.removeOne(target);
-                    data = QVariant::fromValue(effect);
-                    return false;
-                }
-            }
-        }
-        return false;
-    }
-};
-*/
-
 TongmouCard::TongmouCard(){
     target_fixed = true;
 }
@@ -103,10 +45,6 @@ class TongmouViewAsSkill: public ZeroCardViewAsSkill{
 public:
     TongmouViewAsSkill():ZeroCardViewAsSkill("tongmouv"){
     }
-    /*
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("xoxo") > 0;
-    }*/
     virtual const Card *viewAs() const{
         return new TongmouCard;
     }
@@ -129,7 +67,6 @@ public:
 class Tongmou: public PhaseChangeSkill{
 public:
     Tongmou():PhaseChangeSkill("tongmou"){
-        //frequency = Frequent;
         view_as_skill = new TongmouAsSkill;
     }
 
@@ -179,13 +116,7 @@ public:
             player->tag["flag"] = true;
             gay->addMark("xoxo");
             zhonghui->addMark("xoxo");
-            /*
-            LogMessage log;
-            log.type = "#tm_get";
-            log.from = player;
-            log.to << room->findPlayerBySkillName(objectName());
-            room->sendLog(log);
-            */
+
             room->attachSkillToPlayer(gay, "tongmouv");
         }
         else if(player != zhonghui && player->getMark("xoxo") > 0 && player->getPhase() == Player::Play){
@@ -255,7 +186,6 @@ class BaichuEffect: public TriggerSkill{
 public:
     BaichuEffect():TriggerSkill("#baichueffect"){
         events << TurnStart << PhaseChange << CardUsed;
-        //frequency = Frequent;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -357,6 +287,92 @@ void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     source->addToPile("ji", this->getSubcards().first(), false);
 }
 
+class TongluSkill: public TriggerSkill{
+public:
+    TongluSkill():TriggerSkill("#tong_lu"){
+        events << SlashMissed << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == SlashMissed){
+            player->loseAllMarks("@wocao");
+            return false;
+        }
+        DamageStruct damage = data.value<DamageStruct>();
+        int x = player->getMark("@wocao");
+        if(damage.card && damage.card->inherits("Slash") && x > 0){
+            damage.damage += x;
+            player->loseAllMarks("@wocao");
+            data = QVariant::fromValue(damage);
+
+            LogMessage log;
+            log.type = "#TongluBuff";
+            log.from = player;
+            log.arg = QString::number(x);
+            log.arg2 = QString::number(damage.damage);
+            player->getRoom()->sendLog(log);
+        }
+
+        return false;
+    }
+};
+
+class Tonglu: public ZeroCardViewAsSkill{
+public:
+    Tonglu():ZeroCardViewAsSkill("tonglu"){}
+    virtual const Card *viewAs() const{
+        return new TongluCard;
+    }
+};
+
+TongluCard::TongluCard(){
+    target_fixed = true;
+}
+
+void TongluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    QList<ServerPlayer *> players;
+    foreach(ServerPlayer *tmp, room->getOtherPlayers(source)){
+        if(tmp->faceUp())
+            players << tmp;
+    }
+    if(players.isEmpty())
+        return;
+    source->setMark("@wocao", 0);
+    foreach(ServerPlayer *tmp, players){
+        QString result = room->askForChoice(tmp, "tonglu", "agree+deny");
+        if(tmp->getState() == "robot"){
+            if(tmp->getRole() == source->getRole())
+                result = "agree";
+            else if(source->getRole() == "lord" && tmp->getRole() == "loyalist")
+                result == "agree";
+            else
+                result = "deny";
+        }
+        if(result != "deny"){
+            tmp->turnOver();
+            source->gainMark("@wocao", 1);
+        }
+    }
+}
+
+class Liehou: public PhaseChangeSkill{
+public:
+    Liehou():PhaseChangeSkill("liehou"){
+        frequency = Compulsory;
+    }
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::Finish && !player->hasUsed("TongluCard")){
+            LogMessage log;
+            log.type = "#Liehou";
+            log.arg = objectName();
+            log.from = player;
+            player->getRoom()->sendLog(log);
+
+            player->drawCards(1);
+        }
+        return false;
+    }
+};
 
 RedPackage::RedPackage()
     :Package("red")
@@ -372,11 +388,18 @@ RedPackage::RedPackage()
     redxunyou->addSkill(new BaichuEffect);
     related_skills.insertMulti("baichu", "#baichueffect");
 
+    General *redhejin = new General(this, "redhejin", "qun", 4);
+    redhejin->addSkill(new Tonglu);
+    redhejin->addSkill(new TongluSkill);
+    redhejin->addSkill(new Liehou);
+    related_skills.insertMulti("tonglu", "#tong_lu");
+
     skills << new TongmouViewAsSkill;;
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();
     addMetaObject<BaichuCard>();
+    addMetaObject<TongluCard>();
 }
 
 ADD_PACKAGE(Red)

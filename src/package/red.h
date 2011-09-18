@@ -5,6 +5,64 @@
 #include "card.h"
 #include "standard.h"
 
+/*
+class Jiehuo: public TriggerSkill{
+public:
+    Jiehuo():TriggerSkill("jiehuo"){
+        events << CardUsed << CardEffected;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *shuijing = room->findPlayerBySkillName(objectName());
+        if(event == CardEffected){
+            CardEffectStruct effect = data.value<CardEffectStruct>();
+
+            if(!(effect.multiple &&
+                (effect.card->inherits("GlobalEffect") ||
+                 effect.card->inherits("AOE"))))
+                return false;
+            foreach(ServerPlayer *p,room->getAlivePlayers())
+                if(p->getMark("jiehuo") > 0)
+                    return false;
+            if(shuijing->getMark("jiehuoover")<1){
+                ServerPlayer *target = room->askForPlayerChosen(shuijing, room->getAlivePlayers(), objectName());
+                if(target){
+                    target->addMark("jiehuo");
+                    shuijing->addMark("jiehuoover");
+                }
+            }
+            else if(shuijing->getMark("jiehuoover")>0 && player->getMark("jiehuo")>0){
+                player->loseAllMarks("juehuo");
+                shuijing->loseAllMarks("jiehuoover");
+                return true;
+            }
+        }
+        else if(event == CardUsed){
+            CardUseStruct effect = data.value<CardUseStruct>();
+
+            if(effect.card->inherits("TrickCard") &&
+               !effect.card->inherits("Collateral") &&
+               effect.to.contains(shuijing) && effect.to.length() > 1){
+                Room *room = player->getRoom();
+                if(room->askForSkillInvoke(shuijing, objectName(), data)){
+                    ServerPlayer *target = room->askForPlayerChosen(shuijing, effect.to, objectName());
+                    if(target)
+                        effect.to.removeOne(target);
+                    data = QVariant::fromValue(effect);
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+};
+*/
+
 class TongmouCard: public SkillCard{
     Q_OBJECT
 
@@ -29,6 +87,15 @@ class BaichuCard: public SkillCard{
 
 public:
     Q_INVOKABLE BaichuCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class TongluCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TongluCard();
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };

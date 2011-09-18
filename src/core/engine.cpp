@@ -79,7 +79,7 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     // addPackage(NewWisdom());
-    //addPackage(NewRed());
+    addPackage(NewRed());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
