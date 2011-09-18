@@ -81,7 +81,8 @@ SOURCES += src/main.cpp \
         src/util/recorder.cpp \
         swig/sanguosha_wrap.cxx \
     src/ui/indicatoritem.cpp \
-    src/dialog/roleassigndialog.cpp
+    src/dialog/roleassigndialog.cpp \
+    src/package/red.cpp
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -159,7 +160,8 @@ HEADERS += src/client/aux-skills.h \
 	src/util/recorder.h \
 	src/util/socket.h \ 
     src/ui/indicatoritem.h \
-    src/dialog/roleassigndialog.h
+    src/dialog/roleassigndialog.h \
+    src/package/red.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
