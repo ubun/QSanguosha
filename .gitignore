@@ -11,3 +11,4 @@ records/*
 users.db
 doc/*.html
 swig/*.bat
+*.bat

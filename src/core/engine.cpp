@@ -40,6 +40,8 @@ extern "C" {
     Package *NewSP();
     Package *NewYJCM();
     Package *NewWisdom();
+    Package *NewGoldSeintoPre();
+    Package *NewGoldSeinto();
     Package *NewTest();
 
     Package *NewStandardCard();
@@ -77,7 +79,9 @@ Engine::Engine()
     addPackage(NewSP());
     addPackage(NewYJCM());
     addPackage(NewYitian());
-    // addPackage(NewWisdom());
+    addPackage(NewWisdom());
+    addPackage(NewGoldSeintoPre());
+    addPackage(NewGoldSeinto());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
