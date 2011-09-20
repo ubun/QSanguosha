@@ -12,28 +12,26 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
 };
 
-/*
-class JiaohuangCard: public SkillCard{
+class Huan2longCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE JiaohuangCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-};
-
-class HuanlongCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE HuanlongCard();
+    Q_INVOKABLE Huan2longCard();
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class BaolunCard: public SkillCard{
+class YinheCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YinheCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+/*class BaolunCard: public SkillCard{
     Q_OBJECT
 
 public:

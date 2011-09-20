@@ -326,9 +326,9 @@ public:
         log.from = gemini;
         room->sendLog(log);
 
-        gemini->gainMark("@star", 5);
-        gemini->drawCards(5);
-        QList<int> stars = gemini->handCards().mid(0, 5);
+        gemini->gainMark("@star", 7);
+        gemini->drawCards(7);
+        QList<int> stars = gemini->handCards().mid(0, 7);
         foreach(int card_id, stars)
             gemini->addToPile("stars", card_id, false);
 /*        for(int star = 1; star < 5; star++)
