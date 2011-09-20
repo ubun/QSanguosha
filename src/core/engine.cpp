@@ -382,7 +382,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "st";
 
     return kingdoms;
 }
@@ -395,6 +395,7 @@ QColor Engine::getKingdomColor(const QString &kingdom) const{
         color_map["wu"] = QColor(0x4D, 0xB8, 0x73);
         color_map["qun"] = QColor(0x8A, 0x80, 0x7A);
         color_map["god"] = QColor(0x96, 0x94, 0x3D);
+        color_map["st"] = QColor(0x96, 0x94, 0x3D);
     }
 
     return color_map.value(kingdom);
