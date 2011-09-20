@@ -160,7 +160,6 @@ class ExNihilo: public SingleTargetTrick{
 
 public:
     Q_INVOKABLE ExNihilo(Card::Suit suit, int number);
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
@@ -211,7 +210,6 @@ public:
     Disaster(Card::Suit suit, int number);
 
     virtual bool isAvailable(const Player *player) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
 class Lightning: public Disaster{
