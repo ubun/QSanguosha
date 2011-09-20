@@ -79,7 +79,7 @@ Engine::Engine()
     addPackage(NewSP());
     addPackage(NewYJCM());
     addPackage(NewYitian());
-    // addPackage(NewWisdom());
+    addPackage(NewWisdom());
     addPackage(NewGoldSeintoPre());
     addPackage(NewGoldSeinto());
     addPackage(NewTest());
