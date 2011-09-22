@@ -798,8 +798,10 @@ public:
         player->setMark("shanyao", 1);
 
         room->loseMaxHp(player);
-        room->acquireSkill(player, "liegong");
-        room->acquireSkill(player, "buqu");
+        if(player->getHandcardNum() >= player->getHp())
+            room->acquireSkill(player, "liegong");
+        else
+            room->acquireSkill(player, "buqu");
 
         return false;
     }
