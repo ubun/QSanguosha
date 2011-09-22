@@ -40,7 +40,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("XiufuCard");
+        return !player->hasUsed("XiufuCard") && player->isWounded();
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
