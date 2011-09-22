@@ -276,13 +276,9 @@ public:
 
 class Ciyuan: public TriggerSkill{
 public:
-    Ciyuan():TriggerSkill("ciyuan"){
-        frequency = Wake;
+    Ciyuan(): TriggerSkill("ciyuan"){
         events << DamageComplete;
-    }
-
-    virtual int getPriority() const{
-        return -1;
+        frequency = Wake;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -303,19 +299,18 @@ public:
         log.from = gemini;
         room->sendLog(log);
 
-        gemini->gainMark("@star", 7);
-        gemini->drawCards(7);
-        QList<int> stars = gemini->handCards().mid(0, 7);
-        foreach(int card_id, stars)
-            gemini->addToPile("stars", card_id, false);
-/*        for(int star = 1; star < 5; star++)
-            gemini->addToPile("stars", room->drawCard());
-*/
-        gemini->setMark("ciyuan", 1);
-
         room->loseMaxHp(gemini);
+        QList<int> cards_id = room->getNCards(7);
+        foreach(int card_id, cards_id){
+            gemini->obtainCard(Sanguosha->getCard(card_id));
+            gemini->addToPile("stars", card_id, false);
+        }
+
         room->acquireSkill(gemini, "qixing");
+        gemini->gainMark("@star", 7);
         room->acquireSkill(gemini, "dawu");
+
+        gemini->addMark("ciyuan");
 
         return false;
     }

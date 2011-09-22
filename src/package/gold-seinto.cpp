@@ -21,7 +21,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *mu = room->findPlayerBySkillName("xiufu");
         DyingStruct dying = data.value<DyingStruct>();
-        if(!mu || dying.who != player)
+        if(!mu || !mu->isLord() || dying.who != player)
             return false;
 
         const Card *cardt = room->askForCard(mu, ".H", "@xiufu");
@@ -673,15 +673,36 @@ public:
         ServerPlayer *target = event == Damage ? damage.to : damage.from;
         target->gainMark("@needle", damage.damage);
 
-        if(target->getMark("@needle") >= 10){
-            JudgeStruct judge;
-            judge.reason = objectName();
-            judge.who = target;
-            target->getRoom()->judge(judge);
+        int needle = target->getMark("@needle");
+        if(needle < 5)
+            return false;
 
+        JudgeStruct judge;
+        judge.reason = objectName();
+        judge.who = target;
+        Room *room = target->getRoom();
+        if(needle >= 5 && needle < 10 && target->getMark("needle5") == 0){
+            room->judge(judge);
+            if(judge.card->inherits("BasicCard")){
+                int frog = (qrand() % 2) + 1;
+                room->loseHp(target, frog);
+            }
+            target->setMark("needle5", 1);
+        }
+        else if(needle >= 10 && needle < 15 && target->getMark("needle10") == 0){
+            room->judge(judge);
+            if(judge.card->isRed()){
+                int frog = qrand() % 3;
+                room->loseMaxHp(target, frog);
+            }
+            target->setMark("needle10", 1);
+        }
+        else if(needle >= 15 && target->getMark("needle15") == 0){
+            room->judge(judge);
             if(judge.card->inherits("Peach") || judge.card->inherits("Analeptic")){
                 target->loseAllMarks("@needle");
                 target->throwAllCards();
+                target->setMark("needle15", 1);
             }
             else
                 target->getRoom()->killPlayer(target);
