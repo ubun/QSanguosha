@@ -35,4 +35,13 @@ return {
 	["@wocao"] = "蓄力",
 	["designer:redhejin"] = "幻象迷宫",
 	["cv:redhejin"] = "",
+
+	["redguansuo"] = "关索",
+	["xiefang"] = "撷芳",
+	[":xiefang"] = "你可以将其他角色装备区里的武器当【杀】、非武器当【闪】使用或打出",
+	["yanyun"] = "偃云",
+	[":yanyun"] = "若你使用的“撷芳”【杀】被闪避，可以继续对目标使用一张非“撷芳”【杀】",
+	["yanyun-slash"] = "您可以再打出一张非“撷芳”【杀】来发动青云的追杀效果", 
+	["designer:redguansuo"] = "宇文天启、俊逸不凡",
+	["cv:redguansuo"] = "",
 }

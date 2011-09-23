@@ -374,6 +374,150 @@ public:
     }
 };
 
+class XiefangViewAsSkill:public ZeroCardViewAsSkill{
+public:
+    XiefangViewAsSkill():ZeroCardViewAsSkill("chuanqi"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual const Card *viewAs() const{
+        return new XiefangCard;
+    }
+};
+
+XiefangCard::XiefangCard(){
+}
+
+bool XiefangCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() == 2 || targets.length() == 1;
+}
+
+bool XiefangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty()){
+        return to_select->getWeapon() && to_select != Self;
+    }else if(targets.length() == 1){
+        const Player *first = targets.first();
+        return first != Self && first->getWeapon() && Self->canSlash(to_select);
+    }else
+        return false;
+}
+
+void XiefangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    const Card *weapon = targets.at(0)->getWeapon();
+    ServerPlayer *target;
+    if(targets.length() == 1){
+        if(!Self->canSlash(targets.first()))
+            return;
+        else
+            target = targets.first();
+    }
+    else
+        target = targets.at(1);
+
+    if(weapon){
+        Slash *slash = new Slash(weapon->getSuit(), weapon->getNumber());
+        slash->setSkillName("xiefang");
+        slash->addSubcard(weapon);
+        CardUseStruct use;
+        //room->throwCard(slash->getId());
+        use.card = slash;
+        use.from = source;
+        use.to << target;
+        room->useCard(use);
+    }
+}
+
+class Xiefang: public TriggerSkill{
+public:
+    Xiefang():TriggerSkill("xiefang"){
+        events << CardAsked;
+        view_as_skill = new XiefangViewAsSkill;
+    }
+
+    virtual int getPriority() const{
+        return 1;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        QString asked = data.toString();
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> players;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+            if(asked == "slash" && tmp->getWeapon())
+                players << tmp;
+            else if(asked == "jink" &&
+                    (tmp->getArmor() || tmp->getOffensiveHorse() || tmp->getDefensiveHorse()))
+                players << tmp;
+        }
+        if(players.isEmpty())
+            return false;
+        if(room->askForSkillInvoke(player, objectName())){
+            ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
+            int card_id = asked == "slash" ?
+                          target->getWeapon()->getId() :
+                          room->askForCardChosen(player, target, "e", objectName());
+            if(asked == "jink" && target->getWeapon() && target->getWeapon()->getId() == card_id)
+                return false;
+            const Card *card = Sanguosha->getCard(card_id);
+            if(asked == "slash"){
+                Slash *slash = new Slash(card->getSuit(), card->getNumber());
+                slash->setSkillName(objectName());
+                slash->addSubcard(card);
+                room->provide(slash);
+            }
+            else if(asked == "jink"){
+                Jink *jink = new Jink(card->getSuit(), card->getNumber());
+                jink->setSkillName(objectName());
+                jink->addSubcard(card);
+                room->provide(jink);
+            }
+        }
+        return false;
+    }
+};
+
+class Yanyun: public TriggerSkill{
+public:
+    Yanyun():TriggerSkill("yanyun"){
+        events << SlashMissed;
+        frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+
+        if(effect.slash->getSkillName() != "xiefang")
+            return false;
+        if(effect.to->hasSkill("kongcheng") && effect.to->isKongcheng())
+            return false;
+
+        Room *room = player->getRoom();
+        if(!player->askForSkillInvoke(objectName(), data))
+            return false;
+        const Card *card = room->askForCard(player, "slash", "yanyun-slash");
+        if(card && card->getSkillName() != "xiefang"){
+            if(player->hasFlag("drank"))
+                room->setPlayerFlag(player, "-drank");
+
+            CardUseStruct use;
+            use.card = card;
+            use.from = player;
+            use.to << effect.to;
+            room->useCard(use, false);
+        }
+
+        return false;
+    }
+};
+
 RedPackage::RedPackage()
     :Package("red")
 {
@@ -382,6 +526,7 @@ RedPackage::RedPackage()
     redzhonghui->addSkill(new TongmouClear);
     redzhonghui->addSkill(new Xianhai);
     related_skills.insertMulti("tongmou", "#tmc");
+    skills << new TongmouViewAsSkill;
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
     redxunyou->addSkill(new Baichu);
@@ -394,12 +539,15 @@ RedPackage::RedPackage()
     redhejin->addSkill(new Liehou);
     related_skills.insertMulti("tonglu", "#tong_lu");
 
-    skills << new TongmouViewAsSkill;;
+    General *redguansuo = new General(this, "redguansuo", "shu", 3);
+    redguansuo->addSkill(new Xiefang);
+    redguansuo->addSkill(new Yanyun);
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();
     addMetaObject<BaichuCard>();
     addMetaObject<TongluCard>();
+    addMetaObject<XiefangCard>();
 }
 
 ADD_PACKAGE(Red)
