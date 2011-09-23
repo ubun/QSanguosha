@@ -7,39 +7,72 @@
 #include "maneuvering.h"
 #include "ai.h"
 
-class Jingqiang: public PhaseChangeSkill{
+class  Jingqiang: public TriggerSkill{
 public:
-    Jingqiang():PhaseChangeSkill("jingqiang"){
+    Jingqiang(): TriggerSkill("jingqiang"){
+        events << PhaseChange;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *player) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        if(player->getPhase() == Player::Finish && room->askForSkillInvoke(player, objectName())){
-            ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), "jq-choose");
-            target->gainMark("@jq");
-            room->acquireSkill(target, "jqdis");
-        }
-        else if(player->getPhase() == Player::Start){
-            foreach(ServerPlayer *p, room->getAllPlayers()){
-                if(p->getMark("@jq") > 0)
-                    p->loseMark("@jq");
+        ServerPlayer *target = NULL;
+
+        if(player->getPhase() == Player::Start){
+            foreach(ServerPlayer *p, room->getAlivePlayers()){
+                if(p->getMark("@jq") > 0){
+                    p->loseAllMarks("@jq");
+                    target = p;
+                    break;
+                }
             }
+            if(target){
+                foreach(ServerPlayer *p, room->getOtherPlayers(target)){
+                    room->setFixedDistance(p, target, -1);
+                }
+            }
+        }
+        else if(player->getPhase() == Player::Finish){
+            if(!room->askForSkillInvoke(player, objectName()))
+                return false;
+
+            target = room->askForPlayerChosen(player, room->getAlivePlayers(), objectName());
+            foreach(ServerPlayer *p, room->getOtherPlayers(target)){
+                room->setFixedDistance(p, target, target->distanceTo(p)+1);
+            }
+            target->gainMark("@jq");
         }
 
         return false;
     }
 };
 
-class Jingqiangdis: public DistanceSkill{
+class JingqiangClear: public TriggerSkill{
 public:
-    Jingqiangdis():DistanceSkill("#jqdis"){
-
+    JingqiangClear():TriggerSkill("#jingqiang-clear"){
+        events << Death;
     }
-    virtual int getCorrect(const Player *from, const Player *to) const{
-        if(to->getMark("@jq") > 0)
-            return +1;
-        else
-            return 0;
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasSkill(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> players = room->getAllPlayers();
+        ServerPlayer *target = NULL;
+        foreach(ServerPlayer *p, players){
+            if(p->getMark("@jq") > 0){
+                p->loseAllMarks("@jq");
+                target = p;
+                break;
+            }
+        }
+        if(target){
+            foreach(ServerPlayer *p, room->getOtherPlayers(target)){
+                room->setFixedDistance(p, target, -1);
+            }
+        }
+        return false;
     }
 };
 
@@ -923,6 +956,32 @@ public:
     }
 };
 
+class JiguangClear: public TriggerSkill{
+public:
+    JiguangClear():TriggerSkill("#jiguang-clear"){
+        events << Death;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasSkill("jiguang");
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
+        Room *room = player->getRoom();
+        foreach(ServerPlayer *tmp, room->getAlivePlayers()){
+            if(room->findPlayerBySkillName("jiguang")  == tmp)
+                return false;
+        }
+        foreach(ServerPlayer *tmp, room->getAlivePlayers()){
+            if(tmp->getPile("gas").isEmpty())
+                continue;
+            foreach(int i, tmp->getPile("gas"))
+                room->throwCard(i);
+        }
+        return false;
+    }
+};
+
 class Jiguang: public TriggerSkill{
 public:
     Jiguang():TriggerSkill("jiguang"){
@@ -935,8 +994,8 @@ public:
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
         Room *room = player->getRoom();
+        DamageStruct damage = data.value<DamageStruct>();
 
         ServerPlayer *target = player == damage.from ? damage.to : damage.from;
         if(target->isAlive() && !target->isKongcheng() && player->askForSkillInvoke(objectName())){
@@ -1049,8 +1108,10 @@ GoldSeintoPrePackage::GoldSeintoPrePackage()
 
     aries = new General(this, "aries$", "st");
     aries->addSkill(new Jingqiang);
+    aries->addSkill(new JingqiangClear);
     aries->addSkill(new Zhuyi);
     aries->addSkill(new Zhuanling);
+    related_skills.insertMulti("jingqiang", "#jingqiang-clear");
 
     taurus = new General(this, "taurus", "st");
     taurus->addSkill(new Haojiao);
@@ -1092,7 +1153,9 @@ GoldSeintoPrePackage::GoldSeintoPrePackage()
 
     aquarius = new General(this, "aquarius", "st", 3);
     aquarius->addSkill(new Jiguang);
+    aquarius->addSkill(new JiguangClear);
     aquarius->addSkill(new Wangqi);
+    related_skills.insertMulti("jiguang", "#jiguang-clear");
 
     pisces = new General(this, "pisces", "st", 3);
     pisces->addSkill(new Mogong);
@@ -1106,7 +1169,7 @@ GoldSeintoPrePackage::GoldSeintoPrePackage()
     addMetaObject<ZhiyanCard>();
     addMetaObject<ShengjianCard>();
 
-    skills << new Jingqiangdis << new Jiaohuang << new JiaohuangViewAsSkill << new Duanbi;
+    skills << new Jiaohuang << new JiaohuangViewAsSkill << new Duanbi;
 }
 
 ADD_PACKAGE(GoldSeintoPre)

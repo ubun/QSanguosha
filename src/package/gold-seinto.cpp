@@ -23,6 +23,8 @@ public:
         DyingStruct dying = data.value<DyingStruct>();
         if(!mu || !mu->isLord() || dying.who != player)
             return false;
+        if(dying.who->getKingdom() != "st")
+            return false;
 
         const Card *cardt = room->askForCard(mu, ".H", "@xiufu");
         if(cardt){
@@ -112,11 +114,14 @@ public:
         Room *room = player->getRoom();
         if(event == Predamage){
             DamageStruct damage = data.value<DamageStruct>();
-            CardStar card = player->tag.value("hj").value<CardStar>();
-            if(card->getSuit() == Card::Diamond)
+            if(!damage.card->inherits("Slash") || damage.from != player)
+                return false;
+            CardStar card = player->tag.value("hj", NULL).value<CardStar>();
+            if(card && card->getSuit() == Card::Diamond)
                 damage.damage ++;
-            else if(card->getSuit() == Card::Heart)
+            else if(card && card->getSuit() == Card::Heart)
                 damage.from->obtainCard(card);
+            player->tag.remove("hj");
             data = QVariant::fromValue(damage);
         }
         else if(event == SlashProceed && player->askForSkillInvoke(objectName(), data)){
@@ -128,8 +133,8 @@ public:
             judge.who = effect.from;
             room->judge(judge);
 
+            effect.from->tag["hj"] = QVariant::fromValue(judge.card);
             if(judge.isGood()){
-                effect.from->tag["hj"] = QVariant::fromValue(judge.card);
                 room->slashResult(effect, NULL);
                 return true;
             }
@@ -484,6 +489,13 @@ public:
             if(card->getSuit() == use.card->getSuit() && card->getType() == use.card->getType()){
                 if(use.from->getState() == "robot")
                     room->throwCard(use.card->getId());
+
+                LogMessage log;
+                log.type = "#BFeng";
+                log.from = use.from;
+                log.arg = use.card->getType();
+                log.arg2 = use.card->getSuitString();
+                room->sendLog(log);
                 return true;
             }
         }
