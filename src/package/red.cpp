@@ -518,6 +518,31 @@ public:
     }
 };
 
+class Jielue: public TriggerSkill{
+public:
+    Jielue():TriggerSkill("jielue"){
+        events << SlashEffect << Pindian;
+        frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == Pindian){
+            PindianStar pindian = data.value<PindianStar>();
+            if(pindian->reason == objectName() && pindian->isSuccess())
+                pindian->from->obtainCard(pindian->to_card);
+            return false;
+        }
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(effect.slash && !effect.to->isKongcheng() && effect.from->askForSkillInvoke(objectName(), data))
+            effect.from->pindian(effect.to, objectName(), effect.slash);
+        return false;
+    }
+};
+
 RedPackage::RedPackage()
     :Package("red")
 {
@@ -538,10 +563,19 @@ RedPackage::RedPackage()
     redhejin->addSkill(new TongluSkill);
     redhejin->addSkill(new Liehou);
     related_skills.insertMulti("tonglu", "#tong_lu");
+/*
+何进 群 4体力
+【同戮】出牌阶段，你可以令场上武将牌正面朝上的角色选择是否将其武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为选择翻面的武将数。
+【列侯】在你的弃牌阶段，你可选择一个背面向上的角色，将需要弃置的牌直接给予此角色，或让该角色摸一张牌。
+【自得】锁定技，若你没有发动【同戮】，回合结束时摸一张牌。
+*/
 
     General *redguansuo = new General(this, "redguansuo", "shu", 3);
     redguansuo->addSkill(new Xiefang);
     redguansuo->addSkill(new Yanyun);
+
+    General *redyanbaihu = new General(this, "redyanbaihu", "wu", 4);
+    redyanbaihu->addSkill(new Jielue);
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();

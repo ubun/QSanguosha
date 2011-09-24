@@ -25,11 +25,11 @@ return {
 	
 	["redhejin"] = "何进",
 	["tonglu"] = "同戮",
-	[":tonglu"] = "出牌阶段，你可以令场上武将牌正面朝上的角色选择A或B，选择A的角色将其武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为选A的武将数",
+	[":tonglu"] = "出牌阶段，你可以令场上武将牌正面朝上的角色依次选择是否愿意将自己的武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为愿意翻面的武将数量",
 	["liehou"] = "列侯",
 	[":liehou"] = "锁定技，回合结束阶段，若你没有发动“同戮”，立即摸一张牌",
-	["tonglu:agree"] = "我选A",
-	["tonglu:deny"] = "我选B",
+	["tonglu:agree"] = "翻翻更健康~",
+	["tonglu:deny"] = "翻你妹啊！",
 	["#TongluBuff"] = "%from 的【同戮】生效，【杀】的伤害增加了 %arg, 达到了 %arg2 点",
 	["#Liehou"] = "%from 的锁定技【%arg】被触发",
 	["@wocao"] = "蓄力",
@@ -44,4 +44,10 @@ return {
 	["yanyun-slash"] = "您可以再打出一张非“撷芳”【杀】来发动青云的追杀效果", 
 	["designer:redguansuo"] = "宇文天启、俊逸不凡",
 	["cv:redguansuo"] = "",
+
+	["redyanbaihu"] = "严白虎",
+	["jielue"] = "劫掠",
+	[":jielue"] = "出牌阶段，你使用的【杀】指定目标后，可先附带拼点的效果，若你赢，你获得目标角色的拼点牌",
+	["designer:redyanbaihu"] = "俊逸不凡",
+	["cv:redyanbaihu"] = "",
 }
