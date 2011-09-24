@@ -543,6 +543,215 @@ public:
     }
 };
 
+class Chuzhen: public PhaseChangeSkill{
+public:
+    Chuzhen():PhaseChangeSkill("chuzhen"){
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getMark("chuzhen") == 0
+                && target->getPhase() == Player::Start
+                && target->isWounded();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *pai) const{
+        Room *room = pai->getRoom();
+
+        LogMessage log;
+        log.type = "#ChuzhenWake";
+        log.from = pai;
+        room->sendLog(log);
+
+        room->setPlayerProperty(pai, "maxhp", pai->getMaxHP() + 1);
+        room->acquireSkill(pai, "linjia");
+        room->acquireSkill(pai, "zhubing");
+        room->setPlayerMark(pai, "chuzhen", 1);
+        return false;
+    }
+};
+
+class Linjia: public TriggerSkill{
+public:
+    Linjia():TriggerSkill("linjia"){
+        events << Predamaged << SlashEffected << CardEffected;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == SlashEffected){
+            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+            if(effect.nature == DamageStruct::Normal){
+                LogMessage log;
+                log.from = player;
+                log.type = "#LinjiaNullify";
+                log.arg = objectName();
+                log.arg2 = effect.slash->objectName();
+                player->getRoom()->sendLog(log);
+
+                return true;
+            }
+        }else if(event == CardEffected){
+            CardEffectStruct effect = data.value<CardEffectStruct>();
+            if(effect.card->inherits("SavageAssault")){
+                LogMessage log;
+                log.from = player;
+                log.type = "#LinjiaNullify";
+                log.arg = objectName();
+                log.arg2 = effect.card->objectName();
+                player->getRoom()->sendLog(log);
+
+                return true;
+            }
+        }else if(event == Predamaged){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(damage.nature == DamageStruct::Fire){
+                LogMessage log;
+                log.type = "#LinjiaDamage";
+                log.from = player;
+                log.arg = QString::number(damage.damage);
+                log.arg2 = QString::number(damage.damage + 1);
+                player->getRoom()->sendLog(log);
+
+                damage.damage ++;
+                data = QVariant::fromValue(damage);
+            }
+        }
+
+        return false;
+    }
+};
+
+class Zhubing: public PhaseChangeSkill{
+public:
+    Zhubing():PhaseChangeSkill("zhubing"){
+    }
+    virtual bool onPhaseChange(ServerPlayer *pai) const{
+        if(pai->getPhase() == Player::Draw){
+            Room *room = pai->getRoom();
+            if(room->askForSkillInvoke(pai, objectName())){
+                int x = pai->getLostHp(), i;
+                room->playSkillEffect(objectName(), 1);
+                bool has_spade = false;
+
+                for(i=0; i<x; i++){
+                    int card_id = room->drawCard();
+                    room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
+
+                    room->getThread()->delay();
+                    const Card *card = Sanguosha->getCard(card_id);
+                    if(card->getSuit() == Card::Spade){
+                        SavageAssault *nanmam = new SavageAssault(Card::Spade, card->getNumber());
+                        nanmam->setSkillName("zhubing");
+                        nanmam->addSubcard(card);
+                        CardUseStruct card_use;
+                        card_use.card = nanmam;
+                        card_use.from = pai;
+                        room->useCard(card_use);
+                        has_spade = true;
+                    }else
+                        room->obtainCard(pai, card_id);
+                }
+/*
+                if(has_spade)
+                    room->playSkillEffect(objectName(), 2);
+                else
+                    room->playSkillEffect(objectName(), 3);
+*/
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Xujiu: public PhaseChangeSkill{
+public:
+    Xujiu():PhaseChangeSkill("xujiu"){
+    }
+    virtual bool onPhaseChange(ServerPlayer *qiong) const{
+        if(qiong->getPhase() != Player::Start)
+            return false;
+        Room *room = qiong->getRoom();
+        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask");
+        if(card){
+            qiong->addToPile("niangA", card->getId());
+        }
+        return false;
+    }
+};
+
+class BlackPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return card->isBlack();
+    }
+};
+
+class XujiuSlash: public TriggerSkill{
+public:
+    XujiuSlash():TriggerSkill("#xujiu_slash"){
+        events << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(!damage.card->inherits("Slash") || damage.from != player)
+            return false;
+        Room *room = player->getRoom();
+        if(!player->getPile("niangA").isEmpty() && room->askForSkillInvoke(player, "xujiu", data)){
+            int card_id = player->getPile("niangA").first();
+            player->obtainCard(Sanguosha->getCard(card_id));
+            player->addToPile("niangB", card_id);
+
+            LogMessage log;
+            log.type = "#XujiuBuff";
+            log.from = player;
+            log.to << damage.to;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(damage.damage + 1);
+            room->sendLog(log);
+
+            damage.damage ++;
+            data = QVariant::fromValue(damage);
+        }
+        return false;
+    }
+};
+
+class Xuebi: public PhaseChangeSkill{
+public:
+    Xuebi():PhaseChangeSkill("xuebi"){
+        frequency = Compulsory;
+    }
+    virtual bool onPhaseChange(ServerPlayer *qiong) const{
+        if(qiong->getPhase() != Player::Finish)
+            return false;
+        int x = qiong->getPile("niangA").length();
+        int y = qiong->getPile("niangB").length();
+        if(x + y > 3){
+            Room *room = qiong->getRoom();
+            for(int i = qMax(x, y); i > 0 ;i--){
+                if(!qiong->getPile("niangA").isEmpty())
+                    room->throwCard(qiong->getPile("niangA").first());
+                if(!qiong->getPile("niangB").isEmpty())
+                    room->throwCard(qiong->getPile("niangB").first());
+            }
+            qiong->loseSkill("niangA");
+            qiong->loseSkill("niangB");
+            LogMessage log;
+            log.from = qiong;
+            log.type = "#Xuebi";
+            log.arg = objectName();
+            log.arg2 = "niangA";
+            room->sendLog(log);
+            room->loseMaxHp(qiong);
+        }
+        return false;
+    }
+};
+
 RedPackage::RedPackage()
     :Package("red")
 {
@@ -574,8 +783,19 @@ RedPackage::RedPackage()
     redguansuo->addSkill(new Xiefang);
     redguansuo->addSkill(new Yanyun);
 
-    General *redyanbaihu = new General(this, "redyanbaihu", "wu", 4);
+    General *redyanbaihu = new General(this, "redyanbaihu", "wu");
     redyanbaihu->addSkill(new Jielue);
+
+    General *redwutugu = new General(this, "redwutugu", "shu", 3);
+    redwutugu->addSkill(new Chuzhen);
+    skills << new Linjia << new Zhubing;
+
+    General *redchunyuqiong = new General(this, "redchunyuqiong", "qun");
+    redchunyuqiong->addSkill(new Xujiu);
+    redchunyuqiong->addSkill(new XujiuSlash);
+    redchunyuqiong->addSkill(new Xuebi);
+    related_skills.insertMulti("xujiu", "#xujiu_slash");
+    patterns[".black"] = new BlackPattern;
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();
