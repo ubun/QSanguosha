@@ -1060,17 +1060,26 @@ public:
             return false;
         Room *room = player->getRoom();
         ServerPlayer *pisces = room->findPlayerBySkillName(objectName());
-        if(!pisces)
+        if(!pisces || pisces->isKongcheng())
             return false;
         if(use.to.length() == 1 && use.to.contains(pisces))
             return false;
-        const Card *card = room->askForCard(pisces, ".C", "mogongshow", data);
-        if(card){
-            pisces->obtainCard(card);
+        if(!pisces->askForSkillInvoke(objectName(), data))
+            return false;
+        const Card *card = room->askForCardShow(pisces, pisces, "mogongshow");
+        //const Card *card = room->askForCard(pisces, ".C", "mogongshow", data);
+        if(card && card->getSuit() == Card::Club){
+            //pisces->obtainCard(card);
             //Show(pisces, use.from, objectName())->getSuit() == Card::Club)
-            room->showCard(pisces, card->getEffectiveId());
+            //room->showCard(pisces, card->getEffectiveId());
             use.to.clear();
             use.to << pisces;
+
+            LogMessage log;
+            log.type = "#Mogong";
+            log.arg = objectName();
+            log.from = pisces;
+            room->sendLog(log);
             data = QVariant::fromValue(use);
         }
 

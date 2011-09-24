@@ -29,6 +29,13 @@ public:
         const Card *cardt = room->askForCard(mu, ".H", "@xiufu");
         if(cardt){
             room->throwCard(cardt->getId());
+
+            LogMessage log;
+            log.type = "#Xiufu";
+            log.from = player;
+            log.to << dying.who;
+            log.arg = "xiufu";
+            room->sendLog(log);
             room->setPlayerProperty(dying.who, "hp", 1);
         }
 
@@ -88,6 +95,13 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if(room->askForCard(player, ".S", "xingmie-ask")){
             player->loseMark("@xm");
+
+            LogMessage log;
+            log.type = "#InvokeSkill";
+            log.from = player;
+            log.arg = objectName();
+            room->sendLog(log);
+
             room->broadcastInvoke("animate", "lightbox:$xingmie");
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players){
@@ -306,7 +320,7 @@ public:
         damage.nature = DamageStruct::Thunder;
 
         LogMessage log;
-        log.type = "#Dian2guang";
+        log.type = "#TriggerSkill";
         log.arg = objectName();
         log.from = player;
         player->getRoom()->sendLog(log);
@@ -328,7 +342,7 @@ public:
         if(damage.card && damage.card->inherits("Slash") &&
            room->askForCard(player, ".LZ", "@lizi", data)){
             LogMessage log;
-            log.type = "#Lizi";
+            log.type = "#InvokeSkill";
             log.arg = objectName();
             log.from = player;
             room->sendLog(log);
@@ -457,6 +471,13 @@ public:
             judge.who = damage.from;
             room->judge(judge);
 
+            LogMessage log;
+            log.type = "$Baolun";
+            log.from = damage.to;
+            log.to << damage.from;
+            log.card_str = QString::number(judge.card->getId());
+            room->sendLog(log);
+
             QVariantList card_ids = damage.from->tag["feng"].toList();
             card_ids << judge.card->getId();
             damage.from->addMark(judge.card->getSuitString());
@@ -466,8 +487,15 @@ public:
             if(damage.from->getMark("heart") > 0 &&
                damage.from->getMark("diamond") > 0 &&
                damage.from->getMark("spade") > 0 &&
-               damage.from->getMark("club") >0)
+               damage.from->getMark("club") >0){
+                LogMessage log;
+                log.type = "#BaolunDie";
+                log.arg = "feng";
+                log.from = damage.from;
+                room->sendLog(log);
+
                 room->killPlayer(damage.from);
+            }
         }
     }
 };
@@ -583,6 +611,12 @@ public:
                 if(move->from_place == Player::Equip){
                     //player->tag["lostcard"] = QVariant::fromValue(move->card_id);
                     room->moveCardTo(Sanguosha->getCard(move->card_id), player, Player::Equip);
+
+                    LogMessage log;
+                    log.type = "$Shengqi";
+                    log.from = player;
+                    log.card_str = QString::number(move->card_id);
+                    room->sendLog(log);
                     return true;
                 }
             }
@@ -689,10 +723,16 @@ public:
         if(needle < 5)
             return false;
 
+        LogMessage log;
+        log.type = "#Duzhen";
+        log.from = target;
+        log.arg = objectName();
+        Room *room = target->getRoom();
+        room->sendLog(log);
+
         JudgeStruct judge;
         judge.reason = objectName();
         judge.who = target;
-        Room *room = target->getRoom();
         if(needle >= 5 && needle < 10 && target->getMark("needle5") == 0){
             room->judge(judge);
             if(judge.card->inherits("BasicCard")){
@@ -745,7 +785,7 @@ public:
         Room *room = effect.from->getRoom();
         if(effect.nature != DamageStruct::Thunder && effect.nature != DamageStruct::Fire
            && effect.from->askForSkillInvoke(objectName(), QVariant::fromValue(effect))){
-            room->loseHp(effect.from);
+            //room->loseHp(effect.from);
             room->slashResult(effect, NULL);
             return true;
         }
@@ -915,6 +955,12 @@ public:
                 return false;
         }
         else{
+            LogMessage log;
+            log.type = "#TriggerSkill";
+            log.from = damage.from;
+            log.arg = objectName();
+            room->sendLog(log);
+
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart|spade):(.*)");
             judge.good = true;
@@ -958,6 +1004,12 @@ public:
         if(room->askForSkillInvoke(camus, objectName(), data)){
             room->loseMaxHp(camus);
             camus->setMark("ice", 4);
+
+            LogMessage log;
+            log.type = "#Binggui";
+            log.from = camus;
+            log.arg = "dongqi";
+            room->sendLog(log);
         }
         return false;
     }
