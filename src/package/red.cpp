@@ -807,13 +807,20 @@ bool GoulianCard::targetFilter(const QList<const Player *> &targets, const Playe
 void GoulianCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
     QString result = room->askForChoice(effect.to, "goulian", "a+b");
+    LogMessage log;
+    log.from = effect.to;
+    log.to << effect.from;
     if(result == "a"){
+        log.type = "#GoulianA";
+        room->sendLog(log);
         RecoverStruct recover;
         recover.who = effect.from;
         room->recover(effect.to, recover);
         effect.to->setMark("goulianA", 1);
     }
-    else if(result == "b"){
+    else{
+        log.type = "#GoulianB";
+        room->sendLog(log);
         effect.to->drawCards(2);
         effect.to->gainMark("@goulian");
         effect.from->gainMark("@goulian");
@@ -842,6 +849,12 @@ public:
                     damage.to = tmp;
                     tmp->setMark("goulianA", 0);
                     //data = QVariant::fromValue();
+                    LogMessage log;
+                    log.type = "#GoulianAdamage";
+                    log.from = tmp;
+                    log.to << player;
+                    room->sendLog(log);
+
                     DamageStruct damage2 = damage;
                     room->damage(damage2);
                     return true;
@@ -864,6 +877,12 @@ public:
         }
         else if(event == DrawNCards){
             if(player->hasSkill("goulian") && player->getMark("@goulian") > 0){
+                LogMessage log;
+                log.type = "#GoulianBdraw";
+                log.arg = objectName();
+                log.from = player;
+                room->sendLog(log);
+
                 player->loseMark("@goulian");
                 data = data.toInt() + 2;
             }
