@@ -822,9 +822,9 @@ public:
     }
 };
 
-class PBaonue: public TriggerSkill{
+class Baonue: public TriggerSkill{
 public:
-    PBaonue():TriggerSkill("baonue$"){
+    Baonue():TriggerSkill("baonue$"){
         events << Damage;
     }
 
@@ -918,7 +918,7 @@ ThicketPackage::ThicketPackage()
     dongzhuo->addSkill(new Jiuchi);
     dongzhuo->addSkill(new Roulin);
     dongzhuo->addSkill(new Benghuai);
-    dongzhuo->addSkill(new PBaonue);
+    dongzhuo->addSkill(new Baonue);
 
     addMetaObject<DimengCard>();
     addMetaObject<LuanwuCard>();

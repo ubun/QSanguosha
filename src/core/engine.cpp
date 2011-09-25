@@ -40,6 +40,7 @@ extern "C" {
     Package *NewSP();
     Package *NewYJCM();
     Package *NewWisdom();
+    Package *NewTest();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -57,7 +58,6 @@ extern "C" {
     Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
-    Scenario *NewPassModeScenario();
 }
 
 extern "C" {
@@ -78,13 +78,7 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     addPackage(NewWisdom());
-
-    {
-        Package *test_package = new Package("test");
-        (new General(test_package, "sujiang", "god", 5, true, true));
-        (new General(test_package, "sujiangf", "god", 5, false, true));
-        addPackage(test_package);
-    }
+    addPackage(NewTest());
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
@@ -102,7 +96,6 @@ Engine::Engine()
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
-    addScenario(NewPassModeScenario());
 
     // available game modes
     modes["02p"] = tr("2 players");

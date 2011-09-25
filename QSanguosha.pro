@@ -55,7 +55,6 @@ SOURCES += src/main.cpp \
 	src/scenario/legend-mode-scenario.cpp \
 	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
-	src/scenario/pass-mode-scenario.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
 	src/server/ai.cpp \
 	src/server/contestdb.cpp \
@@ -133,7 +132,6 @@ HEADERS += src/client/aux-skills.h \
 	src/scenario/legend-mode-scenario.h \
 	src/scenario/scenario.h \
 	src/scenario/scenerule.h \
-	src/scenario/pass-mode-scenario.h \
 	src/scenario/zombie-mode-scenario.h \
 	src/server/ai.h \
 	src/server/contestdb.h \

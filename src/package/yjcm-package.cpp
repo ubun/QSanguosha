@@ -334,12 +334,12 @@ public:
     }
 };
 
-PXuanhuoCard::PXuanhuoCard(){
+XuanhuoCard::XuanhuoCard(){
     once = true;
     will_throw = false;
 }
 
-void PXuanhuoCard::onEffect(const CardEffectStruct &effect) const{
+void XuanhuoCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->obtainCard(this);
 
     Room *room = effect.from->getRoom();
@@ -354,14 +354,14 @@ void PXuanhuoCard::onEffect(const CardEffectStruct &effect) const{
         room->moveCardTo(card, target, Player::Hand, false);
 }
 
-class PXuanhuo: public OneCardViewAsSkill{
+class Xuanhuo: public OneCardViewAsSkill{
 public:
-    PXuanhuo():OneCardViewAsSkill("xuanhuo"){
+    Xuanhuo():OneCardViewAsSkill("xuanhuo"){
 
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("PXuanhuoCard");
+        return ! player->hasUsed("XuanhuoCard");
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -369,7 +369,7 @@ public:
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
-        PXuanhuoCard *card = new PXuanhuoCard;
+        XuanhuoCard *card = new XuanhuoCard;
         card->addSubcard(card_item->getFilteredCard());
         return card;
     }
@@ -586,7 +586,7 @@ public:
     Xianzhen():TriggerSkill("xianzhen"){
         view_as_skill = new XianzhenViewAsSkill;
 
-        events << PhaseChange << SlashEffect << SlashHit << SlashMissed;
+        events << PhaseChange << CardUsed << CardFinished;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *gaoshun, QVariant &data) const{
@@ -597,12 +597,13 @@ public:
                 Room *room = gaoshun->getRoom();
                 room->setFixedDistance(gaoshun, target, -1);
                 gaoshun->tag.remove("XianzhenTarget");
+                target->removeMark("qinggang");
             }
         }else{
-            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+            CardUseStruct use = data.value<CardUseStruct>();
 
-            if(effect.to == target){
-                if(event == SlashEffect)
+            if(target && use.to.contains(target)){
+                if(event == CardUsed)
                     target->addMark("qinggang");
                 else
                     target->removeMark("qinggang");
@@ -928,7 +929,7 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
 
     General *fazheng = new General(this, "fazheng", "shu", 3);
     fazheng->addSkill(new Enyuan);
-    fazheng->addSkill(new PXuanhuo);
+    fazheng->addSkill(new Xuanhuo);
 
     patterns.insert(".enyuan", new EnyuanPattern);
 
@@ -958,7 +959,7 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
     addMetaObject<GanluCard>();
     addMetaObject<XianzhenCard>();
     addMetaObject<XianzhenSlashCard>();
-    addMetaObject<PXuanhuoCard>();
+    addMetaObject<XuanhuoCard>();
     addMetaObject<XinzhanCard>();
 }
 

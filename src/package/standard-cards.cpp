@@ -82,10 +82,6 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
         slash_targets ++;
     }
 
-    if(Self->hasSkill("plongwei") && Self->getWeapon() != NULL){
-        slash_targets ++;
-    }
-
     if(Self->hasSkill("shenji") && Self->getWeapon() == NULL)
         slash_targets = 3;
 
@@ -132,7 +128,8 @@ void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
     if(targets.isEmpty())
         room->cardEffect(this, source, source);
     else
-        room->cardEffect(this, source, targets.first());
+        foreach(ServerPlayer *tmp, targets)
+            room->cardEffect(this, source, tmp);
 }
 
 void Peach::onEffect(const CardEffectStruct &effect) const{
@@ -489,10 +486,10 @@ AmazingGrace::AmazingGrace(Suit suit, int number)
     setObjectName("amazing_grace");
 }
 
-void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     room->throwCard(this);
 
-    QList<ServerPlayer *> players = room->getAllPlayers();
+    QList<ServerPlayer *> players = targets.isEmpty() ? room->getAllPlayers() : targets;
     QList<int> card_ids = room->getNCards(players.length());
     room->fillAG(card_ids);
 
@@ -596,11 +593,17 @@ void SingleTargetTrick::use(Room *room, ServerPlayer *source, const QList<Server
     CardEffectStruct effect;
     effect.card = this;
     effect.from = source;
-    effect.to = targets.first();
-
-    room->cardEffect(effect);
+    if(!targets.isEmpty()){
+        foreach(ServerPlayer *tmp, targets){
+            effect.to = tmp;
+            room->cardEffect(effect);
+        }
+    }
+    else{
+        effect.to = source;
+        room->cardEffect(effect);
+    }
 }
-
 
 Collateral::Collateral(Card::Suit suit, int number)
     :SingleTargetTrick(suit, number, false)
@@ -682,16 +685,6 @@ ExNihilo::ExNihilo(Suit suit, int number)
 {
     setObjectName("ex_nihilo");
     target_fixed = true;
-}
-
-void ExNihilo::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->throwCard(this);
-
-    CardEffectStruct effect;
-    effect.from = effect.to = source;
-    effect.card = this;
-
-    room->cardEffect(effect);
 }
 
 void ExNihilo::onEffect(const CardEffectStruct &effect) const{
@@ -856,10 +849,6 @@ bool Disaster::isAvailable(const Player *player) const{
         return false;
 
     return ! player->isProhibited(player, this);
-}
-
-void Disaster::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->moveCardTo(this, source, Player::Judging);
 }
 
 Lightning::Lightning(Suit suit, int number):Disaster(suit, number){

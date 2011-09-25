@@ -456,8 +456,6 @@ int Player::getMaxCards() const{
                 xueyi += 2;
         }
     }
-    if(hasSkill("pt_kezhi"))
-        xueyi ++;
 
     int shenwei = 0;
     if(hasSkill("shenwei"))
@@ -685,16 +683,12 @@ bool Player::isProhibited(const Player *to, const Card *card) const{
 bool Player::canSlashWithoutCrossbow() const{
     if(hasSkill("paoxiao"))
         return true;
-    if(hasFlag("pwenjiu"))
-        return false;
 
     int slash_count = getSlashCount();
-    int allow_count = 1 ;
     if(hasFlag("tianyi_success"))
-        allow_count ++ ;
-    if(hasSkill("pt_nuhou"))
-        allow_count ++ ;
-    return slash_count < allow_count;
+        return slash_count < 2;
+    else
+        return slash_count < 1;
 }
 
 void Player::jilei(const QString &type){
