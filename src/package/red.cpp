@@ -355,15 +355,83 @@ void TongluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     }
 }
 
-class Liehou: public PhaseChangeSkill{
+class Liehou: public TriggerSkill{
 public:
-    Liehou():PhaseChangeSkill("liehou"){
+    Liehou():TriggerSkill("liehou"){
+        events << CardDiscarded << PhaseChange;
+        default_choice = "draw";
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> sbmen;
+        foreach(ServerPlayer *tmp, room->getAllPlayers()){
+            if(!tmp->faceUp())
+                sbmen << tmp;
+        }
+        if(event == PhaseChange){
+            if(player->getPhase() == Player::Finish && !player->hasFlag("liehou_on") && !sbmen.isEmpty()){
+                QString result = room->askForChoice(player, objectName(), "draw+cancel");
+                if(result == "cancel")
+                    return false;
+                LogMessage log;
+                log.type = "#InvokeSkill";
+                log.arg = objectName();
+                log.from = player;
+                room->sendLog(log);
+                ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
+                target->drawCards(1);
+            }
+            return false;
+        }
+        if(player->getPhase() == Player::Discard && !sbmen.isEmpty()){
+            QVariantList lh = player->tag["Liehou"].toList();
+
+            CardStar card = data.value<CardStar>();
+            foreach(int card_id, card->getSubcards()){
+                lh << card_id;
+            }
+            player->tag["Liehou"] = lh;
+
+            QString result = room->askForChoice(player, objectName(), "get+draw+cancel");
+            player->setFlags("liehou_on");
+            if(result == "cancel")
+                return false;
+            LogMessage log;
+            log.type = "#InvokeSkill";
+            log.arg = objectName();
+            log.from = player;
+            room->sendLog(log);
+
+            ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
+            if(result == "draw")
+                target->drawCards(1);
+            else{
+                log.type = "#Liehou";
+                log.arg = QString::number(lh.length());
+                log.to << target;
+                room->sendLog(log);
+
+                foreach(QVariant card_data, player->tag["Liehou"].toList()){
+                    int card_id = card_data.toInt();
+                    if(room->getCardPlace(card_id) == Player::DiscardedPile)
+                        target->obtainCard(Sanguosha->getCard(card_id));
+                }
+            }
+        }
+        return false;
+    }
+};
+
+class Zide: public PhaseChangeSkill{
+public:
+    Zide():PhaseChangeSkill("zide"){
         frequency = Compulsory;
     }
     virtual bool onPhaseChange(ServerPlayer *player) const{
         if(player->getPhase() == Player::Finish && !player->hasUsed("TongluCard")){
             LogMessage log;
-            log.type = "#Liehou";
+            log.type = "#TriggerSkill";
             log.arg = objectName();
             log.from = player;
             player->getRoom()->sendLog(log);
@@ -376,7 +444,7 @@ public:
 
 class XiefangViewAsSkill:public ZeroCardViewAsSkill{
 public:
-    XiefangViewAsSkill():ZeroCardViewAsSkill("chuanqi"){
+    XiefangViewAsSkill():ZeroCardViewAsSkill("xiefang"){
 
     }
 
@@ -537,6 +605,8 @@ public:
             return false;
         }
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(effect.slash->getNumber() == 0)
+            return false;
         if(effect.slash && !effect.to->isKongcheng() && effect.from->askForSkillInvoke(objectName(), data))
             effect.from->pindian(effect.to, objectName(), effect.slash);
         return false;
@@ -910,12 +980,13 @@ RedPackage::RedPackage()
     redhejin->addSkill(new Tonglu);
     redhejin->addSkill(new TongluSkill);
     redhejin->addSkill(new Liehou);
+    redhejin->addSkill(new Zide);
     related_skills.insertMulti("tonglu", "#tong_lu");
 /*
 何进 群 4体力
-【同戮】出牌阶段，你可以令场上武将牌正面朝上的角色选择是否将其武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为选择翻面的武将数。
-【列侯】在你的弃牌阶段，你可选择一个背面向上的角色，将需要弃置的牌直接给予此角色，或让该角色摸一张牌。
-【自得】锁定技，若你没有发动【同戮】，回合结束时摸一张牌。
+【同戮】出牌阶段，你可以令场上武将牌正面朝上的角色依次选择是否愿意将自己的武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为愿意翻面的武将数量
+【列侯】弃牌阶段弃牌后，你可选择一个背面向上的角色，令其获得你弃掉的牌或摸一张牌
+【自得】锁定技，回合结束阶段，若你在本回合内没有发动“同戮”，立即摸一张牌
 */
 
     General *redguansuo = new General(this, "redguansuo", "shu", 3);
