@@ -76,4 +76,16 @@ return {
 	["xuebi"] = "削鼻",
 	[":xuebi"] = "锁定技，回合结束阶段，若你的“酿”大于三张，必须立即弃掉所有“酿”并减去一点体力上限",
 	["#Xuebi"] = "%from 的锁定技【%arg】被触发，失去了一点体力上限和所有的 %arg2",
+
+--http://www.qsanguosha.com/forum.php?mod=viewthread&tid=4995
+	["redsunluban"] = "孙鲁班",
+	["designer:redsunluban"] = "天狼欧阳杉",
+	["cv:redsunluban"] = "",
+	["jiaochong"] = "骄宠",
+	[":jiaochong"] = "摸牌阶段摸牌后，你可以弃掉摸到的牌，重新摸取等量的牌，每阶段限用一次",
+	["goulian"] = "媾连",
+	[":goulian"] = "出牌阶段，你可以弃一张手牌并选择一名男性角色，该角色进行二选一：1.回复1点体力，并在你的下回合开始前替你承担一点伤害；2.摸两张牌，跳过该角色下回合的摸牌阶段，并令你下回合摸牌阶段额外摸两张牌。每阶段限一次",
+	["goulian:a"] = "回复1点体力",
+	["goulian:b"] = "摸两张牌",
+	["@goulian"] = "媾连",
 }

@@ -752,6 +752,126 @@ public:
     }
 };
 
+class Jiaochong: public PhaseChangeSkill{
+public:
+    Jiaochong():PhaseChangeSkill("jiaochong"){
+
+    }
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::Draw)
+            player->tag["card_num"] = player->getHandcardNum();
+        else if(player->getPhase() == Player::Play){
+            Room *room = player->getRoom();
+            int num = player->getHandcardNum() - player->tag.value("card_num").toInt();
+            if(num > 0 && player->askForSkillInvoke(objectName())){
+                QList<int> cards = player->handCards().mid(player->tag.value("card_num").toInt());
+                for(int i = cards.length(); i >0; i--)
+                    room->throwCard(cards.at(i-1));
+                player->drawCards(num);
+            }
+        }
+        return false;
+    }
+};
+
+class GoulianViewAsSkill: public OneCardViewAsSkill{
+public:
+    GoulianViewAsSkill():OneCardViewAsSkill("goulian"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("GoulianCard");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        GoulianCard *goulian_card = new GoulianCard;
+        goulian_card->addSubcard(card_item->getCard()->getId());
+
+        return goulian_card;
+    }
+};
+
+GoulianCard::GoulianCard(){
+    once = true;
+}
+
+bool GoulianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return to_select->getGeneral()->isMale();
+}
+
+void GoulianCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    QString result = room->askForChoice(effect.to, "goulian", "a+b");
+    if(result == "a"){
+        RecoverStruct recover;
+        recover.who = effect.from;
+        room->recover(effect.to, recover);
+        effect.to->setMark("goulianA", 1);
+    }
+    else if(result == "b"){
+        effect.to->drawCards(2);
+        effect.to->gainMark("@goulian");
+        effect.from->gainMark("@goulian");
+    }
+}
+
+class Goulian: public TriggerSkill{
+public:
+    Goulian():TriggerSkill("goulian"){
+        events << Predamaged << PhaseChange << DrawNCards;
+        view_as_skill = new GoulianViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasSkill("goulian") || target->getMark("@goulian") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        if(event == Predamaged && player->hasSkill("goulian")){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(damage.to != player)
+                return false;
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                if(tmp->getMark("goulianA") > 0){
+                    damage.to = tmp;
+                    tmp->setMark("goulianA", 0);
+                    //data = QVariant::fromValue();
+                    DamageStruct damage2 = damage;
+                    room->damage(damage2);
+                    return true;
+                }
+            }
+        }
+        else if(event == PhaseChange){
+            if(player->getPhase() == Player::Draw && !player->hasSkill("goulian") && player->getMark("@goulian") > 0){
+                player->loseMark("@goulian");
+                return true;
+            }
+            else if(player->getPhase() == Player::Start && player->hasSkill("goulian")){
+                foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                    if(tmp->getMark("goulianA") > 0)
+                        tmp->setMark("goulianA", 0);
+                    if(tmp->getMark("@goulian") > 0)
+                        tmp->loseMark("@goulian");
+                }
+            }
+        }
+        else if(event == DrawNCards){
+            if(player->hasSkill("goulian") && player->getMark("@goulian") > 0){
+                player->loseMark("@goulian");
+                data = data.toInt() + 2;
+            }
+        }
+        return false;
+    }
+};
+
 RedPackage::RedPackage()
     :Package("red")
 {
@@ -797,11 +917,16 @@ RedPackage::RedPackage()
     related_skills.insertMulti("xujiu", "#xujiu_slash");
     patterns[".black"] = new BlackPattern;
 
+    General *redsunluban = new General(this, "redsunluban", "wu", 3, false);
+    redsunluban->addSkill(new Jiaochong);
+    redsunluban->addSkill(new Goulian);
+
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();
     addMetaObject<BaichuCard>();
     addMetaObject<TongluCard>();
     addMetaObject<XiefangCard>();
+    addMetaObject<GoulianCard>();
 }
 
 ADD_PACKAGE(Red)
