@@ -41,6 +41,7 @@ extern "C" {
     Package *NewYJCM();
     Package *NewWisdom();
     Package *NewRed();
+    Package *NewGreen();
     Package *NewTest();
 
     Package *NewStandardCard();
@@ -80,6 +81,7 @@ Engine::Engine()
     addPackage(NewYitian());
     addPackage(NewWisdom());
     addPackage(NewRed());
+    //addPackage(NewGreen());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());

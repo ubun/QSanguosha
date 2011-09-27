@@ -3,9 +3,8 @@
 #include "client.h"
 #include "engine.h"
 #include "carditem.h"
-#include "settings.h"
 #include "room.h"
-#include "maneuvering.h"
+//#include "maneuvering.h"
 
 TongmouCard::TongmouCard(){
     target_fixed = true;
@@ -27,7 +26,42 @@ void TongmouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
         gay = source;
     }
     if(!gay || !zhonghui) return;
+    QList<ServerPlayer *> gays;
+    gays << zhonghui << gay;
+    QStringList forbid_skills;
+    forbid_skills << "lianying" << "tuntian" << "shangshi" << "beifa";
+    foreach(ServerPlayer *tmp, gays){
+        if(tmp->hasSkill("tuntian") && tmp == source)
+            continue;
+        foreach(QString tmp2, forbid_skills){
+            if(tmp->hasSkill(tmp2)){
+                if(source->hasFlag("forct")){
+                    LogMessage log;
+                    log.type = "#Tongmou_forbidden";
+                    log.from = tmp;
+                    log.arg = "tongmou";
+                    log.arg2 = tmp2;
+                    room->sendLog(log);
+                    return;
+                }
+                source->setFlags("forct");
+            }
+        }
+    }
 
+    DummyCard *card1 = zhonghui->wholeHandCards();
+    DummyCard *card2 = gay->wholeHandCards();
+
+    if(card1){
+        room->moveCardTo(card1, gay, Player::Hand, false);
+        delete card1;
+    }
+    //room->getThread()->delay();
+    if(card2){
+        room->moveCardTo(card2, zhonghui, Player::Hand, false);
+        delete card2;
+    }
+/*
     foreach(int card_id, zhonghui->handCards()){
         zhonghui->addToPile("mycard", card_id, false);
     }
@@ -37,7 +71,7 @@ void TongmouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
     foreach(int card_id, zhonghui->getPile("mycard")){
         room->moveCardTo(Sanguosha->getCard(card_id), gay, Player::Hand, false);
     }
-
+*/
     source->tag["flag"] = !source->tag.value("flag", true).toBool();
 }
 
@@ -56,7 +90,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->hasSkill(objectName());/*player->getMark("xoxo") > 0;*/
+        return player->hasSkill(objectName());
     }
 
     virtual const Card *viewAs() const{
@@ -88,6 +122,19 @@ public:
                     break;
             }
             if(gay && !player->tag.value("flag", true).toBool()){
+                DummyCard *card1 = player->wholeHandCards();
+                DummyCard *card2 = gay->wholeHandCards();
+
+                if(card1){
+                    room->moveCardTo(card1, gay, Player::Hand, false);
+                    delete card1;
+                }
+                //room->getThread()->delay();
+                if(card2){
+                    room->moveCardTo(card2, player, Player::Hand, false);
+                    delete card2;
+                }
+                /*
                 foreach(int card_id, player->handCards()){
                     player->addToPile("mycard", card_id, false);
                 }
@@ -96,19 +143,19 @@ public:
                 }
                 foreach(int card_id, player->getPile("mycard")){
                     room->moveCardTo(Sanguosha->getCard(card_id), gay, Player::Hand, false);
-                }
+                }*/
             }
         }
         if(player == zhonghui && player->getPhase() == Player::Play){
             if(!player->askForSkillInvoke(objectName())){
-                zhonghui->loseMark("xoxo",1);
+                zhonghui->setMark("xoxo",0);
                 return false;
             }
             QList<ServerPlayer *> players;
             foreach(ServerPlayer *p, room->getOtherPlayers(zhonghui)){
-                if(p->hasSkill("lianying") || p->hasSkill("tuntian")
+                /*if(p->hasSkill("lianying") || p->hasSkill("tuntian")
                 || p->hasSkill("shangshi") || p->hasSkill("beifa"))
-                    continue;
+                    continue;*/
                 players << p;
             }
             ServerPlayer *gay = room->askForPlayerChosen(zhonghui, players, "tongmou_tie");
@@ -123,8 +170,8 @@ public:
             player->tag["flag"] = true;
         }
         else if(player != zhonghui && player->getMark("xoxo") > 0 && player->getPhase() == Player::Finish){
-            player->loseMark("xoxo", player->getMark("xoxo"));
-            zhonghui->loseMark("xoxo", zhonghui->getMark("xoxo"));
+            player->setMark("xoxo", 0);
+            zhonghui->setMark("xoxo", 0);
             room->detachSkillFromPlayer(player, "tongmouv");
         }
         return false;
@@ -144,7 +191,7 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *zhonghui, QVariant &) const{
         Room *room = zhonghui->getRoom();
         foreach(ServerPlayer *player, room->getAllPlayers()){
-            player->loseMark("xoxo", player->getMark("xoxo"));
+            player->setMark("xoxo", 0);
             room->detachSkillFromPlayer(player, "tongmouv");
         }
         return false;
@@ -870,7 +917,9 @@ GoulianCard::GoulianCard(){
     once = true;
 }
 
-bool GoulianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool GoulianCard::targetFilter(const QList<const Player *> &, const Player *to_select, const Player *Self) const{
+    if(to_select->getMark("@goulian") > 0 || to_select->getMark("goulianA") > 0)
+        return false;
     return to_select->getGeneral()->isMale();
 }
 
@@ -954,7 +1003,7 @@ public:
                 room->sendLog(log);
 
                 player->loseMark("@goulian");
-                data = data.toInt() + 2;
+                data = data.toInt() + 1;
             }
         }
         return false;
