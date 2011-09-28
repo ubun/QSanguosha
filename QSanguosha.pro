@@ -37,7 +37,6 @@ SOURCES += src/main.cpp \
 	src/package/maneuvering.cpp \
 	src/package/mountainpackage.cpp \
 	src/package/nostalgia.cpp \
-	src/package/red.cpp \
 	src/package/sp-package.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
@@ -48,6 +47,8 @@ SOURCES += src/main.cpp \
 	src/package/wisdom.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \
+	src/package/red.cpp \
+	src/package/cyan.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/challengemode.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -117,7 +118,6 @@ HEADERS += src/client/aux-skills.h \
 	src/package/mountainpackage.h \
 	src/package/nostalgia.h \
 	src/package/package.h \
-	src/package/red.h \ 
 	src/package/sp-package.h \
 	src/package/standard-equips.h \
 	src/package/standard-skillcards.h \
@@ -127,6 +127,8 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wisdom.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
+	src/package/red.h \ 
+	src/package/cyan.h \ 
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/challengemode.h \
 	src/scenario/couple-scenario.h \
