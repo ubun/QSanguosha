@@ -4,6 +4,8 @@ Open Source Sanguosha
 Introduction
 ----------
 
+Moligaloo's Original QSanguosha Introduction:
+
 Sanguosha is both a popular board game and online game,
 this project try to clone the Sanguosha online version.
 The whole project is written in C++, 
