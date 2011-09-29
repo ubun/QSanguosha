@@ -337,11 +337,14 @@ void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
 class TongluSkill: public TriggerSkill{
 public:
     TongluSkill():TriggerSkill("#tong_lu"){
-        events << SlashMissed << Predamage;
+        events << CardFinished << Predamage;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(event == SlashMissed){
+        if(event == CardFinished){
+            CardUseStruct card_use = data.value<CardUseStruct>();
+            if(!card_use.card->inherits("Slash"))
+                return false;
             player->loseAllMarks("@wocao");
             return false;
         }
@@ -432,13 +435,12 @@ public:
             return false;
         }
         if(player->getPhase() == Player::Discard && !sbmen.isEmpty()){
-            QVariantList lh = player->tag["Liehou"].toList();
 
             CardStar card = data.value<CardStar>();
+            DummyCard *dummy = new DummyCard;
             foreach(int card_id, card->getSubcards()){
-                lh << card_id;
+                dummy->addSubcard(Sanguosha->getCard(card_id));
             }
-            player->tag["Liehou"] = lh;
 
             QString result = room->askForChoice(player, objectName(), "get+draw+cancel");
             player->setFlags("liehou_on");
@@ -455,15 +457,12 @@ public:
                 target->drawCards(1);
             else{
                 log.type = "#Liehou";
-                log.arg = QString::number(lh.length());
+                log.arg = QString::number(dummy->subcardsLength());
                 log.to << target;
                 room->sendLog(log);
 
-                foreach(QVariant card_data, player->tag["Liehou"].toList()){
-                    int card_id = card_data.toInt();
-                    if(room->getCardPlace(card_id) == Player::DiscardedPile)
-                        target->obtainCard(Sanguosha->getCard(card_id));
-                }
+                target->obtainCard(dummy);
+                delete dummy;
             }
         }
         return false;

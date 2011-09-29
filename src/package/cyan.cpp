@@ -52,8 +52,8 @@ public:
 CyanPackage::CyanPackage()
     :Package("cyan")
 {
-    General *greenkongrong = new General(this, "greenkongrong", "qun");
-    greenkongrong->addSkill(new Rangli);
+    General *cyankongrong = new General(this, "cyankongrong", "qun");
+    cyankongrong->addSkill(new Rangli);
 
 }
 
