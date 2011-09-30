@@ -786,6 +786,7 @@ public:
             room->loseMaxHp(l);
 
             room->acquireSkill(l, "lianpo");
+            room->acquireSkill(l, "longdan");
         }
 
         return false;
@@ -878,7 +879,8 @@ public:
     virtual bool buff(const SlashEffectStruct &effect) const{
         Room *room = effect.from->getRoom();
         if(effect.nature != DamageStruct::Thunder && effect.nature != DamageStruct::Fire
-           && effect.from->askForSkillInvoke(objectName(), QVariant::fromValue(effect))){
+           && effect.from->getWeapon() &&
+           effect.from->askForSkillInvoke(objectName(), QVariant::fromValue(effect))){
             //room->loseHp(effect.from);
             room->slashResult(effect, NULL);
             return true;
