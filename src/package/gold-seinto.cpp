@@ -21,9 +21,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *mu = room->findPlayerBySkillName("xiufu");
         DyingStruct dying = data.value<DyingStruct>();
-        if(!mu || !mu->isLord() || dying.who != player)
-            return false;
-        if(dying.who->getKingdom() != "st")
+        if(!mu || dying.who != player)
             return false;
 
         const Card *cardt = room->askForCard(mu, ".H", "@xiufu");
@@ -261,6 +259,100 @@ public:
 
     virtual const Card *viewAs() const{
         return new YinheCard;
+    }
+};
+
+MohuaCard::MohuaCard(){
+}
+
+bool MohuaCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty() && to_select->getKingdom() != "st")
+        return false;
+    if(to_select == Self)
+        return false;
+    if(targets.length() == 1 && !Self->canSlash(to_select))
+        return false;
+    return true;
+}
+
+bool MohuaCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() == 2;
+}
+
+void MohuaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *knife = targets.first();
+    ServerPlayer *guy = targets.last();
+    const Card *slash = room->askForCard(knife, "slash", "mohua-ask");
+    CardUseStruct card_use;
+    card_use.from = source;
+    card_use.to << guy;
+    while(slash && guy && knife){
+        card_use.card = slash;
+        source->setFlags("mohua");
+        room->useCard(card_use);
+        slash = NULL;
+        if(!guy->isAlive())
+            guy = guy->getNextAlive();
+        if(!knife) return;
+        slash = room->askForCard(knife, "slash", "mohua-ask");
+    }
+    source->addMark("mohua");
+    knife->addMark("mohua");
+}
+
+class MohuaViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    MohuaViewAsSkill():ZeroCardViewAsSkill("mohua$"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->hasLordSkill("mohua");
+    }
+
+    virtual const Card *viewAs() const{
+        return new MohuaCard;
+    }
+};
+
+class Mohua:public TriggerSkill{
+public:
+    Mohua():TriggerSkill("mohua"){
+        events << PhaseChange << Predamage;
+        view_as_skill = new MohuaViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == PhaseChange){
+           if(player->getPhase() != Player::NotActive)
+               return false;
+           Room *rm = player->getRoom();
+           foreach(ServerPlayer *tmp, rm->getAlivePlayers()){
+               if(tmp->getMark("mohua") > 0){
+                   tmp->turnOver();
+                   tmp->setMark("mohua", 0);
+               }
+           }
+           return false;
+        }
+        if(!player->hasFlag("mohua"))
+            return false;
+        DamageStruct damage = data.value<DamageStruct>();
+        const Card *reason = damage.card;
+
+        if(reason && reason->inherits("Slash")){
+            LogMessage log;
+            log.type = "#MohuaBuff";
+            log.from = player;
+            log.to << damage.to;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(damage.damage + 1);
+            player->getRoom()->sendLog(log);
+
+            damage.damage ++;
+            player->setFlags("-mohua");
+            data = QVariant::fromValue(damage);
+        }
+        return false;
     }
 };
 
@@ -717,6 +809,8 @@ public:
         player->getRoom()->sendLog(log);
 */
         ServerPlayer *target = event == Damage ? damage.to : damage.from;
+        if(!target)
+            return false;
         target->gainMark("@needle", damage.damage);
 
         int needle = target->getMark("@needle");
@@ -1140,7 +1234,7 @@ GoldSeintoPackage::GoldSeintoPackage()
     *aiolia, *shaka, *dohko, *milo,
     *aiolos, *shura, *camus, *aphrodite;
 
-    mu = new General(this, "mu$", "st", 3);
+    mu = new General(this, "mu", "st", 3);
     mu->addSkill("jingqiang");
     mu->addSkill(new Xiufu);
     mu->addSkill(new XiufuE);
@@ -1152,11 +1246,12 @@ GoldSeintoPackage::GoldSeintoPackage()
     aldebaran = new General(this, "aldebaran", "st");
     aldebaran->addSkill(new Hao2jiao);
 
-    saga = new General(this, "saga", "st");
+    saga = new General(this, "saga$", "st");
     saga->addSkill(new Huanlong);
     saga->addSkill("ciyuan");
     saga->addSkill(new Yinhe);
     saga->addSkill(new MarkAssignSkill("@yinh", 1));
+    saga->addSkill(new Mohua);
     related_skills.insertMulti("yinhe", "#@yinh");
 
     deathmask = new General(this, "deathmask", "st");
@@ -1207,6 +1302,7 @@ GoldSeintoPackage::GoldSeintoPackage()
     addMetaObject<XiufuCard>();
     addMetaObject<HuanlongCard>();
     addMetaObject<YinheCard>();
+    addMetaObject<MohuaCard>();
     addMetaObject<LianluoCard>();
     addMetaObject<Sheng2jianCard>();
 
