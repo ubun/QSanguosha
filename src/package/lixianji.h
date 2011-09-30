@@ -17,6 +17,16 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class XJjielveCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE XJjielveCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class LiXianJiPackage : public Package
 {
     Q_OBJECT

@@ -138,8 +138,8 @@ XJfengliuCard::XJfengliuCard(){
 }
 
 bool XJfengliuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    /*if(targets.length() >= 2)
-        return false;*/
+    if(targets.length() >= 1)
+        return false;
     return true;
 }
 
@@ -207,6 +207,252 @@ public:
 };
 
 class XJchenjing:public MasochismSkill{
+
+    XJchenjing():MasochismSkill("XJchenjing"){
+        frequency = Frequent;
+    }
+
+    virtual void onDamaged(ServerPlayer *XJlidian, const DamageStruct &damage) const{
+        Room *room = XJlidian->getRoom();
+    }
+};
+
+class XJzhaoling: public SlashBuffSkill{
+public:
+    XJzhaoling():SlashBuffSkill("XJzhaoling"){
+        frequency = Compulsory;
+    }
+
+    virtual bool buff(const SlashEffectStruct &effect) const{
+        ServerPlayer *XJliuxie = effect.from;
+        Room *room = XJliuxie->getRoom();
+        if(effect.nature == 2 || effect.nature == 1)/*1:Fire 2:Thunder*/{
+            if(1){
+                room->playSkillEffect(objectName());
+                room->slashResult(effect, NULL);
+                if(!effect.to->isNude()){
+                    int card_id = room->askForCardChosen(XJliuxie, effect.to, "h", objectName());
+                    if(room->getCardPlace(card_id) == Player::Hand)
+                        room->moveCardTo(Sanguosha->getCard(card_id), XJliuxie, Player::Hand, false);
+                    else
+                        room->obtainCard(XJliuxie, card_id);
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+
+
+class SavageAssaultAvoid: public TriggerSkill{
+public:
+    SavageAssaultAvoid(const QString &avoid_skill)
+        :TriggerSkill("#sa_avoid_" + avoid_skill), avoid_skill(avoid_skill)
+    {
+        events << CardEffected;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        CardEffectStruct effect = data.value<CardEffectStruct>();
+        if(effect.card->inherits("SavageAssault")){
+            LogMessage log;
+            log.type = "#SkillNullify";
+            log.from = player;
+            log.arg = avoid_skill;
+            log.arg2 = "savage_assault";
+            player->getRoom()->sendLog(log);
+
+            return true;
+        }else
+            return false;
+    }
+
+private:
+    QString avoid_skill;
+};
+
+class XJhanwei: public TriggerSkill{
+public:
+    XJhanwei():TriggerSkill("XJhanwei"){
+        events << SlashEffected;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return TriggerSkill::triggerable(target);/* && target->getArmor() == NULL;*/
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+
+        if(effect.slash->isBlack() && effect.nature == 0){
+            player->getRoom()->playSkillEffect(objectName());
+
+            LogMessage log;
+            log.type = "#SkillNullify";
+            log.from = player;
+            log.arg = objectName();
+            log.arg2 = effect.slash->objectName();
+
+            player->getRoom()->sendLog(log);
+
+            return true;
+        }
+
+        return false;
+    }
+};
+
+
+XJjielveCard::XJjielveCard(){
+}
+
+bool XJjielveCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.length() >= 1)
+        return false;
+    return true;
+}
+
+void XJjielveCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.to->getRoom();
+
+    DamageStruct damage;
+    damage.card = NULL;
+    damage.from = effect.from;
+    damage.to = effect.to;
+
+    room->damage(damage);
+}
+
+class XJjielveViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    XJjielveViewAsSkill():ZeroCardViewAsSkill("XJjielve"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        if(player->hasUsed("XJjielveCard"))
+            return false;
+        return pattern == "@@XJjielve";
+    }
+
+    virtual const Card *viewAs() const{
+        return new XJjielveCard;
+    }
+};
+
+class XJjielve: public TriggerSkill{
+public:
+    XJjielve():TriggerSkill("XJjielve"){
+        events << CardUsed;
+        view_as_skill = new XJjielveViewAsSkill;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        if(player->hasUsed("XJjielveCard"))
+            return false;
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *XJpanzhang, QVariant &data) const{
+        const Card *card = NULL;
+        if(event == CardUsed){
+            CardUseStruct use = data.value<CardUseStruct>();
+            card = use.card;
+        }
+        if(card == NULL)
+            return false;
+
+        if(XJpanzhang->hasUsed("XJjielveCard")) return false;
+        if(card->inherits("Dismantlement") || (card->inherits("Snatch"))){
+            if(XJpanzhang->askForSkillInvoke(objectName(), data)){
+                Room *room = XJpanzhang->getRoom();
+                room->askForUseCard(XJpanzhang, "@@XJjielve", "@XJjielve");
+            }
+        }
+        return false;
+    }
+};
+
+
+class XJyifen: public TriggerSkill{
+public:
+    XJyifen():TriggerSkill("XJyifen"){
+        events << CardLost << CardLostDone;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *XJlingtong, QVariant &data) const{
+        if(event == CardLost){
+            CardMoveStar move = data.value<CardMoveStar>();
+            if(move->from_place == Player::Equip || move->from_place == Player::Judging)
+                XJlingtong->tag["InvokeXJyifen"] = true;
+        }else if(event == CardLostDone && XJlingtong->tag.value("InvokeXJyifen", false).toBool()){
+            XJlingtong->tag.remove("InvokeXJyifen");
+
+            if(XJlingtong->getPhase() != Player::NotActive)
+                return false;
+            Room *room = XJlingtong->getRoom();
+            room->playSkillEffect(objectName());
+            QList<ServerPlayer *> players = room->getOtherPlayers(XJlingtong), targets;
+            foreach(ServerPlayer *p, players){
+                targets << p;
+            }
+            ServerPlayer *target = room->askForPlayerChosen(XJlingtong, targets, "XJyifen-damage");
+            DamageStruct damage;
+            damage.from = XJlingtong;
+            damage.to = target;
+            room->damage(damage);
+        }
+        return false;
+    }
+};
+
+
+class XJduwu: public PhaseChangeSkill{
+public:
+    XJduwu():PhaseChangeSkill("XJduwu"){
+
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *XJjiangwei) const{
+        if(XJjiangwei->getPhase() == Player::Draw && XJjiangwei->isWounded()){
+            Room *room = XJjiangwei->getRoom();
+            if(room->askForSkillInvoke(XJjiangwei, objectName())){
+                int x = XJjiangwei->getLostHp(), i;
+
+                for(i=0; i<x; i++){
+                    int card_id = room->drawCard();
+                    int card_num=0;
+                    room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
+
+                    room->getThread()->delay();
+
+                    const Card *card = Sanguosha->getCard(card_id);
+                    if(card->isBlack()){
+                        card_num++;
+                    }else
+                        room->obtainCard(XJjiangwei, card_id)
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 };
 
 LiXianJiPackage::LiXianJiPackage()
@@ -221,11 +467,12 @@ LiXianJiPackage::LiXianJiPackage()
     XJcaozhi->addSkill(new XJfengliu);
 
     General *XJlidian = new General(this, "XJlidian", "wei", 4);
-    /*XJlidian->addSkill(new XJchenjing);/*
+    /*XJlidian->addSkill(new XJchenjing);*/
 
     General *XJliuxie = new General(this, "XJliuxie", "qun", 3);
-    XJliuxie->addSkill(new XJzhaoling);
+    XJliuxie->addSkill(new SavageAssaultAvoid("XJhanwei"));
     XJliuxie->addSkill(new XJhanwei);
+    XJliuxie->addSkill(new XJzhaoling);
 
     General *XJpanzhang = new General(this, "XJpanzhang", "wu", 4);
     XJpanzhang->addSkill(new XJjielve);
@@ -234,7 +481,7 @@ LiXianJiPackage::LiXianJiPackage()
     XJlingtong->addSkill(new XJyifen);
 
     General *XJjiangwei = new General(this, "XJjiangwei", "shu", 4);
-    XJjiangwei->addSkill(new XJduwu);
+    XJjiangwei->addSkill(new XJduwu);/*
 
     General *XJwenpin = new General(this, "XJwenpin", "qun", 4);
     XJwenpin->addSkill(new XJzhuitao);
@@ -326,6 +573,7 @@ LiXianJiPackage::LiXianJiPackage()
     */
 
     addMetaObject<XJfengliuCard>();
+    addMetaObject<XJjielveCard>();
 }
 
 ADD_PACKAGE(LiXianJi);

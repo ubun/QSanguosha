@@ -19,4 +19,8 @@ return {
 	["OExiapi"] = "下邳之战",
 	["@xiapi_shuiyan"] = "水淹",
 	["@xiapi_baozou"] = "暴走",
+	
+	["OEgodzhaoyun"] = "神赵云（长坂坡）",
+	["qijin"] = "七进七出",
+	[":qijin"] = "当你的手牌数低于7张时，可立即将手牌补至7张",
 }
