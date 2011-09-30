@@ -35,10 +35,6 @@ sgs.ai_use_value =
 		LijianCard=8.5,
 		RendeCard=8.5,
 		MinceCard=5.9,
-		
-		ShenfenCard = 8,
-		GreatYeyanCard = 8,
-		MediumYeyanCard = 5.6,
 --normal cards
         ExNihilo=10,
         
@@ -91,11 +87,6 @@ sgs.ai_use_priority = {
 		RendeCard= 5.8,
 		MingceCard=4,
 		JujianCard = 5.6,
-		
-		ShenfenCard = 2.3,
-		GreatYeyanCard = 9,
-		MediumYeyanCard = 6,
-		SmallYeyanCard = 2.3,
 --
 
         

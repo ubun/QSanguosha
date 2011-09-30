@@ -1332,51 +1332,96 @@ function SmartAI:useCardByClassName(card, use)
 end
 
 function SmartAI:getSlashNumber(player)
-	player = player or self.player
 	local n = 0
-	local cards = player:getCards("h")
-	for _, card in sgs.qlist(cards) do
-		if self:canViewAs(card, "Slash", player) then		
-			n = n + 1
+	if player:hasSkill("wusheng") then
+		local cards = player:getCards("he")
+		for _, card in sgs.qlist(cards) do
+			if card:isRed() or card:inherits("Slash") and not card:inherits("Peach") then			--no peach
+				n = n + 1
+			end
 		end
-	end
-	if player:hasWeapon("spear") then
-		n = n + math.floor((cards:length() - n)/2)
-	end	
-	cards = player:getCards("e")
-	for _, card in sgs.qlist(cards) do
-		if self:getSkillViewCard(card, "Slash", true, player) then		
-			n = n + 1
+	elseif player:hasSkill("wushen") then
+		local cards = player:getHandcards()
+		for _, card in sgs.qlist(cards) do
+			if card:getSuit() == sgs.Card_Heart or card:inherits("Slash") then
+				n = n + 1
+			end
 		end
-	end
-	
-	if player:hasSkill("wushuang") then
-		n = n * 2
-	end
-	
-	if only_self then return n end
+	elseif player:hasSkill("jiejiu") then
+		local cards = player:getHandcards()
+		for _, card in sgs.qlist(cards) do
+			if card:inherits("Analeptic") or card:inherits("Slash") then
+				n = n + 1
+			end
+		end	
+	elseif player:hasSkill("longdan") then
+		local cards = player:getHandcards()
+		for _, card in sgs.qlist(cards) do
+			if card:inherits("Jink") or card:inherits("Slash") then
+				n = n + 1
+			end
+		end
+	else
+		local cards = player:getHandcards()
+		for _, card in sgs.qlist(cards) do
+			if card:inherits("Slash") then
+				n = n + 1
+			end
+		end
 
-	if (player:isLord() or (player:hasSkill("weidi") and self.room:getLord():hasSkill("jijiang"))) and player:hasSkill("jijiang") then
+		local left = cards:length() - n
+		if player:hasWeapon("spear") then
+			n = n + math.floor(left/2)
+		end
+	end
+
+	if player:isLord() and player:hasSkill("jijiang") then
 		local lieges = self.room:getLieges("shu", player)
 		for _, liege in sgs.qlist(lieges) do
-			if self:isFriend(liege, player) then
+			if liege == "loyalist" then
 				n = n + self:getSlashNumber(liege)
 			end
 		end
 	end
-	
+
+	if player:hasSkill("wushuang") then
+		n = n * 2
+	end
+
 	return n
 end
 
-function getJinkNumber(self, player, only_self)
-	player = player or self.player
-	local n = 0
-	local cards = player:getCards("h")
+function getJinkNumber(player,self)
+    local n = 0
+
+	local cards = player:getHandcards()
 	for _, card in sgs.qlist(cards) do
-		if self:canViewAs(card, "Jink", player) then		
+		if card:inherits("Jink") then
 			n = n + 1
 		end
-	end	
+	end
+
+    if player:hasSkill("wushen") then
+        for _, card in sgs.qlist(cards) do
+			if card:inherits("Jink") and (card:getSuitString()=="heart") then
+				n = n - 1
+			end
+		end
+    end
+
+	if player:hasSkill("longdan") then
+		for _, card in sgs.qlist(cards) do
+			if card:inherits("Slash") then
+				n = n + 1
+			end
+		end
+	elseif player:hasSkill("qingguo") then
+		for _, card in sgs.qlist(cards) do
+			if card:isBlack() then
+				n = n + 1
+			end
+		end
+	end
 
 	local armor = player:getArmor()
 	if armor and armor:objectName() == "eight_diagram" then
@@ -1386,21 +1431,22 @@ function getJinkNumber(self, player, only_self)
 		end
 	end
 
-  if only_self then return n end
-  
-	if (player:isLord() or (player:hasSkill("weidi") and self.room:getLord():hasSkill("hujia"))) and player:hasSkill("hujia") then
-		local lieges = self.room:getLieges("wei", player)
+    if not self then return n end
+
+	if player:isLord() and player:hasSkill("hujia") then
+		local lieges = self.room:getLieges("wei",player)
 		for _, liege in sgs.qlist(lieges) do
-			if self:isFriend(liege, player) then
+			if liege:getRole() == "loyalist" then
 				n = n + self:getJinkNumber(liege)
 			end
 		end
 	end
+
 	return n
 end
 
-function SmartAI:getJinkNumber(player, only_self)
-	return getJinkNumber(self, player, only_self)
+function SmartAI:getJinkNumber(player)
+	return getJinkNumber(player,self)
 end
 
 function SmartAI:useCardDuel(duel, use)
@@ -1641,10 +1687,9 @@ function SmartAI:getPeachNum()
 	return index
 end
 
-function SmartAI:getAllPeachNum(player)
-	player = player or self.player
+function SmartAI:getAllPeachNum()
 	local n = 0
-	for _, friend in ipairs(self:getFriends(player)) do
+	for _, friend in ipairs(self.friends) do
 		n = n + self:getPeachNum(friend)
 	end
 	return n
@@ -2350,7 +2395,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
     return self:getCardRandomly(who, new_flag)							
 end
 
-function SmartAI:askForCard(pattern, prompt, data)
+function SmartAI:askForCard(pattern, prompt)
 	self.room:output(prompt)
 	
 	if sgs.ai_skill_invoke[pattern] then return sgs.ai_skill_invoke[pattern](self, prompt) end
@@ -2448,28 +2493,6 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return self:getCardId("Jink") or "."
-	elseif pattern == ".basic" then
-		local effect = data:toCardEffect()
-		if self:isFriend(effect.to) then return "." end
-		local has_peach, has_anal, has_slash, slash_jink
-		for _, card in sgs.qlist(self.player:getHandcards()) do
-			if card:inherits("Peach") then has_peach = card
-			elseif card:inherits("Analeptic") then has_anal = card
-			elseif card:inherits("Slash") then has_slash = card
-			elseif card:inherits("Jink") then has_jink = card
-			end
-		end
-		
-		if has_slash then return "$" .. has_slash:getEffectiveId()
-		elseif has_jink then return "$" .. has_jink:getEffectiveId()
-		elseif has_anal or has_peach then 
-			if self:getJinkNumber(effect.to) == 0 and self.player:hasFlag("drank") and self:getAllPeachNum(effect.to) == 0 then
-				if has_anal then return "$" .. has_anal:getEffectiveId()
-				else return "$" .. has_peach:getEffectiveId()
-				end
-			end
-		else return "." 
-		end
 	end
 
 	if parsedPrompt[1] == "double-sword-card" then 
@@ -3173,7 +3196,6 @@ dofile "lua/ai/yitian-ai.lua"
 dofile "lua/ai/nostalgia-ai.lua"
 dofile "lua/ai/yjcm-ai.lua"
 dofile "lua/ai/sp-ai.lua"
-dofile "lua/ai/wisdom-ai.lua"
 dofile "lua/ai/joy-ai.lua"
 
 dofile "lua/ai/general_config.lua"

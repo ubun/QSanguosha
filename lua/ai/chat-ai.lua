@@ -1,6 +1,4 @@
 function speak(to,type)
-	if not sgs.GetConfig("AIChat", true) then return end
-	
 	local i =math.random(1,#sgs.ai_chat[type])
 	to:speak(sgs.ai_chat[type][i])
 end
