@@ -250,8 +250,11 @@ public:
         }
         if(player->getMark("begin") == 0 && event == TurnStart){
             player->drawCards(1);
-            const Card *card = room->askForCard(player, ".", "@baichu", false);
-            player->addToPile("ji", card->getId());
+            const Card *card = room->askForCard(player, ".", "@baichu", false, false);
+            if(card)
+                player->addToPile("ji", card->getId());
+            else
+                player->addToPile("ji", player->getHandcards().last()->getId());
         }
         if(pp != player)
             return false;
@@ -790,7 +793,7 @@ public:
         if(qiong->getPhase() != Player::Start)
             return false;
         Room *room = qiong->getRoom();
-        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask");
+        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask", false, false);
         if(card){
             qiong->addToPile("niangA", card->getId());
         }
