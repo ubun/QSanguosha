@@ -12,3 +12,5 @@ users.db
 doc/*.html
 swig/*.bat
 *.bat
+.DS_Store
+liblua5.1.dylib
