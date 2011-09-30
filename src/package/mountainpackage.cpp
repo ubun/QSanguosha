@@ -74,7 +74,7 @@ void QiaobianCard::use(Room *room, ServerPlayer *zhanghe, const QList<ServerPlay
         if(trick && trick->isVirtualCard())
             delete trick;
 
-        room->setTag("QiaobianTarget", QVariant::fromValue(from));
+        room->setTag("QiaobianTarget",QVariant::fromValue(from));
         ServerPlayer *to = room->askForPlayerChosen(zhanghe, tos, "qiaobian");
         if(to)
             room->moveCardTo(card, to, place);
@@ -799,7 +799,7 @@ public:
             log.to << effect.to;
             room->sendLog(log);
 
-            return !room->askForCard(effect.from, ".basic", "@xiangle-discard", data);
+            return !room->askForCard(effect.from, ".basic", "@xiangle-discard");
         }
 
         return false;

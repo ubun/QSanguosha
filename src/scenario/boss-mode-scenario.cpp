@@ -292,6 +292,7 @@ public:
         }
 
         QStringList all_skills;
+        QStringList special_skills;
         foreach(QString one, all_generals){
             const General *general = Sanguosha->getGeneral(one);
             QList<const Skill *> skills = general->findChildren<const Skill *>();
@@ -300,33 +301,48 @@ public:
                     if(dummy_skills.contains(skill->objectName()))
                         continue;
 
-                    if(!skill->objectName().startsWith("#"))
+                    bool is_spec_skill = skill->objectName().startsWith("#");
+                    bool has_skill = false, has_spec_skill = false;
+                    foreach(ServerPlayer *target, players){
+                        if(target->getMark(skill->objectName()) > 0){
+                            if(is_spec_skill)
+                                has_spec_skill = true;
+                            else
+                                has_skill = true;
+                            break;
+                        }
+                    }
+
+                    if(is_spec_skill && !has_spec_skill)
+                        special_skills << skill->objectName();
+                    if(!is_spec_skill && !has_skill)
                         all_skills << skill->objectName();
                 }
             }
         }
 
-        QString got_skill;
+        int index;
         do{
-            int index;
-            do{
-                index = qrand() % all_skills.length();
-            }while(player->isLord() && boss_skillbanned.contains(all_skills[index]));
-            got_skill = all_skills[index];
+            index = qrand() % all_skills.length();
+        }while(player->isLord() && boss_skillbanned.contains(all_skills[index]));
+        const QString got_skill = all_skills[index];
 
-        }while(hasSameSkill(room, got_skill));
         room->acquireSkill(player, got_skill);
-    }
+        player->addMark(got_skill);
 
-    bool hasSameSkill(Room *room, QString skill_name) const{
-        foreach(ServerPlayer *player, room->getAllPlayers()){
-            QList<const Skill *> skills = player->getVisibleSkillList();
-            const Skill *skill = Sanguosha->getSkill(skill_name);
-            if(skills.contains(skill))
-                return true;
+        if(got_skill == "niepan")
+            player->gainMark("@nirvana");
+        if(got_skill == "luanwu")
+            player->gainMark("@chaos");
+        if(got_skill.contains("yeyan"))
+            player->gainMark("@flame");
+
+        foreach(QString spec_skill, special_skills){
+            if(spec_skill.contains(got_skill)){
+                room->acquireSkill(player, spec_skill);
+                player->addMark(spec_skill);
+            }
         }
-
-        return false;
     }
 
     void removeLordSkill(ServerPlayer *player) const{
@@ -335,6 +351,22 @@ public:
         foreach(const Skill *skill, lord_skills){
             if(skill->isLordSkill())
                 player->getRoom()->detachSkillFromPlayer(player, skill->objectName());
+        }
+    }
+
+    void removeSelfMarks(ServerPlayer *player, bool is_first_round) const{
+        if(!is_first_round) return;
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> players = room->getAllPlayers();
+        room->setTag("FirstRound", false);
+
+        foreach(ServerPlayer *p, players){
+            const General *general = Sanguosha->getGeneral(p->getGeneralName());
+            QList<const Skill *> skills = general->findChildren<const Skill *>();
+            foreach(const Skill *skill, skills){
+                if(player->getMark(skill->objectName()) > 0)
+                    player->removeMark(skill->objectName());
+            }
         }
     }
 
@@ -392,6 +424,8 @@ public:
             }
 
         case TurnStart:{
+                removeSelfMarks(player, room->getTag("FirstRound").toBool());
+
                 if(player->isLord() && player->faceUp()){
                     bool hasLoseMark = false;
                     if(player->getMark("@frantic") > 0){

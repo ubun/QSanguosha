@@ -117,7 +117,7 @@ CoupleScenario::CoupleScenario()
     rule = new CoupleScenarioRule(this);
 
     map["caopi"] = "zhenji";
-    map["guojia"] = "xunyu";
+    map["xunyu"] = "simayi";
     map["liubei"] = "sunshangxiang";
     map["zhugeliang"] = "huangyueying";
     map["menghuo"] = "zhurong";

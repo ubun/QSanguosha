@@ -40,10 +40,13 @@ void RendeCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
     int new_value = old_value + subcards.length();
     room->setPlayerMark(source, "rende", new_value);
 
-    if(old_value < 2 && new_value >= 2){
+    if(old_value < 2 && new_value >= 2)
+    {
+        int i;
         RecoverStruct recover;
         recover.card = this;
         recover.who = source;
+        for(i=0;i<new_value-1;i++)
         room->recover(source, recover);
     }
 }

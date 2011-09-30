@@ -125,6 +125,8 @@ int Player::getAttackRange() const{
         return weapon->getRange();
     else if(hasSkill("zhengfeng"))
         return hp;
+    else if(hasSkill("changdao"))
+        return 3;
     else
         return 1;
 }
@@ -456,6 +458,8 @@ int Player::getMaxCards() const{
                 xueyi += 2;
         }
     }
+    if(hasSkill("OEHulaoxueyi"))
+        xueyi += 8;
 
     int shenwei = 0;
     if(hasSkill("shenwei"))

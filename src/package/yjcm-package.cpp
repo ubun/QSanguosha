@@ -586,7 +586,7 @@ public:
     Xianzhen():TriggerSkill("xianzhen"){
         view_as_skill = new XianzhenViewAsSkill;
 
-        events << PhaseChange << CardUsed << CardFinished;
+        events << PhaseChange << SlashEffect << SlashHit << SlashMissed;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *gaoshun, QVariant &data) const{
@@ -597,13 +597,12 @@ public:
                 Room *room = gaoshun->getRoom();
                 room->setFixedDistance(gaoshun, target, -1);
                 gaoshun->tag.remove("XianzhenTarget");
-                target->removeMark("qinggang");
             }
         }else{
-            CardUseStruct use = data.value<CardUseStruct>();
+            SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
-            if(target && use.to.contains(target)){
-                if(event == CardUsed)
+            if(effect.to == target){
+                if(event == SlashEffect)
                     target->addMark("qinggang");
                 else
                     target->removeMark("qinggang");

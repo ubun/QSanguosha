@@ -276,19 +276,28 @@ void MainWindow::on_actionEnable_Hotkey_toggled(bool checked)
 void MainWindow::on_actionAbout_triggered()
 {
     // Cao Cao's pixmap
-    QString content =  "<center><img src='image/system/shencc.png'> <br /> </center>";
+    QString content =  "<center><img src='image/system/yuriko.jpg'> <br /> </center>";
+
+    /*QString content =  "<center><img src='image/system/shencc.png'> <br /> </center>";*/
 
     // Cao Cao' poem
-    QString poem = tr("Disciples dressed in blue, my heart worries for you. You are the cause, of this song without pause");
+
+    /*QString poem = tr("Disciples dressed in blue, my heart worries for you. You are the cause, of this song without pause");*/
+    QString poem = tr("Standing here...Looking at this city...<br />My mind, tell me what should I do now?");
     content.append(QString("<p align='right'><i>%1</i></p>").arg(poem));
 
     // Cao Cao's signature
-    QString signature = tr("\"A Short Song\" by Cao Cao");
+    /*QString signature = tr("\"A Short Song\" by Cao Cao");*/
+    QString signature = tr("Yuriko Omega, after she destoryed Shiro Sanitarium");
     content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
 
-    content.append(tr("This is the open source clone of the popular <b>Sanguosha</b> game,"
+    content.append(tr("Omega Era is the name of my Red Alert 3 mod, so I also use this name for my Qsanguosha mod.<br />"
+                      "Please report bugs to Baidu Yuriko Omega Bar<br />"
+                      "http://tieba.baidu.com/f?kw=%B0%C2%C3%D7%C7%D1%B0%D9%BA%CF%D7%D3<br />"
+                      "My Email:dbpr@mail.ustc.edu.cn<br />"
+                      "Qsanguosha is the open source clone of the popular <b>Sanguosha</b> game,"
                       "totally written in C++ Qt GUI framework <br />"
-                      "My Email: moligaloo@gmail.com <br/>"));
+                      "Moligaloo\'s Email: moligaloo@gmail.com <br/>"));
 
     QString config;
 
@@ -313,7 +322,7 @@ void MainWindow::on_actionAbout_triggered()
     QString forum_url = "http://qsanguosha.com";
     content.append(tr("Forum: <a href='%1'>%1</a> <br/>").arg(forum_url));
 
-    Window *window = new Window(tr("About QSanguosha"), QSize(365, 411));
+    Window *window = new Window(tr("About QSanguosha"), QSize(400, 500));
     scene->addItem(window);
 
     window->addContent(content);

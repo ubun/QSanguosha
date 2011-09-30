@@ -652,8 +652,8 @@ bool BossMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                         winner = evil;
                 }
 
-                room->gameOver(winner);
-                return true;
+            room->gameOver(winner);
+            return true;
             }
 
             break;

@@ -40,7 +40,8 @@ extern "C" {
     Package *NewSP();
     Package *NewYJCM();
     Package *NewWisdom();
-    Package *NewTest();
+    Package *NewReturnOfLegend();//OE
+    Package *NewLiXianJi();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -58,6 +59,10 @@ extern "C" {
     Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
+    Scenario *NewOEXiaoyaojinScenario();//OE
+    Scenario *NewOEhuangjinScenario();//OE
+    Scenario *NewOEhulaoScenario();//OE
+    Scenario *NewOExiapiScenario();//OE
 }
 
 extern "C" {
@@ -78,7 +83,16 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     addPackage(NewWisdom());
-    addPackage(NewTest());
+    //addPackage(NewReturnOfLegend());
+    addPackage(NewLiXianJi());
+
+    {
+        Package *test_package = new Package("test");
+        (new General(test_package, "sujiang", "god", 5, true, true));
+        (new General(test_package, "sujiangf", "god", 5, false, true));
+        /*(new General(test_package, "OEgodzhangliao", "god", 5, true, true));*/
+        addPackage(test_package);
+    }
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
@@ -96,6 +110,11 @@ Engine::Engine()
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
+
+    addScenario(NewOEXiaoyaojinScenario());
+    addScenario(NewOEhuangjinScenario());
+    addScenario(NewOEhulaoScenario());
+    addScenario(NewOExiapiScenario());
 
     // available game modes
     modes["02p"] = tr("2 players");

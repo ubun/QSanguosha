@@ -1737,7 +1737,7 @@ public:
             log.from = player;
             log.to << damage.to;
             log.arg = QString::number(damage.damage);
-            log.arg2 = QString::number(damage.damage - 1);
+            log.arg2 = QString::number(damage.damage - 1);//log.arg2 = QString::number(damage.damage - 1);
             player->getRoom()->sendLog(log);
 
             damage.damage --;

@@ -181,9 +181,10 @@ public:
 
 
                     ServerPlayer *zhangliao = room->findPlayer("zhangliao");
+                    zhangliao->loseSkill("tuxi");
                     room->acquireSkill(zhangliao, "smalltuxi");
-                }
 
+                }
                 break;
             }
 
@@ -296,5 +297,3 @@ void GuanduScenario::onTagSet(Room *room, const QString &key) const{
 }
 
 ADD_SCENARIO(Guandu);
-
-

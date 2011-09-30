@@ -109,7 +109,7 @@ HongyanScenario::HongyanScenario()
     :Scenario("hongyan_lesbian")
 {
     females << "zhenji" << "huangyueying" << "zhurong"
-            << "daqiao" << "luxun" << "xiaoqiao"
+            << "daqiao" << "caiwenji" << "xiaoqiao"
             << "diaochan" << "caizhaoji" << "sunshangxiang";
 
     standard_roles << "lord" << "loyalist" << "loyalist"
@@ -141,7 +141,7 @@ int HongyanScenario::getPlayerCount() const{
 }
 
 void HongyanScenario::getRoles(char *roles) const{
-    strcpy(roles, "ZCCFFFN");
+    strcpy(roles, "ZCCFFFFN");
 }
 
 void HongyanScenario::onTagSet(Room *room, const QString &key) const{

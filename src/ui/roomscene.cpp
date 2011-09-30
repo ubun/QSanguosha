@@ -3120,7 +3120,22 @@ void RoomScene::doHuashen(const QString &name, const QStringList &args){
 
     Self->tag["Huashens"] = huashen_list;
 }
+/*OE*/
+void RoomScene::dotaoyuanjieyi(const QString &name, const QStringList &args){
+    QVariantList taoyuanjieyi_list = Self->tag["taoyuanjieyis"].toList();
+    foreach(QString arg, args){
+        taoyuanjieyi_list << arg;
+        CardItem *item = new CardItem(arg);
+        item->scaleSmoothly(0.5);
 
+        addItem(item);
+        item->setHomePos(avatar->scenePos());
+        item->goBack(true);
+    }
+
+    Self->tag["taoyuanjieyis"] = taoyuanjieyi_list;
+}
+/*OE*/
 void RoomScene::showIndicator(const QString &from, const QString &to){
     if(Config.value("NoIndicator", false).toBool())
         return;
@@ -3171,6 +3186,7 @@ void RoomScene::doAnimation(const QString &name, const QStringList &args){
 
         map["lightbox"] = &RoomScene::doLightboxAnimation;
         map["huashen"] = &RoomScene::doHuashen;
+        map["taoyuanjieyi"] = &RoomScene::dotaoyuanjieyi;
         map["indicate"] = &RoomScene::doIndicate;
     }
 
