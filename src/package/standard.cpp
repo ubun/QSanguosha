@@ -73,7 +73,7 @@ void EquipCard::onUse(Room *room, const CardUseStruct &card_use) const{
 void EquipCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     const EquipCard *equipped = NULL;
     ServerPlayer *target = targets.value(0, source);
-    
+    //ServerPlayer *target = targets.isEmpty() ? source : targets.first();
     switch(location()){
     case WeaponLocation: equipped = target->getWeapon(); break;
     case ArmorLocation: equipped = target->getArmor(); break;
@@ -279,6 +279,20 @@ void Weapon::onUninstall(ServerPlayer *player) const{
         room->detachSkillFromPlayer(player, objectName());
 }
 
+void Armor::onInstall(ServerPlayer *player) const{
+    EquipCard::onInstall(player);
+    Room *room = player->getRoom();
+    if(attach_skill)
+        room->attachSkillToPlayer(player, objectName());
+}
+
+void Armor::onUninstall(ServerPlayer *player) const{
+    EquipCard::onUninstall(player);
+    Room *room = player->getRoom();
+    if(attach_skill)
+        room->detachSkillFromPlayer(player, objectName());
+}
+
 QString Armor::getSubtype() const{
     return "armor";
 }
@@ -419,6 +433,8 @@ StandardPackage::StandardPackage()
     patterns["peach"] = new NamePattern("peach");
     patterns["nullification"] = new NamePattern("nullification");
     patterns["peach+analeptic"] = new PAPattern;
+
+//    patterns[".fC"] = new FreeSuitPattern(Card::Club);
 }
 
 ADD_PACKAGE(Standard)

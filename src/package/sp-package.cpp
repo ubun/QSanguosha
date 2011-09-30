@@ -6,6 +6,42 @@
 #include "engine.h"
 #include "standard.h"
 
+class MoonSpearSkill: public WeaponSkill{
+public:
+    MoonSpearSkill():WeaponSkill("moon_spear"){
+        events << CardFinished << CardResponsed;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+
+        CardStar card = NULL;
+        if(event == CardFinished){
+            CardUseStruct card_use = data.value<CardUseStruct>();
+            card = card_use.card;
+        }else if(event == CardResponsed)
+            card = data.value<CardStar>();
+
+        if(card == NULL || !card->isBlack())
+            return false;
+
+        Room *room = player->getRoom();
+        room->askForUseCard(player, "slash", "@moon-spear-slash");
+
+        return false;
+    }
+};
+
+class MoonSpear: public Weapon{
+public:
+    MoonSpear(Suit suit = Card::Diamond, int number = 12)
+        :Weapon(suit, number, 3){
+        setObjectName("moon_spear");
+        skill = new MoonSpearSkill;
+    }
+};
+
 class JileiClear: public PhaseChangeSkill{
 public:
     JileiClear():PhaseChangeSkill("#jilei-clear"){
@@ -298,6 +334,9 @@ public:
 SPPackage::SPPackage()
     :Package("sp")
 {
+    Card *moon_spear = new MoonSpear;
+    moon_spear->setParent(this);
+
     General *yangxiu = new General(this, "yangxiu", "wei", 3);
     yangxiu->addSkill(new Jilei);
     yangxiu->addSkill(new JileiClear);

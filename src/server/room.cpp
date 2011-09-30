@@ -116,6 +116,10 @@ QList<ServerPlayer *> Room::getOtherPlayers(ServerPlayer *except) const{
     return other_players;
 }
 
+QList<ServerPlayer *> Room::getPlayers() const{
+    return players ;
+}
+
 QList<ServerPlayer *> Room::getAllPlayers() const{
     if(current == NULL)
         return alive_players;
@@ -1942,6 +1946,8 @@ void Room::startGame(){
         game_rule = new BossMode(this);
     else if(mode == "04_1v3")
         game_rule = new HulaoPassMode(this);
+    else if(mode == "08raw")
+        game_rule = new RunawayMode(this);
     else if(Config.EnableScene)	//changjing
         game_rule = new SceneRule(this);	//changjing
     else
@@ -1967,6 +1973,10 @@ void Room::broadcastProperty(ServerPlayer *player, const char *property_name, co
 }
 
 void Room::drawCards(ServerPlayer *player, int n){
+    /*QVariant data = n;
+    thread->trigger(ToDrawNCards, player, data);
+    n = data.toInt();
+    */
     if(n <= 0)
         return;
 

@@ -710,7 +710,7 @@ bool HulaoPassMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &
                 }
             }else
                 player->drawCards(player->getSeat() + 1, false);
-
+//youknow
             if(player->getGeneralName() == "zhangchunhua"){
                 if(qrand() % 3 == 0)
                     room->killPlayer(player);
@@ -802,3 +802,93 @@ bool HulaoPassMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &
     return GameRule::trigger(event, player, data);
 }
 
+RunawayMode::RunawayMode(QObject *parent)
+    :GameRule(parent)
+{
+    setObjectName("runaway_mode");
+}
+
+bool RunawayMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+    Room *room = player->getRoom();
+
+    switch(event)
+    {
+    case TurnStart:{
+            LogMessage log, log2;
+            int playercount = room->getAlivePlayers().length();
+            QList<int> card_ids = room->getNCards(1);
+            int runum = Sanguosha->getCard(card_ids.first())->getNumber();
+            if(runum >= playercount){
+                log.type = "#Runprex";
+                log.from = player;
+                log.arg = QString::number(runum);
+                room->sendLog(log);
+                break;
+            }
+
+            log.type = "#Runpre";
+            log.from = player;
+            log.arg = QString::number(runum);
+            room->sendLog(log);
+
+            if(player->getDefensiveHorse() || player->getOffensiveHorse()){
+                QString step;
+                if(player->getDefensiveHorse() && player->getOffensiveHorse())
+                    step = room->askForChoice(player, "runbyhorse", "fast+slow+kao");
+                else if(player->getDefensiveHorse())
+                    step = room->askForChoice(player, "runbyhorse", "slow+kao");
+                else
+                    step = room->askForChoice(player, "runbyhorse", "fast+kao");
+                if(step == "fast"){
+                    log2.type = "$runfast";
+                    log2.card_str = player->getOffensiveHorse()->toString();
+                    runum ++;
+                }
+                else if(step == "slow"){
+                    log2.type = "$runslow";
+                    log2.card_str = player->getDefensiveHorse()->toString();
+                    runum --;
+                }
+                log2.from = player;
+                room->sendLog(log2);
+            }
+
+            int myseat = player->getSeat();
+            for(int i = 0; i < runum; i++){
+                room->swapSeat(player, player->getNextAlive());
+                room->getThread()->delay();
+            }
+
+            log.type = "#Runaway";
+            log.from = player;
+            log.arg = QString::number(myseat);
+            log.arg2 = QString::number(player->getSeat());
+            room->sendLog(log);
+            /*
+            int myseat = player->getSeat();
+            ServerPlayer *target = player;
+            foreach(target, room->getAlivePlayers()){
+                if(target->getSeat() == myseat + runum)
+                    break;
+            }
+            room->swapSeat(player, target);
+
+            log.type = "#Runaway2";
+            log.from = player;
+            log.to << target;
+            log.arg = QString::number(myseat);
+            log.arg2 = QString::number(myseat + runum);
+            room->sendLog(log);
+            */
+
+            room->throwCard(card_ids.first());
+
+            break;
+        }
+
+    default:
+        break;
+    }
+
+    return GameRule::trigger(event, player, data);
+}

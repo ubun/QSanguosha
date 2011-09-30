@@ -254,11 +254,17 @@ class Armor:public EquipCard{
     Q_OBJECT
 
 public:
-    Armor(Suit suit, int number):EquipCard(suit, number){}
+    Armor(Suit suit, int number):EquipCard(suit, number), attach_skill(false){}
     virtual QString getSubtype() const;
 
     virtual Location location() const;
     virtual QString label() const;
+
+    virtual void onInstall(ServerPlayer *player) const;
+    virtual void onUninstall(ServerPlayer *player) const;
+
+protected:
+    bool attach_skill;
 };
 
 class Horse:public EquipCard{
