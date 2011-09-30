@@ -40,6 +40,8 @@ extern "C" {
     Package *NewSP();
     Package *NewYJCM();
     Package *NewWisdom();
+    Package *NewNewbility();
+    Package *NewNewbilityGeneral();
     Package *NewTest();
 
     Package *NewStandardCard();
@@ -50,6 +52,7 @@ extern "C" {
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
+    //Package *NewTechnology();
 
     Scenario *NewGuanduScenario();
     Scenario *NewFanchengScenario();
@@ -78,6 +81,8 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     addPackage(NewWisdom());
+    addPackage(NewNewbilityGeneral());
+    //addPackage(NewTechnology());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
@@ -88,6 +93,7 @@ Engine::Engine()
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
+    addPackage(NewNewbility());
 
     addScenario(NewGuanduScenario());
     addScenario(NewFanchengScenario());
@@ -113,6 +119,7 @@ Engine::Engine()
     modes["08pd"] = tr("8 players (2 renegades)");
     modes["08boss"] = tr("8 players (boss mode)");
     modes["08same"] = tr("8 players (same mode)");
+    modes["08raw"] = tr("8 players (runaway mode)");
     modes["09p"] = tr("9 players");
     modes["10p"] = tr("10 players");
 
@@ -121,6 +128,7 @@ Engine::Engine()
     //addPackage(challenge_mode_set);
 
     translations.insert("bossmode", tr("Boss mode"));
+    translations.insert("runaway", tr("Runaway mode"));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
