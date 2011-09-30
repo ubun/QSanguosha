@@ -245,8 +245,6 @@ public:
     }
 };
 
-
-
 class SavageAssaultAvoid: public TriggerSkill{
 public:
     SavageAssaultAvoid(const QString &avoid_skill)
@@ -305,7 +303,6 @@ public:
         return false;
     }
 };
-
 
 XJjielveCard::XJjielveCard(){
 }
@@ -385,7 +382,6 @@ public:
     }
 };
 
-
 class XJyifen: public TriggerSkill{
 public:
     XJyifen():TriggerSkill("XJyifen"){
@@ -422,11 +418,58 @@ public:
     }
 };
 
+XJduwuCard::XJduwuCard(){
+}
+
+bool XJduwuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    int a = Self->getMark("@duwu");
+    if(targets.length() >= a)
+        return false;
+    if(to_select == Self)
+        return false;
+    if(to_select->isKongcheng() && to_select->hasSkill("kongcheng"))
+        return false;
+    return true;
+}
+
+void XJduwuCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+
+    CardEffectStruct effect2;
+    Slash *slash = new Slash(Card::NoSuit, 0);
+    slash->setSkillName("XJduwu");
+    effect2.card = slash;
+    effect2.from = effect.from;
+    effect2.to = effect.to;
+
+    room->cardEffect(effect2);
+
+    room->setEmotion(effect.to, "bad");
+    room->setEmotion(effect.from, "good");
+}
+
+class XJduwuViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    XJduwuViewAsSkill():ZeroCardViewAsSkill("XJduwu"){
+    }
+
+    virtual const Card *viewAs() const{
+        return new XJduwuCard;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return  pattern == "@@XJduwu";
+    }
+};
 
 class XJduwu: public PhaseChangeSkill{
 public:
     XJduwu():PhaseChangeSkill("XJduwu"){
-
+        view_as_skill = new XJduwuViewAsSkill;
     }
 
     virtual bool onPhaseChange(ServerPlayer *XJjiangwei) const{
@@ -437,17 +480,21 @@ public:
 
                 for(i=0; i<x; i++){
                     int card_id = room->drawCard();
-                    int card_num=0;
+                    //int card_num=0;
                     room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
 
                     room->getThread()->delay();
 
                     const Card *card = Sanguosha->getCard(card_id);
                     if(card->isBlack()){
-                        card_num++;
+                        //card_num++;
+                        XJjiangwei->gainMark("@duwu");
                     }else
-                        room->obtainCard(XJjiangwei, card_id)
-                }
+                        room->obtainCard(XJjiangwei, card_id);
+                }                
+                if(XJjiangwei->getMark("@duwu"))
+                    room->askForUseCard(XJjiangwei, "@@XJduwu", "@XJduwuask");
+                XJjiangwei->loseAllMarks("@duwu");
                 return true;
             }
         }
@@ -574,6 +621,7 @@ LiXianJiPackage::LiXianJiPackage()
 
     addMetaObject<XJfengliuCard>();
     addMetaObject<XJjielveCard>();
+    addMetaObject<XJduwuCard>();
 }
 
 ADD_PACKAGE(LiXianJi);
