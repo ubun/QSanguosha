@@ -81,7 +81,13 @@ SOURCES += src/main.cpp \
         src/util/recorder.cpp \
         swig/sanguosha_wrap.cxx \
     src/ui/indicatoritem.cpp \
-    src/dialog/roleassigndialog.cpp
+    src/dialog/roleassigndialog.cpp \
+    src/scenario/OExiaoyaojin-scenario.cpp \
+    src/scenario/OEhuangjin-scenario.cpp \
+    src/scenario/OEhulao-scenario.cpp \
+    src/scenario/OExiapi-scenario.cpp \
+    src/package/returnoflegend.cpp \
+    src/package/lixianji.cpp
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -159,7 +165,13 @@ HEADERS += src/client/aux-skills.h \
 	src/util/recorder.h \
 	src/util/socket.h \ 
     src/ui/indicatoritem.h \
-    src/dialog/roleassigndialog.h
+    src/dialog/roleassigndialog.h \
+    src/scenario/OExiaoyaojin-scenario.h \
+    src/scenario/OEhuangjin-scenario.h \
+    src/scenario/OEhulao-scenario.h \
+    src/scenario/OExiapi-scenario.h \
+    src/package/returnoflegend.h \
+    src/package/lixianji.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
