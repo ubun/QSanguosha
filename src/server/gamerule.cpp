@@ -163,8 +163,38 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 room->sendLog(log);
             }
 
-            if(player->isLord())
+            if(player->isLord()){
                 setGameProcess(room);
+            }
+
+            if(player->isLord() && !Sanguosha->getBanPackages().contains("newbility")){
+                //niubi-card get out
+                ServerPlayer *niubi_player = player;
+                if(player->getState() == "robot"){
+                    QList<ServerPlayer *> players = room->getOtherPlayers(player), unrobot;
+                    foreach(ServerPlayer *p, players){
+                        if(p->getState() != "robot"){
+                            unrobot << p;
+                            break;
+                        }
+                    }
+                    niubi_player = unrobot.first();
+                }
+                QString result = Sanguosha->getSetupString().split(":").last().contains("S") ?
+                                 room->askForChoice(niubi_player,"niubi-getout","player+player2+package+cancel") :
+                                 room->askForChoice(niubi_player,"niubi-getout","player+package+cancel");
+
+                LogMessage log;
+                log.from = niubi_player;
+                log.type = "#NiubiSelect";
+                log.arg = "niubi" + result;
+                room->sendLog(log);
+
+                if(result != "cancel"){
+                    room->niubiMoveout(result);
+                    room->getThread()->delay();
+                }
+            }
 
             player->drawCards(4, false);
 

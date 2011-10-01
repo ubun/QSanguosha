@@ -431,6 +431,7 @@ StandardPackage::StandardPackage()
     patterns["slash"] = new SlashPattern;
     patterns["jink"] = new NamePattern("jink");
     patterns["peach"] = new NamePattern("peach");
+    patterns["wall"] = new NamePattern("wall");
     patterns["nullification"] = new NamePattern("nullification");
     patterns["peach+analeptic"] = new PAPattern;
 

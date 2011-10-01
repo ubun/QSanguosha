@@ -1236,6 +1236,11 @@
         <translation>8 人局 (同将模式)</translation>
     </message>
     <message>
+        <location filename="src/core/engine.cpp" line="127"/>
+        <source>8 players (runaway mode)</source>
+        <translation>8 人局 (跑路模式)</translation>
+    </message>
+    <message>
         <location filename="src/core/engine.cpp" line="115"/>
         <source>9 players</source>
         <translation>9 人局</translation>
@@ -1249,6 +1254,11 @@
         <location filename="src/core/engine.cpp" line="122"/>
         <source>Boss mode</source>
         <translation>魔王模式</translation>
+    </message>
+    <message>
+        <location filename="src/core/engine.cpp" line="136"/>
+        <source>Runaway mode</source>
+        <translation>跑路模式</translation>
     </message>
     <message>
         <location filename="src/core/engine.cpp" line="129"/>

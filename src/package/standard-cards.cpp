@@ -21,7 +21,8 @@ void Slash::setNature(DamageStruct::Nature nature){
 }
 
 bool Slash::IsAvailable(const Player *player){
-    if(player->hasFlag("tianyi_failed") || player->hasFlag("xianzhen_failed"))
+    if((player->hasFlag("tianyi_failed") && !player->hasArmorEffect("apple"))
+        || player->hasFlag("xianzhen_failed"))
         return false;
 
     if(player->hasWeapon("crossbow"))
@@ -807,6 +808,12 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
     log.from = effect.to;
     log.card_str = QString::number(card_id);
     room->sendLog(log);
+
+    if(effect.from->hasArmorEffect("urban") && effect.from->hasSkill("qixi") && effect.card->getSuit() == Card::Club){
+        bool result = effect.from->getState() != "robot" ? room->askForSkillInvoke(effect.from, "urban") : true;
+        if(result)
+            room->obtainCard(effect.from, card_id);
+    }
 }
 
 Indulgence::Indulgence(Suit suit, int number)
@@ -835,6 +842,8 @@ bool Indulgence::targetFilter(const QList<const Player *> &targets, const Player
 }
 
 void Indulgence::takeEffect(ServerPlayer *target) const{
+    if(target->hasArmorEffect("stimulant") && target->hasSkill("jianxiong"))
+        return;
     target->skip(Player::Play);
 }
 
