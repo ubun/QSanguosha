@@ -33,6 +33,8 @@ void TongmouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
     foreach(ServerPlayer *tmp, gays){
         if(tmp->hasSkill("tuntian") && tmp == source)
             continue;
+        if(tmp->hasSkill("juxiang") && tmp != source)
+            source->setFlags("sa_forbidden");
         foreach(QString tmp2, forbid_skills){
             if(tmp->hasSkill(tmp2)){
                 if(source->hasFlag("forct")){
@@ -173,6 +175,28 @@ public:
             player->setMark("xoxo", 0);
             zhonghui->setMark("xoxo", 0);
             room->detachSkillFromPlayer(player, "tongmouv");
+        }
+        return false;
+    }
+};
+
+class TongmouForbidden: public TriggerSkill{
+public:
+    TongmouForbidden():TriggerSkill("#tmf"){
+        events << CardUsed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("xoxo") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *zhonghui, QVariant &dat) const{
+        Room *room = zhonghui->getRoom();
+        CardUseStruct use = dat.value<CardUseStruct>();
+        if(use.from && use.from == zhonghui && use.from->hasFlag("sa_forbidden")
+            && use.card->inherits("SavageAssault")){
+            room->throwCard(use.card->getId());
+            return true;
         }
         return false;
     }
@@ -617,20 +641,19 @@ public:
             return false;
 
         Room *room = player->getRoom();
-        if(!player->askForSkillInvoke(objectName(), data))
-            return false;
-        const Card *card = room->askForCard(player, "slash", "yanyun-slash");
-        if(card && card->getSkillName() != "xiefang"){
-            if(player->hasFlag("drank"))
-                room->setPlayerFlag(player, "-drank");
+        if(room->askForSkillInvoke(player, objectName(), data)){
+            const Card *card = room->askForCard(player, "slash", "yanyun-slash");
+            if(card && card->getSkillName() != "xiefang"){
+                if(player->hasFlag("drank"))
+                    room->setPlayerFlag(player, "-drank");
 
-            CardUseStruct use;
-            use.card = card;
-            use.from = player;
-            use.to << effect.to;
-            room->useCard(use, false);
+                CardUseStruct use;
+                use.card = card;
+                use.from = player;
+                use.to << effect.to;
+                room->useCard(use, false);
+            }
         }
-
         return false;
     }
 };
@@ -1018,8 +1041,10 @@ RedPackage::RedPackage()
     General *redzhonghui = new General(this, "redzhonghui", "wei");
     redzhonghui->addSkill(new Tongmou);
     redzhonghui->addSkill(new TongmouClear);
+    redzhonghui->addSkill(new TongmouForbidden);
     redzhonghui->addSkill(new Xianhai);
     related_skills.insertMulti("tongmou", "#tmc");
+    related_skills.insertMulti("tongmou", "#tmf");
     skills << new TongmouViewAsSkill;
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
