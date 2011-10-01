@@ -207,7 +207,6 @@ public:
 };
 
 class XJchenjing:public MasochismSkill{
-
     XJchenjing():MasochismSkill("XJchenjing"){
         frequency = Frequent;
     }
@@ -502,6 +501,160 @@ public:
     }
 };
 
+
+class XJweiwu:public OneCardViewAsSkill{
+public:
+    XJweiwu():OneCardViewAsSkill("XJweiwu"){
+
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        switch(ClientInstance->getStatus()){
+        case Client::Responsing:{
+                QString pattern = ClientInstance->getPattern();
+                if(pattern == "jink" || pattern == "peach")
+                    return card->inherits("Slash");
+            }
+
+        default:
+            return false;
+        }
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return (pattern.contains("peach") || pattern == "jink") && player->getPhase() == Player::NotActive;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+
+        const Card *card = card_item->getCard();
+        switch(ClientInstance->getStatus()){
+        case Client::Responsing:{
+                QString pattern = ClientInstance->getPattern();
+                if(pattern == "jink"){
+                    Jink *jink = new Jink(card->getSuit(), card->getNumber());
+                    jink->setSkillName(objectName());
+                    jink->addSubcard(card->getId());
+                    return jink;
+                }
+                else if(pattern == "peach"){
+                    const Card *first = card_item->getCard();
+                    Peach *peach = new Peach(first->getSuit(), first->getNumber());
+                    peach->addSubcard(first->getId());
+                    peach->setSkillName(objectName());
+                    return peach;
+                }
+            }
+        default:
+            return false;
+        }
+    }
+};
+class XJanju:public OneCardViewAsSkill{
+public:
+    XJanju():OneCardViewAsSkill("XJanju"){
+
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->isRed();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getCard();
+        switch(ClientInstance->getStatus()){
+        case Client::Responsing:{
+                QString pattern = ClientInstance->getPattern();
+                if(pattern == "jink"){
+                    Jink *jink = new Jink(card->getSuit(), card->getNumber());
+                    jink->setSkillName(objectName());
+                    jink->addSubcard(card->getId());
+                    return jink;
+                }
+                else if(pattern == "nullification"){
+                    const Card *first = card_item->getFilteredCard();
+                    Card *ncard = new Nullification(first->getSuit(), first->getNumber());
+                    ncard->addSubcard(first);
+                    ncard->setSkillName("XJanju");
+                    return ncard;
+                }
+            }
+        default:
+            return false;
+        }
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return  pattern == "jink" || pattern == "nullification";
+    }
+};
+
+
+class XJleye: public OneCardViewAsSkill{
+public:
+    XJleye():OneCardViewAsSkill("XJleye"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("ExNihilo");//(player->usedTimes("Dismantlement")<=1);
+    }
+
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return card->inherits("EquipCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getFilteredCard();
+
+        ExNihilo *shortage = new ExNihilo(card->getSuit(), card->getNumber());
+        shortage->setSkillName(objectName());
+        shortage->addSubcard(card);
+
+        return shortage;
+    }
+};
+
+class XJshuishou:public TriggerSkill{
+public:
+    XJshuishou():TriggerSkill("XJshuishou$"){
+        //events << CardUsed << CardResponsed;
+        //frequency = Frequent;
+        events << PhaseChange;
+        frequency = Frequent;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getKingdom() == "qun";
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+
+        Room *room = player->getRoom();
+        ServerPlayer *XJliubiao = room->findPlayerBySkillName(objectName());
+        if(player->getPhase() == Player::Discard){
+            player->tag["cardnum"] = player->getHandcardNum();
+        }
+        else if(player->getPhase() == Player::Finish){
+            int drawnum = player->tag.value("cardnum", 0).toInt() - player->getHandcardNum();
+            if(drawnum > 1 && player->askForSkillInvoke(objectName(), data)){
+                    XJliubiao->drawCards(1);
+            }
+        }
+        return false;
+    }
+};
+
 LiXianJiPackage::LiXianJiPackage()
     :Package("LiXianJipackage")
 {
@@ -513,8 +666,8 @@ LiXianJiPackage::LiXianJiPackage()
     XJcaozhi->addSkill(new XJwencai);
     XJcaozhi->addSkill(new XJfengliu);
 
-    General *XJlidian = new General(this, "XJlidian", "wei", 4);
-    /*XJlidian->addSkill(new XJchenjing);*/
+    /*General *XJlidian = new General(this, "XJlidian", "wei", 4);
+    XJlidian->addSkill(new XJchenjing);*/
 
     General *XJliuxie = new General(this, "XJliuxie", "qun", 3);
     XJliuxie->addSkill(new SavageAssaultAvoid("XJhanwei"));
@@ -538,10 +691,10 @@ LiXianJiPackage::LiXianJiPackage()
     XJdengai->addSkill(new XJjixi);
 
     General *XJzhanghe = new General(this, "XJzhanghe", "wei", 4);
-    XJzhanghe->addSkill(new XJqiaobian);
+    XJzhanghe->addSkill(new XJqiaobian);*/
 
     General *XJpanfeng = new General(this, "XJpanfeng", "qun", 4);
-    XJpanfeng->addSkill(new XJweiwu);
+    XJpanfeng->addSkill(new XJweiwu);/*
 
     General *XJyujin = new General(this, "XJyujin", "wei", 4);
     XJyujin->addSkill(new XJyizhong);
@@ -587,12 +740,12 @@ LiXianJiPackage::LiXianJiPackage()
 
     General *XJliyan = new General(this, "XJliyan", "shu", 3);
     XJliyan->addSkill(new XJshusong);
-    XJliyan->addSkill(new XJsimou);
+    XJliyan->addSkill(new XJsimou);*/
 
     General *XJliubiao = new General(this, "XJliubiao$", "qun", 3);
     XJliubiao->addSkill(new XJanju);
     XJliubiao->addSkill(new XJleye);
-    XJliubiao->addSkill(new XJshuishou);
+    XJliubiao->addSkill(new XJshuishou);/*
 
     General *XJgaoshun = new General(this, "XJgaoshun", "qun", 4);
     XJgaoshun->addSkill(new XJxianzhen);
@@ -622,6 +775,8 @@ LiXianJiPackage::LiXianJiPackage()
     addMetaObject<XJfengliuCard>();
     addMetaObject<XJjielveCard>();
     addMetaObject<XJduwuCard>();
+    //addMetaObject<XJshuishouCard>();
+
 }
 
 ADD_PACKAGE(LiXianJi);

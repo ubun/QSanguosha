@@ -341,7 +341,6 @@ public:
     }
 };
 
-<<<<<<< HEAD
 //OMEGA ERA XIAOYAOJINZHIZHAN-GOD ZHANGLIAO, GANNING, SUNQUAN
 
 PozhenCard::PozhenCard(){
@@ -846,12 +845,12 @@ SPPackage::SPPackage()
     OEtaoyuanxiongdi->addSkill(new taoyuanjieyi);
     OEtaoyuanxiongdi->addSkill(new taoyuanjieyiBegin);
     OEtaoyuanxiongdi->addSkill(new taoyuanjieyiEnd);
-
+/*
     General *OEgodzhaoyun = new General(this, "OEgodzhaoyun", "shu", 2, true, true);
     OEgodzhaoyun->addSkill(new Qijin);
     OEgodzhaoyun->addSkill("paoxiao");
     OEgodzhaoyun->addSkill("longhun");
-
+*/
     addMetaObject<PozhenCard>();
 }
 

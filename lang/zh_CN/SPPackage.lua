@@ -73,7 +73,6 @@ return {
 	[":tuoqiao"] = "金蝉脱壳，变身为SP貂蝉",
 	[":xuwei"] = "狗尾续貂，变身为原版貂蝉",
 	
-<<<<<<< HEAD
 	["OEgodzhangliao"] = "神张辽",
 	["pozhen"] = "破阵",
 	["Pozhen"] = "破阵",

@@ -377,6 +377,11 @@ bool ServerPlayer::hasNullification() const{
             if(card->isBlack() || card->objectName() == "nullification")
                 return true;
         }
+    }else if(hasSkill("XJanju")){
+        foreach(const Card *card, handcards){
+            if(card->isRed() || card->objectName() == "nullification")
+                return true;
+        }
     }else if(hasSkill("wushen")){
         foreach(const Card *card, handcards){
             if(card->objectName() == "nullification" && card->getSuit() != Card::Heart)

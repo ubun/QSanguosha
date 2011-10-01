@@ -356,7 +356,7 @@ bool SupplyShortage::targetFilter(const QList<const Player *> &targets, const Pl
 
     int distance = Self->distanceTo(to_select);
     if(Self->hasSkill("duanliang"))
-        return distance <= 2;
+        return distance <= 20;
     else
         return distance <= 1;
 }
