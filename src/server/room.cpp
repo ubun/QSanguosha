@@ -3059,3 +3059,27 @@ Room* Room::duplicate()
     room->copyFrom(this);
     return room;
 }
+void Room::niubiMoveout(const QString result){
+    foreach(int card_id, *draw_pile){
+        const Card *card = Sanguosha->getCard(card_id);
+        bool f = false;
+        if(card->inherits("Niubi")){
+            foreach(ServerPlayer *p, getAllPlayers()){
+                if(
+                   (result == "player"
+                    && getNiubiOwner(card->objectName()) == p->getGeneralName()) ||
+                   (result == "player2"
+                    && (getNiubiOwner(card->objectName()) == p->getGeneralName() ||
+                    getNiubiOwner(card->objectName()) == p->getGeneral2Name())) ||
+                   (result == "package"
+                    && getNiubiOwner(card->objectName(), 2) == p->getGeneral()->getPackage())){
+                    f = true;
+                    break;
+                }
+            }
+            if(!f)
+                draw_pile->removeOne(card_id);
+                //player->addToPile("nb",card_id);
+        }
+    }
+}
