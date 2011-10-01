@@ -73,6 +73,7 @@ return {
 	[":tuoqiao"] = "金蝉脱壳，变身为SP貂蝉",
 	[":xuwei"] = "狗尾续貂，变身为原版貂蝉",
 	
+<<<<<<< HEAD
 	["OEgodzhangliao"] = "神张辽",
 	["pozhen"] = "破阵",
 	["Pozhen"] = "破阵",
@@ -103,4 +104,9 @@ return {
 	[":linggandebuhe"] = "锁定技，甘宁每使凌统回复1点体力，凌统失去1点体力。",
 	
 	["@qiaoxiao"] = "桥小难渡",
+	
+	["sp_cards"] = "SP卡牌包",
+	["sp_moonspear"] = "SP银月枪", 
+	[":sp_moonspear"] = "你的回合外，若打出了一张黑色的牌，你可以立即指定攻击范围内的一名角色打出一张【闪】，否则失去一点体力", 
+	["@moon-spear-jink"] = "受到SP银月枪技能的影响，你必须打出一张【闪】", 
 }

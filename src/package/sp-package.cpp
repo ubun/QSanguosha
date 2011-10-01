@@ -10,6 +10,48 @@
 #include "ai.h"
 #include "settings.h"
 
+class SPMoonSpearSkill: public WeaponSkill{
+public:
+    SPMoonSpearSkill():WeaponSkill("sp_moonspear"){
+        events << CardResponsed;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+
+        CardStar card = NULL;
+        card = data.value<CardStar>();
+
+        if(!card || !card->isBlack())
+            return false;
+
+        Room *room = player->getRoom();
+        if(!room->askForSkillInvoke(player, objectName(), data))
+            return false;
+        QList<ServerPlayer *> targets;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+            if(player->inMyAttackRange(tmp))
+                targets << tmp;
+        }
+        if(targets.isEmpty()) return false;
+        ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
+        if(!room->askForCard(target, "jink", "@moon-spear-jink"))
+            room->loseHp(target);
+
+        return false;
+    }
+};
+
+class SPMoonSpear: public Weapon{
+public:
+    SPMoonSpear(Suit suit = Card::Diamond, int number = 12)
+        :Weapon(suit, number, 3){
+        setObjectName("sp_moonspear");
+        skill = new SPMoonSpearSkill;
+    }
+};
+
 class JileiClear: public PhaseChangeSkill{
 public:
     JileiClear():PhaseChangeSkill("#jilei-clear"){
@@ -299,6 +341,7 @@ public:
     }
 };
 
+<<<<<<< HEAD
 //OMEGA ERA XIAOYAOJINZHIZHAN-GOD ZHANGLIAO, GANNING, SUNQUAN
 
 PozhenCard::PozhenCard(){
@@ -735,6 +778,17 @@ public:
         return false;
     }
 };
+
+SPCardPackage::SPCardPackage()
+    :Package("sp_cards")
+{
+    (new SPMoonSpear)->setParent(this);
+
+    type = CardPack;
+}
+
+ADD_PACKAGE(SPCard)
+
 
 SPPackage::SPPackage()
     :Package("sp")
