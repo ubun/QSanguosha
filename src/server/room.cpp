@@ -412,7 +412,12 @@ bool Room::askForSkillInvoke(ServerPlayer *player, const QString &skill_name, co
         thread->delay(Config.AIDelay);
         invoked = ai->askForSkillInvoke(skill_name, data);
     }else{
-        player->invoke("askForSkillInvoke", skill_name);
+        QString invoke_str;
+        if(data.type() == QVariant::String)
+            invoke_str = QString("%1:%2").arg(skill_name).arg(data.toString());
+        else
+            invoke_str = skill_name;
+        player->invoke("askForSkillInvoke", invoke_str);
         getResult("invokeSkillCommand", player);
 
         if(result.isEmpty())
@@ -2266,7 +2271,8 @@ void Room::acquireSkill(ServerPlayer *player, const Skill *skill, bool open){
         }
 
         foreach(const Skill *related_skill, Sanguosha->getRelatedSkills(skill_name)){
-            acquireSkill(player, related_skill);
+            if(!related_skill->isVisible())
+                acquireSkill(player, related_skill);
         }
     }
 }
@@ -3059,7 +3065,33 @@ Room* Room::duplicate()
     room->copyFrom(this);
     return room;
 }
+
 void Room::niubiMoveout(const QString result){
+
+    QMutableListIterator<int > itor(*draw_pile);
+    while(itor.hasNext()){
+        itor.next();
+        const Card *card = Sanguosha->getCard(itor.value());
+        bool f = false;
+        if(card->inherits("Niubi")){
+            foreach(ServerPlayer *p, getAllPlayers()){
+                if(
+                   (result == "player"
+                    && getNiubiOwner(card->objectName()) == p->getGeneralName()) ||
+                   (result == "player2"
+                    && (getNiubiOwner(card->objectName()) == p->getGeneralName() ||
+                    getNiubiOwner(card->objectName()) == p->getGeneral2Name())) ||
+                   (result == "package"
+                    && getNiubiOwner(card->objectName(), 2) == p->getGeneral()->getPackage())){
+                    f = true;
+                    break;
+                }
+            }
+            if(!f)
+                itor.remove();
+        }
+    }
+    /*
     foreach(int card_id, *draw_pile){
         const Card *card = Sanguosha->getCard(card_id);
         bool f = false;
@@ -3081,5 +3113,74 @@ void Room::niubiMoveout(const QString result){
                 draw_pile->removeOne(card_id);
                 //player->addToPile("nb",card_id);
         }
+    }*/
+}
+    //standard
+    //wind
+    //thicket
+    //YJCM
     }
+/*
+    //option = 1 return general-name, other(for example 2) return package-name
+    if(cardname == "corrfluid") return option == 1 ? "simayi" : "standard";
+    else if(cardname == "stimulant") return option == 1 ? "caocao" : "standard";
+    else if(cardname == "madamfeng") return option == 1 ? "huangyueying" : "standard";
+    else if(cardname == "harley") return option == 1 ? "machao" : "standard";
+    else if(cardname == "telescope") return option == 1 ? "zhugeliang" : "standard";
+    else if(cardname == "flashlight") return option == 1 ? "zhangliao" : "standard";
+    else if(cardname == "warmbaby") return option == 1 ? "xuchu" : "standard";
+    else if(cardname == "linctus") return option == 1 ? "guojia" : "standard";
+    else if(cardname == "towel") return option == 1 ? "lumeng" : "standard";
+    else if(cardname == "lubricatingoil") return option == 1 ? "xiahoudun" : "standard";
+    else if(cardname == "underwear") return option == 1 ? "daqiao" : "standard";
+    else if(cardname == "whip") return option == 1 ? "huanggai" : "standard";
+    else if(cardname == "eyedrops") return option == 1 ? "liubei" : "standard";
+    else if(cardname == "urban") return option == 1 ? "ganning" : "standard";
+    else if(cardname == "redsunglasses") return option == 1 ? "guanyu" : "standard";
+    else if(cardname == "brainplatinum") return option == 1 ? "sunquan" : "standard";
+    else if(cardname == "sophie") return option == 1 ? "zhenji" : "standard";
+    else if(cardname == "yaiba") return option == 1 ? "diaochan" : "standard";
+    else if(cardname == "banana") return option == 1 ? "zhaoyun" : "standard";
+    else if(cardname == "speakers") return option == 1 ? "zhangfei" : "standard";
+    else if(cardname == "cologne") return option == 1 ? "zhouyu" : "standard";
+    else if(cardname == "dustbin") return option == 1 ? "luxun" : "standard";
+    else if(cardname == "animals") return option == 1 ? "lubu" : "standard";
+    else if(cardname == "deathrisk") return option == 1 ? "huatuo" : "standard"; //cannot saveself
+    else if(cardname == "rollingpin") return option == 1 ? "sunshangxiang" : "standard";
+    //wind
+    else if(cardname == "saw") return option == 1 ? "zhangjiao" : "wind";
+    else if(cardname == "amazonston") return option == 1 ? "huangzhong" : "wind";
+    else if(cardname == "gnat") return option == 1 ? "caoren" : "wind";
+    else if(cardname == "magicwand") return option == 1 ? "yuji" : "wind";
+    else if(cardname == "chanel5") return option == 1 ? "xiaoqiao" : "wind";
+    else if(cardname == "landrover") return option == 1 ? "xiahouyuan" : "wind";
+    else if(cardname == "chiropter") return option == 1 ? "weiyan" : "wind";
+    else if(cardname == "drum") return option == 1 ? "zhoutai" : "wind";
+    //thicket
+    else if(cardname == "hydrogen") return option == 1 ? "caopi" : "thicket";
+    else if(cardname == "tranqgun") return option == 1 ? "xuhuang" : "thicket";
+    else if(cardname == "ghostcar") return option == 1 ? "sunjian" : "thicket";
+    else if(cardname == "snake") return option == 1 ? "lusu" : "thicket";
+    else if(cardname == "voodoo") return option == 1 ? "jiaxu" : "thicket";
+    else if(cardname == "tombstone") return option == 1 ? "dongzhuo" : "thicket";
+    else if(cardname == "snapshot") return option == 1 ? "menghuo" : "thicket";
+    else if(cardname == "fuckav") return option == 1 ? "zhurong" : "thicket";
+
+    //sp
+    else if(cardname == "morin_khuur") return option == 1 ? "gongsunzan" : "sp";
+    else if(cardname == "greatchair") return option == 1 ? "yuanshu" : "sp";
+    //1j
+    else if(cardname == "hawksbill") return option == 1 ? "yujin" : "YJCM";
+    else if(cardname == "torture") return option == 1 ? "xushu" : "YJCM";
+    else if(cardname == "rotate") return option == 1 ? "lingtong" : "YJCM";
+    else if(cardname == "totocar") return option == 1 ? "chengong" : "YJCM";
+    else if(cardname == "ch3oh") return option == 1 ? "caozhi" : "YJCM";
+    else if(cardname == "teardan") return option == 1 ? "masu" : "YJCM";
+    else if(cardname == "nanafist") return option == 1 ? "xusheng" : "YJCM";
+    else if(cardname == "lrzt9hh") return option == 1 ? "gaoshun" : "YJCM";
+    else if(cardname == "mushroom") return option == 1 ? "fazheng" : "YJCM";
+    else if(cardname == "aofrog") return option == 1 ? "wuguotai" : "YJCM";
+    else if(cardname == "coptis") return option == 1 ? "chunhua" : "YJCM";
+    else return "";
+*/
 }
