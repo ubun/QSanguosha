@@ -44,6 +44,7 @@ extern "C" {
     Package *NewCyan();
     Package *NewGreen();
     Package *NewTest();
+    Package *NewKuso();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -85,6 +86,7 @@ Engine::Engine()
     addPackage(NewRed());
     //addPackage(NewCyan());
     //addPackage(NewGreen());
+    addPackage(NewKuso());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());

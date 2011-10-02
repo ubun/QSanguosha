@@ -64,6 +64,7 @@ SOURCES += src/main.cpp \
 	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
+	src/package/kuso.cpp \
 	src/server/ai.cpp \
 	src/server/contestdb.cpp \
 	src/server/gamerule.cpp \
@@ -144,6 +145,7 @@ HEADERS += src/client/aux-skills.h \
 	src/scenario/scenario.h \
 	src/scenario/scenerule.h \
 	src/scenario/zombie-mode-scenario.h \
+	src/package/kuso.h \
 	src/server/ai.h \
 	src/server/contestdb.h \
 	src/server/gamerule.h \
