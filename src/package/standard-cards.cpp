@@ -613,9 +613,8 @@ Collateral::Collateral(Card::Suit suit, int number)
 }
 
 bool Collateral::isAvailable(const Player *player) const{
-    QList<const Player*> players = player->parent()->findChildren<const Player *>();
-    foreach(const Player *p, players){
-        if(p->getWeapon() != NULL && p != player)
+    foreach(const Player *p, player->getSiblings()){
+        if(p->getWeapon() && p->isAlive())
             return true;
     }
 
