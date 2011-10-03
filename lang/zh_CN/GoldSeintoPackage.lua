@@ -3,7 +3,7 @@
 local t = {
 	["goldseinto"] = "黄金圣斗士", 
 	["st"] = "圣", 
-	["designer:goldseinto"] = "StarmK32",
+	["designer:goldseinto"] = "StarmK23",
 
 --mu穆—3血—圣——白羊星座
 	["mu"] = "穆",

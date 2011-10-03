@@ -45,7 +45,7 @@ SOURCES += src/main.cpp \
 	src/package/sp-package.cpp \
 	src/package/bronze-seinto.cpp \
 	src/package/gold-seinto.cpp \
-    	src/package/gold-seinto-pre.cpp \
+	src/package/gold-seinto-pre.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
@@ -88,8 +88,8 @@ SOURCES += src/main.cpp \
 	src/ui/window.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
-        src/util/recorder.cpp \
-        swig/sanguosha_wrap.cxx
+	src/util/recorder.cpp \
+	swig/sanguosha_wrap.cxx
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -125,7 +125,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/package.h \
 	src/package/bronze-seinto.h \
 	src/package/gold-seinto.h \
-    	src/package/gold-seinto-pre.h \
+	src/package/gold-seinto-pre.h \
 	src/package/sp-package.h \
 	src/package/standard-equips.h \
 	src/package/standard-skillcards.h \
