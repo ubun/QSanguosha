@@ -119,20 +119,11 @@ void RoomThread::addPlayerSkills(ServerPlayer *player, bool invoke_game_start){
     QVariant void_data;
 
     foreach(const TriggerSkill *skill, player->getTriggerSkills()){
-        if(skill->isLordSkill()){
-            if(!player->isLord() || room->mode == "06_3v3")
-                continue;
-        }
-
         addTriggerSkill(skill);
 
         if(invoke_game_start && skill->getTriggerEvents().contains(GameStart))
             skill->trigger(GameStart, player, void_data);
     }
-}
-
-bool RoomThread::inSkillSet(const TriggerSkill *skill) const{
-    return skillSet.contains(skill);
 }
 
 void RoomThread::constructTriggerTable(const GameRule *rule){
@@ -328,8 +319,9 @@ bool RoomThread::trigger(TriggerEvent event, ServerPlayer *target){
 }
 
 void RoomThread::addTriggerSkill(const TriggerSkill *skill){
-    if(inSkillSet(skill))
+    if(skillSet.contains(skill))
         return;
+
     skillSet << skill;
 
     QList<TriggerEvent> events = skill->getTriggerEvents();
@@ -338,6 +330,13 @@ void RoomThread::addTriggerSkill(const TriggerSkill *skill){
 
         table << skill;
         qStableSort(table.begin(), table.end(), CompareByPriority);
+    }
+
+    if(skill->isVisible()){
+        foreach(const Skill *skill, Sanguosha->getRelatedSkills(skill->objectName())){
+            const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
+            addTriggerSkill(trigger_skill);
+        }
     }
 }
 
