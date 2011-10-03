@@ -71,7 +71,7 @@ public:
                 if(!xuyou)
                     room->throwCard(cdid);
                 else
-                    player->obtainCard(Sanguosha->getCard(cdid));
+                    room->obtainCard(player, cdid);
             }
             if(!xuyou)
                 return false;
@@ -733,8 +733,11 @@ public:
 
     }
 
-    virtual bool isEnabledAtPlay() const{
-        return ! Self->hasUsed("ShouyeCard");
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        if(player->getMark("shouyeonce") > 0)
+            return ! player->hasUsed("ShouyeCard");
+        else
+            return true;
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -767,10 +770,13 @@ public:
         LogMessage log;
         log.type = "#JiehuoWake";
         log.from = player;
+        log.arg = objectName();
+        log.arg2 = "shouye";
         room->sendLog(log);
 
         room->setPlayerMark(player, "jiehuo", 1);
         room->setPlayerMark(player, "shouye", 0);
+        room->setPlayerMark(player, "shouyeonce", 1);
         room->acquireSkill(player, "shien");
 
         room->loseMaxHp(player);

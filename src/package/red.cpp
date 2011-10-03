@@ -195,7 +195,7 @@ public:
         CardUseStruct use = dat.value<CardUseStruct>();
         if(use.from && use.from == zhonghui && use.from->hasFlag("sa_forbidden")
             && use.card->inherits("SavageAssault")){
-            room->throwCard(use.card->getId());
+            room->throwCard(use.card);
             return true;
         }
         return false;
@@ -844,7 +844,7 @@ public:
         Room *room = player->getRoom();
         if(!player->getPile("niangA").isEmpty() && room->askForSkillInvoke(player, "xujiu", data)){
             int card_id = player->getPile("niangA").first();
-            player->obtainCard(Sanguosha->getCard(card_id));
+            room->obtainCard(player, card_id);
             player->addToPile("niangB", card_id);
 
             LogMessage log;
