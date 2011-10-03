@@ -1237,8 +1237,8 @@ public:
 
 class Chujia: public GameStartSkill{
 public:
-    Chujia():GameStartSkill("#chujia"){
-
+    Chujia():GameStartSkill("chujia"){
+        frequency = Limited;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -1702,7 +1702,6 @@ TestPackage::TestPackage()
 
     new General(this, "sujiang", "god", 5, true, true);
     new General(this, "sujiangf", "god", 5, false, true);
-
 }
 
 ADD_PACKAGE(Test)
