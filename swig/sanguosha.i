@@ -181,6 +181,7 @@ public:
 	void jilei(const char *type);
     bool isJilei(const Card *card) const;
 	QList<const Skill *> getVisibleSkillList() const;
+	QList<const Player *> getSiblings() const;
 };
 
 %extend Player{
@@ -618,8 +619,6 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const = 0;
 };
 
-
-
 class QThread: public QObject{
 };
 
@@ -644,7 +643,6 @@ public:
 
     void addPlayerSkills(ServerPlayer *player, bool invoke_game_start = false);
     void addTriggerSkill(const TriggerSkill *skill);
-	bool inSkillSet(const TriggerSkill *skill) const;
 
     void delay(unsigned long msecs = 1000);
     void end();

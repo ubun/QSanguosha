@@ -89,9 +89,9 @@ SOURCES += src/main.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
         src/util/recorder.cpp \
-        swig/sanguosha_wrap.cxx \
+	swig/sanguosha_wrap.cxx \
     src/package/green.cpp
-	
+    
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
 	src/client/clientplayer.h \
@@ -115,7 +115,7 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/mainwindow.h \
 	src/dialog/packagingeditor.h \
 	src/dialog/playercarddialog.h \
-	src/dialog/roleassigndialog.h \
+	src/dialog/roleassigndialog.h \ 
 	src/dialog/scenario-overview.h \
 	src/package/firepackage.h \
 	src/package/god.h \
