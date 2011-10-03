@@ -3115,11 +3115,24 @@ void Room::niubiMoveout(const QString result){
         }
     }*/
 }
+
+QString Room::getNiubiOwner(QString armor, int option){
+    QMap<QString, QString> map;
+
     //standard
     //wind
     //thicket
+    //fire
+    //mountain
+    //sp
     //YJCM
+    switch(option){
+        case 1: return map.value(armor, QString());
+        case 2: return Sanguosha->getGeneral(map.value(armor, QString()))->getPackage();
+        case 3: return map.key(armor, QString());
+        default: return "";
     }
+
 /*
     //option = 1 return general-name, other(for example 2) return package-name
     if(cardname == "corrfluid") return option == 1 ? "simayi" : "standard";

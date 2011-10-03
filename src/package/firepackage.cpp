@@ -88,7 +88,10 @@ void JiemingCard::onEffect(const CardEffectStruct &effect) const{
     if(x <= 0)
         return;
 
-    effect.to->drawCards(x);
+    if(!effect.from->hasArmorEffect("flack"))
+        effect.to->drawCards(x);
+    else
+        effect.to->drawCards(effect.to->getMaxHP());
 }
 
 class JiemingViewAsSkill: public ZeroCardViewAsSkill{
@@ -187,7 +190,8 @@ public:
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        return selected.isEmpty() && to_select->getCard()->inherits("Weapon");
+        return selected.isEmpty() && (to_select->getCard()->inherits("Weapon")
+                ||(Self->hasArmorEffect("sansyouuo") && !to_select->isEquipped())) ;
     }
 
     virtual const Card *viewAs(const QList<CardItem *> &cards) const{
@@ -230,6 +234,26 @@ public:
     }
 };
 
+class Luanjip: public TriggerSkill{
+public:
+    Luanjip():TriggerSkill("#luanjip"){
+        events << PhaseChange << Predamaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasArmorEffect("goldlock");
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *yuanshao, QVariant &data) const{
+        if(event == PhaseChange && yuanshao->getPhase() == Player::Start)
+            yuanshao->drawCards(2);
+        else if(event == Predamaged)
+            if(yuanshao->getPhase() != Player::NotActive)
+                return true;
+        return false;
+    }
+};
+
 class ShuangxiongViewAsSkill: public OneCardViewAsSkill{
 public:
     ShuangxiongViewAsSkill():OneCardViewAsSkill("shuangxiong"){
@@ -248,6 +272,15 @@ public:
             return to_select->getFilteredCard()->isBlack();
         else if(value == 2)
             return to_select->getFilteredCard()->isRed();
+
+        else if(value == 3)
+            return to_select->getFilteredCard()->getSuit() != Card::Heart;
+        else if(value == 4)
+            return to_select->getFilteredCard()->getSuit() != Card::Diamond;
+        else if(value == 5)
+            return to_select->getFilteredCard()->getSuit() != Card::Spade;
+        else if(value == 6)
+            return to_select->getFilteredCard()->getSuit() != Card::Club;
 
         return false;
     }
@@ -287,7 +320,21 @@ public:
 
                     room->judge(judge);
 
-                    room->setPlayerMark(shuangxiong, "shuangxiong", judge.card->isRed() ? 1 : 2);
+                    if(shuangxiong->hasArmorEffect("tanbi")){
+                        switch(judge.card->getSuit()){
+                        case Card::Heart:
+                            room->setPlayerMark(shuangxiong, "shuangxiong", 3); break;
+                        case Card::Diamond:
+                            room->setPlayerMark(shuangxiong, "shuangxiong", 4); break;
+                        case Card::Spade:
+                            room->setPlayerMark(shuangxiong, "shuangxiong", 5); break;
+                        case Card::Club:
+                            room->setPlayerMark(shuangxiong, "shuangxiong", 6); break;
+                        default: break;
+                        }
+                    }
+                    else
+                        room->setPlayerMark(shuangxiong, "shuangxiong", judge.card->isRed() ? 1 : 2);
                     shuangxiong->setFlags("-shuangxiong");
 
                     return true;
@@ -323,6 +370,8 @@ public:
                 room->playSkillEffect(objectName());
                 int to_throw = room->askForCardChosen(pangde, effect.to, "he", objectName());
                 room->throwCard(to_throw);
+                if(pangde->hasArmorEffect("coffinlid"))
+                    pangde->obtainCard(Sanguosha->getCard(to_throw));
             }
         }
 
@@ -369,7 +418,11 @@ public:
             room->broadcastInvoke("animate", "lightbox:$niepan");
             room->playSkillEffect(objectName());
 
-            pangtong->loseMark("@nirvana");
+            const Card *armor = NULL;
+            if(!pangtong->hasArmorEffect("reijyutsu"))
+                pangtong->loseMark("@nirvana");
+            else
+                armor = pangtong->getArmor();
 
             room->setPlayerProperty(pangtong, "hp", qMin(3, pangtong->getMaxHP()));
             pangtong->throwAllCards();
@@ -379,8 +432,8 @@ public:
                 if(dying_data.damage == NULL || dying_data.damage->nature == DamageStruct::Normal)
                     room->setPlayerProperty(pangtong, "chained", false);
             }
-            if(!pangtong->faceUp())
-                pangtong->turnOver();
+            if(pangtong->getMark("@nirvana") > 0 && armor)
+                room->moveCardTo(armor, pangtong, Player::Equip);
         }
 
         return false;
@@ -562,7 +615,10 @@ FirePackage::FirePackage()
 
     yuanshao = new General(this, "yuanshao$", "qun");
     yuanshao->addSkill(new Luanji);
+    yuanshao->addSkill(new Luanjip);
     yuanshao->addSkill(new Skill("xueyi$", Skill::Compulsory));
+
+    related_skills.insertMulti("luanji", "#luanjip");
 
     shuangxiong = new General(this, "shuangxiong", "qun");
     shuangxiong->addSkill(new Shuangxiong);

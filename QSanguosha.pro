@@ -53,6 +53,7 @@ SOURCES += src/main.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \	
 	src/package/newbility.cpp \
+	src/package/technology.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/challengemode.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -131,6 +132,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
 	src/package/newbility.h \
+	src/package/technology.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/challengemode.h \
 	src/scenario/couple-scenario.h \

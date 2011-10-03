@@ -3208,3 +3208,5 @@ dofile "lua/ai/fancheng-ai.lua"
 dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"
+
+dofile "lua/ai/newbility-ai.lua"

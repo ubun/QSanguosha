@@ -142,6 +142,8 @@ public:
                 return true;
             }
         }
+        else if(player->hasArmorEffect("nailclippers") && effect.card->inherits("TrickCard"))
+            player->drawCards(1);
 
         return false;
     }
