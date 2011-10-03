@@ -67,11 +67,11 @@ public:
             Room *room = player->getRoom();
             player->setMark("juao", 0);
             ServerPlayer *xuyou = room->findPlayerBySkillName(objectName());
-            foreach(int cdid, player->getPile("juaocd")){
+            foreach(int card_id, player->getPile("juaocd")){
                 if(!xuyou)
-                    room->throwCard(cdid);
+                    room->throwCard(card_id);
                 else
-                    room->obtainCard(player, cdid);
+                    room->obtainCard(player, card_id);
             }
             if(!xuyou)
                 return false;
