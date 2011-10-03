@@ -10,7 +10,7 @@
 class XiufuE: public TriggerSkill{
 public:
     XiufuE():TriggerSkill("#xiufu-effect"){
-        events << AskForPeaches;
+        events << Dying;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
