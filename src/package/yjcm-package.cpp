@@ -956,6 +956,31 @@ public:
     }
 };
 
+class Shangshi: public TriggerSkill{
+public:
+    Shangshi():TriggerSkill("shangshi"){
+        events << HpLost << Damaged << CardLost << PhaseChange << HpRecover;
+        frequency = Frequent;
+    }
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == CardLost && player->hasArmorEffect("coptis")){
+            if(player->isKongcheng()){
+                CardMoveStar move = data.value<CardMoveStar>();
+                if(move->from_place == Player::Hand){
+                    Room *room = player->getRoom();
+                    if(room->askForSkillInvoke(player, "lianying"))
+                        player->drawCards(1);
+                }
+            }
+        }
+        else if(!player->hasArmorEffect("coptis") && player->getPhase() != Player::Discard && player->getLostHp()>player->getHandcardNum()
+            && player->getRoom()->askForSkillInvoke(player, objectName())){
+            player->getRoom()->playSkillEffect(objectName());
+            player->drawCards(player->getLostHp()-player->getHandcardNum());
+        }
+        return false;
+    }
+};
 
 YJCMPackage::YJCMPackage():Package("YJCM"){
     General *caozhi = new General(this, "caozhi", "wei", 3);
@@ -1002,6 +1027,10 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
     General *gaoshun = new General(this, "gaoshun", "qun");
     gaoshun->addSkill(new Xianzhen);
     gaoshun->addSkill(new Jiejiu);
+
+    General *chunhua = new General(this, "chunhua", "jon", 4, false);
+    chunhua->addSkill(new Shangshi);
+    chunhua->addSkill(new Qiecai);
 
     addMetaObject<JujianCard>();
     addMetaObject<MingceCard>();
