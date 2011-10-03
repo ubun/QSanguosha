@@ -20,4 +20,12 @@ return {
 	["liaoting"] = "蓼汀",
 	[":liaoting"] = "限定技，出牌阶段，你可以弃掉4张手牌，若均为屎，（在弃掉之前）立即产生以下效果：1、若你为反贼，主公立即死亡；2、若你为主公或忠臣，所有反贼和内奸立即死亡；3、若你为内奸，摸五张牌，所有反贼和忠臣立即死亡。若之后你依然存活且游戏未结束，回复体力至体力上限",
 	["liaot"] = "汀",
+
+--cards
+	["kuso_cards"] = "杀神附体",
+	["kawaii_dress"] = "百花裙",
+	[":kawaii_dress"] = "锁定技，当你的体力为1时，任何伤害对你无效。当你失去装备区里的【百花裙】时，你立即摸两张牌",
+	["#KawaiiDressProtect"] = "%from 受到百花裙保护，将 %arg 点伤害[%arg2] 无效化", 
+	["fiveline"] = "五道杠",
+	[":fiveline"] = "<br><font color=blue>德杠</font>·体力为1时可以发动【仁德】<br><font color=green>智杠</font>·体力为2时可以发动【集智】<br><font color=gold>体杠</font>·体力为3时可以发动【结姻】<br><font color=red>美杠</font>·体力为4时可以发动【国色】<br><font color=brown>劳杠</font>·体力为5时可以发动【苦肉】",
 }

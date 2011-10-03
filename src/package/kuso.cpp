@@ -118,6 +118,8 @@ public:
                 room->throwCard(card);
                 room->damage(damage);
             }
+            if(player->isDead())
+                return true;
         }
         return false;
     }
@@ -196,4 +198,129 @@ KusoPackage::KusoPackage()
     addMetaObject<LiaotingCard>();
 }
 
+//cards
+
+class KawaiiDressSkill: public ArmorSkill{
+public:
+    KawaiiDressSkill():ArmorSkill("kawaii_dress"){
+        events << Predamaged;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(player && player == damage.to && player->getHp() == 1){
+            LogMessage log;
+            log.type = "#KawaiiDressProtect";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            if(damage.nature == DamageStruct::Normal)
+                log.arg2 = "normal_nature";
+            else if(damage.nature == DamageStruct::Fire)
+                log.arg2 = "fire_nature";
+            else
+                log.arg2 = "thunder_nature";
+            player->getRoom()->sendLog(log);
+
+            return true;
+        }
+        return false;
+    }
+};
+
+KawaiiDress::KawaiiDress(Suit suit, int number) :Armor(suit, number){
+    setObjectName("kawaii_dress");
+    skill = new KawaiiDressSkill;
+}
+
+void KawaiiDress::onUninstall(ServerPlayer *player) const{
+    if(player->isAlive() && player->getMark("qinggang") == 0){
+        player->drawCards(2);
+    }
+}
+
+class FivelineSkill: public ArmorSkill{
+public:
+    FivelineSkill():ArmorSkill("fiveline"){
+        events << HpChanged;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
+        int hp = player->getHp();
+        if(player->isDead() || hp < 1)
+            return false;
+        Room *room = player->getRoom();
+        QStringList skills;
+        skills << "rende" << "jizhi" << "jieyin" << "guose" << "kurou";
+        QVariantList has_skills = player->tag["fiveline"].toList();
+        foreach(QString str, skills){
+            if(has_skills.contains(str))
+                continue;
+            else{
+                room->detachSkillFromPlayer(player, str);
+                player->loseSkill(str);
+            }
+        }
+        if(hp <= 5)
+            room->acquireSkill(player, skills.at(hp - 1));
+
+        return false;
+    }
+};
+
+Fiveline::Fiveline(Suit suit, int number) :Armor(suit, number){
+    setObjectName("fiveline");
+    skill = new FivelineSkill;
+}
+
+void Fiveline::onInstall(ServerPlayer *player) const{
+    EquipCard::onInstall(player);
+    QVariantList skills;
+    if(player->hasSkill("rende"))
+        skills << "rende";
+    else if(player->hasSkill("jizhi"))
+        skills << "jizhi";
+    else if(player->hasSkill("jieyin"))
+        skills << "jieyin";
+    else if(player->hasSkill("guose"))
+        skills << "guose";
+    else if(player->hasSkill("kurou"))
+        skills << "kurou";
+    player->tag["fiveline"] = skills;
+    player->getRoom()->setPlayerProperty(player, "hp", player->getHp());
+}
+
+void Fiveline::onUninstall(ServerPlayer *player) const{
+    if(player->isDead())
+        return;
+    QStringList skills;
+    skills << "rende" << "jizhi" << "jieyin" << "guose" << "kurou";
+    QVariantList has_skills = player->tag["fiveline"].toList();
+    foreach(QString str, skills){
+        if(has_skills.contains(str))
+            continue;
+        else{
+            player->getRoom()->detachSkillFromPlayer(player, str);
+            player->loseSkill(str);
+        }
+    }
+}
+
+KusoCardPackage::KusoCardPackage()
+    :Package("kuso_cards")
+{
+    (new KawaiiDress(Card::Spade, 2))->setParent(this);
+    (new Fiveline(Card::Heart, 5))->setParent(this);
+
+    type = CardPack;
+}
+
 ADD_PACKAGE(Kuso)
+ADD_PACKAGE(KusoCard)

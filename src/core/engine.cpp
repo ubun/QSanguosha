@@ -55,6 +55,7 @@ extern "C" {
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
+    Package *NewKusoCard();
 
     Scenario *NewGuanduScenario();
     Scenario *NewFanchengScenario();
@@ -98,6 +99,7 @@ Engine::Engine()
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
+    addPackage(NewKusoCard());
 
     addScenario(NewGuanduScenario());
     addScenario(NewFanchengScenario());
