@@ -43,6 +43,9 @@ return {
 	["~gongsunzan"] = "如今阵败吾已无颜苟活于世",
         
 	["sp_sunshangxiang"] = "SP孙尚香",
+	["chujia"] = "出嫁",
+	[":chujia"] = "<b>限定技<b>, 游戏开始时，你可以选择变身为SP孙尚香，势力为蜀",
+
 	["sp_pangde"] = "SP庞德",
 	["sp_diaochan"] = "SP貂蝉",
         
@@ -104,6 +107,11 @@ return {
 	
 	["@qiaoxiao"] = "桥小难渡",
 	
+	["sp_caiwenji"] = "SP蔡文姬",
+	["guixiang"] = "归乡",
+	[":guixiang"] = "<b>限定技</b>，游戏开始时，你可以选择变身为SP蔡文姬，势力为魏",
+	
+--sp_card	
 	["sp_cards"] = "SP卡牌包",
 	["sp_moonspear"] = "SP银月枪", 
 	[":sp_moonspear"] = "你的回合外，若打出了一张黑色的牌，你可以立即指定攻击范围内的一名角色打出一张【闪】，否则受到你对其造成的1点伤害", 

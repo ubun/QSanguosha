@@ -71,7 +71,7 @@ bool Slash::targetsFeasible(const QList<const Player *> &targets, const Player *
 
 bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     int slash_targets = 1;
-    if((Self->hasWeapon("halberd") ||Self->hasSkill("Hulaohalberd"))&& Self->isLastHandCard(this)){
+    if(Self->hasWeapon("halberd") && Self->isLastHandCard(this)){
         slash_targets = 3;
     }
 
@@ -599,12 +599,11 @@ void SingleTargetTrick::use(Room *room, ServerPlayer *source, const QList<Server
             room->cardEffect(effect);
         }
     }
-    else    {
+    else{
         effect.to = source;
         room->cardEffect(effect);
     }
 }
-
 
 Collateral::Collateral(Card::Suit suit, int number)
     :SingleTargetTrick(suit, number, false)
@@ -613,9 +612,8 @@ Collateral::Collateral(Card::Suit suit, int number)
 }
 
 bool Collateral::isAvailable(const Player *player) const{
-    QList<const Player*> players = player->parent()->findChildren<const Player *>();
-    foreach(const Player *p, players){
-        if(p->getWeapon() != NULL && p != player)
+    foreach(const Player *p, player->getSiblings()){
+        if(p->getWeapon() && p->isAlive())
             return true;
     }
 
@@ -686,16 +684,6 @@ ExNihilo::ExNihilo(Suit suit, int number)
 {
     setObjectName("ex_nihilo");
     target_fixed = true;
-}
-
-void ExNihilo::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->throwCard(this);
-
-    CardEffectStruct effect;
-    effect.from = effect.to = source;
-    effect.card = this;
-
-    room->cardEffect(effect);
 }
 
 void ExNihilo::onEffect(const CardEffectStruct &effect) const{
@@ -860,10 +848,6 @@ bool Disaster::isAvailable(const Player *player) const{
         return false;
 
     return ! player->isProhibited(player, this);
-}
-
-void Disaster::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->moveCardTo(this, source, Player::Judging);
 }
 
 Lightning::Lightning(Suit suit, int number):Disaster(suit, number){

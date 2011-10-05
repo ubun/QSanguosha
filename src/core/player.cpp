@@ -70,6 +70,13 @@ bool Player::isWounded() const{
         return hp < max_hp;
 }
 
+General::Gender Player::getGender() const{
+    if(general)
+        return general->getGender();
+    else
+        return General::Neuter;
+}
+
 int Player::getSeat() const{
     return seat;
 }
@@ -284,7 +291,7 @@ bool Player::hasLordSkill(const QString &skill_name) const{
         return hasInnateSkill(skill_name);
 
     if(hasSkill("weidi")){
-        foreach(const Player *player, parent()->findChildren<const Player *>()){
+        foreach(const Player *player, getSiblings()){
             if(player->isLord())
                 return player->hasLordSkill(skill_name);
         }
@@ -451,8 +458,7 @@ int Player::getMaxCards() const{
 
     int xueyi = 0;
     if(hasLordSkill("xueyi")){
-        QList<const Player *> players = parent()->findChildren<const Player *>();
-        players.removeOne(this);
+        QList<const Player *> players = getSiblings();
         foreach(const Player *player, players){
             if(player->isAlive() && player->getKingdom() == "qun")
                 xueyi += 2;
@@ -759,5 +765,8 @@ void Player::copyFrom(Player* p)
     b->jilei_set        = QSet<Card::CardType> (a->jilei_set);
 
     b->tag              = QVariantMap(a->tag);
+}
 
+QList<const Player *> Player::getSiblings() const{
+    return parent()->findChildren<const Player *>();
 }

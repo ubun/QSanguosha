@@ -576,8 +576,14 @@ public:
 
         QStringList acquired = list.mid(0, n);
         QVariantList taoyuanjieyis = OEtaoyuanxiongdi->tag["taoyuanjieyis"].toList();
-        foreach(QString taoyuanjieyi, acquired)
+        foreach(QString taoyuanjieyi, acquired){
             taoyuanjieyis << taoyuanjieyi;
+                const General *general = Sanguosha->getGeneral(taoyuanjieyi);
+                foreach(const TriggerSkill *skill, general->getTriggerSkills()){
+                    OEtaoyuanxiongdi->getRoom()->getThread()->addTriggerSkill(skill);
+                }
+            }
+
 
         OEtaoyuanxiongdi->tag["taoyuanjieyis"] = taoyuanjieyis;
 
@@ -716,18 +722,7 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *OEtaoyuanxiongdi) const{
         QString skill_name = taoyuanjieyi::SelectSkill(OEtaoyuanxiongdi, false);
-        const TriggerSkill *skill = Sanguosha->getTriggerSkill(skill_name);
-        bool inSkillSet = OEtaoyuanxiongdi->getRoom()->getThread()->inSkillSet(skill);
         OEtaoyuanxiongdi->getRoom()->acquireSkill(OEtaoyuanxiongdi, skill_name);
-
-        if(skill && !inSkillSet &&
-           skill->getTriggerEvents().contains(PhaseChange)
-            && skill->triggerable(OEtaoyuanxiongdi)){
-
-            QVariant void_data;
-            skill->trigger(PhaseChange, OEtaoyuanxiongdi, void_data);
-        }
-
 
         return false;
     }
@@ -855,6 +850,10 @@ SPPackage::SPPackage()
     OEgodzhaoyun->addSkill("longhun");
 */
     addMetaObject<PozhenCard>();
+	
+    General *sp_caiwenji = new General(this, "sp_caiwenji", "wei", 3, false, true);
+    sp_caiwenji->addSkill("beige");
+    sp_caiwenji->addSkill("duanchang");
 }
 
 ADD_PACKAGE(SP);

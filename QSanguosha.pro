@@ -33,7 +33,7 @@ SOURCES += src/main.cpp \
 	src/dialog/generalselector.cpp \
 	src/dialog/mainwindow.cpp \
 	src/dialog/packagingeditor.cpp \
-	src/dialog/playercarddialog.cpp \
+        src/dialog/playercarddialog.cpp \
 	src/dialog/scenario-overview.cpp \
 	src/package/firepackage.cpp \
 	src/package/god.cpp \
@@ -74,7 +74,7 @@ SOURCES += src/main.cpp \
 	src/ui/cardcontainer.cpp \
 	src/ui/carditem.cpp \
 	src/ui/clientlogbox.cpp \
-	src/ui/dashboard.cpp \
+        src/ui/dashboard.cpp \
 	src/ui/photo.cpp \
 	src/ui/pixmap.cpp \
 	src/ui/rolecombobox.cpp \
@@ -116,7 +116,7 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/generalselector.h \
 	src/dialog/mainwindow.h \
 	src/dialog/packagingeditor.h \
-	src/dialog/playercarddialog.h \
+        src/dialog/playercarddialog.h \
 	src/dialog/scenario-overview.h \
 	src/package/firepackage.h \
 	src/package/god.h \
@@ -158,7 +158,7 @@ HEADERS += src/client/aux-skills.h \
 	src/ui/cardcontainer.h \
 	src/ui/carditem.h \
 	src/ui/clientlogbox.h \
-	src/ui/dashboard.h \
+        src/ui/dashboard.h \
 	src/ui/photo.h \
 	src/ui/pixmap.h \
 	src/ui/rolecombobox.h \
@@ -167,7 +167,7 @@ HEADERS += src/client/aux-skills.h \
 	src/ui/window.h \
 	src/util/detector.h \
 	src/util/nativesocket.h \
-	src/util/recorder.h \
+	src/util/recorder.h \	
 	src/util/socket.h \ 
     src/ui/indicatoritem.h \
     src/dialog/roleassigndialog.h \

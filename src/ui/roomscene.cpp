@@ -1240,10 +1240,10 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
         }
     }else if(skill->inherits("FilterSkill")){
         const FilterSkill *filter = qobject_cast<const FilterSkill *>(skill);
-        if(filter && dashboard->getFilter() == NULL){
+        if(filter && dashboard->getFilter() == NULL)
             dashboard->setFilter(filter);
-            button = new QPushButton();
-        }
+        button = new QPushButton();
+
     }else if(skill->inherits("ViewAsSkill")){
         button = new QPushButton();
         button2skill.insert(button, qobject_cast<const ViewAsSkill *>(skill));
@@ -3120,22 +3120,7 @@ void RoomScene::doHuashen(const QString &name, const QStringList &args){
 
     Self->tag["Huashens"] = huashen_list;
 }
-/*OE*/
-void RoomScene::dotaoyuanjieyi(const QString &name, const QStringList &args){
-    QVariantList taoyuanjieyi_list = Self->tag["taoyuanjieyis"].toList();
-    foreach(QString arg, args){
-        taoyuanjieyi_list << arg;
-        CardItem *item = new CardItem(arg);
-        item->scaleSmoothly(0.5);
 
-        addItem(item);
-        item->setHomePos(avatar->scenePos());
-        item->goBack(true);
-    }
-
-    Self->tag["taoyuanjieyis"] = taoyuanjieyi_list;
-}
-/*OE*/
 void RoomScene::showIndicator(const QString &from, const QString &to){
     if(Config.value("NoIndicator", false).toBool())
         return;
@@ -3186,7 +3171,6 @@ void RoomScene::doAnimation(const QString &name, const QStringList &args){
 
         map["lightbox"] = &RoomScene::doLightboxAnimation;
         map["huashen"] = &RoomScene::doHuashen;
-        map["taoyuanjieyi"] = &RoomScene::dotaoyuanjieyi;
         map["indicate"] = &RoomScene::doIndicate;
     }
 
@@ -3539,5 +3523,4 @@ void RoomScene::finishArrange(){
 
     ClientInstance->request("arrange " + names.join("+"));
 }
-
 

@@ -8,15 +8,7 @@
 #include "room.h"
 #include "standard-skillcards.h"
 #include "ai.h"
-/*
-#include "sp-package.h"
-#include "general.h"
-#include "skill.h"
-#include "standard-skillcards.h"
-#include "carditem.h"
-#include "engine.h"
-#include "standard.h"
-*/
+
 class Jianxiong:public MasochismSkill{
 public:
     Jianxiong():MasochismSkill("jianxiong"){
@@ -660,26 +652,6 @@ public:
     }
 };
 
-class SuperGuanxing: public Guanxing{
-public:
-    SuperGuanxing():Guanxing(){
-        setObjectName("super_guanxing");
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *zhuge) const{
-        if(zhuge->getPhase() == Player::Start &&
-           zhuge->askForSkillInvoke(objectName()))
-        {
-            Room *room = zhuge->getRoom();
-            room->playSkillEffect("guanxing");
-
-            room->doGuanxing(zhuge, room->getNCards(5, false), false);
-        }
-
-        return false;
-    }
-};
-
 class Kongcheng: public ProhibitSkill{
 public:
     Kongcheng():ProhibitSkill("kongcheng"){
@@ -1054,8 +1026,8 @@ public:
 
 class Chujia: public GameStartSkill{
 public:
-    Chujia():GameStartSkill("#chujia"){
-
+    Chujia():GameStartSkill("chujia"){
+        frequency = Limited;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -1244,17 +1216,6 @@ public:
     }
 };
 
-class Zhiba: public Zhiheng{
-public:
-    Zhiba(){
-        setObjectName("zhiba");
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->usedTimes("ZhihengCard") < (player->getLostHp() + 1);
-    }
-};
-
 class Tuoqiao: public ZeroCardViewAsSkill{
 public:
     Tuoqiao():ZeroCardViewAsSkill("tuoqiao"){
@@ -1409,16 +1370,6 @@ void StandardPackage::addGenerals(){
     diaochan->addSkill(new Biyue);
     diaochan->addSkill(new Tuoqiao);
 
-    // for test only
-    General *zhiba_sunquan = new General(this, "zhibasunquan$", "wu", 4, true, true);
-    zhiba_sunquan->addSkill(new Zhiba);
-    zhiba_sunquan->addSkill("jiuyuan");
-
-    General *wuxing_zhuge = new General(this, "wuxingzhuge", "shu", 3, true, true);
-    wuxing_zhuge->addSkill(new SuperGuanxing);
-    wuxing_zhuge->addSkill("kongcheng");
-    wuxing_zhuge->addSkill("#kongcheng-effect");
-
     // for skill cards
     addMetaObject<ZhihengCard>();
     addMetaObject<RendeCard>();
@@ -1434,3 +1385,53 @@ void StandardPackage::addGenerals(){
     addMetaObject<HuanzhuangCard>();
     addMetaObject<CheatCard>();
 }
+
+class Zhiba: public Zhiheng{
+public:
+    Zhiba(){
+        setObjectName("zhiba");
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->usedTimes("ZhihengCard") < (player->getLostHp() + 1);
+    }
+};
+
+class SuperGuanxing: public Guanxing{
+public:
+    SuperGuanxing():Guanxing(){
+        setObjectName("super_guanxing");
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *zhuge) const{
+        if(zhuge->getPhase() == Player::Start &&
+           zhuge->askForSkillInvoke(objectName()))
+        {
+            Room *room = zhuge->getRoom();
+            room->playSkillEffect("guanxing");
+
+            room->doGuanxing(zhuge, room->getNCards(5, false), false);
+        }
+
+        return false;
+    }
+};
+
+TestPackage::TestPackage()
+    :Package("test")
+{
+    // for test only
+    General *zhiba_sunquan = new General(this, "zhibasunquan$", "wu", 4, true, true);
+    zhiba_sunquan->addSkill(new Zhiba);
+    zhiba_sunquan->addSkill("jiuyuan");
+
+    General *wuxing_zhuge = new General(this, "wuxingzhuge", "shu", 3, true, true);
+    wuxing_zhuge->addSkill(new SuperGuanxing);
+    wuxing_zhuge->addSkill("kongcheng");
+    wuxing_zhuge->addSkill("#kongcheng-effect");
+
+    new General(this, "sujiang", "god", 5, true, true);
+    new General(this, "sujiangf", "god", 5, false, true);
+}
+
+ADD_PACKAGE(Test)
