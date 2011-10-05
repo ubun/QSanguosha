@@ -253,56 +253,9 @@ void XianhaiCard::onEffect(const CardEffectStruct &effect) const{
     effect.from->getRoom()->moveCardTo(Sanguosha->getCard(this->getSubcards().first()), effect.to, Player::Judging);
 }
 
-class BaichuEffect: public TriggerSkill{
+class BaichuViewAsSkill:public OneCardViewAsSkill{
 public:
-    BaichuEffect():TriggerSkill("#baichueffect"){
-        events << TurnStart << PhaseChange << CardUsed;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *pp, QVariant &data) const{
-        Room *room = pp->getRoom();
-        ServerPlayer *player = room->findPlayerBySkillName("baichu");
-        if(!player)
-            return false;
-        if(event == PhaseChange && pp->getPhase() == Player::Finish){
-            player->addMark("begin");
-            player->setMark("bc_count", 0);
-        }
-        if(player->getMark("begin") == 0 && event == TurnStart){
-            player->drawCards(1);
-            const Card *card = room->askForCard(player, ".", "@baichu", false, false);
-            if(card)
-                player->addToPile("ji", card->getId());
-            else
-                player->addToPile("ji", player->getHandcards().last()->getId());
-        }
-        if(pp != player)
-            return false;
-        const Card *card = NULL;
-        if(player->getPhase() != Player::NotActive){
-            if(event == CardUsed){
-                CardUseStruct use = data.value<CardUseStruct>();
-                if(use.card->getSubtype() != "skill_card")
-                    card = use.card;
-            }
-            if(player->getMark("bc_count") < 5 &&
-               card && card->getNumber() < Sanguosha->getCard(player->getPile("ji").first())->getNumber()
-                && room->askForSkillInvoke(player, "baichu", data)){
-                    player->drawCards(1);
-                    player->addMark("bc_count");
-                }
-        }
-        return false;
-    }
-};
-
-class Baichu:public OneCardViewAsSkill{
-public:
-    Baichu():OneCardViewAsSkill("baichu"){
+    BaichuViewAsSkill():OneCardViewAsSkill("baichu"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -361,10 +314,67 @@ void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     source->addToPile("ji", this->getSubcards().first(), false);
 }
 
-class TongluSkill: public TriggerSkill{
+class Baichu: public TriggerSkill{
 public:
-    TongluSkill():TriggerSkill("#tong_lu"){
+    Baichu():TriggerSkill("baichu"){
+        events << TurnStart << PhaseChange << CardUsed;
+        view_as_skill = new BaichuViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *pp, QVariant &data) const{
+        Room *room = pp->getRoom();
+        ServerPlayer *player = room->findPlayerBySkillName("baichu");
+        if(!player)
+            return false;
+        if(event == PhaseChange && pp->getPhase() == Player::Finish){
+            player->addMark("begin");
+            player->setMark("bc_count", 0);
+        }
+        if(player->getMark("begin") == 0 && event == TurnStart){
+            player->drawCards(1);
+            const Card *card = room->askForCard(player, ".", "@baichu", false, false);
+            if(card)
+                player->addToPile("ji", card->getId());
+            else
+                player->addToPile("ji", player->getHandcards().last()->getId());
+        }
+        if(pp != player)
+            return false;
+        const Card *card = NULL;
+        if(player->getPhase() != Player::NotActive){
+            if(event == CardUsed){
+                CardUseStruct use = data.value<CardUseStruct>();
+                if(use.card->getSubtype() != "skill_card")
+                    card = use.card;
+            }
+            if(player->getMark("bc_count") < 5 &&
+               card && card->getNumber() < Sanguosha->getCard(player->getPile("ji").first())->getNumber()
+                && room->askForSkillInvoke(player, "baichu", data)){
+                    player->drawCards(1);
+                    player->addMark("bc_count");
+                }
+        }
+        return false;
+    }
+};
+
+class TongluViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    TongluViewAsSkill():ZeroCardViewAsSkill("tonglu"){}
+    virtual const Card *viewAs() const{
+        return new TongluCard;
+    }
+};
+
+class Tonglu: public TriggerSkill{
+public:
+    Tonglu():TriggerSkill("tonglu"){
         events << CardFinished << Predamage;
+        view_as_skill = new TongluViewAsSkill;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
@@ -394,14 +404,6 @@ public:
     }
 };
 
-class Tonglu: public ZeroCardViewAsSkill{
-public:
-    Tonglu():ZeroCardViewAsSkill("tonglu"){}
-    virtual const Card *viewAs() const{
-        return new TongluCard;
-    }
-};
-
 TongluCard::TongluCard(){
     target_fixed = true;
 }
@@ -417,10 +419,10 @@ void TongluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     source->setMark("@wocao", 0);
     foreach(ServerPlayer *tmp, players){
         QString result = room->askForChoice(tmp, "tonglu", "agree+deny");
-        if(tmp->getState() == "robot"){
+        if(tmp->getState() == "robot" || tmp->getState() == "offline" || tmp->getState() == "trust"){
             if(tmp->getRole() == source->getRole())
                 result = "agree";
-            else if(source->getRole() == "lord" && tmp->getRole() == "loyalist")
+            else if(source->isLord() && tmp->getRole() == "loyalist")
                 result == "agree";
             else
                 result = "deny";
@@ -1049,15 +1051,11 @@ RedPackage::RedPackage()
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
     redxunyou->addSkill(new Baichu);
-    redxunyou->addSkill(new BaichuEffect);
-    related_skills.insertMulti("baichu", "#baichueffect");
 
     General *redhejin = new General(this, "redhejin", "qun", 4);
     redhejin->addSkill(new Tonglu);
-    redhejin->addSkill(new TongluSkill);
     redhejin->addSkill(new Liehou);
     redhejin->addSkill(new Zide);
-    related_skills.insertMulti("tonglu", "#tong_lu");
 /*
 何进 群 4体力
 【同戮】出牌阶段，你可以令场上武将牌正面朝上的角色依次选择是否愿意将自己的武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为愿意翻面的武将数量

@@ -1,7 +1,7 @@
 -- translation for KusoPackage
 
 return {
-	["kuso"] = "★神威★", 
+	["kuso"] = "豆沙包", 
 
 	["kusoking"] = "屎皇帝",
 	["designer:kusoking"] = "宇文天启",
@@ -21,11 +21,38 @@ return {
 	[":liaoting"] = "限定技，出牌阶段，你可以弃掉4张手牌，若均为屎，（在弃掉之前）立即产生以下效果：1、若你为反贼，主公立即死亡；2、若你为主公或忠臣，所有反贼和内奸立即死亡；3、若你为内奸，摸五张牌，所有反贼和忠臣立即死亡。若之后你依然存活且游戏未结束，回复体力至体力上限",
 	["liaot"] = "汀",
 
+	["tianyin"] = "天音",
+	["designer:tianyin"] = "鎏铄天音",
+	["cv:tianyin"] = "",
+	["skydao"] = "天道",
+	[":skydao"] = "锁定技，你的回合外，你每受到一次伤害增加1点体力上限",
+	["noqing"] = "无情",
+	[":noqing"] = "锁定技，你受到伤害时，若你的体力是全场最少或同时为最少，则所有人必须减少1点体力或1点体力上限",
+	["noqing:hp"] = "体力",
+	["noqing:max_hp"] = "体力上限",
+
 --cards
-	["kuso_cards"] = "杀神附体",
+	["kuso_cards"] = "小笼包",
+
+	["sacrifice"] = "舍己为人",
+	[":sacrifice"] = "出牌时机：出牌阶段。\
+使用目标：任意一名已受伤的角色。\
+作用效果：你失去一点体力，令目标回复一点体力",
+
+	["clear_shirt"] = "渌水罗衣",
+	[":clear_shirt"] = "锁定技，装备在你下家的装备区内，装备者对其上家造成的伤害始终无效",
+	["#CSProtect"] = "因为【%arg2】的影响，%from 受到的 %arg 点伤害无效",
+
 	["kawaii_dress"] = "百花裙",
-	[":kawaii_dress"] = "锁定技，当你的体力为1时，任何伤害对你无效。当你失去装备区里的【百花裙】时，你立即摸两张牌",
-	["#KawaiiDressProtect"] = "%from 受到百花裙保护，将 %arg 点伤害[%arg2] 无效化", 
+	[":kawaii_dress"] = "锁定技，当你的体力为1时，任何伤害对你无效。当你失去装备区里的【百花裙】时，你立即摸两张牌。男性角色试图装备【百花裙】时，会受到惩罚",
+	["#KawaiiDressProtect"] = "%from 受到【百花裙】保护，将 %arg 点伤害[%arg2] 无效化", 
+	["#KawaiiHurt"] = "%from 被【%arg】发现不是女性，将受到惩罚", 
+
 	["fiveline"] = "五道杠",
 	[":fiveline"] = "<br><font color=blue>德杠</font>·体力为1时可以发动【仁德】<br><font color=green>智杠</font>·体力为2时可以发动【集智】<br><font color=gold>体杠</font>·体力为3时可以发动【结姻】<br><font color=red>美杠</font>·体力为4时可以发动【国色】<br><font color=brown>劳杠</font>·体力为5时可以发动【苦肉】",
+
+--joy
+	["stink"] = "屁",
+	[":stink"] = "出牌阶段对下家使用，除非目标角色打出一张【闪】，否则必须和自己的下家（你的下下家）交换位置",
+	["haochou"] = "你的上家对你放了一个臭屁，除非你能【闪】开，否则就完蛋了……",
 }

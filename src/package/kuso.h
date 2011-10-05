@@ -22,12 +22,32 @@ public:
 };
 
 //cards
+class Sacrifice: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Sacrifice(Card::Suit suit, int number);
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class ClearShirt:public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ClearShirt(Card::Suit suit, int number);
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
+};
+
 class KawaiiDress: public Armor{
     Q_OBJECT
 
 public:
     Q_INVOKABLE KawaiiDress(Card::Suit suit, int number);
 
+    virtual void onInstall(ServerPlayer *player) const;
     virtual void onUninstall(ServerPlayer *player) const;
 };
 

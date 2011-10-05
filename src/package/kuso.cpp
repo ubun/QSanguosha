@@ -184,6 +184,53 @@ void LiaotingCard::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
         room->setPlayerProperty(source, "hp", source->getMaxHP());
 }
 
+class Skydao:public MasochismSkill{
+public:
+    Skydao():MasochismSkill("skydao"){
+        frequency = Compulsory;
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        if(damage.to && damage.to == player && player->getPhase() == Player::NotActive){
+            room->setPlayerProperty(player, "maxhp", player->getMaxHP() + 1);
+        }
+    }
+};
+
+class Noqing:public MasochismSkill{
+public:
+    Noqing():MasochismSkill("noqing"){
+        frequency = Compulsory;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual QString getDefaultChoice(ServerPlayer *player) const{
+        if(player->getMaxHP() >= player->getHp() + 2)
+            return "maxhp";
+        else
+            return "hp";
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        if(damage.to && damage.to == player){
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(player))
+                if(tmp->getHp() < player->getHp())
+                    return;
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                if(room->askForChoice(tmp, objectName(), "hp+max_hp") == "hp")
+                    room->loseHp(tmp);
+                else
+                    room->loseMaxHp(tmp);
+            }
+        }
+    }
+};
+
 KusoPackage::KusoPackage()
     :Package("kuso")
 {
@@ -195,10 +242,75 @@ KusoPackage::KusoPackage()
     kusoking->addSkill(new MarkAssignSkill("liaot", 1));
     related_skills.insertMulti("liaoting", "#liaot");
 
+    General *tianyin = new General(this, "tianyin", "god", 5, false);
+    tianyin->addSkill(new Skydao);
+    tianyin->addSkill(new Noqing);
+
     addMetaObject<LiaotingCard>();
 }
 
 //cards
+
+Sacrifice::Sacrifice(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false) {
+    setObjectName("sacrifice");
+}
+
+bool Sacrifice::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
+    if(!to_select->isWounded())
+        return false;
+
+    return true;
+}
+
+void Sacrifice::onEffect(const CardEffectStruct &effect) const{
+    if(!effect.to->isWounded())
+        return;
+
+    Room *room = effect.to->getRoom();
+    room->loseHp(effect.from);
+
+    RecoverStruct recover;
+    recover.card = this;
+    recover.who = effect.from;
+    room->recover(effect.to, recover, true);
+}
+
+class ClearShirtSkill: public ArmorSkill{
+public:
+    ClearShirtSkill():ArmorSkill("clear_shirt"){
+        events << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.to->getNextAlive() == damage.from){
+            LogMessage log;
+            log.type = "#CSProtect";
+            log.from = damage.to;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = objectName();
+            player->getRoom()->sendLog(log);
+            return true;
+        }
+        return false;
+    }
+};
+
+ClearShirt::ClearShirt(Suit suit, int number) :Armor(suit, number){
+    setObjectName("clear_shirt");
+    skill = new ClearShirtSkill;
+}
+
+void ClearShirt::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *master = targets.isEmpty() ?  source->getNextAlive() : targets.first();
+    if(master->getArmor())
+        room->throwCard(master->getArmor());
+    room->moveCardTo(this, master, Player::Equip, true);
+}
 
 class KawaiiDressSkill: public ArmorSkill{
 public:
@@ -234,6 +346,19 @@ public:
 KawaiiDress::KawaiiDress(Suit suit, int number) :Armor(suit, number){
     setObjectName("kawaii_dress");
     skill = new KawaiiDressSkill;
+}
+
+void KawaiiDress::onInstall(ServerPlayer *player) const{
+    EquipCard::onInstall(player);
+    if(!player->getGeneral()->isFemale()){
+        LogMessage log;
+        Room *room = player->getRoom();
+        log.type = "#KawaiiHurt";
+        log.from = player;
+        log.arg = objectName();
+        room->sendLog(log);
+        room->loseHp(player);
+    }
 }
 
 void KawaiiDress::onUninstall(ServerPlayer *player) const{
@@ -283,16 +408,12 @@ Fiveline::Fiveline(Suit suit, int number) :Armor(suit, number){
 void Fiveline::onInstall(ServerPlayer *player) const{
     EquipCard::onInstall(player);
     QVariantList skills;
-    if(player->hasSkill("rende"))
-        skills << "rende";
-    else if(player->hasSkill("jizhi"))
-        skills << "jizhi";
-    else if(player->hasSkill("jieyin"))
-        skills << "jieyin";
-    else if(player->hasSkill("guose"))
-        skills << "guose";
-    else if(player->hasSkill("kurou"))
-        skills << "kurou";
+    QStringList fiveskill;
+    fiveskill << "rende" << "jizhi" << "jieyin" << "guose" << "kurou";
+    foreach(QString str, fiveskill){
+        if(player->hasSkill(str))
+            skills << str;
+    }
     player->tag["fiveline"] = skills;
     player->getRoom()->setPlayerProperty(player, "hp", player->getHp());
 }
@@ -316,6 +437,8 @@ void Fiveline::onUninstall(ServerPlayer *player) const{
 KusoCardPackage::KusoCardPackage()
     :Package("kuso_cards")
 {
+    (new Sacrifice(Card::Diamond, 7))->setParent(this);
+    (new ClearShirt(Card::Club, 3))->setParent(this);
     (new KawaiiDress(Card::Spade, 2))->setParent(this);
     (new Fiveline(Card::Heart, 5))->setParent(this);
 
