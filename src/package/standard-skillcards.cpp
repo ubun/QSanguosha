@@ -131,8 +131,12 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     room->sendLog(log);
 
     room->getThread()->delay();
+    //Origin Ed.
+    room->showCard(zhouyu, card_id);
+    /*Postal Ed.
     target->obtainCard(card);
     room->showCard(target, card_id);
+    */
 
     if(card->getSuit() != suit){
         DamageStruct damage;
@@ -141,6 +145,10 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
         damage.to = target;
 
         room->damage(damage);
+    }
+    //Origin Ed.
+    if(target->isAlive()){
+        target->obtainCard(card);
     }
 }
 
