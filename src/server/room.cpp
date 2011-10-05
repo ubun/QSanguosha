@@ -3120,8 +3120,51 @@ QString Room::getNiubiOwner(QString armor, int option){
     QMap<QString, QString> map;
 
     //standard
+    map["corrfluid"] = "simayi";
+    map["stimulant"] = "caocao";
+    map["madamfeng"] = "huangyueying";
+    map["harley"] = "machao";
+    map["telescope"] = "zhugeliang";
+    map["flashlight"] = "zhangliao";
+    map["warmbaby"] = "xuchu";
+    map["linctus"] = "guojia";
+    map["towel"] = "lumeng";
+    map["lubricatingoil"] = "xiahoudun";
+    map["underwear"] = "daqiao";
+    map["whip"] = "huanggai";
+    map["eyedrops"] = "liubei";
+    map["urban"] = "ganning";
+    map["redsunglasses"] = "guanyu";
+    map["brainplatinum"] = "sunquan";
+    map["sophie"] = "zhenji";
+    map["yaiba"] = "diaochan";
+    map["banana"] = "zhaoyun";
+    map["speakers"] = "zhangfei";
+    map["cologne"] = "zhouyu";
+    map["dustbin"] = "luxun";
+    map["animals"] = "lubu";
+    map["deathrisk"] = "huatuo"; //cannot saveself
+    map["rollingpin"] = "sunshangxiang";
+
     //wind
+    map["saw"] = "zhangjiao";
+    map["amazonston"] = "huangzhong";
+    map["gnat"] = "caoren";
+    map["magicwand"] = "yuji";
+    map["chanel5"] = "xiaoqiao";
+    map["landrover"] = "xiahouyuan";
+    map["chiropter"] = "weiyan";
+    map["drum"] = "zhoutai";
+
     //thicket
+    map["hydrogen"] = "caopi";
+    map["tranqgun"] = "xuhuang";
+    map["ghostcar"] = "sunjian";
+    map["snake"] = "lusu";
+    map["voodoo"] = "jiaxu";
+    map["tombstone"] = "dongzhuo";
+    map["snapshot"] = "menghuo";
+    map["fuckav"] = "zhurong";
     //fire
     //mountain
     //sp

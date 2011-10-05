@@ -131,7 +131,10 @@ public:
 
         case Player::Judge: return room->askForUseCard(zhanghe, "@qiaobian", "@qiaobian-judge");
         case Player::Draw: return room->askForUseCard(zhanghe, "@qiaobian", "@qiaobian-draw");
-        case Player::Play: return room->askForUseCard(zhanghe, "@qiaobian", "@qiaobian-play");
+        case Player::Play:{
+            bool boo = room->askForUseCard(zhanghe, "@qiaobian", "@qiaobian-play");
+            return boo && !zhanghe->hasArmorEffect("nunchaku");
+        }
         case Player::Discard: return room->askForUseCard(zhanghe, "@qiaobian", "@qiaobian-discard");
         }
 
@@ -156,8 +159,13 @@ public:
 
         Room *room = player->getRoom();
         ServerPlayer *caiwenji = room->findPlayerBySkillName(objectName());
-        if(caiwenji && !caiwenji->isNude() && caiwenji->askForSkillInvoke(objectName(), data)){
-            room->askForDiscard(caiwenji, "beige", 1, false, true);
+        if(caiwenji){
+            if(caiwenji->isNude() && !caiwenji->hasArmorEffect("ruan"))
+                return false;
+            if(!caiwenji->askForSkillInvoke(objectName(), data))
+                return false;
+            if(!caiwenji->hasArmorEffect("ruan") || !caiwenji->askForSkillInvoke("ruan"))
+                room->askForDiscard(caiwenji, "beige", 1, false, true);
 
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(.*):(.*)");
@@ -455,15 +463,21 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getMark("hunzi") == 0
-                && target->getPhase() == Player::Start
-                && target->getHp() == 1;
+        if(!PhaseChangeSkill::triggerable(target))
+            return false;
+        if(target->getMark("hunzi") != 0
+           || target->getPhase() != Player::Start)
+            return false;
+        if(target->hasArmorEffect("hundan"))
+            return true;
+        return target->getHp() == 1;
     }
 
     virtual bool onPhaseChange(ServerPlayer *sunce) const{
         Room *room = sunce->getRoom();
 
+        if(sunce->hasArmorEffect("hundan") && !sunce->askForSkillInvoke("hundan"))
+            return false;
         LogMessage log;
         log.type = "#HunziWake";
         log.from = sunce;
@@ -586,7 +600,11 @@ void TiaoxinCard::onEffect(const CardEffectStruct &effect) const{
         use.from = effect.to;
         room->useCard(use);
     }else if(!effect.to->isNude()){
-        room->throwCard(room->askForCardChosen(effect.from, effect.to, "he", "tiaoxin"));
+        int card_id = room->askForCardChosen(effect.from, effect.to, "he", "tiaoxin");
+        if(effect.from->hasArmorEffect("greatmug") && effect.from->askForSkillInvoke("greatmug"))
+            effect.from->obtainCard(Sanguosha->getCard(card_id));
+        else
+            room->throwCard(card_id);
     }
 }
 
@@ -657,11 +675,20 @@ bool ZhijianCard::targetFilter(const QList<const Player *> &targets, const Playe
     const Card *card = Sanguosha->getCard(subcards.first());
     const EquipCard *equip = qobject_cast<const EquipCard *>(card);
     int equip_index = static_cast<int>(equip->location());
-    return to_select->getEquip(equip_index) == NULL;
+    if(!Self->hasArmorEffect("globe"))
+        return to_select->getEquip(equip_index) == NULL;
+    else
+        return true;
 }
 
 void ZhijianCard::onEffect(const CardEffectStruct &effect) const{
     ServerPlayer *erzhang = effect.from;
+    if(effect.from->hasArmorEffect("globe")){
+        const Card *card = Sanguosha->getCard(this->getSubcards().first());
+        const EquipCard *equip = effect.to->getEquip(static_cast<int>(qobject_cast<const EquipCard *>(card)->location()));
+        if(equip)
+            erzhang->getRoom()->throwCard(equip->getId());
+    }
     erzhang->getRoom()->moveCardTo(this, effect.to, Player::Equip);
     erzhang->drawCards(1);
 }
@@ -824,6 +851,11 @@ public:
                 return invoked;
             }
 
+        case Player::Discard: {
+                if(liushan->hasArmorEffect("tizanidine") && liushan->hasFlag("fangquan"))
+                    return true;
+            }
+
         case Player::Finish: {
                 if(liushan->hasFlag("fangquan")){
                     Room *room = liushan->getRoom();
@@ -831,7 +863,8 @@ public:
                     if(liushan->isKongcheng())
                         return false;
 
-                    room->askForDiscard(liushan, "fangquan", 1);
+                    if(!liushan->hasArmorEffect("tizanidine"))
+                        room->askForDiscard(liushan, "fangquan", 1);
 
                     ServerPlayer *player = room->askForPlayerChosen(liushan, room->getOtherPlayers(liushan), objectName());
 
@@ -1104,6 +1137,21 @@ public:
     }
 };
 
+class GooooSkill: public TriggerSkill{
+public:
+    GooooSkill():TriggerSkill("#gooooS"){
+        events << CardLost;
+    }
+    virtual bool trigger(TriggerEvent, ServerPlayer *zc, QVariant &data) const{
+        Room *room = zc->getRoom();
+        if(!zc->hasArmorEffect("goooo"))
+            return false;
+        if(room->getCurrent() != zc)
+            Huashen::AcquireGenerals(zc, 1);
+        return false;
+    }
+};
+
 MountainPackage::MountainPackage()
     :Package("mountain")
 {
@@ -1152,12 +1200,14 @@ MountainPackage::MountainPackage()
     zuoci->addSkill(new HuashenBegin);
     zuoci->addSkill(new HuashenEnd);
     zuoci->addSkill(new Xinsheng);
+    zuoci->addSkill(new GooooSkill);
 
     General *zuocif = new General(this, "zuocif", "qun", 3, false, true);
     zuocif->addSkill("huashen");
     zuocif->addSkill("#huashen-begin");
     zuocif->addSkill("#huashen-end");
     zuocif->addSkill("xinsheng");
+    zuocif->addSkill("#gooooS");
 
     related_skills.insertMulti("huashen", "#huashen-begin");
     related_skills.insertMulti("huashen", "#huashen-end");

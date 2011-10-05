@@ -338,6 +338,26 @@ return {
 	["$sansyouuo"] = "我要的是傀儡山椒鱼啊……把这个大鲵拿走！(恶来发飙)",
 	["$flack"] = "一瓶在手，卖血无忧~(文若狂笑)",
 	["$coffinlid"] = "再看，再看我就一棺材盖拍死你！(令明怒目)",
+
+--mountain
+	["nunchaku"] = "双截棍",
+	["ruan"] = "阮",
+	["globe"] = "地球仪",
+	["wookon"] = "大圣旗",
+	["greatmug"] = "紫金钵盂",
+	["goooo"] = "炼妖壶",
+	["hundan"] = "魂淡",
+	["tizanidine"] = "替扎尼定",
+
+	[":nunchaku"] = "<br><font color='blue' size='5' face='华文新魏'>张合理专用</font>：<br>当你发动【巧变】跳过出牌阶段时，你依然拥有出牌阶段",
+	[":ruan"] = "<br><font color='black' size='5' face='华文新魏'>蔡妹纸专用</font>：<br>你可以无条件发动【悲歌】",
+	[":globe"] = "<br><font color='green' size='5' face='华文新魏'>张经纬专用</font>：<br>你始终无视【直谏】的限制条件",
+	[":wookon"] = "<br><font color='blue' size='5' face='华文新魏'>邓大圣专用</font>：<br>出牌阶段，你可以将一张牌移出游戏，视为“田”",
+	[":greatmug"] = "<br><font color='red' size='5' face='华文新魏'>姜某人专用</font>：<br>发动【挑衅】成功后，可以获得被弃掉的牌",
+	[":goooo"] = "<br><font color='black' size='5' face='华文新魏'>左大仙专用</font>：<br>当你在回合外失去牌时，自动获得一张化身牌",
+	[":hundan"] = "<br><font color='green' size='5' face='华文新魏'>孙老大专用</font>：<br>回合开始阶段，你可以立即激活自己的觉醒技【魂姿】",
+	[":tizanidine"] = "<br><font color='red' size='5' face='华文新魏'>刘产儿专用</font>：<br>发动【放权】时不用弃牌",
+
 --sp	
 	["nailclippers"] = "指甲刀",
 	["morin_khuur"] = "马头琴",
