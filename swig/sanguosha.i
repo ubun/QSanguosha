@@ -35,10 +35,11 @@ public:
 class General : public QObject
 {
 public:
-    explicit General(Package *package, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false);
+    explicit General(Package *package, int gennum, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false);
     enum Gender {Male, Female, Neuter};
 
     // property getters/setters
+	int getOEGenNum() const;
     int getMaxHp() const;
     QString getKingdom() const;
     bool isMale() const;
@@ -77,7 +78,8 @@ public:
     int getHp() const;
     void setHp(int hp);    
     int getMaxHP() const;
-    void setMaxHP(int max_hp);    
+    void setMaxHP(int max_hp);   
+	int getOEGenNum() const;
     int getLostHp() const;
     bool isWounded() const;
 

@@ -908,48 +908,48 @@ public:
 };
 
 YJCMPackage::YJCMPackage():Package("YJCM"){
-    General *caozhi = new General(this, "caozhi", "wei", 3);
+    General *caozhi = new General(this, 2401, "caozhi", "wei", 3);
     caozhi->addSkill(new Luoying);
     caozhi->addSkill(new Jiushi);
     caozhi->addSkill(new JiushiFlip);
 
     related_skills.insertMulti("jiushi", "#jiushi-flip");
 
-    General *yujin = new General(this, "yujin", "wei");
+    General *yujin = new General(this, 2410, "yujin", "wei");
     yujin->addSkill(new Yizhong);
 
-    General *xushu = new General(this, "xushu", "shu", 3);
+    General *xushu = new General(this, 2409, "xushu", "shu", 3);
     xushu->addSkill(new Wuyan);
     xushu->addSkill(new Jujian);
 
-    General *masu = new General(this, "masu", "shu", 3);
+    General *masu = new General(this, 2406, "masu", "shu", 3);
     masu->addSkill(new Xinzhan);
     masu->addSkill(new Huilei);
 
-    General *fazheng = new General(this, "fazheng", "shu", 3);
+    General *fazheng = new General(this, 2403, "fazheng", "shu", 3);
     fazheng->addSkill(new Enyuan);
     fazheng->addSkill(new Xuanhuo);
 
     patterns.insert(".enyuan", new EnyuanPattern);
 
-    General *lingtong = new General(this, "lingtong", "wu");
+    General *lingtong = new General(this, 2405, "lingtong", "wu");
     lingtong->addSkill(new Xuanfeng);
 
-    General *xusheng = new General(this, "xusheng", "wu");
+    General *xusheng = new General(this, 2408, "xusheng", "wu");
     xusheng->addSkill(new Pojun);
 
-    General *wuguotai = new General(this, "wuguotai", "wu", 3, false);
+    General *wuguotai = new General(this, 2407, "wuguotai", "wu", 3, false);
     wuguotai->addSkill(new Ganlu);
     wuguotai->addSkill(new Buyi);
 
-    General *chengong = new General(this, "chengong", "qun", 3);
+    General *chengong = new General(this, 2402, "chengong", "qun", 3);
     chengong->addSkill(new Zhichi);
     chengong->addSkill(new ZhichiClear);
     chengong->addSkill(new Mingce);
 
     related_skills.insertMulti("zhichi", "#zhichi-clear");
 
-    General *gaoshun = new General(this, "gaoshun", "qun");
+    General *gaoshun = new General(this, 2404, "gaoshun", "qun");
     gaoshun->addSkill(new Xianzhen);
     gaoshun->addSkill(new Jiejiu);
 

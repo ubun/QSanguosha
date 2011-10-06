@@ -8,7 +8,6 @@
 #include "standard.h"
 /*#include "thicket.h"*/
 
-
 class OExiapiRule: public ScenarioRule{
 public:
     OExiapiRule(Scenario *scenario)
@@ -23,7 +22,7 @@ public:
         switch(event){
         case GameStart:{
                 if(player->isLord()){
-                    room->acquireSkill(player, "Baonue");
+                    room->acquireSkill(player, "baonue");
                     room->installEquip(player, "chitu");
                     room->installEquip(player, "halberd");
                 }
@@ -104,7 +103,7 @@ OExiapiScenario::OExiapiScenario()
 
     rule = new OExiapiRule(this);
 
-
+    //skills << new Lubu_Baonue;
 }
 
 

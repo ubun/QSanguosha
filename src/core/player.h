@@ -19,6 +19,7 @@ class Player : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(int oegennum READ getOEGenNum)
     Q_PROPERTY(QString screenname READ screenName WRITE setScreenName)
     Q_PROPERTY(int hp READ getHp WRITE setHp)
     Q_PROPERTY(int maxhp READ getMaxHP WRITE setMaxHP)
@@ -59,6 +60,7 @@ public:
     QString screenName() const;
 
     // property setters/getters
+    int getOEGenNum() const;
     int getHp() const;
     void setHp(int hp);
     int getMaxHP() const;

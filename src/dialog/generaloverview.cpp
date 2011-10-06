@@ -32,8 +32,12 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
     for(i=0; i<generals.length(); i++){
         const General *general = generals[i];
 
-        QString name, kingdom, gender, max_hp, package;
+        QString oegennum, name, kingdom, gender, max_hp, package;
 
+        if(general->getOEGenNum() < 1000)
+            oegennum = "0"+QString::number(general->getOEGenNum());
+        else
+            oegennum = QString::number(general->getOEGenNum());
         name = Sanguosha->translate(general->objectName());
 
         kingdom = Sanguosha->translate(general->getKingdom());
@@ -41,16 +45,12 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         max_hp = QString::number(general->getMaxHp());
         package = Sanguosha->translate(general->getPackage());
 
+        QTableWidgetItem *oegennum_item = new QTableWidgetItem(oegennum);
+        oegennum_item->setTextAlignment(Qt::AlignCenter);
+
         QTableWidgetItem *name_item = new QTableWidgetItem(name);
         name_item->setTextAlignment(Qt::AlignCenter);
         name_item->setData(Qt::UserRole, general->objectName());
-        if(general->isLord()){
-            name_item->setIcon(lord_icon);
-            name_item->setTextAlignment(Qt::AlignCenter);
-        }
-
-        if(general->isHidden())
-            name_item->setBackgroundColor(Qt::gray);
 
         QTableWidgetItem *kingdom_item = new QTableWidgetItem(kingdom);
         kingdom_item->setTextAlignment(Qt::AlignCenter);
@@ -64,17 +64,71 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         QTableWidgetItem *package_item = new QTableWidgetItem(package);
         package_item->setTextAlignment(Qt::AlignCenter);
 
+        QColor qkColor;
+        if(general->getKingdom() == "wei"){
+            qkColor = Qt::darkBlue;
+        }else if(general->getKingdom() == "shu"){
+            qkColor = Qt::darkRed;
+        }else if(general->getKingdom() == "wu"){
+            qkColor = Qt::darkGreen;
+        }else if(general->getKingdom() == "qun"){
+            qkColor = Qt::darkGray;
+        }else if(general->getKingdom() == "god"){
+            qkColor = Qt::darkYellow;
+        }else{
+            qkColor = Qt::cyan;
+        }
+
+        name_item->setBackgroundColor(qkColor);
+        kingdom_item->setBackgroundColor(qkColor);
+        gender_item->setBackgroundColor(qkColor);
+        max_hp_item->setBackgroundColor(qkColor);
+        package_item->setBackgroundColor(qkColor);
+        oegennum_item->setBackgroundColor(qkColor);
+        name_item->setTextColor(Qt::white);
+        kingdom_item->setTextColor(Qt::white);
+        gender_item->setTextColor(Qt::white);
+        max_hp_item->setTextColor(Qt::white);
+        package_item->setTextColor(Qt::white);
+        oegennum_item->setTextColor(Qt::white);
+
+        if(general->getOEGenNum() == 2409 || general->getOEGenNum() == 3742){//xushu, XJzhonghui
+            gender_item->setBackgroundColor(Qt::darkBlue);
+            max_hp_item->setBackgroundColor(Qt::darkBlue);
+            package_item->setBackgroundColor(Qt::darkBlue);
+        }
+
+        if(general->isFemale()){
+            name_item->setBackgroundColor(Qt::magenta);
+            name_item->setTextColor(Qt::white);
+        }
+
+        if(general->isLord()){
+            name_item->setIcon(lord_icon);
+            name_item->setTextAlignment(Qt::AlignCenter);
+            name_item->setBackgroundColor(Qt::yellow);
+            name_item->setTextColor(Qt::black);
+        }
+
+        if(general->isHidden()){
+            name_item->setBackgroundColor(Qt::black);
+            name_item->setTextColor(Qt::white);
+        }
+
         ui->tableWidget->setItem(i, 0, name_item);
         ui->tableWidget->setItem(i, 1, kingdom_item);
         ui->tableWidget->setItem(i, 2, gender_item);
         ui->tableWidget->setItem(i, 3, max_hp_item);
         ui->tableWidget->setItem(i, 4, package_item);
+        ui->tableWidget->setItem(i, 5, oegennum_item);
     }
 
-    ui->tableWidget->setColumnWidth(0, 80);
+    ui->tableWidget->setColumnWidth(0, 110);
     ui->tableWidget->setColumnWidth(1, 50);
     ui->tableWidget->setColumnWidth(2, 50);
     ui->tableWidget->setColumnWidth(3, 60);
+    ui->tableWidget->setColumnWidth(4, 70);
+    ui->tableWidget->setColumnWidth(5, 50);
 
     ui->tableWidget->setCurrentItem(ui->tableWidget->item(0,0));
 }

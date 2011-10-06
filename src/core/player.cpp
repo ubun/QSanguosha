@@ -48,6 +48,14 @@ int Player::getMaxHP() const{
     return max_hp;
 }
 
+int Player::getOEGenNum() const{
+    if(general) {
+        return general->getOEGenNum();
+    }
+    else
+        return 0;
+}
+
 void Player::setMaxHP(int max_hp){
     if(this->max_hp == max_hp)
         return;

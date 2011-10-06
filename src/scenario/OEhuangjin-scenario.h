@@ -3,6 +3,17 @@
 
 #include "scenario.h"
 #include "card.h"
+#include "generaloverview.h"
+
+class taoyuanjieyiDialog:public GeneralOverview{
+    Q_OBJECT
+
+public:
+    taoyuanjieyiDialog();
+
+public slots:
+    void popup();
+};
 
 class OEhuangjinScenario: public Scenario{
     Q_OBJECT

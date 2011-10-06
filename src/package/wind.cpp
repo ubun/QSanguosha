@@ -960,24 +960,24 @@ WindPackage::WindPackage()
 {
     General *xiahouyuan, *caoren, *huangzhong, *weiyan, *zhangjiao, *zhoutai;
 
-    xiahouyuan = new General(this, "xiahouyuan", "wei");
+    xiahouyuan = new General(this, 208, "xiahouyuan", "wei");
     xiahouyuan->addSkill(new Shensu);
 
-    caoren = new General(this, "caoren", "wei");
+    caoren = new General(this, 211, "caoren", "wei");
     caoren->addSkill(new Jushou);
 
-    huangzhong = new General(this, "huangzhong", "shu");
+    huangzhong = new General(this, 108, "huangzhong", "shu");
     huangzhong->addSkill(new Liegong);
 
-    weiyan = new General(this, "weiyan", "shu");
+    weiyan = new General(this, 109, "weiyan", "shu");
     weiyan->addSkill(new Kuanggu);
 
-    zhangjiao = new General(this, "zhangjiao$", "qun", 3);
+    zhangjiao = new General(this, 410, "zhangjiao$", "qun", 3);
     zhangjiao->addSkill(new Guidao);
     zhangjiao->addSkill(new Leiji);
     zhangjiao->addSkill(new Huangtian);
 
-    zhoutai = new General(this, "zhoutai", "wu");
+    zhoutai = new General(this, 313, "zhoutai", "wu");
     zhoutai->addSkill(new Buqu);
     zhoutai->addSkill(new BuquRemove);
 
@@ -990,14 +990,14 @@ WindPackage::WindPackage()
 
     skills << new HuangtianViewAsSkill;
 
-    General *xiaoqiao = new General(this, "xiaoqiao", "wu", 3, false);
+    General *xiaoqiao = new General(this, 311, "xiaoqiao", "wu", 3, false);
     xiaoqiao->addSkill(new Hongyan);
     xiaoqiao->addSkill(new HongyanRetrial);
     xiaoqiao->addSkill(new Tianxiang);
 
     related_skills.insertMulti("hongyan", "#hongyan-retrial");
 
-    General *yuji = new General(this, "yuji", "qun", 3);
+    General *yuji = new General(this, 411, "yuji", "qun", 3);
     yuji->addSkill(new Guhuo);
 
     addMetaObject<TianxiangCard>();

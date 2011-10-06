@@ -296,4 +296,9 @@ void GuanduScenario::onTagSet(Room *room, const QString &key) const{
     }
 }
 
+//ibicdlcod
+void GuanduScenario::getRoles(char *roles) const{
+    strcpy(roles, "ZCCNNFFF");
+}
+//
 ADD_SCENARIO(Guandu);

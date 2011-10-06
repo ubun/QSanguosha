@@ -89,8 +89,8 @@ Engine::Engine()
 
     {
         Package *test_package = new Package("test");
-        (new General(test_package, "sujiang", "god", 5, true, true));
-        (new General(test_package, "sujiangf", "god", 5, false, true));
+        (new General(test_package, 9901, "sujiang", "god", 5, true, true));
+        (new General(test_package, 9902, "sujiangf", "god", 5, false, true));
         /*(new General(test_package, "OEgodzhangliao", "god", 5, true, true));*/
         addPackage(test_package);
     }

@@ -824,38 +824,38 @@ WisdomPackage::WisdomPackage()
             *wissunce, *wiszhangzhao,
             *wishuaxiong, *wistianfeng, *wisshuijing;
 
-        wisxuyou = new General(this, "wisxuyou", "wei",3,true);
+        wisxuyou = new General(this, 2501, "wisxuyou", "wei",3,true);
         wisxuyou->addSkill(new Juao);
         wisxuyou->addSkill(new Tanlan);
         wisxuyou->addSkill(new Shicai);
 
-        wisjiangwei = new General(this, "wisjiangwei", "shu",4,true);
+        wisjiangwei = new General(this, 2502, "wisjiangwei", "shu",4,true);
         wisjiangwei->addSkill(new Yicai);
         wisjiangwei->addSkill(new Beifa);
 
-        wisjiangwan = new General(this, "wisjiangwan", "shu",3,true);
+        wisjiangwan = new General(this, 2503, "wisjiangwan", "shu",3,true);
         wisjiangwan->addSkill(new Houyuan);
         wisjiangwan->addSkill(new Chouliang);
 
-        wissunce = new General(this, "wissunce$", "wu",4,true);
+        wissunce = new General(this, 2504, "wissunce$", "wu",4,true);
         wissunce->addSkill(new Bawang);
         wissunce->addSkill(new Weidai);
 
-        wiszhangzhao = new General(this, "wiszhangzhao", "wu",3,true);
+        wiszhangzhao = new General(this, 2505, "wiszhangzhao", "wu",3,true);
         wiszhangzhao->addSkill(new Longluo);
         wiszhangzhao->addSkill(new Fuzuo);
         wiszhangzhao->addSkill(new Jincui);
 
-        wishuaxiong = new General(this, "wishuaxiong", "qun",4,true);
+        wishuaxiong = new General(this, 2506, "wishuaxiong", "qun",4,true);
         wishuaxiong->addSkill(new Badao);
         wishuaxiong->addSkill(new Wenjiu);
 
-        wistianfeng = new General(this, "wistianfeng", "qun",3,true);
+        wistianfeng = new General(this, 2507, "wistianfeng", "qun",3,true);
         wistianfeng->addSkill(new Shipo);
         wistianfeng->addSkill(new Gushou);
         wistianfeng->addSkill(new Yuwen);
 
-        wisshuijing = new General(this, "wisshuijing", "qun",4,true);
+        wisshuijing = new General(this, 2508, "wisshuijing", "qun",4,true);
         wisshuijing->addSkill(new Shouye);
         wisshuijing->addSkill(new Jiehuo);
 

@@ -28,7 +28,6 @@ public:
                     room->acquireSkill(lubu, "Hulaohalberd");
                     ServerPlayer *yuanshao = room->findPlayer("yuanshao");
                     room->acquireSkill(yuanshao,"OEHulaoxueyi");
-                    /*yitianjian->addSkill(new Skill("zhengfeng", Skill::Compulsory));*/
                 }else if(player->getGeneralName() == "sunjian"){
                     if(player->askForSkillInvoke("reselect"))
                         room->transfigure(player, "caocao", true);
@@ -78,10 +77,7 @@ void OEhulaoScenario::getRoles(char *roles) const{
     strcpy(roles, "ZCCNFFFF");
 }
 
-void OEhulaoScenario::onTagSet(Room *room, const QString &key) const{/*
-    ServerPlayer *yuanshao = room->findPlayer("yuanshao");
-    if(yuanshao)
-        room->setPlayerProperty(yuanshao, "xueyi", 8);*/
+void OEhulaoScenario::onTagSet(Room *room, const QString &key) const{
 }
 
 ADD_SCENARIO(OEhulao);

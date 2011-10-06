@@ -1250,25 +1250,25 @@ public:
 GodPackage::GodPackage()
     :Package("god")
 {
-    General *shenguanyu = new General(this, "shenguanyu", "god", 5);
+    General *shenguanyu = new General(this, 901, "shenguanyu", "god", 5);
     shenguanyu->addSkill(new Wushen);
     shenguanyu->addSkill(new Wuhun);
     shenguanyu->addSkill(new WuhunRevenge);
 
     related_skills.insertMulti("wuhun", "#wuhun");
 
-    General *shenlumeng = new General(this, "shenlumeng", "god", 3);
+    General *shenlumeng = new General(this, 902, "shenlumeng", "god", 3);
     shenlumeng->addSkill(new Shelie);
     shenlumeng->addSkill(new Gongxin);
 
-    General *shenzhouyu = new General(this, "shenzhouyu", "god");
+    General *shenzhouyu = new General(this, 903, "shenzhouyu", "god");
     shenzhouyu->addSkill(new Qinyin);
     shenzhouyu->addSkill(new MarkAssignSkill("@flame", 1));
     shenzhouyu->addSkill(new GreatYeyan);
     shenzhouyu->addSkill(new MediumYeyan);
     shenzhouyu->addSkill(new SmallYeyan);
 
-    General *shenzhugeliang = new General(this, "shenzhugeliang", "god", 3);
+    General *shenzhugeliang = new General(this, 904, "shenzhugeliang", "god", 3);
     shenzhugeliang->addSkill(new Qixing);
     shenzhugeliang->addSkill(new QixingStart);
     shenzhugeliang->addSkill(new QixingAsk);
@@ -1280,11 +1280,11 @@ GodPackage::GodPackage()
     related_skills.insertMulti("qixing", "#qixing-ask");
     related_skills.insertMulti("qixing", "#qixing-clear");
 
-    General *shencaocao = new General(this, "shencaocao", "god", 3);
+    General *shencaocao = new General(this, 905, "shencaocao", "god", 3);
     shencaocao->addSkill(new Guixin);
     shencaocao->addSkill(new Feiying);
 
-    General *shenlubu = new General(this, "shenlubu", "god", 5);
+    General *shenlubu = new General(this, 906, "shenlubu", "god", 5);
     shenlubu->addSkill(new Kuangbao);
     shenlubu->addSkill(new MarkAssignSkill("@wrath", 2));
     shenlubu->addSkill(new Wumou);
@@ -1293,11 +1293,11 @@ GodPackage::GodPackage()
 
     related_skills.insertMulti("kuangbao", "#@wrath");
 
-    General *shenzhaoyun = new General(this, "shenzhaoyun", "god", 2);
+    General *shenzhaoyun = new General(this, 907, "shenzhaoyun", "god", 2);
     shenzhaoyun->addSkill(new Juejing);
     shenzhaoyun->addSkill(new Longhun);
 
-    General *shensimayi = new General(this, "shensimayi", "god", 4);
+    General *shensimayi = new General(this, 908, "shensimayi", "god", 4);
     shensimayi->addSkill(new Renjie);
     shensimayi->addSkill(new Baiyin);
     shensimayi->addSkill(new Lianpo);

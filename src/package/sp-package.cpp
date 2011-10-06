@@ -344,438 +344,6 @@ public:
     }
 };
 
-//OMEGA ERA XIAOYAOJINZHIZHAN-GOD ZHANGLIAO, GANNING, SUNQUAN
-
-PozhenCard::PozhenCard(){
-}
-
-bool PozhenCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(targets.length() >= 3)
-        return false;
-
-    if(to_select == Self)
-        return false;
-
-    return !to_select->isKongcheng();
-}
-
-void PozhenCard::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.from->getRoom();
-    int card_id = room->askForCardChosen(effect.from, effect.to, "h", "pozhen");
-    const Card *card = Sanguosha->getCard(card_id);
-    room->moveCardTo(card, effect.from, Player::Hand, false);
-
-    room->setEmotion(effect.to, "bad");
-    room->setEmotion(effect.from, "good");
-}
-
-
-class PozhenViewAsSkill: public ZeroCardViewAsSkill{
-public:
-    PozhenViewAsSkill():ZeroCardViewAsSkill("Pozhen"){
-    }
-
-    virtual const Card *viewAs() const{
-        return new PozhenCard;
-    }
-
-protected:
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "@@Pozhen";
-    }
-};
-
-class Pozhen:public PhaseChangeSkill{
-public:
-    Pozhen():PhaseChangeSkill("Pozhen"){
-        view_as_skill = new PozhenViewAsSkill;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *zhangliao) const{
-        if(zhangliao->getPhase() == Player::Draw){
-            Room *room = zhangliao->getRoom();
-            bool can_invoke = false;
-            QList<ServerPlayer *> other_players = room->getOtherPlayers(zhangliao);
-            foreach(ServerPlayer *player, other_players){
-                if(!player->isKongcheng()){
-                    can_invoke = true;
-                    break;
-                }
-            }
-
-            if(can_invoke && room->askForUseCard(zhangliao, "@@Pozhen", "@Pozhen-card"))
-                return true;
-        }
-
-        return false;
-    }
-};
-
-
-class Zhangliao_shenwei:public OneCardViewAsSkill{
-public:
-    Zhangliao_shenwei():OneCardViewAsSkill("Zhangliao_shenwei"){
-
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        const Card *card = to_select->getFilteredCard();
-
-        switch(ClientInstance->getStatus()){
-        case Client::Playing:{
-                // jink as slash
-                return card->inherits("Jink");
-            }
-
-        case Client::Responsing:{
-                QString pattern = ClientInstance->getPattern();
-                /*if(pattern == "slash")
-                    return card->inherits("Jink");
-                else */if(pattern == "jink")
-                    return card->inherits("Slash");
-            }
-
-        default:
-            return false;
-        }
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return Slash::IsAvailable(player)&&! player->hasUsed("Zhangliao_shenwei");
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "jink" /*|| pattern == "slash"*/;
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *card = card_item->getFilteredCard();
-        /*if(card->inherits("Slash")){
-            Jink *jink = new Jink(card->getSuit(), card->getNumber());
-            jink->addSubcard(card);
-            jink->setSkillName(objectName());
-            return jink;
-        }else*/ if(card->inherits("Jink")){
-            Slash *slash = new Slash(card->getSuit(), card->getNumber());
-            slash->addSubcard(card);
-            slash->setSkillName(objectName());
-            return slash;
-        }else
-            return NULL;
-    }
-};
-/*
-
-xiaoqixiCard::xiaoqixiCard(){
-    once = true;
-    mute = true;
-}
-
-bool xiaoqixiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && to_select->canSlash(Self);
-}
-
-void xiaoqixiCard::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.from->getRoom();
-    room->throwCard(room->askForCardChosen(effect.from, effect.to, "he", "xiaoqixi"));
-}
-
-class xiaoqixi: public ZeroCardViewAsSkill{
-public:
-    xiaoqixi():ZeroCardViewAsSkill("xiaoqixi"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("xiaoqixiCard");
-    }
-
-    virtual const Card *viewAs() const{
-        return new xiaoqixiCard;
-    }
-};*/
-
-class xiaoqixi: public OneCardViewAsSkill{
-public:
-    xiaoqixi():OneCardViewAsSkill("xiaoqixi"){
-
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getFilteredCard()->isBlack();
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return (player->usedTimes("Dismantlement")<=1);
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *first = card_item->getCard();
-        Dismantlement *dismantlement = new Dismantlement(first->getSuit(), first->getNumber());
-        dismantlement->addSubcard(first->getId());
-        dismantlement->setSkillName(objectName());
-        return dismantlement;
-    }
-};
-
-
-xiaozhihengCard::xiaozhihengCard(){
-    target_fixed = true;
-    once = true;
-}
-
-void xiaozhihengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->throwCard(this);
-    if(source->isAlive())
-        room->drawCards(source, subcards.length());
-}
-
-class xiaozhiheng:public ViewAsSkill{
-public:
-    xiaozhiheng():ViewAsSkill("xiaozhiheng"){
-
-    }
-/*
-    virtual bool viewFilter(const QList<CardItem *> &, const CardItem *) const{
-        return true;
-    }
-*/
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        return selected.length() < 3;
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.isEmpty())
-            return NULL;
-
-        xiaozhihengCard *xiaozhiheng_card = new xiaozhihengCard;
-        xiaozhiheng_card->addSubcards(cards);
-
-        return xiaozhiheng_card;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("xiaozhihengCard");
-    }
-};
-
-
-class taoyuanjieyi: public GameStartSkill{
-public:
-    taoyuanjieyi():GameStartSkill("taoyuanjieyi"){
-
-    }
-
-    static void AcquireGenerals(ServerPlayer *OEtaoyuanxiongdi, int n){
-        QStringList list = GetAvailableGenerals(OEtaoyuanxiongdi);
-        qShuffle(list);
-
-        QStringList acquired = list.mid(0, n);
-        QVariantList taoyuanjieyis = OEtaoyuanxiongdi->tag["taoyuanjieyis"].toList();
-        foreach(QString taoyuanjieyi, acquired){
-            taoyuanjieyis << taoyuanjieyi;
-                const General *general = Sanguosha->getGeneral(taoyuanjieyi);
-                foreach(const TriggerSkill *skill, general->getTriggerSkills()){
-                    OEtaoyuanxiongdi->getRoom()->getThread()->addTriggerSkill(skill);
-                }
-            }
-
-
-        OEtaoyuanxiongdi->tag["taoyuanjieyis"] = taoyuanjieyis;
-
-        OEtaoyuanxiongdi->invoke("animate", "taoyuanjieyi:" + acquired.join(":"));
-
-        LogMessage log;
-        log.type = "#Gettaoyuanjieyi";
-        log.from = OEtaoyuanxiongdi;
-        log.arg = QString::number(n);
-        log.arg2 = QString::number(taoyuanjieyis.length());
-        OEtaoyuanxiongdi->getRoom()->sendLog(log);
-    }
-
-    static QStringList GetAvailableGenerals(ServerPlayer *OEtaoyuanxiongdi){
-        QSet<QString> all = Sanguosha->getLimitedGeneralNames().toSet();
-        QSet<QString> taoyuanjieyi_set, room_set;
-        QVariantList taoyuanjieyis = OEtaoyuanxiongdi->tag["taoyuanjieyis"].toList();
-        foreach(QVariant taoyuanjieyi, taoyuanjieyis)
-            taoyuanjieyi_set << taoyuanjieyi.toString();/*
-        taoyuanjieyi_set << "liubei" << "guanyu" << "zhangfei";*/
-
-        Room *room = OEtaoyuanxiongdi->getRoom();
-        QList<const ServerPlayer *> players = room->findChildren<const ServerPlayer *>();
-        foreach(const ServerPlayer *player, players){
-            room_set << player->getGeneralName();
-            if(player->getGeneral2())
-                room_set << player->getGeneral2Name();
-        }
-
-        static QSet<QString> banned;
-        if(banned.isEmpty()){
-            banned << "OEtaoyuanxiongdi" << "OEtaoyuanxiongdif" << "guzhielai" << "dengshizai" << "caochong";
-        }
-
-        static QSet<QString> availble;
-        if(availble.isEmpty()){
-            availble << "liubei" << "guanyu" << "zhangfei";
-        }
-
-        return (/*all - banned*/ availble - taoyuanjieyi_set - room_set).toList();
-    }
-
-    static QString SelectSkill(ServerPlayer *OEtaoyuanxiongdi, bool acquire_instant = true){
-        Room *room = OEtaoyuanxiongdi->getRoom();
-
-        QString taoyuanjieyi_skill = OEtaoyuanxiongdi->tag["taoyuanjieyiSkill"].toString();
-        if(!taoyuanjieyi_skill.isEmpty())
-            room->detachSkillFromPlayer(OEtaoyuanxiongdi, taoyuanjieyi_skill);
-
-        QVariantList taoyuanjieyis = OEtaoyuanxiongdi->tag["taoyuanjieyis"].toList();
-        QStringList taoyuanjieyi_generals;
-        foreach(QVariant taoyuanjieyi, taoyuanjieyis)
-            taoyuanjieyi_generals << taoyuanjieyi.toString();
-
-        QString general_name = room->askForGeneral(OEtaoyuanxiongdi, taoyuanjieyi_generals);
-        const General *general = Sanguosha->getGeneral(general_name);
-        QString kingdom = general->getKingdom();
-        if(OEtaoyuanxiongdi->getKingdom() != kingdom){
-            if(kingdom == "god")
-                kingdom = room->askForKingdom(OEtaoyuanxiongdi);
-            room->setPlayerProperty(OEtaoyuanxiongdi, "kingdom", kingdom);
-        }
-        if(OEtaoyuanxiongdi->getGeneral()->isMale() != general->isMale())
-            room->setPlayerProperty(OEtaoyuanxiongdi, "general", general->isMale() ? "OEtaoyuanxiongdi" : "OEtaoyuanxiongdif");
-
-        QStringList skill_names;
-        foreach(const Skill *skill, general->getVisibleSkillList()){
-            if(skill->isLordSkill() || skill->getFrequency() == Skill::Limited
-               || skill->getFrequency() == Skill::Wake)
-                continue;
-
-            skill_names << skill->objectName();
-        }
-
-        if(skill_names.isEmpty())
-            return QString();
-
-        QString skill_name;
-        if(skill_names.length() == 1)
-            skill_name = skill_names.first();
-        else
-            skill_name = room->askForChoice(OEtaoyuanxiongdi, "taoyuanjieyi", skill_names.join("+"));
-
-        OEtaoyuanxiongdi->tag["taoyuanjieyiSkill"] = skill_name;
-
-        if(acquire_instant)
-            room->acquireSkill(OEtaoyuanxiongdi, skill_name);
-
-        return skill_name;
-    }
-
-    virtual void onGameStart(ServerPlayer *OEtaoyuanxiongdi) const{
-        AcquireGenerals(OEtaoyuanxiongdi, 3);
-        SelectSkill(OEtaoyuanxiongdi);
-    }
-
-    virtual QDialog *getDialog() const{
-        static taoyuanjieyiDialog *dialog;
-
-        if(dialog == NULL)
-            dialog = new taoyuanjieyiDialog;
-
-        return dialog;
-    }
-};
-
-taoyuanjieyiDialog::taoyuanjieyiDialog()
-{
-    setWindowTitle(tr("Incarnation"));
-}
-
-void taoyuanjieyiDialog::popup(){
-    QVariantList taoyuanjieyi_list = Self->tag["taoyuanjieyis"].toList();
-    QList<const General *> taoyuanjieyis;
-    foreach(QVariant taoyuanjieyi, taoyuanjieyi_list)
-        taoyuanjieyis << Sanguosha->getGeneral(taoyuanjieyi.toString());
-
-    fillGenerals(taoyuanjieyis);
-
-    show();
-}
-
-class taoyuanjieyiBegin: public PhaseChangeSkill{
-public:
-    taoyuanjieyiBegin():PhaseChangeSkill("#taoyuanjieyi-begin"){
-
-    }
-
-    virtual int getPriority() const{
-        return 3;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Start;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *OEtaoyuanxiongdi) const{
-        QString skill_name = taoyuanjieyi::SelectSkill(OEtaoyuanxiongdi, false);
-        OEtaoyuanxiongdi->getRoom()->acquireSkill(OEtaoyuanxiongdi, skill_name);
-
-        return false;
-    }
-};
-
-class taoyuanjieyiEnd: public PhaseChangeSkill{
-public:
-    taoyuanjieyiEnd():PhaseChangeSkill("#taoyuanjieyi-end"){
-
-    }
-
-    virtual int getPriority() const{
-        return -2;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::NotActive;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *OEtaoyuanxiongdi) const{
-        taoyuanjieyi::SelectSkill(OEtaoyuanxiongdi);
-
-        return false;
-    }
-};
-
-
-class Qijin: public TriggerSkill{
-public:
-    Qijin():TriggerSkill("qijin"){
-        events << CardLost;
-
-        frequency = Frequent;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *OEgodzhaoyun, QVariant &data) const{
-        if(OEgodzhaoyun->getCardCount(false) <7 ){
-            CardMoveStar move = data.value<CardMoveStar>();
-
-            if(move->from_place == Player::Hand){
-                Room *room = OEgodzhaoyun->getRoom();
-                if(room->askForSkillInvoke(OEgodzhaoyun, objectName())){
-                    room->playSkillEffect(objectName());
-
-                    OEgodzhaoyun->drawCards(1);
-                }
-            }
-        }
-
-        return false;
-    }
-};
-
 SPCardPackage::SPCardPackage()
     :Package("sp_cards")
 {
@@ -790,68 +358,45 @@ ADD_PACKAGE(SPCard)
 SPPackage::SPPackage()
     :Package("sp")
 {
-    General *yangxiu = new General(this, "yangxiu", "wei", 3);
+    General *yangxiu = new General(this, 801, "yangxiu", "wei", 3);
     yangxiu->addSkill(new Jilei);
     yangxiu->addSkill(new JileiClear);
     yangxiu->addSkill(new Danlao);
 
     related_skills.insertMulti("jilei", "#jilei-clear");
 
-    General *gongsunzan = new General(this, "gongsunzan", "qun");
+    General *gongsunzan = new General(this, 802, "gongsunzan", "qun");
     gongsunzan->addSkill(new Yicong);
 
-    General *yuanshu = new General(this, "yuanshu", "qun");
+    General *yuanshu = new General(this, 803, "yuanshu", "qun");
     yuanshu->addSkill(new Yongsi);
     yuanshu->addSkill(new Weidi);
 
-    General *sp_diaochan = new General(this, "sp_diaochan", "qun", 3, false, true);
+    General *sp_diaochan = new General(this, 804, "sp_diaochan", "qun", 3, false, true);
     sp_diaochan->addSkill("lijian");
     sp_diaochan->addSkill("biyue");
     sp_diaochan->addSkill(new Xuwei);
 
-    General *sp_sunshangxiang = new General(this, "sp_sunshangxiang", "shu", 3, false, true);
+    General *sp_sunshangxiang = new General(this, 805, "sp_sunshangxiang", "shu", 3, false, true);
     sp_sunshangxiang->addSkill("jieyin");
     sp_sunshangxiang->addSkill("xiaoji");
 
-    General *shenlvbu1 = new General(this, "shenlvbu1", "god", 8, true, true);
+    General *shenlvbu1 = new General(this, 807, "shenlvbu1", "god", 8, true, true);
     shenlvbu1->addSkill("mashu");
     shenlvbu1->addSkill("wushuang");
 
-    General *shenlvbu2 = new General(this, "shenlvbu2", "god", 4, true, true);
+    General *shenlvbu2 = new General(this, 808, "shenlvbu2", "god", 4, true, true);
     shenlvbu2->addSkill("mashu");
     shenlvbu2->addSkill("wushuang");
     shenlvbu2->addSkill(new Xiuluo);
     shenlvbu2->addSkill(new Shenwei);
     shenlvbu2->addSkill(new Skill("shenji"));
 
-    General *sp_guanyu = new General(this, "sp_guanyu", "wei", 4);
+    General *sp_guanyu = new General(this, 806, "sp_guanyu", "wei", 4);
     sp_guanyu->addSkill("wusheng");
     sp_guanyu->addSkill(new Danji);
 
-    General *OEgodzhangliao = new General(this, "OEgodzhangliao", "god", 4, true, true);
-    OEgodzhangliao->addSkill(new Pozhen);
-    OEgodzhangliao->addSkill(new Skill("changdao", Skill::Compulsory));
-    OEgodzhangliao->addSkill(new Zhangliao_shenwei);
-
-    General *OEganningXYJ = new General(this, "OEganningXYJ", "wu", 4, true, true);
-    OEganningXYJ->addSkill(new xiaoqixi);
-
-    General *OEsunquanXYJ = new General(this, "OEsunquanXYJ", "wu", 4, true, true);
-    OEsunquanXYJ->addSkill(new xiaozhiheng);
-
-    General *OEtaoyuanxiongdi = new General(this, "OEtaoyuanxiongdi", "qun", 4, true, true);
-    OEtaoyuanxiongdi->addSkill(new taoyuanjieyi);
-    OEtaoyuanxiongdi->addSkill(new taoyuanjieyiBegin);
-    OEtaoyuanxiongdi->addSkill(new taoyuanjieyiEnd);
-/*
-    General *OEgodzhaoyun = new General(this, "OEgodzhaoyun", "shu", 2, true, true);
-    OEgodzhaoyun->addSkill(new Qijin);
-    OEgodzhaoyun->addSkill("paoxiao");
-    OEgodzhaoyun->addSkill("longhun");
-*/
-    addMetaObject<PozhenCard>();
-	
-    General *sp_caiwenji = new General(this, "sp_caiwenji", "wei", 3, false, true);
+    General *sp_caiwenji = new General(this, 809, "sp_caiwenji", "wei", 3, false, true);
     sp_caiwenji->addSkill("beige");
     sp_caiwenji->addSkill("duanchang");
 }

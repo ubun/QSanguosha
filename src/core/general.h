@@ -14,6 +14,8 @@ class General : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Gender);
+
+    /*OE*/Q_PROPERTY(int oegennum READ getOEGenNum CONSTANT)
     Q_PROPERTY(QString kingdom READ getKingdom CONSTANT)
     Q_PROPERTY(int maxhp READ getMaxHp CONSTANT)
     Q_PROPERTY(bool male READ isMale STORED false CONSTANT)
@@ -23,10 +25,11 @@ class General : public QObject
     Q_PROPERTY(bool hidden READ isHidden CONSTANT)
 
 public:
-    explicit General(Package *package, const QString &name, const QString &kingdom, int max_hp = 4, bool male = true, bool hidden = false);
+    explicit General(Package *package, int oegennum = 0, const QString &name = "", const QString &kingdom = "qun" , int max_hp = 4, bool male = true, bool hidden = false);
 
     // property getters/setters
     int getMaxHp() const;
+    /*OE*/int getOEGenNum() const;
     QString getKingdom() const;
     bool isMale() const;
     bool isFemale() const;
@@ -56,7 +59,8 @@ public:
 public slots:
     void lastWord() const;
 
-private:
+private:    
+    /*OE*/int oegennum;
     QString kingdom;
     int max_hp;
     Gender gender;

@@ -6,8 +6,8 @@
 
 #include <QSize>
 
-General::General(Package *package, const QString &name, const QString &kingdom, int max_hp, bool male, bool hidden)
-    :QObject(package), kingdom(kingdom), max_hp(max_hp), gender(male ? Male : Female), hidden(hidden)
+General::General(Package *package, int oegennum, const QString &name, const QString &kingdom, int max_hp, bool male, bool hidden)
+    :QObject(package), oegennum(oegennum), kingdom(kingdom), max_hp(max_hp), gender(male ? Male : Female), hidden(hidden)
 {
     static QChar lord_symbol('$');
     if(name.contains(lord_symbol)){
@@ -19,6 +19,11 @@ General::General(Package *package, const QString &name, const QString &kingdom, 
         lord = false;
         setObjectName(name);
     }
+}
+
+/*OE*/
+int General::getOEGenNum() const{
+    return oegennum;
 }
 
 int General::getMaxHp() const{

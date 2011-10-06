@@ -31,6 +31,10 @@ class GuanduScenario : public Scenario{
 public:
     GuanduScenario();
 
+    //ibicdlcod
+    virtual void getRoles(char *roles) const;
+    //
+
     virtual AI::Relation relationTo(const ServerPlayer *a, const ServerPlayer *b) const;
     virtual void onTagSet(Room *room, const QString &key) const;
 };

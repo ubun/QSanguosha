@@ -1265,107 +1265,107 @@ public:
 void StandardPackage::addGenerals(){
     General *caocao, *zhangliao, *guojia, *xiahoudun, *simayi, *xuchu, *zhenji;
 
-    caocao = new General(this, "caocao$", "wei");
+    caocao = new General(this, 201, "caocao$", "wei");
     caocao->addSkill(new Jianxiong);
     caocao->addSkill(new Hujia);
 
-    zhangliao = new General(this, "zhangliao", "wei");
+    zhangliao = new General(this, 204, "zhangliao", "wei");
     zhangliao->addSkill(new Tuxi);
 
-    guojia = new General(this, "guojia", "wei", 3);
+    guojia = new General(this, 206, "guojia", "wei", 3);
     guojia->addSkill(new Tiandu);
     guojia->addSkill(new Yiji);
 
-    xiahoudun = new General(this, "xiahoudun", "wei");
+    xiahoudun = new General(this, 203, "xiahoudun", "wei");
     xiahoudun->addSkill(new Ganglie);
 
-    simayi = new General(this, "simayi", "wei", 3);
+    simayi = new General(this, 202, "simayi", "wei", 3);
     simayi->addSkill(new Fankui);
     simayi->addSkill(new Guicai);
 
-    xuchu = new General(this, "xuchu", "wei");
+    xuchu = new General(this, 205, "xuchu", "wei");
     xuchu->addSkill(new Luoyi);
     xuchu->addSkill(new LuoyiBuff);
 
     related_skills.insertMulti("luoyi", "#luoyi");
 
-    zhenji = new General(this, "zhenji", "wei", 3, false);
+    zhenji = new General(this, 207, "zhenji", "wei", 3, false);
     zhenji->addSkill(new Luoshen);
     zhenji->addSkill(new Qingguo);
 
     General *liubei, *guanyu, *zhangfei, *zhaoyun, *machao, *zhugeliang, *huangyueying;
-    liubei = new General(this, "liubei$", "shu");
+    liubei = new General(this, 101, "liubei$", "shu");
     liubei->addSkill(new Rende);
     liubei->addSkill(new Jijiang);
 
-    guanyu = new General(this, "guanyu", "shu");
+    guanyu = new General(this, 102, "guanyu", "shu");
     guanyu->addSkill(new Wusheng);
 
-    zhangfei = new General(this, "zhangfei", "shu");
+    zhangfei = new General(this, 103, "zhangfei", "shu");
     zhangfei->addSkill(new Skill("paoxiao"));
 
-    zhaoyun = new General(this, "zhaoyun", "shu");
+    zhaoyun = new General(this, 105, "zhaoyun", "shu");
     zhaoyun->addSkill(new Longdan);
 
-    machao = new General(this, "machao", "shu");
+    machao = new General(this, 106, "machao", "shu");
     machao->addSkill(new Tieji);
     machao->addSkill(new Mashu);
 
-    zhugeliang = new General(this, "zhugeliang", "shu", 3);
+    zhugeliang = new General(this, 104, "zhugeliang", "shu", 3);
     zhugeliang->addSkill(new Guanxing);
     zhugeliang->addSkill(new Kongcheng);
     zhugeliang->addSkill(new KongchengEffect);
 
     related_skills.insertMulti("kongcheng", "#kongcheng-effect");
 
-    huangyueying = new General(this, "huangyueying", "shu", 3, false);
+    huangyueying = new General(this, 107, "huangyueying", "shu", 3, false);
     huangyueying->addSkill(new Jizhi);
     huangyueying->addSkill(new Skill("qicai", Skill::Compulsory));
 
     General *sunquan, *zhouyu, *lumeng, *luxun, *ganning, *huanggai, *daqiao, *sunshangxiang;
-    sunquan = new General(this, "sunquan$", "wu");
+    sunquan = new General(this, 301, "sunquan$", "wu");
     sunquan->addSkill(new Zhiheng);
     sunquan->addSkill(new Jiuyuan);
 
-    zhouyu = new General(this, "zhouyu", "wu", 3);
+    zhouyu = new General(this, 305, "zhouyu", "wu", 3);
     zhouyu->addSkill(new Yingzi);
     zhouyu->addSkill(new Fanjian);
 
-    lumeng = new General(this, "lumeng", "wu");
+    lumeng = new General(this, 303, "lumeng", "wu");
     lumeng->addSkill(new Keji);
     lumeng->addSkill(new KejiSkip);
 
     related_skills.insertMulti("keji", "#keji-skip");
 
-    luxun = new General(this, "luxun", "wu", 3);
+    luxun = new General(this, 307, "luxun", "wu", 3);
     luxun->addSkill(new Qianxun);
     luxun->addSkill(new Lianying);
 
-    ganning = new General(this, "ganning", "wu");
+    ganning = new General(this, 302, "ganning", "wu");
     ganning->addSkill(new Qixi);
 
-    huanggai = new General(this, "huanggai", "wu");
+    huanggai = new General(this, 304, "huanggai", "wu");
     huanggai->addSkill(new Kurou);
 
-    daqiao = new General(this, "daqiao", "wu", 3, false);
+    daqiao = new General(this, 306, "daqiao", "wu", 3, false);
     daqiao->addSkill(new Guose);
     daqiao->addSkill(new Liuli);
 
-    sunshangxiang = new General(this, "sunshangxiang", "wu", 3, false);
+    sunshangxiang = new General(this, 308, "sunshangxiang", "wu", 3, false);
     sunshangxiang->addSkill(new Chujia);
     sunshangxiang->addSkill(new Jieyin);
     sunshangxiang->addSkill(new Xiaoji);
 
     General *lubu, *huatuo, *diaochan;
 
-    lubu = new General(this, "lubu", "qun");
+    lubu = new General(this, 402, "lubu", "qun");
     lubu->addSkill(new Wushuang);
 
-    huatuo = new General(this, "huatuo", "qun", 3);
+    huatuo = new General(this, 401, "huatuo", "qun", 3);
     huatuo->addSkill(new Qingnang);
     huatuo->addSkill(new Jijiu);
 
-    diaochan = new General(this, "diaochan", "qun", 3, false);
+    diaochan = new General(this, 403, "diaochan", "qun", 3, false);
     diaochan->addSkill(new Lijian);
     diaochan->addSkill(new Biyue);
     diaochan->addSkill(new Tuoqiao);
@@ -1421,17 +1421,17 @@ TestPackage::TestPackage()
     :Package("test")
 {
     // for test only
-    General *zhiba_sunquan = new General(this, "zhibasunquan$", "wu", 4, true, true);
+    General *zhiba_sunquan = new General(this, 9301, "zhibasunquan$", "wu", 4, true, true);
     zhiba_sunquan->addSkill(new Zhiba);
     zhiba_sunquan->addSkill("jiuyuan");
 
-    General *wuxing_zhuge = new General(this, "wuxingzhuge", "shu", 3, true, true);
+    General *wuxing_zhuge = new General(this, 9104, "wuxingzhuge", "shu", 3, true, true);
     wuxing_zhuge->addSkill(new SuperGuanxing);
     wuxing_zhuge->addSkill("kongcheng");
     wuxing_zhuge->addSkill("#kongcheng-effect");
 
-    new General(this, "sujiang", "god", 5, true, true);
-    new General(this, "sujiangf", "god", 5, false, true);
+    new General(this, 9901, "sujiang", "god", 5, true, true);
+    new General(this, 9902, "sujiangf", "god", 5, false, true);
 }
 
 ADD_PACKAGE(Test)

@@ -659,115 +659,115 @@ LiXianJiPackage::LiXianJiPackage()
     :Package("LiXianJipackage")
 {
 
-    General *XJzhonghui = new General(this, "XJzhonghui", "qun", 4);
+    General *XJzhonghui = new General(this, 3742, "XJzhonghui", "qun", 4);
     XJzhonghui->addSkill(new XJzhenggong);
 
-    General *XJcaozhi = new General(this, "XJcaozhi", "wei", 3);
+    General *XJcaozhi = new General(this, 3722, "XJcaozhi", "wei", 3);
     XJcaozhi->addSkill(new XJwencai);
     XJcaozhi->addSkill(new XJfengliu);
 
-    /*General *XJlidian = new General(this, "XJlidian", "wei", 4);
+    /*General *XJlidian = new General(this, 3723, "XJlidian", "wei", 4);
     XJlidian->addSkill(new XJchenjing);*/
 
-    General *XJliuxie = new General(this, "XJliuxie", "qun", 3);
+    General *XJliuxie = new General(this, 3741, "XJliuxie", "qun", 3);
     XJliuxie->addSkill(new SavageAssaultAvoid("XJhanwei"));
     XJliuxie->addSkill(new XJhanwei);
     XJliuxie->addSkill(new XJzhaoling);
 
-    General *XJpanzhang = new General(this, "XJpanzhang", "wu", 4);
+    General *XJpanzhang = new General(this, 3731, "XJpanzhang", "wu", 4);
     XJpanzhang->addSkill(new XJjielve);
 
-    General *XJlingtong = new General(this, "XJlingtong", "wu", 4);
+    General *XJlingtong = new General(this, 3732, "XJlingtong", "wu", 4);
     XJlingtong->addSkill(new XJyifen);
 
-    General *XJjiangwei = new General(this, "XJjiangwei", "shu", 4);
+    General *XJjiangwei = new General(this, 3711, "XJjiangwei", "shu", 4);
     XJjiangwei->addSkill(new XJduwu);/*
 
-    General *XJwenpin = new General(this, "XJwenpin", "qun", 4);
+    General *XJwenpin = new General(this, 3749, "XJwenpin", "qun", 4);
     XJwenpin->addSkill(new XJzhuitao);
 
-    General *XJdengai = new General(this, "XJdengai", "wei", 4);
+    General *XJdengai = new General(this, 3724, "XJdengai", "wei", 4);
     XJdengai->addSkill(new XJmouhua);
     XJdengai->addSkill(new XJjixi);
 
-    General *XJzhanghe = new General(this, "XJzhanghe", "wei", 4);
+    General *XJzhanghe = new General(this, 3721, "XJzhanghe", "wei", 4);
     XJzhanghe->addSkill(new XJqiaobian);*/
 
-    General *XJpanfeng = new General(this, "XJpanfeng", "qun", 4);
+    General *XJpanfeng = new General(this, 3743, "XJpanfeng", "qun", 4);
     XJpanfeng->addSkill(new XJweiwu);/*
 
-    General *XJyujin = new General(this, "XJyujin", "wei", 4);
+    General *XJyujin = new General(this, 3725, "XJyujin", "wei", 4);
     XJyujin->addSkill(new XJyizhong);
 
-    General *XJfazheng = new General(this, "XJfazheng", "shu", 3);
+    General *XJfazheng = new General(this, 3712, "XJfazheng", "shu", 3);
     XJfazheng->addSkill(new XJzongheng);
     XJfazheng->addSkill(new XJliangmou);
     XJfazheng->addSkill(new XJzhiji);
 
-    General *XJzhangren = new General(this, "XJzhangren", "qun", 4);
+    General *XJzhangren = new General(this, 3744, "XJzhangren", "qun", 4);
     XJzhangren->addSkill(new XJjiangchi);
 
-    General *XJwangping = new General(this, "XJwangping", "shu", 4);
+    General *XJwangping = new General(this, 3713, "XJwangping", "shu", 4);
     XJwangping->addSkill(new XJyanzheng);
 
-    General *XJliuzhang = new General(this, "XJliuzhang$", "qun", 3);
+    General *XJliuzhang = new General(this, 3745, "XJliuzhang$", "qun", 3);
     XJliuzhang->addSkill(new XJkuanrou);
     XJliuzhang->addSkill(new XJguanwang);
     XJliuzhang->addSkill(new XJsijian);
 
-    General *XJzhangchunhua = new General(this, "XJzhangchunhua", "wei", 3, false);
+    General *XJzhangchunhua = new General(this, 3728, "XJzhangchunhua", "wei", 3, false);
     XJzhangchunhua->addSkill(new XJfeishi);
     XJzhangchunhua->addSkill(new XJshuangren);
 
-    General *XJdingfeng = new General(this, "XJdingfeng", "wu", 4);
+    General *XJdingfeng = new General(this, 3733, "XJdingfeng", "wu", 4);
     XJdingfeng->addSkill(new XJduanbing);
 
-    General *XJliushan = new General(this, "XJliushan$", "shu", 3);
+    General *XJliushan = new General(this, 3714, "XJliushan$", "shu", 3);
     XJliushan->addSkill(new XJhanzuo);
     XJliushan->addSkill(new XJanle);
     XJliushan->addSkill(new XJxiuyang);
     XJliushan->addSkill(new XJxunli);
 
-    General *XJxusheng = new General(this, "XJxusheng", "wu", 4);
+    General *XJxusheng = new General(this, 3734, "XJxusheng", "wu", 4);
     XJxusheng->addSkill(new XJyicheng);
 
-    General *XJmazhong = new General(this, "XJmazhong", "shu", 4);
+    General *XJmazhong = new General(this, 3715, "XJmazhong", "shu", 4);
     XJmazhong->addSkill(new XJpingluan);
 
-    General *XJsunce = new General(this, "XJsunce$", "wu", 4);
+    General *XJsunce = new General(this, 3735, "XJsunce$", "wu", 4);
     XJsunce->addSkill(new XJyingqi);
     XJsunce->addSkill(new XJjinxin);
 
-    General *XJliyan = new General(this, "XJliyan", "shu", 3);
+    General *XJliyan = new General(this, 3716, "XJliyan", "shu", 3);
     XJliyan->addSkill(new XJshusong);
     XJliyan->addSkill(new XJsimou);*/
 
-    General *XJliubiao = new General(this, "XJliubiao$", "qun", 3);
+    General *XJliubiao = new General(this, 3746, "XJliubiao$", "qun", 3);
     XJliubiao->addSkill(new XJanju);
     XJliubiao->addSkill(new XJleye);
     XJliubiao->addSkill(new XJshuishou);/*
 
-    General *XJgaoshun = new General(this, "XJgaoshun", "qun", 4);
+    General *XJgaoshun = new General(this, 3747, "XJgaoshun", "qun", 4);
     XJgaoshun->addSkill(new XJxianzhen);
 
-    General *XJcaohong = new General(this, "XJcaohong", "wei", 4);
+    General *XJcaohong = new General(this, 3726, "XJcaohong", "wei", 4);
     XJcaohong->addSkill(new XJhuwei);
 
-    General *XJmizhu = new General(this, "XJmizhu", "shu", 3);
+    General *XJmizhu = new General(this, 3717, "XJmizhu", "shu", 3);
     XJmizhu->addSkill(new XJwenhou);
     XJmizhu->addSkill(new XJzizhu);
 
-    General *XJjiling = new General(this, "XJjiling", "qun", 4);
+    General *XJjiling = new General(this, 3748, "XJjiling", "qun", 4);
     XJjiling->addSkill(new XJwanqiang);
 
-    General *XJchengpu = new General(this, "XJchengpu", "wu", 4);
+    General *XJchengpu = new General(this, 3736, "XJchengpu", "wu", 4);
     XJchengpu->addSkill(new XJchizhong);
 
-    General *XJlejin = new General(this, "XJlejin", "wei", 4);
+    General *XJlejin = new General(this, 3727, "XJlejin", "wei", 4);
     XJlejin->addSkill(new XJxiandeng);
     XJlejin->addSkill(new XJxiaoyong);
 
-    General *XJzhangzhao = new General(this, "XJzhangzhao", "wu", 3);
+    General *XJzhangzhao = new General(this, 3737, "XJzhangzhao", "wu", 3);
     XJzhangzhao->addSkill(new XJzhiyan);
     XJzhangzhao->addSkill(new XJbizhan);
     */

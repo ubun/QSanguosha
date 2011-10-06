@@ -1834,26 +1834,26 @@ YitianPackage::YitianPackage()
     :Package("yitian")
 {
     // generals
-    General *shencc = new General(this, "shencc", "god", 3);
+    General *shencc = new General(this, 3390, "shencc", "god", 3);
     shencc->addSkill(new Guixin2);
     shencc->addSkill("feiying");
 
-    General *caochong = new General(this, "caochong", "wei", 3);
+    General *caochong = new General(this, 3321, "caochong", "wei", 3);
     caochong->addSkill(new Chengxiang);
     caochong->addSkill(new Conghui);
     caochong->addSkill(new Zaoyao);
 
-    General *zhangjunyi = new General(this, "zhangjunyi", "qun");
+    General *zhangjunyi = new General(this, 3341, "zhangjunyi", "qun");
     zhangjunyi->addSkill(new Jueji);
     zhangjunyi->addSkill(new JuejiGet);
 
     related_skills.insertMulti("jueji", "#jueji-get");
 
-    General *lukang = new General(this, "lukang", "wu", 3);
+    General *lukang = new General(this, 3331, "lukang", "wu", 3);
     lukang->addSkill(new LukangWeiyan);
     lukang->addSkill(new Kegou);
 
-    General *jinxuandi = new General(this, "jinxuandi", "god");
+    General *jinxuandi = new General(this, 3395, "jinxuandi", "god");
     jinxuandi->addSkill(new Wuling);
     jinxuandi->addSkill(new WulingEffect);
     jinxuandi->addSkill(new WulingExEffect);
@@ -1861,7 +1861,7 @@ YitianPackage::YitianPackage()
     related_skills.insertMulti("wuling", "#wuling-effect");
     related_skills.insertMulti("wuling", "#wuling-ex-effect");
 
-    General *xiahoujuan = new General(this, "xiahoujuan", "wei", 3, false);
+    General *xiahoujuan = new General(this, 3312, "xiahoujuan", "wei", 3, false);
     xiahoujuan->addSkill(new LianliStart);
     xiahoujuan->addSkill(new Lianli);
     xiahoujuan->addSkill(new LianliSlash);
@@ -1876,52 +1876,52 @@ YitianPackage::YitianPackage()
     related_skills.insertMulti("lianli", "#lianli-jink");
     related_skills.insertMulti("lianli", "#lianli-clear");
 
-    General *caizhaoji = new General(this, "caizhaoji", "qun", 3, false);
+    General *caizhaoji = new General(this, 3342, "caizhaoji", "qun", 3, false);
     caizhaoji->addSkill(new Guihan);
     caizhaoji->addSkill(new CaizhaojiHujia);
 
-    General *luboyan = new General(this, "luboyan", "wu", 3);
+    General *luboyan = new General(this, 3338, "luboyan", "wu", 3);
     luboyan->addSkill(new Shenjun);
     luboyan->addSkill(new Shaoying);
     luboyan->addSkill(new Zonghuo);
 
-    General *luboyanf = new General(this, "luboyanf", "wu", 3, false, true);
+    General *luboyanf = new General(this, 3339, "luboyanf", "wu", 3, false, true);
     luboyanf->addSkill("shenjun");
     luboyanf->addSkill("shaoying");
     luboyanf->addSkill("zonghuo");
 
-    General *zhongshiji = new General(this, "zhongshiji", "wei");
+    General *zhongshiji = new General(this, 3322, "zhongshiji", "wei");
     zhongshiji->addSkill(new Gongmou);
     zhongshiji->addSkill(new GongmouExchange);
 
     related_skills.insertMulti("gongmou", "#gongmou-exchange");
 
-    General *jiangboyue = new General(this, "jiangboyue", "shu");
+    General *jiangboyue = new General(this, 3311, "jiangboyue", "shu");
     jiangboyue->addSkill(new Lexue);
     jiangboyue->addSkill(new Xunzhi);
 
-    General *jiawenhe = new General(this, "jiawenhe", "qun");
+    General *jiawenhe = new General(this, 3343, "jiawenhe", "qun");
     jiawenhe->addSkill(new Dongcha);
     jiawenhe->addSkill(new Dushi);
 
-    General *elai = new General(this, "guzhielai", "wei");
+    General *elai = new General(this, 3323, "guzhielai", "wei");
     elai->addSkill(new Sizhan);
     elai->addSkill(new Shenli);
 
-    General *dengshizai = new General(this, "dengshizai", "wei", 3);
+    General *dengshizai = new General(this, 3324, "dengshizai", "wei", 3);
     dengshizai->addSkill(new Zhenggong);
     dengshizai->addSkill(new Toudu);
 
-    General *zhanggongqi = new General(this, "zhanggongqi", "qun", 3);
+    General *zhanggongqi = new General(this, 3344, "zhanggongqi", "qun", 3);
     zhanggongqi->addSkill(new Yishe);
     zhanggongqi->addSkill(new Xiliang);
 
-    General *yitianjian = new General(this, "yitianjian", "wei");
+    General *yitianjian = new General(this, 3370, "yitianjian", "wei");
     yitianjian->addSkill(new Skill("zhengfeng", Skill::Compulsory));
     yitianjian->addSkill(new Zhenwei);
     yitianjian->addSkill(new Yitian);
 
-    General *sp_pangde = new General(this, "sp_pangde", "wei");
+    General *sp_pangde = new General(this, 3388, "sp_pangde", "wei");
     sp_pangde->addSkill(new Taichen);
 
     skills << new LianliSlashViewAsSkill << new YisheAsk;
