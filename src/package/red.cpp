@@ -587,6 +587,8 @@ public:
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
         QString asked = data.toString();
+        if(asked == "slash" && player->getMark("yany") > 0)
+            return false;
         Room *room = player->getRoom();
         QList<ServerPlayer *> players;
         foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
@@ -643,8 +645,10 @@ public:
             return false;
 
         Room *room = player->getRoom();
+        player->setMark("yany", 1);
         if(room->askForSkillInvoke(player, objectName(), data)){
             const Card *card = room->askForCard(player, "slash", "yanyun-slash");
+            player->setMark("yany", 0);
             if(card && card->getSkillName() != "xiefang"){
                 if(player->hasFlag("drank"))
                     room->setPlayerFlag(player, "-drank");
@@ -656,6 +660,7 @@ public:
                 room->useCard(use, false);
             }
         }
+        player->setMark("yany", 0);
         return false;
     }
 };
