@@ -360,9 +360,6 @@ ADD_PACKAGE(SPCard)
 SPPackage::SPPackage()
     :Package("sp")
 {
-    Card *moon_spear = new MoonSpear;
-    moon_spear->setParent(this);
-
     General *yangxiu = new General(this, "yangxiu", "wei", 3);
     yangxiu->addSkill(new Jilei);
     yangxiu->addSkill(new JileiClear);
