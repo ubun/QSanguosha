@@ -25,11 +25,14 @@ return {
 	["designer:tianyin"] = "鎏铄天音",
 	["cv:tianyin"] = "",
 	["skydao"] = "天道",
-	[":skydao"] = "锁定技，你的回合外，你每受到一次伤害增加1点体力上限",
+	[":skydao"] = "锁定技，你的回合外，你每受到一次伤害，增加1点体力上限",
+	["#SkydaoMAXHP"] = "%from 的锁定技【%arg2】被触发，增加了一点体力上限，目前体力上限是 %arg",
 	["noqing"] = "无情",
 	[":noqing"] = "锁定技，你受到伤害时，若你的体力是全场最少或同时为最少，则所有人必须减少1点体力或1点体力上限",
 	["noqing:hp"] = "体力",
 	["noqing:max_hp"] = "体力上限",
+	["#NoqingLoseHp"] = "受到 %from 【%arg】锁定技的影响，%to 流失了一点体力",
+	["#NoqingLoseMaxHp"] = "受到 %from 【%arg】锁定技的影响，%to 流失了一点体力上限",
 
 --cards
 	["kuso_cards"] = "小笼包",
@@ -47,6 +50,7 @@ return {
 	[":kawaii_dress"] = "锁定技，当你的体力为1时，任何伤害对你无效。当你失去装备区里的【百花裙】时，你立即摸两张牌。男性角色试图装备【百花裙】时，会受到惩罚",
 	["#KawaiiDressProtect"] = "%from 受到【百花裙】保护，将 %arg 点伤害[%arg2] 无效化", 
 	["#KawaiiHurt"] = "%from 被【%arg】发现不是女性，将受到惩罚", 
+	["#KawaiiAngry"] = "%from 被【%arg】发现有 %arg2 的气息，顿时勃然大怒，猛然收缩！", 
 
 	["fiveline"] = "五道杠",
 	[":fiveline"] = "<br><font color=blue>德杠</font>·体力为1时可以发动【仁德】<br><font color=green>智杠</font>·体力为2时可以发动【集智】<br><font color=gold>体杠</font>·体力为3时可以发动【结姻】<br><font color=red>美杠</font>·体力为4时可以发动【国色】<br><font color=brown>劳杠</font>·体力为5时可以发动【苦肉】",

@@ -961,6 +961,7 @@ public:
             if(gender == "female"){
                 if(is_male)
                     room->transfigure(player, "luboyanf", false, false);
+                //room->setPlayerProperty(player, "gender", Female);
             }else if(gender == "male"){
                 if(!is_male)
                     room->transfigure(player, "luboyan", false, false);

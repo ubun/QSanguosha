@@ -1042,6 +1042,59 @@ public:
     }
 };
 
+//fortest
+class SuperZaiqi: public PhaseChangeSkill{
+public:
+    SuperZaiqi():PhaseChangeSkill("super_zaiqi"){
+    }
+    virtual bool onPhaseChange(ServerPlayer *menghuo) const{
+        if(menghuo->getPhase() == Player::Draw){
+            Room *room = menghuo->getRoom();
+            if(room->askForSkillInvoke(menghuo, objectName())){
+                int x = menghuo->getLostHp() + 1;
+                room->playSkillEffect("zaiqi", 1);
+                bool has_heart = false;
+
+                for(int i=0; i<x; i++){
+                    int card_id = room->drawCard();
+                    room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
+
+                    room->getThread()->delay();
+                    const Card *card = Sanguosha->getCard(card_id);
+                    if(card->getSuit() == Card::Spade){
+                        SavageAssault *nanmam = new SavageAssault(Card::Spade, card->getNumber());
+                        nanmam->setSkillName(objectName());
+                        nanmam->addSubcard(card);
+                        CardUseStruct card_use;
+                        card_use.card = nanmam;
+                        card_use.from = menghuo;
+                        room->useCard(card_use);
+                        has_heart = true;
+                    }
+                    else if(card->getSuit() == Card::Heart){
+                        RecoverStruct recover;
+                        recover.card = card;
+                        recover.who = menghuo;
+                        room->recover(menghuo, recover);
+                        room->throwCard(card_id);
+                        has_heart = true;
+                    }
+                    else
+                        room->obtainCard(menghuo, card_id);
+                }
+
+                if(has_heart)
+                    room->playSkillEffect("zaiqi", 2);
+                else
+                    room->playSkillEffect("zaiqi", 3);
+
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
 RedPackage::RedPackage()
     :Package("red")
 {
@@ -1078,6 +1131,11 @@ RedPackage::RedPackage()
     General *redwutugu = new General(this, "redwutugu", "shu", 3);
     redwutugu->addSkill(new Chuzhen);
     skills << new Linjia << new Zhubing;
+
+    General *rednanmanwang = new General(this, "rednanmanwang", "shu", 4, true, true);
+    rednanmanwang->addSkill("huoshou");
+    rednanmanwang->addSkill("#sa_avoid_huoshou");
+    rednanmanwang->addSkill(new SuperZaiqi);
 
     General *redchunyuqiong = new General(this, "redchunyuqiong", "qun");
     redchunyuqiong->addSkill(new Xujiu);

@@ -193,7 +193,13 @@ public:
     virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
         Room *room = player->getRoom();
         if(damage.to && damage.to == player && player->getPhase() == Player::NotActive){
+            LogMessage log;
+            log.from = player;
+            log.type = "#SkydaoMAXHP";
+            log.arg2 = objectName();
             room->setPlayerProperty(player, "maxhp", player->getMaxHP() + 1);
+            log.arg = QString::number(player->getMaxHP());
+            room->sendLog(log);
         }
     }
 };
@@ -222,10 +228,20 @@ public:
                 if(tmp->getHp() < player->getHp())
                     return;
             foreach(ServerPlayer *tmp, room->getAllPlayers()){
-                if(room->askForChoice(tmp, objectName(), "hp+max_hp") == "hp")
+                QString choice = room->askForChoice(tmp, objectName(), "hp+max_hp");
+                LogMessage log;
+                log.from = player;
+                log.to << tmp;
+                log.arg = objectName();
+                if(choice == "hp"){
+                    log.type = "#NoqingLoseHp";
+                    room->sendLog(log);
                     room->loseHp(tmp);
-                else
+                }else{
+                    log.type = "#NoqingLoseMaxHp";
+                    room->sendLog(log);
                     room->loseMaxHp(tmp);
+                }
             }
         }
     }
@@ -353,11 +369,19 @@ void KawaiiDress::onInstall(ServerPlayer *player) const{
     if(!player->getGeneral()->isFemale()){
         LogMessage log;
         Room *room = player->getRoom();
-        log.type = "#KawaiiHurt";
         log.from = player;
         log.arg = objectName();
-        room->sendLog(log);
-        room->loseHp(player);
+        log.arg2 = "dongzhuo";
+        if(player->hasSkill("jiuchi") && player->getHp() <= 2){
+            log.type = "#KawaiiAngry";
+            room->sendLog(log);
+            room->killPlayer(player);
+        }
+        else{
+            log.type = "#KawaiiHurt";
+            room->sendLog(log);
+            room->loseHp(player);
+        }
     }
 }
 
