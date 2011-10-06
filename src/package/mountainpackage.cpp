@@ -247,6 +247,21 @@ public:
     }
 };
 
+class Guixiang: public GameStartSkill{
+public:
+    Guixiang():GameStartSkill("guixiang"){
+        frequency = Limited;
+    }
+
+    virtual void onGameStart(ServerPlayer *player) const{
+        if(player->getGeneralName() == "caiwenji"
+           && player->askForSkillInvoke(objectName()))
+        {
+            player->getRoom()->setPlayerProperty(player, "general", "sp_caiwenji");
+        }
+    }
+};
+
 class Tuntian: public DistanceSkill{
 public:
     Tuntian():DistanceSkill("tuntian"){
@@ -522,12 +537,12 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(event == GameStart){
-            if(!player->hasSkill(objectName()))
+            if(!player->hasSkill(objectName()) || !player->isLord())
                 return false;
 
             Room *room = player->getRoom();
             foreach(ServerPlayer *p, room->getAlivePlayers()){
-                if(!p->hasSkill("zhiba_pindian"))
+                if(!p->hasSkill("zhiba_pindian") && !p->isLord())
                     room->attachSkillToPlayer(p, "zhiba_pindian");
             }
         }else if(event == Pindian){
@@ -1130,6 +1145,7 @@ MountainPackage::MountainPackage()
     General *caiwenji = new General(this, "caiwenji", "qun", 3, false);
     caiwenji->addSkill(new Beige);
     caiwenji->addSkill(new Duanchang);
+    caiwenji->addSkill(new Guixiang);
 
     General *zuoci = new General(this, "zuoci", "qun", 3);
     zuoci->addSkill(new Huashen);
