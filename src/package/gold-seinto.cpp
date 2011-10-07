@@ -302,7 +302,7 @@ void MohuaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
 
 class MohuaViewAsSkill: public ZeroCardViewAsSkill{
 public:
-    MohuaViewAsSkill():ZeroCardViewAsSkill("mohua$"){
+    MohuaViewAsSkill():ZeroCardViewAsSkill("mohua"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -316,7 +316,7 @@ public:
 
 class Mohua:public TriggerSkill{
 public:
-    Mohua():TriggerSkill("mohua"){
+    Mohua():TriggerSkill("mohua$"){
         events << PhaseChange << Predamage;
         view_as_skill = new MohuaViewAsSkill;
     }

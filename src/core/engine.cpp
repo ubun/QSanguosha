@@ -40,9 +40,11 @@ extern "C" {
     Package *NewSP();
     Package *NewYJCM();
     Package *NewWisdom();
+    Package *NewTest();
+
     Package *NewGoldSeintoPre();
     Package *NewGoldSeinto();
-    Package *NewTest();
+    Package *NewBronzeSeinto();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -83,6 +85,7 @@ Engine::Engine()
     addPackage(NewWisdom());
     addPackage(NewGoldSeintoPre());
     addPackage(NewGoldSeinto());
+    addPackage(NewBronzeSeinto());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
@@ -384,7 +387,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "st";
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "st" << "ao";
 
     return kingdoms;
 }
