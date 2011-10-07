@@ -206,6 +206,12 @@ void Room::killPlayer(ServerPlayer *victim, DamageStruct *reason){
     alive_players.removeOne(victim);
 
     LogMessage log;
+    /*if(victim->hasSkill("yuwen")){
+        killer = victim;
+        log.type = "#Yuweneffect";
+        log.from = killer;
+        sendLog(log);
+    }*/
     log.to << victim;
     log.arg = victim->getRole();
     log.from = killer;

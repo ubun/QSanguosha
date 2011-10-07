@@ -690,26 +690,38 @@ public:
 class Yuwen: public TriggerSkill{
 public:
     Yuwen():TriggerSkill("yuwen"){
-        events << AskForPeachesDone;
+        events << Death;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *tianfeng, QVariant &data) const{
-        if(tianfeng->getHp() <= 0){
-            DamageStruct damage = data.value<DamageStruct>();
-            damage.from = damage.to = tianfeng;
-            data = QVariant::fromValue(damage);
-
-            LogMessage log;
-            log.type = "#Yuweneffect";
-            log.from = tianfeng;
-            tianfeng->getRoom()->sendLog(log);
-
-            tianfeng->getRoom()->killPlayer(tianfeng, &damage);
-            return true;
-        }
-        return false;
+    virtual int getPriority() const{
+        return -1;
     }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *tianfeng = room->findPlayerBySkillName(objectName(), true);
+        DamageStar damage = data.value<DamageStar>();
+        if(!tianfeng || !damage || damage->to != tianfeng || damage->from == tianfeng)
+            return false;
+
+        LogMessage log;
+        log.type = "#Yuweneffect";
+        log.from = tianfeng;
+        room->sendLog(log);
+
+        DamageStruct dmg;
+        dmg.from = tianfeng;
+        dmg.to = tianfeng;
+        room->killPlayer(tianfeng, &dmg);
+
+        return true;
+    }
+
 };
 
 ShouyeCard::ShouyeCard(){
@@ -858,6 +870,7 @@ WisdomPackage::WisdomPackage()
         wistianfeng->addSkill(new Shipo);
         wistianfeng->addSkill(new Gushou);
         wistianfeng->addSkill(new Yuwen);
+        //wistianfeng->addSkill(new Skill("yuwen", Skill::Compulsory));
 
         wisshuijing = new General(this, "wisshuijing", "qun",4,true);
         wisshuijing->addSkill(new Shouye);
