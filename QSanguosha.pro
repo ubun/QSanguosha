@@ -36,6 +36,7 @@ SOURCES += src/main.cpp \
 	src/dialog/playercarddialog.cpp \
 	src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
+        src/dialog/halldialog.cpp \
 	src/package/firepackage.cpp \
 	src/package/god.cpp \
 	src/package/joypackage.cpp \
@@ -88,7 +89,7 @@ SOURCES += src/main.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
         src/util/recorder.cpp \
-        swig/sanguosha_wrap.cxx
+        swig/sanguosha_wrap.cxx \
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -168,7 +169,8 @@ HEADERS += src/client/aux-skills.h \
 	src/util/detector.h \
 	src/util/nativesocket.h \
 	src/util/recorder.h \
-	src/util/socket.h
+	src/util/socket.h \
+        src/dialog/halldialog.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
