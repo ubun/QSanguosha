@@ -655,6 +655,153 @@ public:
     }
 };
 
+class XJwenhou: public PhaseChangeSkill{
+public:
+    XJwenhou():PhaseChangeSkill("XJwenhou"){
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::Start
+                && target->isWounded();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *XJmizhu) const{
+        if(XJmizhu->askForSkillInvoke(objectName()))
+            XJmizhu->drawCards(XJmizhu->getLostHp());
+        return false;
+    }
+};
+
+XJzizhuCard::XJzizhuCard(){
+
+}
+
+bool XJzizhuCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    /*if(Self->getPhase() == Player::Draw)
+        return targets.length() <= 2 && !targets.isEmpty();
+    else if(Self->getPhase() == Player::Play)*/
+        return targets.length() == 1;/*
+    else
+        return targets.isEmpty();*/
+}
+
+bool XJzizhuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    /*if(Self->getPhase() == Player::Draw)
+        return targets.length() < 2 && to_select != Self && !to_select->isKongcheng();
+    else if(Self->getPhase() == Player::Play){*/
+        return targets.isEmpty() &&
+                (/*!to_select->getJudgingArea().isEmpty() || */!to_select->getEquips().isEmpty());/*
+    }else
+        return false;*/
+}
+
+void XJzizhuCard::use(Room *room, ServerPlayer *XJmizhu, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
+
+    /*if(XJmizhu->getPhase() == Player::Draw){
+        foreach(ServerPlayer *target, targets){
+            int card_id = room->askForCardChosen(XJmizhu, target, "h", "XJzizhu");
+            room->moveCardTo(Sanguosha->getCard(card_id), XJmizhu, Player::Hand, false);
+        }
+    }else if(XJmizhu->getPhase() == Player::Play){*/
+        PlayerStar from = targets.first();
+        if(!from->hasEquip() && from->getJudgingArea().isEmpty())
+            return;
+
+        int card_id = room->askForCardChosen(XJmizhu, from , "ej", "XJzizhu");
+        const Card *card = Sanguosha->getCard(card_id);
+        Player::Place place = room->getCardPlace(card_id);
+
+        int equip_index = -1;
+        const DelayedTrick *trick = NULL;
+        if(place == Player::Equip){
+            const EquipCard *equip = qobject_cast<const EquipCard *>(card);
+            equip_index = static_cast<int>(equip->location());
+        }else{
+            trick = DelayedTrick::CastFrom(card);
+        }
+
+        QList<ServerPlayer *> tos;
+        foreach(ServerPlayer *p, room->getAlivePlayers()){
+            if(equip_index != -1){
+                if(p->getEquip(equip_index) == NULL)
+                    tos << p;
+            }else{
+                if(!XJmizhu->isProhibited(p, trick) && !p->containsTrick(trick->objectName()))
+                    tos << p;
+            }
+        }
+
+        if(trick && trick->isVirtualCard())
+            delete trick;
+
+        room->setTag("XJzizhuTarget", QVariant::fromValue(from));
+        ServerPlayer *to = room->askForPlayerChosen(XJmizhu, tos, "XJzizhu");
+        if(to)
+            room->moveCardTo(card, to, place);
+        room->removeTag("XJzizhuTarget");
+    //}
+}
+
+class XJzizhuViewAsSkill: public OneCardViewAsSkill{
+public:
+    XJzizhuViewAsSkill():OneCardViewAsSkill(""){
+
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        XJzizhuCard *card = new XJzizhuCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@XJzizhu";
+    }
+};
+
+class XJzizhu: public PhaseChangeSkill{
+public:
+    XJzizhu():PhaseChangeSkill("XJzizhu"){
+        view_as_skill = new XJzizhuViewAsSkill;
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target) && !target->isKongcheng();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *XJmizhu) const{
+        Room *room = XJmizhu->getRoom();
+
+        switch(XJmizhu->getPhase()){
+        case Player::Start:
+        case Player::Finish:
+        case Player::NotActive: return false;
+
+        case Player::Judge: return false; //room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-judge");
+        case Player::Draw: return false; //room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-draw");
+        case Player::Play: return room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-play");
+        case Player::Discard: return false; //room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-discard");
+        }
+
+        return false;
+    }
+};
+
+
 LiXianJiPackage::LiXianJiPackage()
     :Package("LiXianJipackage")
 {
@@ -751,11 +898,11 @@ LiXianJiPackage::LiXianJiPackage()
     XJgaoshun->addSkill(new XJxianzhen);
 
     General *XJcaohong = new General(this, 3726, "XJcaohong", "wei", 4);
-    XJcaohong->addSkill(new XJhuwei);
+    XJcaohong->addSkill(new XJhuwei);*/
 
     General *XJmizhu = new General(this, 3717, "XJmizhu", "shu", 3);
     XJmizhu->addSkill(new XJwenhou);
-    XJmizhu->addSkill(new XJzizhu);
+    XJmizhu->addSkill(new XJzizhu);/*
 
     General *XJjiling = new General(this, 3748, "XJjiling", "qun", 4);
     XJjiling->addSkill(new XJwanqiang);
@@ -775,7 +922,7 @@ LiXianJiPackage::LiXianJiPackage()
     addMetaObject<XJfengliuCard>();
     addMetaObject<XJjielveCard>();
     addMetaObject<XJduwuCard>();
-    //addMetaObject<XJshuishouCard>();
+    addMetaObject<XJzizhuCard>();
 
 }
 
