@@ -3165,10 +3165,45 @@ QString Room::getNiubiOwner(QString armor, int option){
     map["tombstone"] = "dongzhuo";
     map["snapshot"] = "menghuo";
     map["fuckav"] = "zhurong";
+
     //fire
+    map["switchbd"] = "wolong";
+    map["reijyutsu"] = "pangtong";
+    map["apple"] = "taishici";
+    map["goldlock"] = "yuanshao";
+    map["tanbi"] = "shuangxiong";
+    map["sansyouuo"] = "dianwei";
+    map["flack"] = "xunyu";
+    map["coffinlid"] = "pangde";
+
     //mountain
+    map["nunchaku"] = "zhanghe";
+    map["ruan"] = "caiwenji";
+    map["globe"] = "erzhang";
+    map["wookon"] = "dengai";
+    map["greatmug"] = "jiangwei";
+    map["goooo"] = "zuoci";
+    map["hundan"] = "sunce";
+    map["tizanidine"] = "liushan";
+
     //sp
+    map["nailclippers"] = "yangxiu";
+    map["morin_khuur"] = "gongsunzan";
+    map["greatchair"] = "yuanshu";
+
     //YJCM
+    map["hawksbill"] = "yujin";
+    map["torture"] = "xushu";
+    map["rotate"] = "lingtong";
+    map["totocar"] = "chengong";
+    map["ch3oh"] = "caozhi";
+    map["teardan"] = "masu";
+    map["nanafist"] = "xusheng";
+    map["lrzt9hh"] = "gaoshun";
+    map["mushroom"] = "fazheng";
+    map["aofrog"] = "wuguotai";
+    map["coptis"] = "chunhua";
+
     switch(option){
         case 1: return map.value(armor, QString());
         case 2: return Sanguosha->getGeneral(map.value(armor, QString()))->getPackage();

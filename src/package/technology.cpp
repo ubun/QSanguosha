@@ -125,7 +125,211 @@ public:
     }
 };
 
+class Yueli:public TriggerSkill{
+public:
+    Yueli():TriggerSkill("yueli"){
+        events << HpRecover << Predamaged << DrawNCards << CardDiscarded;
+    }
 
+    virtual bool trigger(TriggerEvent event, ServerPlayer *dukui, QVariant &data) const{
+        Room *room = dukui->getRoom();
+        LogMessage log;
+        log.from = dukui;
+
+        switch(event){
+        case HpRecover:{
+            RecoverStruct recover = data.value<RecoverStruct>();
+            int recnum = recover.recover;
+            if(dukui->getMark("dnc") > 0)
+                return false;
+            for(int i = recover.recover; i > 0; i--){
+                if(dukui->askForSkillInvoke(objectName(), data)){
+                    dukui->drawCards(2);
+                    recover.recover --;
+                }
+            }
+            log.arg = QString::number(recnum - recover.recover);
+            log.arg2 = QString::number((recnum - recover.recover) * 2);
+            log.type = "#Yueli_rec";
+            data = QVariant::fromValue(recover);
+            break;
+        }
+        case Predamaged:{
+            DamageStruct damage = data.value<DamageStruct>();
+            int dmgnum = damage.damage;
+            for(int i = damage.damage; i > 0; i--){
+                if(dukui->getCardCount(true) > 1 && dukui->askForSkillInvoke(objectName(), data)){
+                    dukui->setMark("pdm", 1);
+                    room->askForDiscard(dukui, objectName(), 2, false, true);
+                    damage.damage --;
+                }
+            }
+            dukui->setMark("pdm", 0);
+
+            log.arg = QString::number(dmgnum - damage.damage);
+            log.arg2 = QString::number((dmgnum - damage.damage) * 2);
+            log.type = "#Yueli_dmg";
+            data = QVariant::fromValue(damage);
+            break;
+        }
+        case DrawNCards:{
+            int drawnum = data.toInt();
+            while(dukui->isWounded() && drawnum >= 2 && dukui->askForSkillInvoke(objectName())){
+                drawnum = drawnum - 2;
+                RecoverStruct rec;
+                rec.who = dukui;
+                dukui->setMark("dnc", 1);
+                room->recover(dukui, rec);
+            }
+            dukui->setMark("dnc", 0);
+
+            log.arg = QString::number(data.toInt() - drawnum);
+            log.arg2 = QString::number((data.toInt() - drawnum) / 2);
+            log.type = "#Yueli_dnc";
+            data = drawnum;
+            break;
+        }
+        case CardDiscarded:{
+            CardStar card = data.value<CardStar>();
+            if(dukui->getMark("pdm") > 0)
+                return false;
+            QList<int> cards = card->getSubcards();
+            room->fillAG(cards, dukui);
+            int oldhp = dukui->getHp();
+            while(cards.length() > 1 && dukui->askForSkillInvoke(objectName(), data)){
+                room->loseHp(dukui);
+                int card_id = room->askForAG(dukui, cards, false, objectName());
+                //dukui->obtainCard(Sanguosha->getCard(card_id));
+                cards.removeOne(card_id);
+                room->takeAG(dukui, card_id);
+
+                card_id = room->askForAG(dukui, cards, false, objectName());
+                //dukui->obtainCard(Sanguosha->getCard(card_id));
+                cards.removeOne(card_id);
+                room->takeAG(dukui, card_id);
+            }
+            dukui->invoke("clearAG");
+
+            log.arg = QString::number(oldhp - dukui->getHp());
+            log.arg2 = QString::number((oldhp - dukui->getHp()) * 2);
+            log.type = "#Yueli_cd";
+            break;
+        }
+        default:
+            return false;
+        }
+
+        if(log.arg != "0" && log.arg2 != "0")
+            room->sendLog(log);
+        return false;
+    }
+};
+
+
+class Mengjie: public TriggerSkill{
+public:
+    Mengjie():TriggerSkill("mengjie"){
+        events << CardLost;
+        frequency = Frequent;
+    }
+    virtual bool trigger(TriggerEvent, ServerPlayer *xuan, QVariant &data) const{
+        Room *room = xuan->getRoom();
+        if(room->getCurrent() == xuan)
+            return false;
+        CardMoveStar move = data.value<CardMoveStar>();
+        if(move->from_place == Player::Hand && move->to != move->from && room->askForSkillInvoke(xuan, objectName())){
+             ServerPlayer *target = room->askForPlayerChosen(xuan, room->getAlivePlayers(), objectName());
+             if(target){
+                 target->setChained(true);
+                 room->broadcastProperty(target, "chained");
+             }
+        }
+        return false;
+    }
+};
+
+class MengJie:public TriggerSkill{
+public:
+    MengJie():TriggerSkill("mengJie"){
+        events << CardUsed << CardFinished;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        if(event == CardFinished){
+            foreach(ServerPlayer *tmp, room->getAlivePlayers()){
+                if(tmp->isChained() && tmp->getMark("meng") > 0){
+                    tmp->setChained(false);
+                    room->broadcastProperty(tmp, "chained");
+                    tmp->setMark("meng", 0);
+                }
+            }
+            return false;
+        }
+
+        ServerPlayer *zhou = room->findPlayerBySkillName(objectName());
+        if(!zhou)
+            return false;
+
+        CardUseStruct use = data.value<CardUseStruct>();
+        const Card *card = use.card;
+        if(!((card->inherits("BasicCard") || card->isNDTrick())
+            && !card->inherits("Nullification")))
+            return false;
+
+        bool enable = false;
+        if(!use.to.isEmpty()){
+            foreach(ServerPlayer *tmp, use.to){
+                if(tmp->isChained() || tmp->hasSkill(objectName())){
+                    enable = true;
+                    break;
+                }
+            }
+        }
+        else if(use.from == zhou || use.from->isChained()){
+            foreach(ServerPlayer *tmp, room->getAlivePlayers()){
+                if(tmp->isChained()){
+                    enable = true;
+                    break;
+                }
+            }
+        }
+
+        if(enable && room->askForSkillInvoke(zhou, objectName())){
+            ServerPlayer *tmp;
+            int count = 10000;
+            while(use.to.length() != count){
+                count = use.to.length();
+                //to me or my card(to me)
+                if(use.to.contains(zhou) || (use.to.isEmpty() && use.from == zhou))
+                    foreach(tmp, room->getAlivePlayers())
+                        if(tmp->isChained() && !use.to.contains(tmp))
+                            use.to << tmp;
+                //to other chained player
+                if(!use.to.isEmpty())
+                    foreach(tmp, use.to)
+                        if(tmp->isChained() && !use.to.contains(zhou)){
+                            use.to << zhou;
+                            break;
+                        }
+                //chaned player use no point card like peach
+                if(use.to.isEmpty() && use.from->isChained())
+                    use.to << zhou;
+            }
+
+            if(!use.to.isEmpty())
+                foreach(tmp, use.to)
+                    tmp->setMark("meng", 1);
+
+            data = QVariant::fromValue(use);
+        }
+        return false;
+    }
+};
 TechnologyPackage::TechnologyPackage()
     :Package("technology")
 {
@@ -135,6 +339,12 @@ TechnologyPackage::TechnologyPackage()
     guanlu->addSkill(new Tianji);
     guanlu->addSkill(new Mingfa);
 
+    General *dukui = new General(this, "dukui", "god");
+    dukui->addSkill(new Yueli);
+
+    General *zhouxuan = new General(this, "zhouxuan", "god", 3);
+    zhouxuan->addSkill(new Mengjie);
+    zhouxuan->addSkill(new MengJie);
 }
 
 ADD_PACKAGE(Technology);
