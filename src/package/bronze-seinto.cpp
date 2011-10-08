@@ -396,6 +396,65 @@ public:
     }
 };
 
+HuanmoCard::HuanmoCard(){
+    once = true;
+}
+
+bool HuanmoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty())
+        return true;
+    else if(targets.length() == 1)
+        return targets.first()->canSlash(to_select);
+    else
+        return false;
+}
+
+bool HuanmoCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() == 2;
+}
+
+void HuanmoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
+
+    QString prompt = QString("huanmo-slash:%1:%2")
+                     .arg(source->objectName()).arg(targets.at(1)->objectName());
+    const Card *card = room->askForCard(targets.at(0), "slash", prompt);
+    if(card){
+        CardUseStruct use;
+        use.card = card;
+        use.from = targets.at(0);
+        use.to << targets.at(1);
+        room->useCard(use);
+    }
+    else{
+        DamageStruct damage;
+        damage.from = damage.to = targets.at(0);
+        room->damage(damage);
+    }
+}
+
+class Huanmo: public OneCardViewAsSkill{
+public:
+    Huanmo():OneCardViewAsSkill("huanmo"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("HuanmoCard");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->isRed();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        HuanmoCard *Huanmo_card = new HuanmoCard;
+        Huanmo_card->addSubcard(card_item->getCard()->getId());
+
+        return Huanmo_card;
+    }
+};
+
 class Fengyi: public TriggerSkill{
 public:
     Fengyi():TriggerSkill("fengyi"){
@@ -405,13 +464,8 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(event == SlashEffect){
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
-            if(effect.nature == DamageStruct::Normal){
-                if(player->getRoom()->askForSkillInvoke(player, objectName(), data)){
-                    effect.nature = DamageStruct::Fire;
-
-                    data = QVariant::fromValue(effect);
-                }
-            }
+            effect.nature = DamageStruct::Fire;
+            data = QVariant::fromValue(effect);
         }
         else if(event == Predamage){
             DamageStruct damage = data.value<DamageStruct>();
@@ -462,10 +516,12 @@ BronzeSeintoPackage::BronzeSeintoPackage()
     shum->addSkill(new Qiliu);
 
     ikki = new General(this, "ikki", "ao");
+    ikki->addSkill(new Huanmo);
     ikki->addSkill(new Fengyi);
 
     addMetaObject<ShenglongCard>();
     addMetaObject<XingyunCard>();
+    addMetaObject<HuanmoCard>();
 }
 
 ADD_PACKAGE(BronzeSeinto)
