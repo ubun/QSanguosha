@@ -1834,16 +1834,16 @@ YitianPackage::YitianPackage()
     :Package("yitian")
 {
     // generals
-    General *shencc = new General(this, 3390, "shencc", "god", 3);
+    General *shencc = new General(this, 3302, "shencc", "god", 3);
     shencc->addSkill(new Guixin2);
     shencc->addSkill("feiying");
 
-    General *caochong = new General(this, 3321, "caochong", "wei", 3);
+    General *caochong = new General(this, 3301, "caochong", "wei", 3);
     caochong->addSkill(new Chengxiang);
     caochong->addSkill(new Conghui);
     caochong->addSkill(new Zaoyao);
 
-    General *zhangjunyi = new General(this, 3341, "zhangjunyi", "qun");
+    General *zhangjunyi = new General(this, 3316, "zhangjunyi", "qun");
     zhangjunyi->addSkill(new Jueji);
     zhangjunyi->addSkill(new JuejiGet);
 
@@ -1885,7 +1885,7 @@ YitianPackage::YitianPackage()
     luboyan->addSkill(new Shaoying);
     luboyan->addSkill(new Zonghuo);
 
-    General *luboyanf = new General(this, 3339, "luboyanf", "wu", 3, false, true);
+    General *luboyanf = new General(this, 9338, "luboyanf", "wu", 3, false, true);
     luboyanf->addSkill("shenjun");
     luboyanf->addSkill("shaoying");
     luboyanf->addSkill("zonghuo");

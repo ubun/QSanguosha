@@ -292,8 +292,7 @@ void MainWindow::on_actionAbout_triggered()
     content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
 
     content.append(tr("Omega Era is the name of my Red Alert 3 mod, so I also use this name for my Qsanguosha mod.<br />"
-                      "Please report bugs to Baidu Yuriko Omega Bar<br />"
-                      "http://tieba.baidu.com/f?kw=%B0%C2%C3%D7%C7%D1%B0%D9%BA%CF%D7%D3<br />"
+                      "Add Some Scenarios such as XiaoYaoJin battle and some diys.<br />"
                       "My Email:dbpr@mail.ustc.edu.cn<br />"
                       "Qsanguosha is the open source clone of the popular <b>Sanguosha</b> game,"
                       "totally written in C++ Qt GUI framework <br />"
@@ -316,7 +315,7 @@ void MainWindow::on_actionAbout_triggered()
     const char *time = __TIME__;
     content.append(tr("Compilation time: %1 %2 <br/>").arg(date).arg(time));
 
-    QString project_url = "http://github.com/Moligaloo/QSanguosha";
+    QString project_url = "http://github.com/ibicdlcod/QSanguosha";
     content.append(tr("Project home: <a href='%1'>%1</a> <br/>").arg(project_url));
 
     QString forum_url = "http://qsanguosha.com";

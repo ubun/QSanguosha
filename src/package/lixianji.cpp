@@ -67,7 +67,7 @@ public:
         return false;
     }
 };
-
+//XJ ZHONGHUI
 
 class XJwencai: public TriggerSkill{
 public:
@@ -131,7 +131,6 @@ public:
         return false;
     }
 };
-
 
 XJfengliuCard::XJfengliuCard(){
     mute = true;
@@ -205,6 +204,7 @@ public:
         /*}*/
     }
 };
+//XJ CAOZHI
 
 class XJchenjing:public MasochismSkill{
     XJchenjing():MasochismSkill("XJchenjing"){
@@ -215,6 +215,7 @@ class XJchenjing:public MasochismSkill{
         Room *room = XJlidian->getRoom();
     }
 };
+//XJ LIDIAN(UNF)
 
 class XJzhaoling: public SlashBuffSkill{
 public:
@@ -302,6 +303,7 @@ public:
         return false;
     }
 };
+//XJ LIUXIE
 
 XJjielveCard::XJjielveCard(){
 }
@@ -380,6 +382,7 @@ public:
         return false;
     }
 };
+//XJ PANZHANG
 
 class XJyifen: public TriggerSkill{
 public:
@@ -416,6 +419,7 @@ public:
         return false;
     }
 };
+//XJ LINGTONG
 
 XJduwuCard::XJduwuCard(){
 }
@@ -500,7 +504,7 @@ public:
         return false;
     }
 };
-
+//XJ JIANGWEI
 
 class XJweiwu:public OneCardViewAsSkill{
 public:
@@ -555,6 +559,8 @@ public:
         }
     }
 };
+//XJ PANFENG
+
 class XJanju:public OneCardViewAsSkill{
 public:
     XJanju():OneCardViewAsSkill("XJanju"){
@@ -597,7 +603,6 @@ public:
         return  pattern == "jink" || pattern == "nullification";
     }
 };
-
 
 class XJleye: public OneCardViewAsSkill{
 public:
@@ -654,6 +659,7 @@ public:
         return false;
     }
 };
+//XJ LIUBIAO
 
 class XJwenhou: public PhaseChangeSkill{
 public:
@@ -687,13 +693,7 @@ bool XJzizhuCard::targetsFeasible(const QList<const Player *> &targets, const Pl
 }
 
 bool XJzizhuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    /*if(Self->getPhase() == Player::Draw)
-        return targets.length() < 2 && to_select != Self && !to_select->isKongcheng();
-    else if(Self->getPhase() == Player::Play){*/
-        return targets.isEmpty() &&
-                (/*!to_select->getJudgingArea().isEmpty() || */!to_select->getEquips().isEmpty());/*
-    }else
-        return false;*/
+        return targets.isEmpty() && !to_select->getEquips().isEmpty();
 }
 
 void XJzizhuCard::use(Room *room, ServerPlayer *XJmizhu, const QList<ServerPlayer *> &targets) const{
@@ -800,7 +800,7 @@ public:
         return false;
     }
 };
-
+//XJ MIZHU
 
 LiXianJiPackage::LiXianJiPackage()
     :Package("LiXianJipackage")

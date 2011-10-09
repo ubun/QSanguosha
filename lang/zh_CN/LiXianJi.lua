@@ -48,4 +48,17 @@ return {
 	[":XJleye"] = "出牌阶段，你可以将你的任意一张装备牌当【无中生有】使用。每回合限一次。★如果该回合已经使用了【无中生有】也不可再发动【乐业】★",
 	["XJshuishou"] = "税收",
 	[":XJshuishou"] = "主公技，其他群雄角色在弃牌阶段若弃掉两张或更多的牌，可让你立即摸一张牌",
+	
+	-- DESIGNERS AND CVS
+	["designer:XJzhonghui"] = "李献计0历险记",
+	["designer:XJcaozhi"] = "李献计0历险记",
+	["designer:XJjiangwei"] = "李献计0历险记",
+	["designer:XJlingtong"] = "李献计0历险记",
+	["designer:XJpanzhang"] = "李献计0历险记",
+	["designer:XJpanfeng"] = "李献计0历险记",
+	["designer:XJliubiao"] = "李献计0历险记",
+	["designer:XJliuxie"] = "李献计0历险记",
+	["designer:XJmizhu"] = "李献计0历险记",
+	["designer:XJlidian"] = "李献计0历险记",
+	["designer:XJwenpin"] = "李献计0历险记",
 }
