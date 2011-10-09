@@ -49,6 +49,14 @@ return {
 	["XJshuishou"] = "税收",
 	[":XJshuishou"] = "主公技，其他群雄角色在弃牌阶段若弃掉两张或更多的牌，可让你立即摸一张牌",
 	
+	["XJmizhu"] = "东海寿糜-糜竺",
+	["XJwenhou"] = "温厚",
+	[":XJwenhou"] = "回合开始阶段，若你已受伤，你可以摸X张牌。X为你已损失的体力值。",
+	["XJzizhu"] = "资助",
+	[":XJzizhu"] = "出牌阶段，你可以将你自己装备区的一张牌移动到其他角色的相应位置（不得替换原装备），然后你回复1点体力或摸1张牌。每回合限一次。",
+	["XJzizhu:r1"] = "回复1点体力",
+	["XJzizhu:d1"] = "摸1张牌",
+	
 	-- DESIGNERS AND CVS
 	["designer:XJzhonghui"] = "李献计0历险记",
 	["designer:XJcaozhi"] = "李献计0历险记",

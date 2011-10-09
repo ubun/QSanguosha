@@ -374,11 +374,11 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
-    return "20110912";
+    return "8.700-20111010";
 }
 
 QString Engine::getVersionName() const{
-    return tr("MiddleAutumn");
+    return tr("Omega II");
 }
 
 QStringList Engine::getExtensions() const{

@@ -684,29 +684,17 @@ XJzizhuCard::XJzizhuCard(){
 }
 
 bool XJzizhuCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    /*if(Self->getPhase() == Player::Draw)
-        return targets.length() <= 2 && !targets.isEmpty();
-    else if(Self->getPhase() == Player::Play)*/
-        return targets.length() == 1;/*
-    else
-        return targets.isEmpty();*/
+    return targets.length() == 1 && targets.first() == Self;
 }
 
 bool XJzizhuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-        return targets.isEmpty() && !to_select->getEquips().isEmpty();
+    return targets.isEmpty() && !to_select->getEquips().isEmpty();
 }
 
 void XJzizhuCard::use(Room *room, ServerPlayer *XJmizhu, const QList<ServerPlayer *> &targets) const{
     room->throwCard(this);
-
-    /*if(XJmizhu->getPhase() == Player::Draw){
-        foreach(ServerPlayer *target, targets){
-            int card_id = room->askForCardChosen(XJmizhu, target, "h", "XJzizhu");
-            room->moveCardTo(Sanguosha->getCard(card_id), XJmizhu, Player::Hand, false);
-        }
-    }else if(XJmizhu->getPhase() == Player::Play){*/
         PlayerStar from = targets.first();
-        if(!from->hasEquip() && from->getJudgingArea().isEmpty())
+        if(!from->hasEquip())
             return;
 
         int card_id = room->askForCardChosen(XJmizhu, from , "ej", "XJzizhu");
@@ -714,12 +702,9 @@ void XJzizhuCard::use(Room *room, ServerPlayer *XJmizhu, const QList<ServerPlaye
         Player::Place place = room->getCardPlace(card_id);
 
         int equip_index = -1;
-        const DelayedTrick *trick = NULL;
         if(place == Player::Equip){
             const EquipCard *equip = qobject_cast<const EquipCard *>(card);
             equip_index = static_cast<int>(equip->location());
-        }else{
-            trick = DelayedTrick::CastFrom(card);
         }
 
         QList<ServerPlayer *> tos;
@@ -727,26 +712,28 @@ void XJzizhuCard::use(Room *room, ServerPlayer *XJmizhu, const QList<ServerPlaye
             if(equip_index != -1){
                 if(p->getEquip(equip_index) == NULL)
                     tos << p;
-            }else{
-                if(!XJmizhu->isProhibited(p, trick) && !p->containsTrick(trick->objectName()))
-                    tos << p;
             }
         }
-
-        if(trick && trick->isVirtualCard())
-            delete trick;
 
         room->setTag("XJzizhuTarget", QVariant::fromValue(from));
         ServerPlayer *to = room->askForPlayerChosen(XJmizhu, tos, "XJzizhu");
         if(to)
             room->moveCardTo(card, to, place);
         room->removeTag("XJzizhuTarget");
-    //}
+
+        QString choice = room->askForChoice(XJmizhu, "XJzizhu", "r1+d1");
+        if(choice == "r1"){
+            RecoverStruct recover;
+            recover.who = XJmizhu;
+            room->recover(XJmizhu, recover);
+        }else{
+            XJmizhu->drawCards(1);
+        }
 }
 
-class XJzizhuViewAsSkill: public OneCardViewAsSkill{
+class XJzizhuViewAsSkill: public ZeroCardViewAsSkill{
 public:
-    XJzizhuViewAsSkill():OneCardViewAsSkill(""){
+    XJzizhuViewAsSkill():ZeroCardViewAsSkill(""){
 
     }
 
@@ -754,14 +741,12 @@ public:
         return !to_select->isEquipped();
     }
 
-    virtual const Card *viewAs(CardItem *card_item) const{
-        XJzizhuCard *card = new XJzizhuCard;
-        card->addSubcard(card_item->getFilteredCard());
-        return card;
+    virtual const Card *viewAs() const{
+        return new XJzizhuCard;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
+        return !player->hasUsed("XJzizhuCard");
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
@@ -769,34 +754,21 @@ public:
     }
 };
 
-class XJzizhu: public PhaseChangeSkill{
+class XJzizhu: public TriggerSkill{
 public:
-    XJzizhu():PhaseChangeSkill("XJzizhu"){
+    XJzizhu():TriggerSkill("XJzizhu"){
         view_as_skill = new XJzizhuViewAsSkill;
     }
 
-    virtual int getPriority() const{
-        return 3;
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("XJzizhuCard");
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target) && !target->isKongcheng();
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *XJmizhu) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *XJmizhu, QVariant &data) const{
         Room *room = XJmizhu->getRoom();
-
-        switch(XJmizhu->getPhase()){
-        case Player::Start:
-        case Player::Finish:
-        case Player::NotActive: return false;
-
-        case Player::Judge: return false; //room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-judge");
-        case Player::Draw: return false; //room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-draw");
-        case Player::Play: return room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-play");
-        case Player::Discard: return false; //room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-discard");
+        if(XJmizhu->getPhase() == Player::Play){
+            return room->askForUseCard(XJmizhu, "@XJzizhu", "@XJzizhu-play");
         }
-
         return false;
     }
 };
