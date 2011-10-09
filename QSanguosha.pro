@@ -50,7 +50,7 @@ SOURCES += src/main.cpp \
 	src/package/standard.cpp \
 	src/package/thicket.cpp \
 	src/package/wind.cpp \
-	src/package/wisdom.cpp \
+	src/package/wisdompackage.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \	
 	src/package/newbility.cpp \
@@ -89,7 +89,7 @@ SOURCES += src/main.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
         src/util/recorder.cpp \
-        swig/sanguosha_wrap.cxx \
+        swig/sanguosha_wrap.cxx
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -129,7 +129,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/standard.h \
 	src/package/thicket.h \
 	src/package/wind.h \
-	src/package/wisdom.h \
+	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
 	src/package/newbility.h \

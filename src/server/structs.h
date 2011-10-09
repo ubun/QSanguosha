@@ -116,7 +116,7 @@ enum TriggerEvent{
     TurnStart,
     PhaseChange,
     DrawNCards,
-    //ToDrawNCards,
+    ToDrawNCards,
     HpRecover,
     HpLost,
     HpChanged,

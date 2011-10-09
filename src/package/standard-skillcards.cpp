@@ -132,23 +132,32 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     log.arg = Card::Suit2String(suit);
     room->sendLog(log);
 
-    if(zhouyu->hasArmorEffect("cologne"))
+    if(zhouyu->hasArmorEffect("cologne")){
         card = room->askForCardShow(zhouyu,target,objectName());
-    else
-        room->showCard(zhouyu, card_id);
-    room->getThread()->delay();
-
-    if(card->getSuit() != suit){
-        DamageStruct damage;
-        damage.card = NULL;
-        damage.from = zhouyu;
-        damage.to = target;
-
-        room->damage(damage);
+        room->getThread()->delay();
+        if(card->getSuit() != suit){
+            DamageStruct damage;
+            damage.card = NULL;
+            damage.from = zhouyu;
+            damage.to = target;
+            room->damage(damage);
+        }
+        if(target->isAlive()){
+            target->obtainCard(card);
+        }
     }
-
-    if(target->isAlive()){
+    else {
+        room->getThread()->delay();
         target->obtainCard(card);
+        room->showCard(target, card_id);
+        if(card->getSuit() != suit){
+            DamageStruct damage;
+            damage.card = NULL;
+            damage.from = zhouyu;
+            damage.to = target;
+
+            room->damage(damage);
+        }
     }
 }
 

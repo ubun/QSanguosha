@@ -1978,10 +1978,10 @@ void Room::broadcastProperty(ServerPlayer *player, const char *property_name, co
 }
 
 void Room::drawCards(ServerPlayer *player, int n){
-    /*QVariant data = n;
-    thread->trigger(ToDrawNCards, player, data);
-    n = data.toInt();
-    */
+    QVariant drawdata = n;
+    thread->trigger(ToDrawNCards, player, drawdata);
+    n = drawdata.toInt();
+
     if(n <= 0)
         return;
 

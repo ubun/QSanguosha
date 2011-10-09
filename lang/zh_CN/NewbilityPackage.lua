@@ -242,7 +242,7 @@ return {
 	[":yaiba"] = "<br><font color='black' size='5' face='华文新魏'>貂失失专用</font>：<br>【离间】可指定任意性别角色",
 	[":banana"] = "<br><font color='red' size='5' face='华文新魏'>赵喝喝专用</font>：<br>你每打出一张【闪】，视为对任意一名角色使用了一张【杀】",
 	[":speakers"] = "<br><font color='red' size='5' face='华文新魏'>张吼吼专用</font>：<br>若你的第2张【杀】没有被闪避，则伤害+1",	
-	[":cologne"] = "<br><font color='green' size='5' face='华文新魏'>周选选专用</font>：<br>【反间】可以自行选择亮出的手牌",
+	[":cologne"] = "<br><font color='green' size='5' face='华文新魏'>周选选专用</font>：<br>【反间】可以自行选择亮出的手牌（附加功能：【反间】的流程恢复一桃三血经典流程）",
 
 	[":dustbin"] = "<br><font color='green' size='5' face='华文新魏'>陆连连专用</font>：<br>出牌阶段你可以主动弃掉一张手牌",
 	[":animals"] = "<br><font color='black' size='5' face='华文新魏'>吕双双专用</font>：<br>你可以将黑桃锦囊牌当【决斗】使用",

@@ -53,7 +53,7 @@ extern "C" {
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
-    //Package *NewTechnology();
+    Package *NewTechnology();
 
     Scenario *NewGuanduScenario();
     Scenario *NewFanchengScenario();
@@ -83,7 +83,7 @@ Engine::Engine()
     addPackage(NewYitian());
     addPackage(NewWisdom());
     addPackage(NewNewbilityGeneral());
-    //addPackage(NewTechnology());
+    addPackage(NewTechnology());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());

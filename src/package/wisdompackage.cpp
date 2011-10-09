@@ -1,4 +1,4 @@
-#include "wisdom.h"
+#include "wisdompackage.h"
 #include "skill.h"
 #include "client.h"
 #include "engine.h"

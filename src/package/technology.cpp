@@ -28,7 +28,7 @@ public:
         if(use.card->getId() < 0){
             if(use.card->getSubtype() == "skill_card"
                || use.card->getSubcards().length() > 1
-               || use.card->getSubcards().isEmpty())
+               || use.card->getNumber() == 0)
                 return false;
             usecard = Sanguosha->getCard(use.card->getSubcards().first());
         }
@@ -38,10 +38,7 @@ public:
                 ServerPlayer *target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
                 use.to.clear();
                 use.to << target;
-                /*if(usecard->inherits("Collateral")){
-                    target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
-                    use.to << target;
-                }*/
+
                 LogMessage log;
                 log.type = "$Tuiyan";
                 log.from = lu;
@@ -111,9 +108,7 @@ public:
 
         room->getThread()->delay();
         if(Sanguosha->getCard(card_id)->getSuit() == Card::Spade){
-            LogMessage log;
-            log.type = "#Mingfa";
-            log.from = lu;
+            log.type = "#TriggerSkill";
             log.arg = objectName();
             room->sendLog(log);
 
@@ -128,7 +123,7 @@ public:
 class Yueli:public TriggerSkill{
 public:
     Yueli():TriggerSkill("yueli"){
-        events << HpRecover << Predamaged << DrawNCards << CardDiscarded;
+        events << HpRecover << Predamaged << ToDrawNCards << CardDiscarded;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *dukui, QVariant &data) const{
@@ -140,14 +135,16 @@ public:
         case HpRecover:{
             RecoverStruct recover = data.value<RecoverStruct>();
             int recnum = recover.recover;
-            if(dukui->getMark("dnc") > 0)
+            if(dukui->getMark("m_dnc") > 0)
                 return false;
             for(int i = recover.recover; i > 0; i--){
                 if(dukui->askForSkillInvoke(objectName(), data)){
+                    dukui->setMark("m_rec", 1);
                     dukui->drawCards(2);
                     recover.recover --;
                 }
             }
+            dukui->setMark("m_rec", 0);
             log.arg = QString::number(recnum - recover.recover);
             log.arg2 = QString::number((recnum - recover.recover) * 2);
             log.type = "#Yueli_rec";
@@ -159,12 +156,12 @@ public:
             int dmgnum = damage.damage;
             for(int i = damage.damage; i > 0; i--){
                 if(dukui->getCardCount(true) > 1 && dukui->askForSkillInvoke(objectName(), data)){
-                    dukui->setMark("pdm", 1);
+                    dukui->setMark("m_pdm", 1);
                     room->askForDiscard(dukui, objectName(), 2, false, true);
                     damage.damage --;
                 }
             }
-            dukui->setMark("pdm", 0);
+            dukui->setMark("m_pdm", 0);
 
             log.arg = QString::number(dmgnum - damage.damage);
             log.arg2 = QString::number((dmgnum - damage.damage) * 2);
@@ -172,16 +169,18 @@ public:
             data = QVariant::fromValue(damage);
             break;
         }
-        case DrawNCards:{
+        case ToDrawNCards:{
             int drawnum = data.toInt();
+            if(dukui->getMark("m_rec") > 0)
+                return false;
             while(dukui->isWounded() && drawnum >= 2 && dukui->askForSkillInvoke(objectName())){
                 drawnum = drawnum - 2;
                 RecoverStruct rec;
                 rec.who = dukui;
-                dukui->setMark("dnc", 1);
+                dukui->setMark("m_dnc", 1);
                 room->recover(dukui, rec);
             }
-            dukui->setMark("dnc", 0);
+            dukui->setMark("m_dnc", 0);
 
             log.arg = QString::number(data.toInt() - drawnum);
             log.arg2 = QString::number((data.toInt() - drawnum) / 2);
@@ -191,7 +190,7 @@ public:
         }
         case CardDiscarded:{
             CardStar card = data.value<CardStar>();
-            if(dukui->getMark("pdm") > 0)
+            if(dukui->getMark("m_pdm") > 0)
                 return false;
             QList<int> cards = card->getSubcards();
             room->fillAG(cards, dukui);
@@ -199,12 +198,10 @@ public:
             while(cards.length() > 1 && dukui->askForSkillInvoke(objectName(), data)){
                 room->loseHp(dukui);
                 int card_id = room->askForAG(dukui, cards, false, objectName());
-                //dukui->obtainCard(Sanguosha->getCard(card_id));
                 cards.removeOne(card_id);
                 room->takeAG(dukui, card_id);
 
                 card_id = room->askForAG(dukui, cards, false, objectName());
-                //dukui->obtainCard(Sanguosha->getCard(card_id));
                 cards.removeOne(card_id);
                 room->takeAG(dukui, card_id);
             }
@@ -330,6 +327,74 @@ public:
         return false;
     }
 };
+
+class Bianxiang: public PhaseChangeSkill{
+public:
+    Bianxiang():PhaseChangeSkill("bianxiang"){
+        frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const{
+        Room *room = target->getRoom();
+        switch(target->getPhase()){
+        case Player::Start:{
+            room->detachSkillFromPlayer(target, "jushou");
+            target->loseSkill("jushou");
+            if(target->askForSkillInvoke(objectName()))
+                room->acquireSkill(target, "yinghun");
+            break;
+        }
+        case Player::Judge:{
+            room->detachSkillFromPlayer(target, "yinghun");
+            target->loseSkill("yinghun");
+            if(target->askForSkillInvoke(objectName()))
+                room->acquireSkill(target, "guicai");
+            break;
+        }
+        case Player::Draw:{
+            room->detachSkillFromPlayer(target, "guicai");
+            target->loseSkill("guicai");
+            if(target->isKongcheng() && target->askForSkillInvoke(objectName()))
+                room->acquireSkill(target, "yingzi");
+            break;
+        }
+        case Player::Play:{
+            room->detachSkillFromPlayer(target, "yingzi");
+            target->loseSkill("yingzi");
+            if(!target->isWounded() && target->askForSkillInvoke(objectName()))
+                room->acquireSkill(target, "tiaoxin");
+            break;
+        }
+        case Player::Discard:{
+            room->detachSkillFromPlayer(target, "tiaoxin");
+            target->loseSkill("tiaoxin");
+            if(target->askForSkillInvoke(objectName())){
+                if(target->getHandcardNum() >= target->getHp())
+                    room->acquireSkill(target, "qinyin");
+                else
+                    room->acquireSkill(target, "jushou");
+            }
+            break;
+        }
+        case Player::Finish:{
+            room->detachSkillFromPlayer(target, "qinyin");
+            target->loseSkill("qinyin");
+            //if(!target->hasSkill("jushou"))
+            //    room->acquireSkill(target, "jushou");
+            break;
+        }
+        default:
+            break;
+        }
+
+        return false;
+    }
+};
+
 TechnologyPackage::TechnologyPackage()
     :Package("technology")
 {
@@ -345,6 +410,9 @@ TechnologyPackage::TechnologyPackage()
     General *zhouxuan = new General(this, "zhouxuan", "god", 3);
     zhouxuan->addSkill(new Mengjie);
     zhouxuan->addSkill(new MengJie);
+
+    General *zhujianping = new General(this, "zhujianping", "god", 3);
+    zhujianping->addSkill(new Bianxiang);
 }
 
 ADD_PACKAGE(Technology);
