@@ -774,6 +774,40 @@ public:
 };
 //XJ MIZHU
 
+class yizhongPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return card->getTypeId() == Card::Equip || card->objectName() == "jink";
+    }
+};
+
+class XJyizhong: public TriggerSkill{
+public:
+    XJyizhong():TriggerSkill("XJyizhong"){
+        events << Predamaged;
+
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *XJyujin, QVariant &data) const{
+        if(event == Predamaged)
+        {
+            Room *room = XJyujin->getRoom();
+            if(room->askForCard(XJyujin, ".yizhong", "@yizhong-discard"))
+            {
+                DamageStruct damage = data.value<DamageStruct>();
+                LogMessage log;
+                log.type = "#XJyizhongPrevent";
+                log.from = XJyujin;
+                log.arg = QString::number(damage.damage);
+                room->sendLog(log);
+                return true;
+            }
+        }
+        return false;
+    }
+};
+//XJ YUJIN
+
 LiXianJiPackage::LiXianJiPackage()
     :Package("LiXianJipackage")
 {
@@ -814,9 +848,6 @@ LiXianJiPackage::LiXianJiPackage()
 
     General *XJpanfeng = new General(this, 3743, "XJpanfeng", "qun", 4);
     XJpanfeng->addSkill(new XJweiwu);/*
-
-    General *XJyujin = new General(this, 3725, "XJyujin", "wei", 4);
-    XJyujin->addSkill(new XJyizhong);
 
     General *XJfazheng = new General(this, 3712, "XJfazheng", "shu", 3);
     XJfazheng->addSkill(new XJzongheng);
@@ -874,7 +905,10 @@ LiXianJiPackage::LiXianJiPackage()
 
     General *XJmizhu = new General(this, 3717, "XJmizhu", "shu", 3);
     XJmizhu->addSkill(new XJwenhou);
-    XJmizhu->addSkill(new XJzizhu);/*
+    XJmizhu->addSkill(new XJzizhu);
+
+    General *XJyujin = new General(this, 3725, "XJyujin", "wei", 4);
+    XJyujin->addSkill(new XJyizhong);/*
 
     General *XJjiling = new General(this, 3748, "XJjiling", "qun", 4);
     XJjiling->addSkill(new XJwanqiang);
@@ -895,6 +929,8 @@ LiXianJiPackage::LiXianJiPackage()
     addMetaObject<XJjielveCard>();
     addMetaObject<XJduwuCard>();
     addMetaObject<XJzizhuCard>();
+
+    patterns[".yizhong"] = new yizhongPattern;
 
 }
 
