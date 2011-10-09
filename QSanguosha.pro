@@ -35,6 +35,7 @@ SOURCES += src/main.cpp \
 	src/dialog/packagingeditor.cpp \
         src/dialog/playercarddialog.cpp \
 	src/dialog/scenario-overview.cpp \
+        src/dialog/halldialog.cpp \
 	src/package/firepackage.cpp \
 	src/package/god.cpp \
 	src/package/joypackage.cpp \
@@ -166,7 +167,7 @@ HEADERS += src/client/aux-skills.h \
 	src/ui/startscene.h \
 	src/ui/window.h \
 	src/util/detector.h \
-	src/util/nativesocket.h \
+        src/util/nativesocket.h \
 	src/util/recorder.h \	
 	src/util/socket.h \ 
     src/ui/indicatoritem.h \
@@ -176,7 +177,10 @@ HEADERS += src/client/aux-skills.h \
     src/scenario/OEhulao-scenario.h \
     src/scenario/OExiapi-scenario.h \
     src/package/returnoflegend.h \
-    src/package/lixianji.h
+    src/package/lixianji.h \
+	src/util/recorder.h \
+	src/util/socket.h \
+        src/dialog/halldialog.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
