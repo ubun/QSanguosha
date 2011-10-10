@@ -21,10 +21,15 @@ void IndicatorItem::doAnimation(){
     QPropertyAnimation *animation = new QPropertyAnimation(this, "finish");
     animation->setEndValue(real_finish);
 
-    QPauseAnimation *pause = new QPauseAnimation(1000);
+    //QPauseAnimation *pause = new QPauseAnimation(800);
+    QPropertyAnimation *kieru = new QPropertyAnimation(this, "opacity");
+    kieru->setStartValue(1.0);
+    kieru->setKeyValueAt(0.8, 1.0);
+    kieru->setEndValue(0.0);
+    kieru->setDuration(800);
 
     group->addAnimation(animation);
-    group->addAnimation(pause);
+    group->addAnimation(kieru);
     group->start(QAbstractAnimation::DeleteWhenStopped);
 
     connect(group, SIGNAL(finished()), this, SLOT(deleteLater()));

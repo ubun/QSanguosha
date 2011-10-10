@@ -1051,6 +1051,8 @@ public:
                 return false;
         }
         else{
+            if(damage.to->getCardCount(true) < 2)
+                return false;
             LogMessage log;
             log.type = "#TriggerSkill";
             log.from = damage.from;
