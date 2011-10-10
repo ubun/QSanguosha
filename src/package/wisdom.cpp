@@ -77,7 +77,7 @@ public:
                 return false;
 
             LogMessage log;
-            log.type = "#Juao_get";
+            log.type = "#JuaoObtain";
             log.from = player;
             log.arg = objectName();
             log.to << xuyou;
@@ -269,8 +269,15 @@ public:
                 const Card *card = Sanguosha->getCard(card_id);
                 if(!card->inherits("BasicCard"))
                     room->throwCard(card_id);
-                else
+                else{
+                    LogMessage log;
+                    log.type = "$TakeAG";
+                    log.from = player;
+                    log.card_str = card->getEffectIdString();
+                    room->sendLog(log);
+
                     room->obtainCard(player, card_id);
+                }
             }
         }
         return false;
@@ -343,7 +350,7 @@ public:
             if(room->askForSkillInvoke(sunce, objectName(), data)){
                 bool success = sunce->pindian(effect.to, objectName(), NULL);
                 if(success){
-                    room->askForUseCard(sunce, "@@bawang", "@bawangask");
+                    room->askForUseCard(sunce, "@@bawang", "@bawang");
                 }
             }
         }
@@ -576,7 +583,7 @@ public:
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if(effect.card->inherits("Slash") && effect.card->isBlack()){
             if(room->askForSkillInvoke(hua, objectName(), data)){
-                room->askForUseCard(hua, "slash", "badaoslash");
+                room->askForUseCard(hua, "slash", "@badao");
             }
         }
         return false;
@@ -710,7 +717,7 @@ public:
             return false;
 
         LogMessage log;
-        log.type = "#Yuweneffect";
+        log.type = "#YuwenEffect";
         log.from = tianfeng;
         room->sendLog(log);
 
@@ -822,9 +829,10 @@ public:
         if(card->isNDTrick()){
             Room *room = player->getRoom();
             ServerPlayer *shuijing = room->findPlayerBySkillName(objectName());
-            if(!shuijing) return false;
-            if(player != shuijing && room->askForSkillInvoke(player, objectName(), data))
-                shuijing->drawCards(1);
+            if(shuijing && player != shuijing ){
+                if(room->askForSkillInvoke(player, objectName(), QVariant::fromValue(shuijing)))
+                    shuijing->drawCards(1);
+            }
         }
 
         return false;
