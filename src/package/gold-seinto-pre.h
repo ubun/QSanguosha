@@ -4,22 +4,12 @@
 #include "package.h"
 #include "card.h"
 
-class ZhuyiCard: public SkillCard{
+class XingmieCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE ZhuyiCard();
-    void onEffect(const CardEffectStruct &effect) const;
-};
-
-class JiaohuangCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE JiaohuangCard();
-
+    Q_INVOKABLE XingmieCard();
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class HaojiaoCard: public SkillCard{
@@ -27,6 +17,16 @@ class HaojiaoCard: public SkillCard{
 
 public:
     Q_INVOKABLE HaojiaoCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class HuanlongCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE HuanlongCard();
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
@@ -52,13 +52,13 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class ZhiyanCard: public SkillCard{
+class HongzhenCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE ZhiyanCard();
+    Q_INVOKABLE HongzhenCard();
 
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class ShengjianCard: public SkillCard{
@@ -66,6 +66,8 @@ class ShengjianCard: public SkillCard{
 
 public:
     Q_INVOKABLE ShengjianCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 

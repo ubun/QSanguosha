@@ -43,8 +43,6 @@ SOURCES += src/main.cpp \
 	src/package/mountainpackage.cpp \
 	src/package/nostalgia.cpp \
 	src/package/sp-package.cpp \
-	src/package/bronze-seinto.cpp \
-	src/package/gold-seinto.cpp \
 	src/package/gold-seinto-pre.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
@@ -123,8 +121,6 @@ HEADERS += src/client/aux-skills.h \
 	src/package/mountainpackage.h \
 	src/package/nostalgia.h \
 	src/package/package.h \
-	src/package/bronze-seinto.h \
-	src/package/gold-seinto.h \
 	src/package/gold-seinto-pre.h \
 	src/package/sp-package.h \
 	src/package/standard-equips.h \

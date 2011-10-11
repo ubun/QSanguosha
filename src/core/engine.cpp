@@ -43,8 +43,8 @@ extern "C" {
     Package *NewTest();
 
     Package *NewGoldSeintoPre();
-    Package *NewGoldSeinto();
-    Package *NewBronzeSeinto();
+    //Package *NewGoldSeinto();
+    //Package *NewBronzeSeinto();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -84,8 +84,8 @@ Engine::Engine()
     addPackage(NewYitian());
     addPackage(NewWisdom());
     addPackage(NewGoldSeintoPre());
-    addPackage(NewGoldSeinto());
-    addPackage(NewBronzeSeinto());
+    //addPackage(NewGoldSeinto());
+    //addPackage(NewBronzeSeinto());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
