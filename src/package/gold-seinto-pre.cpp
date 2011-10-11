@@ -7,7 +7,7 @@
 #include "maneuvering.h"
 #include "ai.h"
 
-class  Jingqiang: public TriggerSkill{
+class Jingqiang: public TriggerSkill{
 public:
     Jingqiang(): TriggerSkill("jingqiang"){
         events << PhaseChange;
@@ -35,6 +35,10 @@ public:
             if(!room->askForSkillInvoke(player, objectName()))
                 return false;
 
+            if(player->hasSkill("xiufu"))
+                room->playSkillEffect(objectName(), 1);
+            else
+                room->playSkillEffect(objectName(), 2);
             target = room->askForPlayerChosen(player, room->getAlivePlayers(), objectName());
             foreach(ServerPlayer *p, room->getOtherPlayers(target)){
                 room->setFixedDistance(p, target, target->distanceTo(p)+1);
@@ -135,6 +139,7 @@ public:
         else if(result == "draw")
             player->drawCards(2);
 
+        room->playSkillEffect("zhuanling");
         player->setMark("zhuanling", 1);
 
         room->loseMaxHp(player);
@@ -682,6 +687,7 @@ public:
             && !damage.to->isAllNude()){
             Room *room = libra->getRoom();
             if(room->askForSkillInvoke(libra, objectName())){
+                room->playSkillEffect("longba");
                 int to_throw = room->askForCardChosen(libra, damage.to, "hej", objectName());
                 room->throwCard(to_throw);
             }

@@ -100,6 +100,7 @@ public:
             log.arg = objectName();
             room->sendLog(log);
 
+            room->playSkillEffect("xingmie");
             room->broadcastInvoke("animate", "lightbox:$xingmie");
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players){
@@ -137,6 +138,7 @@ public:
             data = QVariant::fromValue(damage);
         }
         else if(event == SlashProceed && player->askForSkillInvoke(objectName(), data)){
+            room->playSkillEffect("haojiao");
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
@@ -366,6 +368,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         Room *room = player->getRoom();
         if(damage.card && damage.card->inherits("Slash") && room->askForSkillInvoke(player, objectName(), data)){
+            room->playSkillEffect("mingbo");
             int card_id = room->drawCard();
 
             LogMessage log;
@@ -400,9 +403,9 @@ public:
     }
 };
 
-class Dian2guang: public TriggerSkill{
+class Dianguang: public TriggerSkill{
 public:
-    Dian2guang(): TriggerSkill("dian2guang"){
+    Dianguang(): TriggerSkill("dianguang"){
         events << Predamage;
         frequency = Compulsory;
     }
@@ -411,6 +414,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         damage.nature = DamageStruct::Thunder;
 
+        player->getRoom()->playSkillEffect("dianguang");
         LogMessage log;
         log.type = "#TriggerSkill";
         log.arg = objectName();
@@ -433,6 +437,7 @@ public:
         Room *room = player->getRoom();
         if(damage.card && damage.card->inherits("Slash") &&
            room->askForCard(player, ".LZ", "@lizi", data)){
+            room->playSkillEffect("lizi");
             LogMessage log;
             log.type = "#InvokeSkill";
             log.arg = objectName();
@@ -483,6 +488,7 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         if(player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
+            player->getRoom()->playSkillEffect("sixd");
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart):([1-6])");
             judge.good = true;
@@ -539,6 +545,7 @@ public:
         }
         if(player->getPhase() == Player::Start && player->getMark("stAte") == 1
            && player->isKongcheng() && player->askForSkillInvoke(objectName(), data)){
+            room->playSkillEffect("jiangmo");
             room->detachSkillFromPlayer(player, "xuechi");
             room->detachSkillFromPlayer(player, "sixd");
             player->setMark("stAte", 2);
@@ -558,6 +565,7 @@ public:
     virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
         Room *room = player->getRoom();
         if(damage.from && player->askForSkillInvoke(objectName())){
+            room->playSkillEffect("baolun");
             JudgeStruct judge;
             judge.reason = objectName();
             judge.who = damage.from;
@@ -734,6 +742,7 @@ public:
         if(effect.from == player &&
            !player->isKongcheng() && !effect.to->isKongcheng()
            && room->askForDiscard(player, objectName(), 1, true)){
+            room->playSkillEffect("bailong");
             int to_throw = room->askForCardChosen(effect.from, effect.to, "he", objectName());
             room->throwCard(to_throw);
         }
@@ -782,6 +791,7 @@ public:
             }else
                 room->drawCards(l, 2);
 
+            room->playSkillEffect("longxiang");
             room->setPlayerMark(l, "longxiang", 1);
             room->loseMaxHp(l);
 
@@ -830,6 +840,7 @@ public:
         judge.who = target;
         if(needle >= 5 && needle < 10 && target->getMark("needle5") == 0){
             room->judge(judge);
+            room->playSkillEffect("duzhen", 1);
             if(judge.card->inherits("BasicCard")){
                 int frog = (qrand() % 2) + 1;
                 room->loseHp(target, frog);
@@ -838,6 +849,7 @@ public:
         }
         else if(needle >= 10 && needle < 15 && target->getMark("needle10") == 0){
             room->judge(judge);
+            room->playSkillEffect("duzhen", 2);
             if(judge.card->isRed()){
                 int frog = qrand() % 3;
                 room->loseMaxHp(target, frog);
@@ -846,6 +858,7 @@ public:
         }
         else if(needle >= 15 && target->getMark("needle15") == 0){
             room->judge(judge);
+            room->playSkillEffect("duzhen", 3);
             if(judge.card->inherits("Peach") || judge.card->inherits("Analeptic")){
                 target->loseAllMarks("@needle");
                 target->throwAllCards();
@@ -881,7 +894,7 @@ public:
         if(effect.nature != DamageStruct::Thunder && effect.nature != DamageStruct::Fire
            && effect.from->getWeapon() &&
            effect.from->askForSkillInvoke(objectName(), QVariant::fromValue(effect))){
-            //room->loseHp(effect.from);
+            room->playSkillEffect("shesha");
             room->slashResult(effect, NULL);
             return true;
         }
@@ -905,6 +918,7 @@ bool Sheng2jianCard::targetFilter(const QList<const Player *> &targets, const Pl
 
 void Sheng2jianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     if(subcards.isEmpty()){
+        room->playSkillEffect("sheng2jian", 1);
         Card *card = new Slash(Card::NoSuit, 0);
         CardUseStruct use;
         use.from = source;
@@ -913,6 +927,7 @@ void Sheng2jianCard::use(Room *room, ServerPlayer *source, const QList<ServerPla
         room->useCard(use);
     }
     else{
+        room->playSkillEffect("sheng2jian", 2);
         const Card *card = Sanguosha->getCard(subcards.first());
         CardUseStruct use;
         use.from = source;
@@ -1070,6 +1085,7 @@ public:
                 return false;
         }
         if(!damage.to->isAllNude()){
+            room->playSkillEffect("dongqi");
             int card_id = room->askForCardChosen(player, damage.to, "hej", objectName());
             room->throwCard(card_id);
 
@@ -1100,6 +1116,7 @@ public:
             return false;
 
         if(room->askForSkillInvoke(camus, objectName(), data)){
+            room->playSkillEffect("binggui");
             room->loseMaxHp(camus);
             camus->setMark("ice", 4);
 
@@ -1128,6 +1145,7 @@ public:
         DamageStar damage = data.value<DamageStar>();
         if(damage && damage->from){
             Room *room = player->getRoom();
+            room->playSkillEffect("shushu");
             QList<const Skill *> skills = damage->from->getVisibleSkillList();
             foreach(const Skill *skill, skills){
                 if(skill->parent())
@@ -1148,6 +1166,7 @@ public:
     virtual void onDamaged(ServerPlayer *aphrodite, const DamageStruct &damage) const{
         //Room *room = aphrodite->getRoom();
         if(!aphrodite->isNude() && aphrodite->askForSkillInvoke(objectName())){
+            aphrodite->getRoom()->playSkillEffect(objectName());
             int count = aphrodite->getCardCount(true);
             aphrodite->throwAllCards();
             aphrodite->drawCards(count);
@@ -1262,7 +1281,7 @@ GoldSeintoPackage::GoldSeintoPackage()
     deathmask->addSkill(new Mingbo);
 
     aiolia = new General(this, "aiolia", "st");
-    aiolia->addSkill(new Dian2guang);
+    aiolia->addSkill(new Dianguang);
     aiolia->addSkill(new Lizi);
 
     shaka = new General(this, "shaka", "st");

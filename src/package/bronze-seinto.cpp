@@ -24,6 +24,7 @@ public:
             Room *room = player->getRoom();
             if(!room->askForSkillInvoke(player, objectName(), data))
                 return false;
+            room->playSkillEffect("liuxing");
             LogMessage log;
             log.type = "#LiuxingBuff";
             log.from = player;
@@ -68,6 +69,7 @@ public:
         }else
             room->drawCards(player, 2);
 
+        room->playSkillEffect("huixuan");
         room->setPlayerMark(player, "huixuan", 1);
         room->acquireSkill(player, "renma");
         room->acquireSkill(player, "liegong");
@@ -222,6 +224,7 @@ public:
         Room *room = player->getRoom();
 
         if(!effect.to->isNude() && player->askForSkillInvoke(objectName(), data)){
+            room->playSkillEffect("zuanxing");
             int card_id = room->askForCardChosen(player, effect.to, "he", objectName());
             room->throwCard(card_id);
 
@@ -258,6 +261,7 @@ public:
         log.from = player;
         room->sendLog(log);
 
+        room->playSkillEffect("jinguang");
         room->setPlayerMark(player, "jinguang", 1);
         room->acquireSkill(player, "shushu");
         room->acquireSkill(player, "ganglie");
@@ -380,6 +384,7 @@ public:
             return false;
 
         if(reason->inherits("Slash")){
+            q->getRoom()->playSkillEffect("qiliu");
             LogMessage log;
             log.type = "#QiliuBuff";
             log.from = q;
@@ -459,6 +464,7 @@ class Fengyi: public TriggerSkill{
 public:
     Fengyi():TriggerSkill("fengyi"){
         events << SlashEffect << Predamage;
+        frequency = Compulsory;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
@@ -475,6 +481,7 @@ public:
                 return false;
 
             if(reason->inherits("Slash") && damage.nature == DamageStruct::Fire){
+                player->getRoom()->playSkillEffect("fengyi");
                 LogMessage log;
                 log.type = "#FengyiBuff";
                 log.from = player;

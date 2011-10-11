@@ -43,15 +43,15 @@ local t = {
 
 --aiolia艾奥利亚—4血——圣——狮子星座
 	["aiolia"] = "艾奥利亚", 
-	["dian2guang"] = "电光",
-	[":dian2guang"] = "锁定技，你的伤害均带有雷属性",
+	["dianguang"] = "电光",
+	[":dianguang"] = "锁定技，你的伤害均带有雷属性",
 	["lizi"] = "离子",
 	[":lizi"] = "当你的杀造成伤害时，你可弃一张雷杀、闪或闪电让此伤害+1",
 	["@lizi"] = "你可以弃掉一张雷杀、闪或闪电让此伤害+1",
 
 --shaka沙加—4血——圣——处女星座
 	["shaka"] = "沙加", 
-	["designer:shaka"] = "StarmK32、宇文天启",
+	["designer:shaka"] = "StarmK23、宇文天启",
 	["xuechi"] = "血池",
 	[":xuechi"] = "你每受到1点伤害，可立即弃掉一张杀，视为使用了一张【南蛮入侵】",
 	["@xuechi-slash"] = "你可以立即弃掉一张杀，视为使用了一张【南蛮入侵】",
@@ -95,7 +95,7 @@ local t = {
 
 --milo米罗…天蝎星座…圣…4血…
 	["milo"] = "米罗", 
-	["designer:milo"] = "StarmK32、宇文天启",
+	["designer:milo"] = "StarmK23、宇文天启",
 	["duzhen"] = "毒针",
 	[":duzhen"] = "锁定技，你每受到或造成一点伤害，伤害来源或受伤角色获得一枚“针”标记，获得X枚“针”标记的角色必须进行一次判定：\
 	X=5 若判定牌为基本牌，随机失去1~2点体力\
@@ -140,6 +140,36 @@ local t = {
 	[":meigui"] = "当你受到伤害时，可以弃掉所有牌，然后从牌堆摸取等量的牌",
 	["mOgOng"] = "魔宫",
 	[":mOgOng"] = "锁定技，当你没装备防具时，始终视为你装备着【八卦阵】，当你发动自带八卦阵效果时，若判定牌为方块牌、黑色基本牌或装备牌，必须将其放到任意一名角色的判定区内",
+
+--playSkillEffect
+	["$jingqiang1"] = "水晶墙", 
+	["$jingqiang2"] = "水晶墙", 
+	["$xingmie"] = "星光灭绝", 
+	["$zhuanling"] = "转灵", 
+	["$haojiao"] = "巨型号角", 
+	["$yinhe"] = "银河星爆", 
+	["$mohua"] = "魔化", 
+	["$mingbo"] = "积尸气冥界波", 
+	["$dianguang"] = "闪电光速拳", 
+	["$lizi"] = "闪电离子拳", 
+	["$sixdao"] = "六道轮回", 
+	["$jiangmo"] = "天魔降临", 
+	["$baolun"] = "天舞宝轮", 
+	["$bailong"] = "庐山百龙霸", 
+	["$longxiang"] = "庐山龙飞翔", 
+	["$longba"] = "庐山升龙霸", 
+	["$duzhen1"] = "深红毒针", 
+	["$duzhen2"] = "钳制波", 
+	["$duzhen3"] = "安达雷士", 
+	["$shesha"] = "原子雷暴拳", 
+	["$sheng2jian1"] = "圣剑", 
+	["$sheng2jian2"] = "飞跃之石", 
+	["$binggui"] = "冰之棺", 
+	["$shushu"] = "曙光女神之审判", 
+	["$dongqi"] = "钻石星尘拳", 
+	["$meigui1"] = "皇家恶魔玫瑰", 
+	["$meigui2"] = "食人鱼玫瑰", 
+	["$meigui3"] = "血腥玫瑰", 
 }
 
 local goldst = {"mu", "aldebaran", "saga", "deathmask", "aiolia", "dohko", "aiolos"}
