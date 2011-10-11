@@ -88,6 +88,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return PhaseChangeSkill::triggerable(target)
+                && target->hasLordSkill("shenzui")
                 && target->getMark("shenzui") == 0
                 && target->getPhase() == Player::Start
                 && target->getHp() == 1;
@@ -190,6 +191,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return PhaseChangeSkill::triggerable(target)
+                && target->hasLordSkill("showhu")
                 && target->getMark("showhu") == 0
                 && target->getPhase() == Player::Start
                 && target->isKongcheng();
