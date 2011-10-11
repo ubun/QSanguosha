@@ -1,8 +1,9 @@
--- translation for GoldSeintoPrePackage
+-- translation for GoldSeintoViVAPackage
 
 local t = {
-	["goldseintopre"] = "圣斗士星矢", 
-	["designer:goldseintopre"] = "游神ViVA",
+	["goldseintoviva"] = "圣斗士星矢", 
+	["gold"] = "黄金",
+	["designer:goldseintoviva"] = "游神ViVA",
 
 
 --白羊座 穆 3体力
@@ -15,6 +16,7 @@ local t = {
 	["@jq"] = "水晶墙",
 	["xingmie"] = "星灭", 
 	[":xingmie"] = "限定技，你可以弃三张手牌，(在弃掉之前)对场上手牌数最少的一名角色造成等于其当前手牌数的伤害",
+	["@xm"] = "灭", 
 
 --金牛座 阿鲁迪巴 4体力
 	["taurus"] = "阿鲁迪巴", 
@@ -28,6 +30,7 @@ local t = {
 	[":huanlong"] = "出牌阶段，你可以与一名其他角色拼点。赢者获得双方拼点的牌。若你赢，你可以立即观看该角色的手牌。每阶段限一次",
 	["kongjian"] = "空间", 
 	[":kongjian"] = "其他角色每对你造成一次伤害，你可以宣言一种花色，该角色需将一张该花色的手牌置于你的武将牌上称之为“星”，若无法如此做，该角色受到1点无来源伤害",
+	["@kongjian"] = "请交出一张 %src 花色的手牌，否则会受到一点伤害",
 	["star"] = "星", 
 	["xingbao"] = "星爆", 
 	[":xingbao"] = "游戏开始时，你获得技能“空间”。觉醒技，回合开始阶段，若你的星为3张或者更多时，你须增加1点体力上限，回复1点体力，并永久失去技能“空间”。然后获得所有的星",
@@ -78,7 +81,7 @@ local t = {
 	["needle"] = "针",
 
 --射手座 艾奥罗斯 4体力
-	["sagittarius"] = "希绪弗斯", 
+	["sagittarius"] = "艾奥罗斯", 
 	["yuanzi"] = "原子",
 	[":yuanzi"] = "锁定技，回合开始阶段，比较当前你的攻击范围和体力值，并获得对应技能直到你的下个回合开始：\
 若你的攻击范围大于你的体力值，你获得“英姿”；\
@@ -86,7 +89,7 @@ local t = {
 若你的攻击范围小于你的体力值，你获得“雷光”（你可以将你的黑色手牌当【雷杀】使用或打出）",
 
 --摩羯座 修罗 4体力
-	["capricorn"] = "艾尔熙德",
+	["capricorn"] = "修罗",
 	["shengjian"] = "圣剑",
 	[":shengjian"] = "回合开始阶段若你已受伤且损失了X点体力值，可以执行下列两项中的一项，每阶段限一次：\
 1.立即视为对与你距离X以内的一名角色使用了一张【杀】；\
@@ -98,8 +101,11 @@ local t = {
 	["binghuan"] = "冰环",
 	[":binghuan"] = "你每受到1点伤害，可以展示牌堆顶的两张牌，若两张牌花色不同，则你将其中一张置于你的武将牌上，称之为“环”，另一张收入手牌",
 	["huan"] = "环",
+	["$BinghuanCard"] = "%from 翻开的【冰环】牌为 %card",
 	["bingjiu"] = "冰柩",
-	[":bingjiu"] = "任意角色的回合开始阶段，你可以弃一张环并弃一张与该环花色相同的手牌，然后将任意一名角色当前的所有手牌移出游戏，并防止该角色受到的所有普通伤害直到该回合结束，然后归还其手牌。每轮限一次",
+	[":bingjiu"] = "其他角色的回合开始阶段，你可以弃一张环并弃一张与该环花色相同的手牌，然后将任意一名角色当前的所有手牌移出游戏，并防止该角色受到的所有普通伤害直到该回合结束，然后归还其手牌。每轮限一次",
+	["@bingjiu"] = "请弃掉一张 %src 花色的手牌",
+	["#BJProtect"] = "%from 受到【%arg2】保护，避免了 %arg 点伤害",
 
 --双鱼座 阿布罗狄 3体力
 	["pisces"] = "阿布罗狄", 
@@ -114,7 +120,7 @@ local goldstp = {"aries", "taurus", "gemini", "cancer", "leo", "virgo",
 	"libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces"}
 
 for _, seintopre in ipairs(goldstp) do
-	t["designer:" .. seintopre] = t["designer:goldseintopre"]
+	t["designer:" .. seintopre] = t["designer:goldseintoviva"]
 end
 
 return t

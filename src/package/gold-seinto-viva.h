@@ -1,5 +1,5 @@
-#ifndef GOLDSEINTOPRE_H
-#define GOLDSEINTOPRE_H
+#ifndef GOLDSEINTOVIVA_H
+#define GOLDSEINTOVIVA_H
 
 #include "package.h"
 #include "card.h"
@@ -71,11 +71,11 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class GoldSeintoPrePackage: public Package{
+class GoldSeintoViVAPackage: public Package{
     Q_OBJECT
 
 public:
-    GoldSeintoPrePackage();
+    GoldSeintoViVAPackage();
 };
 
 #endif
