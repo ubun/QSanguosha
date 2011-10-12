@@ -672,6 +672,12 @@ public:
             Room *room = libra->getRoom();
             if(room->askForSkillInvoke(libra, objectName())){
                 int to_throw = room->askForCardChosen(libra, damage.to, "he", objectName());
+                LogMessage log;
+                log.from = damage.to;
+                log.type = "$Longba";
+                log.card_str = QString::number(to_throw);
+                room->sendLog(log);
+
                 room->throwCard(to_throw);
             }
         }
@@ -1044,10 +1050,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         ServerPlayer *kamiao = target->getRoom()->findPlayerBySkillName(objectName());
-        if(kamiao == target || (kamiao && kamiao->getMark("jiu") > 0) || target->tag.value("inice").toBool())
-            return true;
-        else
-            return false;
+        return kamiao;
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
@@ -1055,7 +1058,7 @@ public:
         if(player->getPhase() == Player::NotActive && player->tag.value("inice").toBool()){
             ServerPlayer *target = player;
             foreach(ServerPlayer *tmp, room->getAllPlayers()){
-                if(!tmp->getPile("bingjiu").isEmpty()){
+                if(tmp->getMark("jiu") > 0){
                     target = tmp;
                     break;
                 }
@@ -1066,6 +1069,13 @@ public:
                 else
                     room->obtainCard(target, card_id);
             }
+            LogMessage log;
+            log.from = target;
+            log.type = "#BingjiuProtectRemove";
+            target->setMark("jiu", 0);
+            log.arg = objectName();
+            room->sendLog(log);
+
             player->tag["inice"] = false;
             return false;
         }
@@ -1074,12 +1084,19 @@ public:
         ServerPlayer *kamiao = room->findPlayerBySkillName(objectName());
         if(!kamiao)
             return false;
-        if(kamiao == player){
-            kamiao->setMark("jiu", 1);
-            return false;
-        }
-        if(!kamiao->getPile("huan").isEmpty() && room->askForSkillInvoke(kamiao, objectName())){
+        if(!kamiao->getPile("huan").isEmpty() && !kamiao->isKongcheng()){
             QList<int> huan = kamiao->getPile("huan");
+            QList<const Card *> hand = kamiao->getHandcards();
+            foreach(int tmp1, huan){
+                foreach(const Card *tmp2, hand){
+                    if(Sanguosha->getCard(tmp1)->getSuit() == tmp2->getSuit())
+                        goto s_mark;
+                }
+            }
+            return false;
+            s_mark:
+            if(!room->askForSkillInvoke(kamiao, objectName()))
+                return false;
             int card_id;
             if(huan.length() == 1)
                 card_id = huan.first();
@@ -1094,17 +1111,19 @@ public:
             QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
             if(room->askForCard(kamiao, pattern, "@bingjiu:" + suit_str)){
                 room->throwCard(card_id);
-                QList<ServerPlayer *> targets;
-                foreach(ServerPlayer *tmp, room->getAllPlayers()){
-                    if(!tmp->isKongcheng())
-                        targets << tmp;
-                }
-                if(targets.isEmpty()) return false;
-                ServerPlayer *target = room->askForPlayerChosen(kamiao, targets, objectName());
+                ServerPlayer *target = room->askForPlayerChosen(kamiao, room->getAllPlayers(), objectName());
                 for(int i = target->getHandcardNum(); i > 0; i--){
                     target->addToPile("bingjiu", target->handCards().last());
                 }
-                kamiao->setMark("jiu", 0);
+                LogMessage log;
+                log.from = player;
+                log.to << target;
+                target->setMark("jiu", 1);
+                log.type = "#Bingjiu";
+                log.arg = suit_str;
+                log.arg2 = "huan";
+                room->sendLog(log);
+
                 player->tag["inice"] = true;
             }
         }
