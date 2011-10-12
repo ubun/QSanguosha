@@ -85,7 +85,6 @@ SOURCES += src/main.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
         src/util/recorder.cpp \
-        swig/sanguosha_wrap.cxx \
     src/ui/indicatoritem.cpp \
     src/dialog/roleassigndialog.cpp \
     src/scenario/OExiaoyaojin-scenario.cpp \
@@ -93,7 +92,8 @@ SOURCES += src/main.cpp \
     src/scenario/OEhulao-scenario.cpp \
     src/scenario/OExiapi-scenario.cpp \
     src/package/returnoflegend.cpp \
-    src/package/lixianji.cpp
+    src/package/lixianji.cpp\
+        swig/sanguosha_wrap.cxx
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
