@@ -597,15 +597,18 @@ void BaolunCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     ServerPlayer *target = targets.first();
     int handlog = target->getHandcardNum();
     target->throwAllHandCards();
-
     QList<int> guoguo = source->getPile("guo");
+    if(guoguo.length() == handlog){
+        for(int i = 0; i < handlog; i++)
+            room->moveCardTo(Sanguosha->getCard(guoguo.at(i)), target, Player::Hand, false);
+        return;
+    }
+
     room->fillAG(guoguo, source);
     while(!guoguo.isEmpty()){
         if(handlog <= 0)
             break;
-        int card_id = room->askForAG(source, guoguo, true, "guo");
-        if(card_id == -1)
-            break;
+        int card_id = room->askForAG(source, guoguo, false, "guo");
         guoguo.removeOne(card_id);
         handlog --;
         room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, false);
@@ -643,7 +646,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return PhaseChangeSkill::triggerable(target)
-                && target->getPhase() == Player::Start
+                && target->getPhase() == Player::Finish
                 && target->getMark("longfei") == 0
                 && target->getEquips().length() > 2;
     }
@@ -710,41 +713,39 @@ void HongzhenCard::onUse(Room *room, const CardUseStruct &card_use) const{
 
     QList<int> card_ids = player->getPile("needle");
     if(card_ids.isEmpty())
-        return ;
+        return;
 
     int card_id;
-    if(card_ids.length() == 1)
-        card_id = card_ids.first();
-    else{
-        room->fillAG(card_ids, player);
-
-        //remove other
-        QList<int> numlist,numenable;
-        for(int i = 1; i < 14; i++)
-            numlist << i;
-        foreach(int i, card_ids){
-            const Card *c = Sanguosha->getCard(i);
-            if(numlist.contains(c->getNumber())){
-                numlist.removeOne(c->getNumber());
-            }
-            else
-                numenable << c->getNumber();
+    //remove other
+    QList<int> numlist,numenable;
+    for(int i = 1; i < 14; i++)
+        numlist << i;  //1~13点数集合
+    foreach(int i, card_ids){
+        const Card *c = Sanguosha->getCard(i);
+        if(numlist.contains(c->getNumber())){
+            numlist.removeOne(c->getNumber());
+            //遍历1~13，如果集合里有，则去掉，如果去掉一次后再没有了，将此点数记下
         }
-        QMutableListIterator<int> itor(card_ids);
-        while(itor.hasNext()){
-            const Card *c = Sanguosha->getCard(itor.next());
-            if(!numenable.contains(c->getNumber())){
-                itor.remove();
-                room->takeAG(NULL, c->getId());
-            }
-        }
-
-        card_id = room->askForAG(player, card_ids, true, "hongzhen");
-        player->invoke("clearAG");
-
-        if(card_id == -1)
-            return;
+        else
+            numenable << c->getNumber();  //存储满足条件的点数
     }
+    QMutableListIterator<int> itor(card_ids);
+    while(itor.hasNext()){
+        const Card *c = Sanguosha->getCard(itor.next());
+        if(!numenable.contains(c->getNumber())){
+            itor.remove(); //如果没有满足条件则去掉
+            //room->takeAG(NULL, c->getId());
+        }
+    }
+    if(card_ids.isEmpty())
+        return;
+    room->fillAG(card_ids, player);
+
+    card_id = room->askForAG(player, card_ids, true, "hongzhen");
+    player->invoke("clearAG");
+
+    if(card_id == -1)
+        return;
 
     const Card *card = Sanguosha->getCard(card_id);
     Snatch *snatch = new Snatch(card->getSuit(), card->getNumber());
