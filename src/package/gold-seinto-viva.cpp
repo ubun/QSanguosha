@@ -126,9 +126,6 @@ public:
         if(selected.length() >= 3)
             return false;
 
-        if(to_select->isEquipped())
-            return false;
-
         return true;
     }
 
@@ -147,6 +144,7 @@ XingmieCard::XingmieCard(){
     target_fixed = true;
 }
 void XingmieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    room->throwCard(this);
     ServerPlayer *target = source;
     foreach(ServerPlayer *tmp, room->getAllPlayers()){
         if(target->getHandcardNum() > tmp->getHandcardNum())
@@ -166,7 +164,6 @@ void XingmieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
         damage.damage = target->getHandcardNum();
         room->damage(damage);
     }
-    room->throwCard(this);
 }
 
 HaojiaoCard::HaojiaoCard(){
@@ -210,7 +207,6 @@ class Haojiao: public TriggerSkill{
 public:
     Haojiao(): TriggerSkill("haojiao"){
         events << PhaseChange << Damaged;
-
         view_as_skill = new HaojiaoViewAsSkill;
     }
 
@@ -288,8 +284,15 @@ public:
             ServerPlayer *winner = pindian->isSuccess() ? pindian->from : pindian->to;
             winner->obtainCard(pindian->to_card);
             winner->obtainCard(pindian->from_card);
-            if(winner == player)
+            if(winner == player && !pindian->to->isKongcheng()){
+                LogMessage log;
+                log.from = player;
+                log.to << pindian->to;
+                log.type = "#Huanlong";
+                player->getRoom()->sendLog(log);
+
                 player->getRoom()->showAllCards(pindian->to, player);
+            }
         }
 
         return false;
@@ -299,16 +302,24 @@ public:
 class Kongjian:public MasochismSkill{
 public:
     Kongjian():MasochismSkill("kongjian"){
+        frequency = Frequent;
     }
 
     virtual void onDamaged(ServerPlayer *baby, const DamageStruct &damage) const{
-        if(!damage.from || damage.to == damage.from)
+        if(!damage.from || damage.to == damage.from || !baby->askForSkillInvoke(objectName()))
             return;
         Room *room = baby->getRoom();
+
         Card::Suit suit = room->askForSuit(baby);
         QString suit_str = Card::Suit2String(suit);
         QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
 
+        LogMessage log;
+        log.type = "#Kongjian";
+        log.from = baby;
+        log.to << damage.from;
+        log.arg = suit_str;
+        room->sendLog(log);
         const Card *card = room->askForCard(damage.from, pattern, "@kongjian:" + suit_str, NULL, false);
         if(card){
             baby->addToPile("star", card->getId());
@@ -499,6 +510,7 @@ class Budong: public TriggerSkill{
 public:
     Budong():TriggerSkill("budong"){
         events << CardLost;
+        frequency = Frequent;
     }
 
     virtual int getPriority() const{
@@ -512,7 +524,9 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *virgo, QVariant &data) const{
         CardMoveStar move = data.value<CardMoveStar>();
         Room *room = virgo->getRoom();
-        if(move->from_place == Player::Hand){
+        if(move->from_place == Player::Hand || move->from_place == Player::Equip){
+            if(!virgo->askForSkillInvoke(objectName(), data))
+                return false;
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(spade):(.*)");
             judge.good = false;
@@ -536,29 +550,15 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return (PhaseChangeSkill::triggerable(target)
-                && target->getPhase() == Player::Start
+        return PhaseChangeSkill::triggerable(target)
                 && target->getMark("liudao") == 0
-                && target->getPile("guo").length() >= 6) ||
-                (target->getPhase() == Player::Draw
-                && target->getMark("liudao") != 0
-                && !target->getPile("guo").isEmpty());
+                && target->getPhase() == Player::Start;
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         Room *room = player->getRoom();
-
-        if(player->getMark("liudao") != 0){
-            QList<int> guoguo = player->getPile("guo");
-            room->fillAG(guoguo, player);
-            int card_id = room->askForAG(player, guoguo, true, "guo");
-            if(card_id != -1){
-                guoguo.removeOne(card_id);
-                room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
-            }
-            player->invoke("clearAG");
+        if(player->getPile("guo").length() < 6)
             return false;
-        }
         LogMessage log;
         log.type = "#LiudaoWake";
         log.from = player;
@@ -571,17 +571,29 @@ public:
     }
 };
 
-class Baolun:public ZeroCardViewAsSkill{
+class LiudaoWaked: public PhaseChangeSkill{
 public:
-    Baolun():ZeroCardViewAsSkill("baolun"){
+    LiudaoWaked():PhaseChangeSkill("#liudao_waked"){
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("liudao") == 0;
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("liudao") > 0
+                && target->getPhase() == Player::Draw
+                && !target->getPile("guo").isEmpty();
     }
 
-    virtual const Card *viewAs() const{
-        return new BaolunCard;
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+
+        QList<int> guoguo = player->getPile("guo");
+        room->fillAG(guoguo, player);
+        int card_id = room->askForAG(player, guoguo, true, "guo");
+        if(card_id != -1){
+            guoguo.removeOne(card_id);
+            room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
+        }
+        player->invoke("clearAG");
+        return false;
     }
 };
 
@@ -591,6 +603,11 @@ BaolunCard::BaolunCard(){
 bool BaolunCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     return targets.isEmpty() && !to_select->isKongcheng()
             && Self->getPile("guo").length() >= to_select->getHandcardNum();
+}
+
+void BaolunCard::onUse(Room *room, const CardUseStruct &card_use) const{
+    if(card_use.from->getMark("liudao") > 0)
+        SkillCard::onUse(room, card_use);
 }
 
 void BaolunCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
@@ -615,6 +632,31 @@ void BaolunCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     }
     source->invoke("clearAG");
 }
+
+class BaolunDistance: public DistanceSkill{
+public:
+    BaolunDistance():DistanceSkill("#baolun_distance"){
+    }
+
+    virtual int getCorrect(const Player *from, const Player *to) const{
+        int p2p = from->getHp() - to->getHp();
+        if(to->getMark("liudao") == 0 && to->hasSkill("baolun")
+            && p2p > 0)
+            return p2p;
+        else
+            return 0;
+    }
+};
+
+class Baolun:public ZeroCardViewAsSkill{
+public:
+    Baolun():ZeroCardViewAsSkill("baolun"){
+    }
+
+    virtual const Card *viewAs() const{
+        return new BaolunCard;
+    }
+};
 
 class Longba: public TriggerSkill{
 public:
@@ -646,7 +688,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return PhaseChangeSkill::triggerable(target)
-                && target->getPhase() == Player::Finish
+                && target->getPhase() == Player::NotActive
                 && target->getMark("longfei") == 0
                 && target->getEquips().length() > 2;
     }
@@ -784,6 +826,10 @@ public:
         view_as_skill = new HongzhenViewAsSkill;
     }
 
+    virtual int getPriority() const{
+        return -1;
+    }
+
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         CardStar card = NULL;
         if(event == CardFinished){
@@ -794,8 +840,15 @@ public:
 
         if((card->isRed() && card->inherits("BasicCard")) || card->isNDTrick()){
             int card_id = card->getSubcards().isEmpty()? card->getId(): card->getSubcards().first();
-            if(card_id > -1)
-                player->addToPile("needle", card_id);
+            if(card_id > -1){
+                LogMessage log;
+                log.from = player;
+                log.type = "#Hongzhen";
+                log.arg = "needle";
+                player->addToPile(log.arg, card_id);
+                log.arg2 = QString::number(player->getPile(log.arg).length());
+                player->getRoom()->sendLog(log);
+            }
 
             if(player->getPile("needle").length() >= 15 && player->askForSkillInvoke(objectName(), data)){
                 Room *room = player->getRoom();
@@ -959,12 +1012,14 @@ public:
             log.card_str = QString::number(cards.last());
             room->sendLog(log);
             //room->moveCardTo(Sanguosha->getCard(card_id1), NULL, Player::Special, true);
+            room->throwCard(cards.last());
             room->getThread()->delay();
 
             cards << room->drawCard();
             log.card_str = QString::number(cards.last());
             room->sendLog(log);
             //room->moveCardTo(Sanguosha->getCard(card_id2), NULL, Player::Special, true);
+            room->throwCard(cards.last());
             room->getThread()->delay();
 
             if(Sanguosha->getCard(cards.first())->getSuit() != Sanguosha->getCard(cards.last())->getSuit()){
@@ -1037,8 +1092,8 @@ public:
             }
             QString suit_str = Sanguosha->getCard(card_id)->getSuitString();
             QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
-            room->throwCard(card_id);
             if(room->askForCard(kamiao, pattern, "@bingjiu:" + suit_str)){
+                room->throwCard(card_id);
                 QList<ServerPlayer *> targets;
                 foreach(ServerPlayer *tmp, room->getAllPlayers()){
                     if(!tmp->isKongcheng())
@@ -1174,7 +1229,11 @@ GoldSeintoViVAPackage::GoldSeintoViVAPackage()
     virgo = new General(this, "virgo", "gold");
     virgo->addSkill(new Budong);
     virgo->addSkill(new Liudao);
+    virgo->addSkill(new LiudaoWaked);
+    related_skills.insertMulti("liudao", "#liudao_waked");
     virgo->addSkill(new Baolun);
+    virgo->addSkill(new BaolunDistance);
+    related_skills.insertMulti("baolun", "#baolun_distance");
 
     libra = new General(this, "libra", "gold");
     libra->addSkill(new Longba);
