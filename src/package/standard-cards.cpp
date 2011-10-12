@@ -554,7 +554,9 @@ SavageAssault::SavageAssault(Suit suit, int number)
 void SavageAssault::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *slash = room->askForCard(effect.to, "slash", "savage-assault-slash:" + effect.from->objectName());
-    if(slash == NULL){
+    if(slash)
+        room->setEmotion(effect.to, "slash");
+    else{
         DamageStruct damage;
         damage.card = this;
         damage.damage = 1;
@@ -575,7 +577,9 @@ ArcheryAttack::ArcheryAttack(Card::Suit suit, int number)
 void ArcheryAttack::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *jink = room->askForCard(effect.to, "jink", "archery-attack-jink:" + effect.from->objectName());
-    if(jink == NULL){
+    if(jink)
+        room->setEmotion(effect.to, "jink");
+    else{
         DamageStruct damage;
         damage.card = this;
         damage.damage = 1;

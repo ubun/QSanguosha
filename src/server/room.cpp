@@ -359,8 +359,10 @@ void Room::slashResult(const SlashEffectStruct &effect, const Card *jink){
 
     if(jink == NULL)
         thread->trigger(SlashHit, effect.from, data);
-    else
+    else{
         thread->trigger(SlashMissed, effect.from, data);
+        setEmotion(effect.to, "jink");
+    }
 }
 
 void Room::attachSkillToPlayer(ServerPlayer *player, const QString &skill_name){
