@@ -4,8 +4,6 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "carditem.h"
-#include "skill.h"
-#include "carditem.h"
 #include "standard.h"
 
 LesbianJieyinCard::LesbianJieyinCard()
@@ -89,9 +87,7 @@ public:
     }
 };
 
-
 //LESBIAN LIANLI RELATED
-
 LesbianLianliCard::LesbianLianliCard(){
 
 }
@@ -104,7 +100,7 @@ void LesbianLianliCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
 
     LogMessage log;
-    log.type = "#LesbianLianliConnection";
+    log.type = "#lesbianlianliConnection";
     log.from = effect.from;
     log.to << effect.to;
     room->sendLog(log);
@@ -127,7 +123,7 @@ void LesbianLianliCard::onEffect(const CardEffectStruct &effect) const{
 
 class LesbianLianliStart: public GameStartSkill{
 public:
-    LesbianLianliStart():GameStartSkill("#LesbianLianli-start") {
+    LesbianLianliStart():GameStartSkill("#lesbianlianli-start") {
 
     }
 
@@ -137,7 +133,7 @@ public:
         QList<ServerPlayer *> players = room->getOtherPlayers(player);
         foreach(ServerPlayer *player, players){
             if(player->getGeneral()->isFemale())
-                room->attachSkillToPlayer(player, "LesbianLianli-slash");
+                room->attachSkillToPlayer(player, "lesbianlianli-slash");
         }
     }
 };
@@ -154,9 +150,9 @@ void LesbianLianliSlashCard::onEffect(const CardEffectStruct &effect) const{
     ServerPlayer *zhangfei = effect.from;
     Room *room = zhangfei->getRoom();
 
-    ServerPlayer *xiahoujuan = room->findPlayerBySkillName("LesbianLianli");
+    ServerPlayer *xiahoujuan = room->findPlayerBySkillName("lesbianlianli");
     if(xiahoujuan){
-        const Card *slash = room->askForCard(xiahoujuan, "slash", "@LesbianLianli-slash");
+        const Card *slash = room->askForCard(xiahoujuan, "slash", "@lesbianlianli-slash");
         if(slash){
             zhangfei->invoke("increaseSlashCount");
             room->cardEffect(slash, zhangfei, effect.to);
@@ -167,7 +163,7 @@ void LesbianLianliSlashCard::onEffect(const CardEffectStruct &effect) const{
 
 class LesbianLianliSlashViewAsSkill:public ZeroCardViewAsSkill{
 public:
-    LesbianLianliSlashViewAsSkill():ZeroCardViewAsSkill("LesbianLianli-slash"){
+    LesbianLianliSlashViewAsSkill():ZeroCardViewAsSkill("lesbianlianli-slash"){
 
     }
 
@@ -182,12 +178,12 @@ public:
 
 class LesbianLianliSlash: public TriggerSkill{
 public:
-    LesbianLianliSlash():TriggerSkill("#LesbianLianli-slash"){
+    LesbianLianliSlash():TriggerSkill("#lesbianlianli-slash"){
         events << CardAsked;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("@tied") > 0 && !target->hasSkill("LesbianLianli");
+        return target->getMark("@tied") > 0 && !target->hasSkill("lesbianlianli");
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
@@ -196,12 +192,12 @@ public:
             return false;
 
         Room *room = player->getRoom();
-        if(!player->askForSkillInvoke("LesbianLianli-slash", data))
+        if(!player->askForSkillInvoke("lesbianlianli-slash", data))
             return false;
 
-        ServerPlayer *xiahoujuan = room->findPlayerBySkillName("LesbianLianli");
+        ServerPlayer *xiahoujuan = room->findPlayerBySkillName("lesbianlianli");
         if(xiahoujuan){
-            const Card *slash = room->askForCard(xiahoujuan, "slash", "@LesbianLianli-slash");
+            const Card *slash = room->askForCard(xiahoujuan, "slash", "@lesbianlianli-slash");
             if(slash){
                 room->provide(slash);
                 return true;
@@ -214,7 +210,7 @@ public:
 
 class LesbianLianliJink: public TriggerSkill{
 public:
-    LesbianLianliJink():TriggerSkill("#LesbianLianli-jink"){
+    LesbianLianliJink():TriggerSkill("#lesbianlianli-jink"){
         events << CardAsked;
     }
 
@@ -227,7 +223,7 @@ public:
         if(pattern != "jink")
             return false;
 
-        if(!xiahoujuan->askForSkillInvoke("LesbianLianli-jink", data))
+        if(!xiahoujuan->askForSkillInvoke("lesbianlianli-jink", data))
             return false;
 
         Room *room = xiahoujuan->getRoom();
@@ -236,7 +232,7 @@ public:
             if(player->getMark("@tied") > 0){
                 ServerPlayer *zhangfei = player;
 
-                const Card *jink = room->askForCard(zhangfei, "jink", "@LesbianLianli-jink");
+                const Card *jink = room->askForCard(zhangfei, "jink", "@lesbianlianli-jink");
                 if(jink){
                     room->provide(jink);
                     return true;
@@ -261,7 +257,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "@LesbianLianli";
+        return  pattern == "@lesbianlianli";
     }
 
     virtual const Card *viewAs() const{
@@ -271,14 +267,14 @@ public:
 
 class LesbianLianli: public PhaseChangeSkill{
 public:
-    LesbianLianli():PhaseChangeSkill("LesbianLianli"){
+    LesbianLianli():PhaseChangeSkill("lesbianlianli"){
         view_as_skill = new LesbianLianliViewAsSkill;
     }
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
         if(target->getPhase() == Player::Start){
             Room *room = target->getRoom();
-            bool used = room->askForUseCard(target, "@LesbianLianli", "@@LesbianLianli-card");
+            bool used = room->askForUseCard(target, "@lesbianlianli", "@@lesbianlianli-card");
             if(used){
                 if(target->getKingdom() != "shu")
                     room->setPlayerProperty(target, "kingdom", "shu");
@@ -298,45 +294,9 @@ public:
     }
 };
 
-class Tongxin: public MasochismSkill{
-public:
-    Tongxin():MasochismSkill("tongxin"){
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("@tied") > 0;
-    }
-
-    virtual void onDamaged(ServerPlayer *target, const DamageStruct &damage) const{
-        Room *room = target->getRoom();
-        ServerPlayer *xiahoujuan = room->findPlayerBySkillName(objectName());
-
-        if(xiahoujuan && xiahoujuan->askForSkillInvoke(objectName(), QVariant::fromValue(damage))){
-            room->playSkillEffect(objectName());
-
-            ServerPlayer *zhangfei = NULL;
-            if(target == xiahoujuan){
-                QList<ServerPlayer *> players = room->getOtherPlayers(xiahoujuan);
-                foreach(ServerPlayer *player, players){
-                    if(player->getMark("@tied") > 0){
-                        zhangfei = player;
-                        break;
-                    }
-                }
-            }else
-                zhangfei = target;
-
-            xiahoujuan->drawCards(damage.damage);
-
-            if(zhangfei)
-                zhangfei->drawCards(damage.damage);
-        }
-    }
-};
-
 class LesbianLianliClear: public TriggerSkill{
 public:
-    LesbianLianliClear():TriggerSkill("#LesbianLianli-clear"){
+    LesbianLianliClear():TriggerSkill("#lesbianlianli-clear"){
         events << Death;
     }
 
@@ -371,6 +331,13 @@ public:
             room->acquireSkill(player, "lesbianjieyin");
         else if(player->hasSkill("lijian"))
             room->acquireSkill(player, "lesbianlijian");
+        else if(player->hasSkill("lianli")){
+            room->acquireSkill(player, "lesbianlianli");
+            room->acquireSkill(player, "lesbianlianli-start");
+            room->acquireSkill(player, "lesbianlianli-slash");
+            room->acquireSkill(player, "lesbianlianli-jink");
+            room->acquireSkill(player, "lesbianlianli-clear");
+        }
         return false;
     }
 };
@@ -381,34 +348,27 @@ HongyanScenario::HongyanScenario()
     females << "zhenji" << "huangyueying" << "zhurong"
             << "daqiao" << "caiwenji" << "xiaoqiao"
             << "diaochan" << "caizhaoji" << "sunshangxiang"
-            << "wuguotai" << "LESxiahoujuan";
-
+            << "wuguotai" << "xiahoujuan";
     standard_roles << "lord" << "loyalist" << "loyalist" << "loyalist"
             << "rebel" << "rebel" << "rebel" << "rebel" << "renegade" << "renegade";
 
     rule = new HongyanRule(this);
 
-    related_skills.insertMulti("LesbianLianli", "#LesbianLianli-start");
-    related_skills.insertMulti("LesbianLianli", "#LesbianLianli-slash");
-    related_skills.insertMulti("LesbianLianli", "#LesbianLianli-jink");
-    related_skills.insertMulti("LesbianLianli", "#LesbianLianli-clear");
+    related_skills.insertMulti("lesbianlianli", "#lesbianlianli-start");
+    related_skills.insertMulti("lesbianlianli", "#lesbianlianli-slash");
+    related_skills.insertMulti("lesbianlianli", "#lesbianlianli-jink");
+    related_skills.insertMulti("lesbianlianli", "#lesbianlianli-clear");
 
-    skills << new LesbianJieyin << new LesbianLijian << new LesbianLianliSlashViewAsSkill;
-
-    General *LESxiahoujuan = new General(this, 8433, "LESxiahoujuan", "shu", 3, false, true);
-    LESxiahoujuan->addSkill(new LesbianLianliStart);
-    LESxiahoujuan->addSkill(new LesbianLianli);
-    LESxiahoujuan->addSkill(new LesbianLianliSlash);
-    LESxiahoujuan->addSkill(new LesbianLianliJink);
-    LESxiahoujuan->addSkill(new LesbianLianliClear);
-    LESxiahoujuan->addSkill("tongxin");
-    LESxiahoujuan->addSkill("liqian");
-    LESxiahoujuan->addSkill("qiaocai");
+    skills << new LesbianJieyin << new LesbianLijian
+            << new LesbianLianliStart
+            << new LesbianLianli
+            << new LesbianLianliSlash
+            << new LesbianLianliJink
+            << new LesbianLianliClear
+            << new LesbianLianliSlashViewAsSkill;
 
     addMetaObject<LesbianJieyinCard>();
     addMetaObject<LesbianLijianCard>();
-    addMetaObject<LesbianLianliCard>();
-    addMetaObject<LesbianLianliSlashCard>();
 }
 
 bool HongyanScenario::exposeRoles() const{
@@ -418,10 +378,8 @@ bool HongyanScenario::exposeRoles() const{
 void HongyanScenario::assign(QStringList &generals, QStringList &roles) const{
     generals = females;
     qShuffle(generals);
-    generals.removeLast();//generals.removeLast();generals.removeLast();
-
+    generals.removeLast();
     roles = standard_roles;
-    qShuffle(roles);
 }
 
 int HongyanScenario::getPlayerCount() const{
@@ -436,4 +394,4 @@ void HongyanScenario::onTagSet(Room *room, const QString &key) const{
     // dummy
 }
 
-ADD_SCENARIO(Hongyan);
+ADD_SCENARIO(Hongyan)

@@ -94,7 +94,8 @@ SOURCES += src/main.cpp \
     src/package/returnoflegend.cpp \
     src/package/lixianji.cpp\
         swig/sanguosha_wrap.cxx \
-    src/dialog/couplepairdialog.cpp
+    src/dialog/couplepairdialog.cpp\
+        swig/sanguosha_wrap.cxx \
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
