@@ -92,18 +92,18 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *target = NULL;
-
         if(player->getPhase() == Player::Start){
-            foreach(ServerPlayer *p, room->getAlivePlayers()){
-                if(p->getMark("@jq") > 0){
-                    p->loseAllMarks("@jq");
-                    target = p;
-                    break;
-                }
-            }
-            if(target){
-                foreach(ServerPlayer *p, room->getOtherPlayers(target)){
-                    room->setFixedDistance(p, target, -1);
+            foreach(target, room->getAlivePlayers()){
+                if(target->getMark("@jq") > 0){
+                    QList<QVariant> ownerlist = target->tag.value("JQOwner").toList();
+                    if(ownerlist.contains(player->objectName())){
+                        target->loseMark("@jq", 1);
+                        ownerlist.removeOne(player->objectName());
+                        target->tag["JQOwner"] = ownerlist;
+                        foreach(ServerPlayer *p, room->getOtherPlayers(target)){
+                            room->setFixedDistance(p, target, -1);
+                        }
+                    }
                 }
             }
         }
@@ -116,6 +116,9 @@ public:
                 room->setFixedDistance(p, target, target->distanceTo(p)+1);
             }
             target->gainMark("@jq");
+            QList<QVariant> ownerlist = target->tag.value("JQOwner").toList();
+            ownerlist << player->objectName();
+            target->tag["JQOwner"] = ownerlist;
         }
 
         return false;
@@ -134,18 +137,17 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
         Room *room = player->getRoom();
-        QList<ServerPlayer *> players = room->getAllPlayers();
-        ServerPlayer *target = NULL;
-        foreach(ServerPlayer *p, players){
-            if(p->getMark("@jq") > 0){
-                p->loseAllMarks("@jq");
-                target = p;
-                break;
-            }
-        }
-        if(target){
-            foreach(ServerPlayer *p, room->getOtherPlayers(target)){
-                room->setFixedDistance(p, target, -1);
+        foreach(ServerPlayer *target, room->getAllPlayers()){
+            if(target->getMark("@jq") > 0){
+                QList<QVariant> ownerlist = target->tag.value("JQOwner").toList();
+                if(ownerlist.contains(player->objectName())){
+                    target->loseMark("@jq", 1);
+                    ownerlist.removeOne(player->objectName());
+                    target->tag["JQOwner"] = ownerlist;
+                    foreach(ServerPlayer *tmp, room->getOtherPlayers(target)){
+                        room->setFixedDistance(tmp, target, -1);
+                    }
+                }
             }
         }
         return false;
@@ -214,13 +216,14 @@ HaojiaoCard::HaojiaoCard(){
 
 bool HaojiaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(targets.length() < 2)
-        return Self->inMyAttackRange(to_select) && !Self->isProhibited(to_select, new Slash(Card::NoSuit, 0));
+        return Self->canSlash(to_select);
     else
         return false;
 }
 
 void HaojiaoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     Slash *slash = new Slash(Card::NoSuit, 0);
+    slash->setSkillName("haojiao");
     CardUseStruct use;
     use.card = slash;
     use.from = source;
@@ -235,7 +238,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "@haojiao-card";
+        return pattern == "@@haojiao";
     }
 
     virtual const Card *viewAs() const{
@@ -259,11 +262,11 @@ public:
             if(player->getPhase() != Player::Finish)
                 return false;
 
-            if(room->askForUseCard(player, "@haojiao-card", "@@haojiao"))
+            if(room->askForUseCard(player, "@@haojiao", "@haojiao"))
                 player->turnOver();
         }
         else if(event == Damaged){
-            if(player->faceUp() || !room->askForSkillInvoke(player, objectName()))
+            if(player->faceUp() || !room->askForSkillInvoke(player, objectName(), data))
                 return false;
 
             player->turnOver();
@@ -850,9 +853,9 @@ void HongzhenCard::onUse(Room *room, const CardUseStruct &card_use) const{
     room->useCard(use);
 }
 
-class Hongzhen: public TriggerSkill{
+class HongzhenEffect: public TriggerSkill{
 public:
-    Hongzhen():TriggerSkill("hongzhen"){
+    HongzhenEffect():TriggerSkill("hongzhen_effect"){
         events << CardFinished << CardResponsed;
         view_as_skill = new HongzhenViewAsSkill;
     }
@@ -870,6 +873,8 @@ public:
             card = data.value<CardStar>();
 
         if((card->isRed() && card->inherits("BasicCard")) || card->isNDTrick()){
+            if(!player->askForSkillInvoke("hongzhen"))
+                return false;
             int card_id = card->getSubcards().isEmpty()? card->getId(): card->getSubcards().first();
             if(card_id > -1){
                 LogMessage log;
@@ -881,22 +886,47 @@ public:
                 player->getRoom()->sendLog(log);
             }
 
-            if(player->getPile("needle").length() >= 15 && player->askForSkillInvoke(objectName(), data)){
+            if(player->getPile("needle").length() >= 15){
                 Room *room = player->getRoom();
-                ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName());
-                for(int i = player->getPile("needle").length(); i > 0 ;i--){
-                    if(!player->getPile("needle").isEmpty())
-                        room->throwCard(player->getPile("needle").first());
+                if(room->askForChoice(player, "hongzhen15", "shoot+later") == "later")
+                    return false;
+                QList<int> needle = player->getPile("needle");
+                DummyCard *dummy = new DummyCard;
+                ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), "hongzhen15");
+                for(int i = needle.length(); i > 0 ;i--){
+                    if(!player->getPile("needle").isEmpty()){
+                        int card_id = player->getPile("needle").first();
+                        room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Special, false);
+                        room->getThread()->delay(200);
+                        dummy->addSubcard(card_id);
+                    }
                 }
-
                 DamageStruct damage;
                 damage.from = player;
                 damage.to = target;
-                damage.damage = 3;
+                damage.damage = int(needle.length() / 5);
                 room->damage(damage);
+
+                room->throwCard(dummy);
+                delete dummy;
             }
         }
         return false;
+    }
+};
+
+class Hongzhen: public GameStartSkill{
+public:
+    Hongzhen():GameStartSkill("hongzhen"){
+        frequency = Frequent;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return GameStartSkill::triggerable(target) && target->hasSkill("hongzhen");
+    }
+
+    virtual void onGameStart(ServerPlayer *player) const{
+        player->getRoom()->acquireSkill(player, "hongzhen_effect");
     }
 };
 
@@ -1341,6 +1371,7 @@ GoldSeintoViVAPackage::GoldSeintoViVAPackage()
     addMetaObject<ShengjianCard>();
     addMetaObject<BingjiuCard>();
 
+    skills << new HongzhenEffect;
 }
 
 ADD_PACKAGE(GoldSeintoViVA)
