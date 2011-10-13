@@ -400,7 +400,7 @@ QColor Engine::getKingdomColor(const QString &kingdom) const{
         color_map["wu"] = QColor(0x4D, 0xB8, 0x73);
         color_map["qun"] = QColor(0x8A, 0x80, 0x7A);
         color_map["god"] = QColor(0x96, 0x94, 0x3D);
-        color_map["st"] = QColor(0x96, 0x94, 0x3D);
+        color_map["gold"] = QColor(0x49, 0x46, 0x5D);
     }
 
     return color_map.value(kingdom);

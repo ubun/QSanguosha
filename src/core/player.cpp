@@ -125,7 +125,7 @@ void Player::clearFlags(){
 }
 
 int Player::getAttackRange() const{
-    if(hasFlag("tianyi_success") || hasFlag("oo"))
+    if(hasFlag("tianyi_success"))
         return 1000;
 
     if(weapon)
