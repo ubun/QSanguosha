@@ -62,7 +62,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *mu = room->findPlayerBySkillName("xiufu");
         DyingStruct dying = data.value<DyingStruct>();
-        if(!mu || dying.who != player)
+        if(!mu || dying.who != player || dying.who->tag.value("Dead").toBool())
             return false;
         if(!mu->askForSkillInvoke(objectName(), data))
             return false;
@@ -77,6 +77,7 @@ public:
             room->sendLog(log);
             room->setPlayerProperty(dying.who, "hp", 1);
         }
+        dying.who->tag["Dead"] = false;
 
         return false;
     }
@@ -195,12 +196,14 @@ void XingmieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
             targets << tmp;
     }
     if(!targets.isEmpty()){
-        source->loseMark("@xm");
         target = room->askForPlayerChosen(source, targets, "xingmie");
+        source->loseMark("@xm");
+        room->broadcastInvoke("animate", "lightbox:$xingmie");
         DamageStruct damage;
         damage.from = source;
         damage.to = target;
         damage.damage = target->getHandcardNum();
+        target->tag["Dead"] = true;
         room->damage(damage);
     }
 }

@@ -17,6 +17,7 @@ local t = {
 	["xingmie"] = "星灭", 
 	[":xingmie"] = "限定技，你可以弃三张牌，然后对场上手牌数最少的一名角色造成等于其当前手牌数的伤害",
 	["@xm"] = "星灭", 
+	["$xingmie"] = "★Starlight Extinction★", 
 
 --金牛座 阿鲁迪巴 4体力
 	["taurus"] = "阿鲁迪巴", 

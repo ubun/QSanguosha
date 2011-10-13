@@ -136,9 +136,11 @@ void Peach::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
 
     // do animation
-    room->broadcastInvoke("animate", QString("peach:%1:%2")
+    room->setAnimate("peach", effect.from, effect.to);
+    /*room->broadcastInvoke("animate", QString("peach:%1:%2")
                           .arg(effect.from->objectName())
                           .arg(effect.to->objectName()));
+                          */
 
     // recover hp
     RecoverStruct recover;
@@ -464,6 +466,7 @@ public:
                     jink->setSkillName(objectName());
                     room->provide(jink);
                     room->setEmotion(player, "good");
+                    room->broadcastInvoke("playAudio", objectName());
 
                     return true;
                 }else
@@ -555,7 +558,7 @@ void SavageAssault::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *slash = room->askForCard(effect.to, "slash", "savage-assault-slash:" + effect.from->objectName());
     if(slash)
-        room->setEmotion(effect.to, "slash");
+        room->setEmotion(effect.to, "killer");
     else{
         DamageStruct damage;
         damage.card = this;

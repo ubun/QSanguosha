@@ -360,8 +360,8 @@ void Room::slashResult(const SlashEffectStruct &effect, const Card *jink){
     if(jink == NULL)
         thread->trigger(SlashHit, effect.from, data);
     else{
-        thread->trigger(SlashMissed, effect.from, data);
         setEmotion(effect.to, "jink");
+        thread->trigger(SlashMissed, effect.from, data);
     }
 }
 
@@ -545,9 +545,10 @@ bool Room::askForNullification(const TrickCard *trick, ServerPlayer *from, Serve
             log.arg = trick_name;
             sendLog(log);
 
-            broadcastInvoke("animate", QString("nullification:%1:%2")
+            setAnimate("nullification", player, to);
+            /*broadcastInvoke("animate", QString("nullification:%1:%2")
                             .arg(player->objectName()).arg(to->objectName()));
-
+            */
             QVariant decisionData = QVariant::fromValue(use);
             thread->trigger(ChoiceMade, player, decisionData);
             setTag("NullifyingTimes",getTag("NullifyingTimes").toInt()+1);
@@ -2294,6 +2295,17 @@ void Room::setEmotion(ServerPlayer *target, const QString &emotion){
     broadcastInvoke("setEmotion",
                     QString("%1:%2").arg(target->objectName()).arg(emotion.isEmpty() ? "." : emotion),
                     target);
+}
+
+void Room::setAnimate(QString animate, ServerPlayer *source, ServerPlayer *target){
+    if(!source)
+        return;
+    if(!target)
+        target = source;
+    broadcastInvoke("animate", QString("%1:%2:%3")
+                    .arg(animate)
+                    .arg(source->objectName())
+                    .arg(target->objectName()));
 }
 
 void Room::activate(ServerPlayer *player, CardUseStruct &card_use){

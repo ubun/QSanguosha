@@ -113,6 +113,7 @@ public:
     void removeTag(const QString &key);
 
     void setEmotion(ServerPlayer *target, const QString &emotion);
+    void setAnimate(QString animate, ServerPlayer *source, ServerPlayer *target = NULL);
 
     Player::Place getCardPlace(int card_id) const;
     ServerPlayer *getCardOwner(int card_id) const;
