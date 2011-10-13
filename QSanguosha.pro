@@ -93,7 +93,6 @@ SOURCES += src/main.cpp \
     src/scenario/OExiapi-scenario.cpp \
     src/package/returnoflegend.cpp \
     src/package/lixianji.cpp\
-        swig/sanguosha_wrap.cxx \
     src/dialog/couplepairdialog.cpp\
         swig/sanguosha_wrap.cxx \
 	
