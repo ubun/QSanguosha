@@ -87,9 +87,9 @@ SOURCES += src/main.cpp \
 	src/ui/window.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
-        src/util/recorder.cpp \
-        swig/sanguosha_wrap.cxx \
-	
+	src/util/recorder.cpp \
+	swig/sanguosha_wrap.cxx
+
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
 	src/client/clientplayer.h \
