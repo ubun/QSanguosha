@@ -76,6 +76,7 @@ public:
             log.arg2 = QString::number(1);
             room->sendLog(log);
             room->setPlayerProperty(dying.who, "hp", 1);
+            room->setEmotion(dying.who, "good");
         }
         dying.who->tag["Dead"] = false;
 
@@ -372,6 +373,7 @@ public:
             baby->addToPile("star", card->getId());
         }
         else{
+            room->setEmotion(damage.from, "bad");
             DamageStruct damage2;
             damage2.from = NULL;
             damage2.to = damage.from;
@@ -410,6 +412,7 @@ public:
         foreach(int i, player->getPile("star")){
             room->obtainCard(player, i);
         }
+        room->setEmotion(player, "draw-card");
         return false;
     }
 };
@@ -470,9 +473,9 @@ public:
 
         Room*room = player->getRoom();
         ServerPlayer *target = NULL;
-        foreach(ServerPlayer *p, room->getAllPlayers()){
-            if(p->getMark("@shiqi")>0){
-                target = p;
+        foreach(ServerPlayer *tmp, room->getAllPlayers()){
+            if(tmp->getMark("@shiqi") > 0){
+                target = tmp;
                 break;
             }
         }
@@ -503,6 +506,8 @@ public:
                 phases << Player::Finish;
 
             if(!phases.isEmpty()){
+                if(phases.contains(Player::Discard))
+                    room->setEmotion(target, "bad");
                 target->play(phases);
             }
         }
@@ -566,8 +571,18 @@ public:
 
             room->judge(judge);
             if(judge.isGood()){
+                LogMessage log;
+                log.type = "#Budong";
+                log.from = virgo;
+                log.arg = "guo";
                 virgo->addToPile("guo", judge.card->getId());
+                log.arg2 = QString::number(virgo->getPile("guo").length());
+                room->sendLog(log);
+
+                room->setEmotion(virgo, "good");
             }
+            else
+                room->setEmotion(virgo, "bad");
         }
 
         return false;
@@ -624,6 +639,7 @@ public:
             room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
         }
         player->invoke("clearAG");
+        guoguo.clear();
         return false;
     }
 };
@@ -649,10 +665,11 @@ void BaolunCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     if(guoguo.length() == handlog){
         for(int i = 0; i < handlog; i++)
             room->moveCardTo(Sanguosha->getCard(guoguo.at(i)), target, Player::Hand, false);
+        room->setEmotion(target, "draw-card");
         return;
     }
 
-    room->fillAG(guoguo, source);
+    room->fillAG(guoguo);
     while(!guoguo.isEmpty()){
         if(handlog <= 0)
             break;
@@ -660,8 +677,10 @@ void BaolunCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
         guoguo.removeOne(card_id);
         handlog --;
         room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, false);
+        room->takeAG(target, card_id);
+        room->setEmotion(target, "draw-card");
     }
-    source->invoke("clearAG");
+    room->broadcastInvoke("clearAG");
 }
 
 class BaolunDistance: public DistanceSkill{
@@ -898,6 +917,7 @@ public:
                 QList<int> needle = player->getPile("needle");
                 DummyCard *dummy = new DummyCard;
                 ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), "hongzhen15");
+                room->setEmotion(target, "bad");
                 for(int i = needle.length(); i > 0 ;i--){
                     if(!player->getPile("needle").isEmpty()){
                         int card_id = player->getPile("needle").first();
@@ -1072,27 +1092,25 @@ public:
             log.from = player;
             log.card_str = QString::number(cards.last());
             room->sendLog(log);
-            //room->moveCardTo(Sanguosha->getCard(card_id1), NULL, Player::Special, true);
             room->throwCard(cards.last());
             room->getThread()->delay();
 
             cards << room->drawCard();
             log.card_str = QString::number(cards.last());
             room->sendLog(log);
-            //room->moveCardTo(Sanguosha->getCard(card_id2), NULL, Player::Special, true);
             room->throwCard(cards.last());
-            room->getThread()->delay();
 
             if(Sanguosha->getCard(cards.first())->getSuit() != Sanguosha->getCard(cards.last())->getSuit()){
-                room->fillAG(cards, player);
+                room->fillAG(cards);
                 int getit = room->askForAG(player, cards, false, objectName());
-                player->obtainCard(Sanguosha->getCard(getit));
-
                 cards.removeOne(getit);
-                player->invoke("clearAG");
-
+                room->takeAG(player, getit);
                 player->addToPile("huan", cards.first());
+                room->setEmotion(player, "draw-card");
+                room->broadcastInvoke("clearAG");
             }
+            else
+                room->setEmotion(player, "bad");
             cards.clear();
         }
     }
@@ -1177,7 +1195,7 @@ public:
             }
             LogMessage log;
             log.from = target;
-            log.type = "#BingjiuProtectRemove";
+            log.type = "#BJProtectRemove";
             target->setMark("jiu", 0);
             log.arg = objectName();
             room->sendLog(log);
@@ -1192,9 +1210,8 @@ public:
             return false;
         if(!kamiao->getPile("huan").isEmpty() && !kamiao->isKongcheng()){
             QList<int> huan = kamiao->getPile("huan");
-            QList<const Card *> hand = kamiao->getHandcards();
             foreach(int tmp1, huan){
-                foreach(const Card *tmp2, hand){
+                foreach(const Card *tmp2, kamiao->getHandcards()){
                     if(Sanguosha->getCard(tmp1)->getSuit() == tmp2->getSuit())
                         goto s_mark;
                 }
@@ -1213,6 +1230,7 @@ public:
                 if(card_id == -1)
                     return false;
             }
+            huan.clear();
             QString suit_str = Sanguosha->getCard(card_id)->getSuitString();
             QString pattern = QString("@@bingjiu.%1").arg(suit_str);
             if(room->askForUseCard(kamiao, pattern, "@bingjiu:" + suit_str)){
@@ -1250,6 +1268,7 @@ public:
             log.arg2 = "bingjiu";
             room->sendLog(log);
 
+            room->setEmotion(player, "good");
             return true;
         }else
             return false;
@@ -1300,6 +1319,7 @@ public:
             if(killer != player && !killer->hasSkill("benghuai")){
                 killer->gainMark("@collapse");
                 room->acquireSkill(killer, "benghuai");
+                room->setEmotion(killer, "bad");
             }
         }
         return false;
