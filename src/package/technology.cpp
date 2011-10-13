@@ -38,7 +38,10 @@ public:
                 ServerPlayer *target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
                 use.to.clear();
                 use.to << target;
-
+                if(usecard->inherits("Collateral")){
+                    target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
+                    use.to << target;
+                }
                 LogMessage log;
                 log.type = "$Tuiyan";
                 log.from = lu;
