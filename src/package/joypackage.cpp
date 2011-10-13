@@ -385,12 +385,15 @@ public:
             if(players.isEmpty())
                 return false;
 
+            QVariant victim = QVariant::fromValue(damage.to);
+            room->setTag("YxSwordVictim", victim);
             ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
+            room->removeTag("YxSwordVictim");
             damage.from = target;
             data = QVariant::fromValue(damage);
             room->moveCardTo(player->getWeapon(), damage.from, Player::Hand);
         }
-        return false;
+        return damage.to->isDead();
     }
 };
 
