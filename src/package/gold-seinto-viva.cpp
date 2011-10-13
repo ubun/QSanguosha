@@ -890,6 +890,11 @@ public:
                 Room *room = player->getRoom();
                 if(room->askForChoice(player, "hongzhen15", "shoot+later") == "later")
                     return false;
+                LogMessage log;
+                log.from = player;
+                log.type = "#Hongzhen15";
+                log.arg = "hongzhen15";
+
                 QList<int> needle = player->getPile("needle");
                 DummyCard *dummy = new DummyCard;
                 ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), "hongzhen15");
@@ -897,10 +902,13 @@ public:
                     if(!player->getPile("needle").isEmpty()){
                         int card_id = player->getPile("needle").first();
                         room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Special, false);
-                        room->getThread()->delay(200);
+                        room->getThread()->delay(150);
                         dummy->addSubcard(card_id);
                     }
                 }
+                log.to << target;
+                log.arg2 = QString::number(needle.length());
+                room->sendLog(log);
                 DamageStruct damage;
                 damage.from = player;
                 damage.to = target;

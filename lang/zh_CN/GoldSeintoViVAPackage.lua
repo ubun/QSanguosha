@@ -90,6 +90,7 @@ local t = {
 	["hongzhen15"] = "猩红毒针",
 	["hongzhen15:shoot"] = "15枚猩红毒针准备就绪，发射！",
 	["hongzhen15:later"] = "再等一会……",
+	["#Hongzhen15"] = "%from 发动了大招【%arg】，向目标 %to 发射了 %arg2 枚针！",
 
 --射手座 艾奥罗斯 4体力
 	["sagittarius"] = "艾奥罗斯", 
