@@ -298,7 +298,7 @@ GuanduScenario::GuanduScenario()
             << new GreatYiji
             << new DamageBeforePlay;
 
-    General *Guandu_zhangliao = new General(this, "guandu-zhangliao", "wei", 4, true, true);
+    General *Guandu_zhangliao = new General(this, 8222, "guandu-zhangliao", "wei", 4, true, true);
     Guandu_zhangliao->addSkill(new SmallTuxi);
 
     addMetaObject<ZhanShuangxiongCard>();

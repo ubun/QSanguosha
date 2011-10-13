@@ -395,7 +395,7 @@ HongyanScenario::HongyanScenario()
 
     skills << new LesbianJieyin << new LesbianLijian << new LesbianLianliSlashViewAsSkill;
 
-    General *LESxiahoujuan = new General(this, "LESxiahoujuan", "shu", 3, false, true);
+    General *LESxiahoujuan = new General(this, 8433, "LESxiahoujuan", "shu", 3, false, true);
     LESxiahoujuan->addSkill(new LesbianLianliStart);
     LESxiahoujuan->addSkill(new LesbianLianli);
     LESxiahoujuan->addSkill(new LesbianLianliSlash);

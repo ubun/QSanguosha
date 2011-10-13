@@ -206,6 +206,7 @@ public:
 };
 //XJ CAOZHI
 
+/*
 class XJchenjing:public MasochismSkill{
     XJchenjing():MasochismSkill("XJchenjing"){
         frequency = Frequent;
@@ -216,6 +217,7 @@ class XJchenjing:public MasochismSkill{
     }
 };
 //XJ LIDIAN(UNF)
+*/
 
 class XJzhaoling: public SlashBuffSkill{
 public:
@@ -774,6 +776,7 @@ public:
 };
 //XJ MIZHU
 
+/*
 class yizhongPattern: public CardPattern{
 public:
     virtual bool match(const Player *player, const Card *card) const{
@@ -807,7 +810,7 @@ public:
     }
 };
 //XJ YUJIN
-
+*/
 LiXianJiPackage::LiXianJiPackage()
     :Package("LiXianJipackage")
 {
@@ -905,10 +908,10 @@ LiXianJiPackage::LiXianJiPackage()
 
     General *XJmizhu = new General(this, 3717, "XJmizhu", "shu", 3);
     XJmizhu->addSkill(new XJwenhou);
-    XJmizhu->addSkill(new XJzizhu);
+    XJmizhu->addSkill(new XJzizhu);/*
 
     General *XJyujin = new General(this, 3725, "XJyujin", "wei", 4);
-    XJyujin->addSkill(new XJyizhong);/*
+    XJyujin->addSkill(new XJyizhong);
 
     General *XJjiling = new General(this, 3748, "XJjiling", "qun", 4);
     XJjiling->addSkill(new XJwanqiang);
@@ -930,7 +933,7 @@ LiXianJiPackage::LiXianJiPackage()
     addMetaObject<XJduwuCard>();
     addMetaObject<XJzizhuCard>();
 
-    patterns[".yizhong"] = new yizhongPattern;
+    //patterns[".yizhong"] = new yizhongPattern;
 
 }
 

@@ -10,6 +10,7 @@
 
 static QSet<BanPair> BanPairSet;
 static const QString BanPairFilename = "banpairs.txt";
+//static const QString BanPairFilename09c = "couplepairs.txt";
 static QSet<QString> AllBanSet;
 static QSet<QString> SecondBanSet;
 
@@ -75,7 +76,38 @@ void BanPair::saveBanPairs(){
             stream << pair.first << " " << pair.second << "\n";
     }
 }
+/*
+void BanPair::loadBanPairs09c(){
 
+    QFile file(BanPairFilename09c);
+    if(file.open(QIODevice::ReadOnly)){
+        QTextStream stream(&file);
+
+        while(!stream.atEnd()){
+            QString line = stream.readLine();
+            QStringList names = line.split(" ");
+            if(names.length() != 2)
+                continue;
+
+            QString first = names.at(0);
+            QString second = names.at(1);
+
+            BanPair pair(first, second);
+            BanPairSet.insert(pair);
+        }
+    }
+}
+
+void BanPair::saveBanPairs09c(){
+    QFile file(BanPairFilename09c);
+    if(file.open(QIODevice::WriteOnly)){
+        QTextStream stream(&file);
+
+        foreach(BanPair pair, BanPairSet)
+            stream << pair.first << " " << pair.second << "\n";
+    }
+}
+*/
 BanPairDialog::BanPairDialog(QWidget *parent) :
     QDialog(parent)
 {

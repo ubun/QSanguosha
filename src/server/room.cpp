@@ -8,6 +8,7 @@
 #include "scenerule.h"	//changjing
 #include "contestdb.h"
 #include "banpairdialog.h"
+#include "couplepairdialog.h"
 #include "roomthread3v3.h"
 #include "roomthread1v1.h"
 #include "server.h"
@@ -1792,6 +1793,8 @@ bool Room::hasWelfare(const ServerPlayer *player) const{
     if(mode == "06_3v3")
         return player->isLord() || player->getRole() == "renegade";
     else if(mode == "04_1v3")
+        return false;
+    else if(mode == "09pc")
         return false;
     else
         return player->isLord() && player_count > 4;

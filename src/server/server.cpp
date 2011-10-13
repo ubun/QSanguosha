@@ -701,6 +701,7 @@ void ServerDialog::select3v3Generals(){
     dialog->exec();
 }
 
+
 bool ServerDialog::config(){
     exec();
 
