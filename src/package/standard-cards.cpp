@@ -464,6 +464,7 @@ public:
                     jink->setSkillName(objectName());
                     room->provide(jink);
                     room->setEmotion(player, "good");
+                    room->broadcastInvoke("playAudio", objectName());
 
                     return true;
                 }else
@@ -554,7 +555,9 @@ SavageAssault::SavageAssault(Suit suit, int number)
 void SavageAssault::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *slash = room->askForCard(effect.to, "slash", "savage-assault-slash:" + effect.from->objectName());
-    if(slash == NULL){
+    if(slash)
+        room->setEmotion(effect.to, "killer");
+    else{
         DamageStruct damage;
         damage.card = this;
         damage.damage = 1;
@@ -575,7 +578,9 @@ ArcheryAttack::ArcheryAttack(Card::Suit suit, int number)
 void ArcheryAttack::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *jink = room->askForCard(effect.to, "jink", "archery-attack-jink:" + effect.from->objectName());
-    if(jink == NULL){
+    if(jink)
+        room->setEmotion(effect.to, "jink");
+    else{
         DamageStruct damage;
         damage.card = this;
         damage.damage = 1;
@@ -641,7 +646,9 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     room->throwCard(this);
 
     ServerPlayer *killer = targets.at(0);
-    ServerPlayer *victim = targets.at(1);
+    QList<ServerPlayer *> victims = targets;
+    if(victims.length() > 1)
+        victims.removeAt(0);
     const Weapon *weapon = killer->getWeapon();
 
     if(weapon == NULL)
@@ -650,13 +657,13 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     bool on_effect = room->cardEffect(this, source, killer);
     if(on_effect){
         QString prompt = QString("collateral-slash:%1:%2")
-                         .arg(source->objectName()).arg(victim->objectName());
+                         .arg(source->objectName()).arg(victims.first()->objectName());
         const Card *slash = room->askForCard(killer, "slash", prompt);
         if(slash){
             CardUseStruct use;
             use.card = slash;
             use.from = killer;
-            use.to << victim;
+            use.to = victims;
             room->useCard(use);
         }else{
             source->obtainCard(weapon);

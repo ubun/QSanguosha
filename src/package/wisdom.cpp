@@ -255,6 +255,7 @@ public:
 class Chouliang: public PhaseChangeSkill{
 public:
     Chouliang():PhaseChangeSkill("chouliang"){
+        frequency = Frequent;
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
@@ -267,16 +268,19 @@ public:
                 room->getThread()->delay();
 
                 const Card *card = Sanguosha->getCard(card_id);
-                if(!card->inherits("BasicCard"))
+                if(!card->inherits("BasicCard")){
                     room->throwCard(card_id);
+                    room->setEmotion(player, "bad");
+                }
                 else{
                     LogMessage log;
                     log.type = "$TakeAG";
                     log.from = player;
-                    log.card_str = card->getEffectIdString();
+                    log.card_str = QString::number(card_id);
                     room->sendLog(log);
 
                     room->obtainCard(player, card_id);
+                    room->setEmotion(player, "good");
                 }
             }
         }
@@ -697,38 +701,39 @@ public:
 class Yuwen: public TriggerSkill{
 public:
     Yuwen():TriggerSkill("yuwen"){
-        events << Death;
+        events << GameOverJudge;
         frequency = Compulsory;
     }
 
     virtual int getPriority() const{
-        return -1;
+        return 3;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
+        return target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        ServerPlayer *tianfeng = room->findPlayerBySkillName(objectName(), true);
+    virtual bool trigger(TriggerEvent , ServerPlayer *tianfeng, QVariant &data) const{
         DamageStar damage = data.value<DamageStar>();
-        if(!tianfeng || !damage || damage->to != tianfeng || damage->from == tianfeng)
-            return false;
+
+        if(damage){
+            if(damage->from == tianfeng)
+                return false;
+        }else{
+            damage = new DamageStruct;
+            damage->to = tianfeng;
+            data = QVariant::fromValue(damage);
+        }
+
+        damage->from = tianfeng;
 
         LogMessage log;
         log.type = "#YuwenEffect";
         log.from = tianfeng;
-        room->sendLog(log);
+        tianfeng->getRoom()->sendLog(log);
 
-        DamageStruct dmg;
-        dmg.from = tianfeng;
-        dmg.to = tianfeng;
-        room->killPlayer(tianfeng, &dmg);
-
-        return true;
+        return false;
     }
-
 };
 
 ShouyeCard::ShouyeCard(){
@@ -811,7 +816,6 @@ class Shien:public TriggerSkill{
 public:
     Shien():TriggerSkill("shien"){
         events << CardUsed << CardResponsed;
-        //frequency = Frequent;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -886,7 +890,6 @@ WisdomPackage::WisdomPackage()
         wistianfeng->addSkill(new Shipo);
         wistianfeng->addSkill(new Gushou);
         wistianfeng->addSkill(new Yuwen);
-        //wistianfeng->addSkill(new Skill("yuwen", Skill::Compulsory));
 
         wisshuijing = new General(this, "wisshuijing", "qun",4,true);
         wisshuijing->addSkill(new Shouye);

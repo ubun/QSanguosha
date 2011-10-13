@@ -80,7 +80,7 @@ sgs.ai_use_priority = {
 --skill cards
 		XinzhanCard = 9.2,
         TianyiCard = 4,
-		JieyinCard = 4.2,
+		JieyinCard = 2.5,
         HuangtianCard = 10,
         XianzhenCard = 9.2,
         XianzhenSlashCard = 2.6,
@@ -90,7 +90,7 @@ sgs.ai_use_priority = {
 		QingnangCard=4.2,
 		RendeCard= 5.8,
 		MingceCard=4,
-		JujianCard = 5.6,
+		JujianCard = 4.5,
 		
 		ShenfenCard = 2.3,
 		GreatYeyanCard = 9,
@@ -101,7 +101,7 @@ sgs.ai_use_priority = {
         
         Peach = 4.1,
 
-        Dismantlement=4.5,
+        Dismantlement=4.4,
         Snatch=4.3,
         ExNihilo=4.6,
 

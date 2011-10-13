@@ -100,7 +100,7 @@ sgs.ai_skill_invoke["shipo"] = function(self, data)
 	end
 end
 
---houyuan
+--houyuan(not finish)
 local wisjiangwan_ai = SmartAI:newSubclass "wisjiangwan"
 wisjiangwan_ai:setOnceSkill("houyuan")
 
