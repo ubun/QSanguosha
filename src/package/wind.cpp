@@ -135,7 +135,7 @@ public:
         QString prompt = prompt_list.join(":");
 
         player->tag["Judge"] = data;
-        const Card *card = room->askForCard(player, "@guidao", prompt);
+        const Card *card = room->askForCard(player, "@guidao", prompt, data);
 
         if(card){
             // the only difference for Guicai & Guidao
@@ -410,9 +410,9 @@ public:
                 room->playSkillEffect(objectName());
 
                 LogMessage log;
-                log.type = "#KuangguRecover";
+                log.type = "#TriggerSkill";
                 log.from = player;
-                log.arg = QString::number(damage.damage);
+                log.arg = objectName();
                 room->sendLog(log);
 
                 RecoverStruct recover;
