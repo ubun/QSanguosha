@@ -1,4 +1,4 @@
-#include "kuso.h"
+#include "kuso-package.h"
 #include "skill.h"
 #include "client.h"
 #include "engine.h"

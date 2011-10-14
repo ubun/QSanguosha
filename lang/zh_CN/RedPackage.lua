@@ -3,6 +3,7 @@
 return {
 	["red"] = "★朱雀★", 
 
+--WEI#01
 	["redzhonghui"] = "钟会",
 	["designer:redzhonghui"] = "宇文天启",
 	["cv:redzhonghui"] = "",
@@ -15,6 +16,7 @@ return {
 	["xianhai"] = "陷害",
 	[":xianhai"] = "你可以将你的天灾手牌放在任意角色的判定区内",
 
+--WEI#02
 	["redxunyou"] = "荀攸",
 	["designer:redxunyou"] = "黄书",
 	["cv:redxunyou"] = "",
@@ -23,6 +25,7 @@ return {
 	["@baichu"] = "请选择一张手牌作为“计”",
 	["ji"] = "计",
 	
+--QUN#01
 	["redhejin"] = "何进",
 	["designer:redhejin"] = "幻象迷宫",
 	["cv:redhejin"] = "",
@@ -41,6 +44,7 @@ return {
 	["#Liehou"] = "%to 回收了 %from 的 %arg 张弃牌",
 	["@wocao"] = "蓄力",
 
+--SHU#01
 	["redguansuo"] = "关索",
 	["designer:redguansuo"] = "宇文天启、俊逸不凡",
 	["cv:redguansuo"] = "",
@@ -50,12 +54,14 @@ return {
 	[":yanyun"] = "若你使用的“撷芳”【杀】被闪避，可以继续对目标使用一张非“撷芳”【杀】",
 	["yanyun-slash"] = "您可以再打出一张非“撷芳”【杀】来发动青云的追杀效果", 
 
+--WU#01
 	["redyanbaihu"] = "严白虎",
 	["designer:redyanbaihu"] = "俊逸不凡",
 	["cv:redyanbaihu"] = "",
 	["jielue"] = "劫掠",
 	[":jielue"] = "出牌阶段，你使用的【杀】指定目标后，可先附带拼点的效果，若你赢，你获得目标角色的拼点牌",
 
+--SHU#02
 	["redwutugu"] = "兀突骨",
 	["designer:redwutugu"] = "春哥姨妈",
 	["cv:redwutugu"] = "",
@@ -69,6 +75,7 @@ return {
 	["#LinjiaNullify"] = "%from 的锁定技【%arg】被触发，【%arg2】对其无效", 
 	["#LinjiaDamage"] = "%from 的锁定技【鳞甲】的负面技能被触发，由 %arg 点火焰伤害增加到 %arg2 点火焰伤害",
 
+--QUN#02
 	["redchunyuqiong"] = "淳于琼",
 	["designer:redchunyuqiong"] = "连营",
 	["cv:redchunyuqiong"] = "",
@@ -82,7 +89,7 @@ return {
 	[":xuebi"] = "锁定技，回合结束阶段，若你的“酿”大于三张，必须立即弃掉所有“酿”并减去一点体力上限",
 	["#Xuebi"] = "%from 的锁定技【%arg】被触发，失去了一点体力上限和所有的 %arg2",
 
---http://www.qsanguosha.com/forum.php?mod=viewthread&tid=4995
+--WU#02
 	["redsunluban"] = "孙鲁班",
 	["designer:redsunluban"] = "天狼欧阳杉",
 	["cv:redsunluban"] = "",
@@ -99,7 +106,7 @@ return {
 	["#GoulianAdamage"] = "%from 为 %to 承担了本次的全部伤害",
 	["#GoulianBdraw"] = "%from 的技能【%arg】生效，额外摸了两张牌",
 
---test
+--EX#T1
 	["rednanmanwang"] = "南蛮王",
 	["super_zaiqi"] = "象兵",
 	[":super_zaiqi"] = "摸牌阶段，你可以放弃摸牌并展示牌堆顶的X张牌，X为你已损失的体力值+1，其中每有一张红桃牌，你回复1点体力；每有一张黑桃牌，视为你使用了一张【南蛮入侵】。然后弃掉这些红桃和黑桃牌，将其余的牌收入手牌",

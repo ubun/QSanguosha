@@ -53,8 +53,10 @@ SOURCES += src/main.cpp \
 	src/package/wisdom.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \
-	src/package/red.cpp \
-	src/package/cyan.cpp \
+	src/package/shineway/kuso-package.cpp \
+	src/package/shineway/red.cpp \
+	src/package/shineway/cyan.cpp \
+	src/package/shineway/green.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/challengemode.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -65,7 +67,6 @@ SOURCES += src/main.cpp \
 	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
-	src/package/kuso.cpp \
 	src/server/ai.cpp \
 	src/server/contestdb.cpp \
 	src/server/gamerule.cpp \
@@ -89,7 +90,6 @@ SOURCES += src/main.cpp \
 	src/ui/window.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
-    src/package/green.cpp \
 	src/util/recorder.cpp \
 	swig/sanguosha_wrap.cxx
 
@@ -134,8 +134,10 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wisdom.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
-	src/package/red.h \ 
-	src/package/cyan.h \ 
+	src/package/shineway/kuso-package.h \
+	src/package/shineway/red.h \ 
+	src/package/shineway/cyan.h \ 
+	src/package/shineway/green.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/challengemode.h \
 	src/scenario/couple-scenario.h \
@@ -146,7 +148,6 @@ HEADERS += src/client/aux-skills.h \
 	src/scenario/scenario.h \
 	src/scenario/scenerule.h \
 	src/scenario/zombie-mode-scenario.h \
-	src/package/kuso.h \
 	src/server/ai.h \
 	src/server/contestdb.h \
 	src/server/gamerule.h \
@@ -173,7 +174,6 @@ HEADERS += src/client/aux-skills.h \
 	src/util/nativesocket.h \
 	src/util/recorder.h \
 	src/util/socket.h \
-    src/package/green.h \
         src/dialog/halldialog.h
 	
 FORMS += src/dialog/cardoverview.ui \
