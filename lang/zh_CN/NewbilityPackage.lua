@@ -109,18 +109,6 @@ return {
 	["#Numa_git"] = "语录词汇匹配失败！你没有获得任何效果",
 	["#Jieao"] = "%from 的技能【桀骜】被触发",
 
-	["zhonghui"] = "钟会",
-	["designer:zhonghui"] = "宇文天启",
-	["cv:zhonghui"] = "",
-	["tongmou"] = "同谋",
-	[":tongmou"] = "出牌阶段出牌前,指定一名角色为谋友并获得以下技能直到该角色下个回合结束:互为谋友的两名角色在其出牌阶段可以共享对方的手牌(见详解)",
-	["tongmou_tie"] = "指定一名角色成为你的谋友",
-	["xoxo"] = "基情四射",
-	["mycard"] = "我的手牌",
-	["tongmouv"] = "同謀",
-	["xianhai"] = "陷害",
-	[":xianhai"] = "你可以将你的天灾手牌放在任意角色的判定区内",
-
 	["ganmi"] = "甘氏﹠糜氏",
 	["designer:ganmi"] = "塞克洛",
 	["cv:ganmi"] = "",
@@ -180,7 +168,7 @@ return {
 
 	["clear_shirt"] = "渌水罗衣",
 	[":clear_shirt"] = "锁定技，装备在你下家的装备区内，装备者对其上家造成的伤害始终无效",
-	["#CSProtect"] = "因为渌水罗衣的影响，%from 受到的 %arg 点伤害无效",
+	["#CSProtect"] = "因为【%arg2】的影响，%from 受到的 %arg 点伤害无效",
 
 	["sacrifice"] = "舍己为人",
 	[":sacrifice"] = "出牌时机：出牌阶段。\

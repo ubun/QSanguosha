@@ -73,8 +73,8 @@ class ClearShirt:public Armor{
 
 public:
     Q_INVOKABLE ClearShirt(Card::Suit suit, int number);
+
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
-    virtual void onUninstall(ServerPlayer *player) const;
 };
 
 class Niubi:public Armor{
@@ -101,14 +101,7 @@ public:
     Q_INVOKABLE WookonCard();
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-/*
-class YxSword: public Weapon{
-    Q_OBJECT
 
-public:
-    Q_INVOKABLE YxSword(Card::Suit suit, int number);
-};
-*/
 class DiezhiCard: public SkillCard{
     Q_OBJECT
 
@@ -125,25 +118,6 @@ public:
     Q_INVOKABLE YuluCard();
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class TongmouCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE TongmouCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class XianhaiCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE XianhaiCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
 class BaichuCard: public SkillCard{

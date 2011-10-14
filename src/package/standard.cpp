@@ -410,7 +410,7 @@ class PAPattern: public CardPattern{
 public:
     virtual bool match(const Player *player, const Card *card) const{
         return ! player->hasEquip(card) &&
-                (card->objectName() == "peach" || card->objectName() == "analeptic");
+                (card->inherits("Peach") || card->inherits("Analeptic"));
     }
 };
 
