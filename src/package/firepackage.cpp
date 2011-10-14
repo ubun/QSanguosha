@@ -234,26 +234,6 @@ public:
     }
 };
 
-class Luanjip: public TriggerSkill{
-public:
-    Luanjip():TriggerSkill("#luanjip"){
-        events << PhaseChange << Predamaged;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasArmorEffect("goldlock");
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *yuanshao, QVariant &data) const{
-        if(event == PhaseChange && yuanshao->getPhase() == Player::Start)
-            yuanshao->drawCards(2);
-        else if(event == Predamaged)
-            if(yuanshao->getPhase() != Player::NotActive)
-                return true;
-        return false;
-    }
-};
-
 class ShuangxiongViewAsSkill: public OneCardViewAsSkill{
 public:
     ShuangxiongViewAsSkill():OneCardViewAsSkill("shuangxiong"){
@@ -615,10 +595,7 @@ FirePackage::FirePackage()
 
     yuanshao = new General(this, "yuanshao$", "qun");
     yuanshao->addSkill(new Luanji);
-    yuanshao->addSkill(new Luanjip);
     yuanshao->addSkill(new Skill("xueyi$", Skill::Compulsory));
-
-    related_skills.insertMulti("luanji", "#luanjip");
 
     shuangxiong = new General(this, "shuangxiong", "qun");
     shuangxiong->addSkill(new Shuangxiong);

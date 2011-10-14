@@ -350,19 +350,6 @@ public:
     }
 };
 
-class Jushouup: public MasochismSkill{
-public:
-    Jushouup():MasochismSkill("#jushoup"){
-    }
-
-    virtual void onDamaged(ServerPlayer *ren, const DamageStruct &) const{
-        if(ren->hasArmorEffect("gnat") && !ren->faceUp()){
-            ren->turnOver();
-            ren->drawCards(2);
-        }
-    }
-};
-
 class Liegong: public SlashBuffSkill{
 public:
     Liegong():SlashBuffSkill("liegong"){
@@ -999,9 +986,6 @@ WindPackage::WindPackage()
 
     caoren = new General(this, "caoren", "wei");
     caoren->addSkill(new Jushou);
-    caoren->addSkill(new Jushouup);
-
-    related_skills.insertMulti("jushou", "#jushoup");
 
     huangzhong = new General(this, "huangzhong", "shu");
     huangzhong->addSkill(new Liegong);

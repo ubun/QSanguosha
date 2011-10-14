@@ -222,7 +222,7 @@ return {
 	[":lubricatingoil"] = "<br/><font color='blue' size='5' face='华文新魏'>夏侯爆爆专用</font>：<br/>【刚烈】不需判定直接生效",
 	[":underwear"] = "<br/><font color='green' size='5' face='华文新魏'>乔乐乐专用</font>：<br/>【流离】无条件限制",
 	[":whip"] = "<br/><font color='green' size='5' face='华文新魏'>黄鞭鞭专用</font>：<br/>【苦肉】时可直接选择失去2点体力并摸5张牌",
-	[":eyedrops"] = "<br/><font color='red' size='5' face='华文新魏'>刘发发专用</font>：<br/>回合结束阶段，摸两张牌",
+	[":eyedrops"] = "<br/><font color='red' size='5' face='华文新魏'>刘发发专用</font>：<br/>你的回合结束后，摸两张牌",
 	[":urban"] = "<br/><font color='green' size='5' face='华文新魏'>甘拆拆专用</font>：<br/>若你使用的【过河拆桥】是梅花花色，则可以获得被拆掉的牌",
 	[":redsunglasses"] = "<br/><font color='red' size='5' face='华文新魏'>关红红专用</font>：<br/>当你的【杀】被闪避时，可以对目标攻击范围内的另一个目标使用【杀】；【武圣】可用所有牌",
 	[":brainplatinum"] = "<br/><font color='green' size='5' face='华文新魏'>孙换换专用</font>：<br/>【制衡】可额外摸一张牌",

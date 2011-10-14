@@ -894,37 +894,6 @@ public:
     }
 };
 
-class TombBuff: public TriggerSkill{
-public:
-    TombBuff():TriggerSkill("#tomb"){
-        events << Predamage;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *moou, QVariant &data) const{
-        if(moou->hasArmorEffect("tombstone")){
-            DamageStruct damage = data.value<DamageStruct>();
-
-            const Card *reason = damage.card;
-            if(reason == NULL)
-                return false;
-
-            if(reason->inherits("Slash") || reason->inherits("Shit")){
-                LogMessage log;
-                log.type = "#TombBuff";
-                log.from = moou;
-                log.to << damage.to;
-                log.arg = QString::number(damage.damage);
-                log.arg2 = QString::number(damage.damage + 1);
-                moou->getRoom()->sendLog(log);
-
-                damage.damage ++;
-                data = QVariant::fromValue(damage);
-            }
-        }
-        return false;
-    }
-};
-
 ThicketPackage::ThicketPackage()
     :Package("thicket")
 {
@@ -977,7 +946,6 @@ ThicketPackage::ThicketPackage()
     dongzhuo->addSkill(new Roulin);
     dongzhuo->addSkill(new Benghuai);
     dongzhuo->addSkill(new Baonue);
-    dongzhuo->addSkill(new TombBuff);
 
     addMetaObject<DimengCard>();
     addMetaObject<LuanwuCard>();
