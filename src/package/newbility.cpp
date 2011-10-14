@@ -31,7 +31,7 @@ Stink::Stink(Suit suit, int number):BasicCard(suit, number){
 }
 
 QString Stink::getSubtype() const{
-    return "niubi_card";
+    return "disgusting_card";
 }
 
 QString Stink::getEffectPath(bool is_male) const{
@@ -62,11 +62,11 @@ QString Wall::getEffectPath(bool is_male) const{
 }
 
 void Wall::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-//    const QList<int> &wall = source->getPile("wall");
-//    const QList<int> wall(source->getPile("wall"));
     int id = this->getId();
     if(id < 0){
-        id = this->getSubcards().first();
+        id = !this->getSubcards().isEmpty() ? this->getSubcards().first() : -1;
+        //if this wall is a clone card.
+        if(id < 0) return;
     }
     ServerPlayer *target = targets.isEmpty() ? source : targets.first();
     target->addToPile("wall", id);
@@ -83,37 +83,33 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        if(event == HpLost && player->getPhase() == Player::NotActive
-           &&/*player != room->getCurrent()*/ player->getPile("wall").length() > 0){
+        if(event == HpLost){
+            if(player->getPhase() != Player::NotActive
+                || player->getPile("wall").length() < 1)
+                return false;
             LogMessage log;
             log.type = "#WallForbidden";
             log.from = player;
             room->sendLog(log);
             return true;
         }
-        else if(event == HpLost)
-            return false;
+
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.damage > 0 && player->getPile("wall").length()>0){
-
             LogMessage log;
             log.type = "$WallProtect";
             log.to << player;
             log.from = damage.from;
             log.card_str = QString::number(player->getPile("wall").first());
-//            log.arg = QString::number(damage.damage);
-//            log.arg2 = QString::number(damage.damage - 1);
             room->sendLog(log);
 
             room->throwCard(player->getPile("wall").first());
+            if(player->getPile("wall").length()==0)
+                room->detachSkillFromPlayer(player, objectName());
+
             damage.damage --;
             room->setEmotion(player, "good");
-
             data = QVariant::fromValue(damage);
-
-            if(player->getPile("wall").length()==0)
-                //player->loseSkill(objectName());
-                room->detachSkillFromPlayer(player, objectName());
         }
         return false;
     }
@@ -121,7 +117,7 @@ public:
 
 class PoisonSkill: public TriggerSkill{
 public:
-    PoisonSkill():TriggerSkill("poson"){
+    PoisonSkill():TriggerSkill("poison_skill"){
         events << PhaseChange << CardUsed;
     }
 
@@ -132,10 +128,11 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(event == PhaseChange && player->getPhase() == Player::Start){
+            LogMessage log;
+            log.from = player;
             if(player->getMark("poison") > 0 && player->getMark("poison") < 4){
-                LogMessage log;
+                //1~3为中毒期
                 log.type = "#Poison_hurt";
-                log.from = player;
                 room->sendLog(log);
 
                 DamageStruct damage;
@@ -146,14 +143,13 @@ public:
                 player->addMark("poison");
             }
             else if(player->getMark("poison") > 3){
+                //超过3，自动解毒
                 room->setPlayerMark(player, "poison", 0);
                 room->setEmotion(player, "good");
-                LogMessage log;
-                log.type = "#Poison_auto";
-                log.from = player;
-                room->sendLog(log);
 
-                room->detachSkillFromPlayer(player, "poson");
+                log.type = "#Poison_auto";
+                room->sendLog(log);
+                room->detachSkillFromPlayer(player, objectName());
             }
         }
         else if(event == CardUsed){
@@ -161,31 +157,32 @@ public:
             const Card *card = card_use.card;
 
             if(player->getMark("poison") > 0){
+                LogMessage log;
+                log.from = player;
                 if(card->inherits("Analeptic") && player->getState() != "robot"){
-                    LogMessage log;
+                    //机器人喝酒可以不死
                     log.type = "#Poison_die";
-                    log.from = player;
                     room->sendLog(log);
                     room->killPlayer(player);
                 }
                 else if(card->inherits("Peach") && card->getSuit() == Card::Diamond){
-                    card_use.from->loseAllMarks("poison");
+                    //方块桃可以解毒
+                    room->setPlayerMark(card_use.from, "poison", 0);
                     room->setEmotion(card_use.from, "good");
                     LogMessage log;
                     log.type = "#Poison_out";
                     log.from = player;
                     room->sendLog(log);
-
-                    room->detachSkillFromPlayer(card_use.from, "poson");
+                    room->detachSkillFromPlayer(card_use.from, objectName());
                 }
             }
         }
-
         return false;
     }
 };
 
-Poison::Poison(Suit suit, int number): BasicCard(suit, number)
+Poison::Poison(Suit suit, int number)
+    : BasicCard(suit, number)
 {
     setObjectName("poison");
 }
@@ -198,38 +195,34 @@ QString Poison::getEffectPath(bool is_male) const{
     return "audio/card/common/poison.ogg";
 }
 
+bool Poison::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
+}
+
 void Poison::onEffect(const CardEffectStruct &card_effect) const{
     Room *room = card_effect.from->getRoom();
 
     if(card_effect.to->getMark("poison") == 0){
         room->setEmotion(card_effect.from, "good");
-        room->setPlayerMark(card_effect.to, "poison",1);
+        room->setPlayerMark(card_effect.to, "poison", 1);
         room->setEmotion(card_effect.to, "bad");
+
         LogMessage log;
         log.type = "#Poison_in";
         log.from = card_effect.to;
         room->sendLog(log);
-
-        room->acquireSkill(card_effect.to, "poson", false);
-                //attachSkillToPlayer(card_effect.to, "poson");
-//        QGraphicsColorizeEffect *effect = new QGraphicsColorizeEffect(this);
-//        effect->setColor(QColor(0xCC, 0x00, 0x00));
+        room->acquireSkill(card_effect.to, "poison_skill", false);
     }
     else{
-        card_effect.to->loseAllMarks("poison");
-        //room->setPlayerMark(card_effect.to, "poison",0);
+        room->setPlayerMark(card_effect.to, "poison", 0);
         room->setEmotion(card_effect.to, "good");
         LogMessage log;
         log.type = "#Poison_out";
         log.from = card_effect.to;
         room->sendLog(log);
 
-        room->detachSkillFromPlayer(card_effect.to, "poson");
+        room->detachSkillFromPlayer(card_effect.to, "poison_skill");
     }
-}
-
-bool Poison::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
 }
 
 Sacrifice::Sacrifice(Suit suit, int number)
@@ -303,9 +296,8 @@ void Niubi::onUninstall(ServerPlayer *player) const{
 }
 
 void Niubi::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *master = NULL;
-
-    master = targets.isEmpty() ? room->findPlayer(room->getNiubiOwner(objectName())) : targets.first();
+    ServerPlayer *master = targets.isEmpty() ?
+                           room->findPlayer(room->getNiubiOwner(objectName())) : targets.first();
 
     if(!master){
         foreach(ServerPlayer *tmp, room->getAllPlayers()){
@@ -316,105 +308,34 @@ void Niubi::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
         }
     }
 
-/*    if
-            (objectName() == "corrfluid") master = room->findPlayer("simayi");
-    else if(objectName() == "stimulant") master = room->findPlayer("caocao");
-    else if(objectName() == "madamfeng") master = room->findPlayer("huangyueying");
-    else if(objectName() == "harley") master = room->findPlayer("machao");
-    else if(objectName() == "telescope") master = room->findPlayer("zhugeliang");
-    else if(objectName() == "flashlight") master = room->findPlayer("zhangliao");
-    else if(objectName() == "warmbaby") master = room->findPlayer("xuchu");
-    else if(objectName() == "linctus") master = room->findPlayer("guojia");
-    else if(objectName() == "towel") master = room->findPlayer("lumeng");
-    else if(objectName() == "lubricatingoil") master = room->findPlayer("xiahoudun");
-    else if(objectName() == "underwear") master = room->findPlayer("daqiao");
-    else if(objectName() == "whip") master = room->findPlayer("huanggai");
-    else if(objectName() == "eyedrops") master = room->findPlayer("liubei");
-    else if(objectName() == "urban") master = room->findPlayer("ganning");
-    else if(objectName() == "redsunglasses") master = room->findPlayer("guanyu");
-    else if(objectName() == "brainplatinum") master = room->findPlayer("sunquan");
-    else if(objectName() == "sophie") master = room->findPlayer("zhenji");
-    else if(objectName() == "yaiba") master = room->findPlayer("diaochan");
-    else if(objectName() == "banana") master = room->findPlayer("zhaoyun");
-    else if(objectName() == "speakers") master = room->findPlayer("zhangfei");
-    else if(objectName() == "cologne") master = room->findPlayer("zhouyu");
-    else if(objectName() == "dustbin") master = room->findPlayer("luxun");
-    else if(objectName() == "animals") master = room->findPlayer("lubu");
-    else if(objectName() == "deathrisk") master = room->findPlayer("huatuo"); //cannot saveself
-    else if(objectName() == "rollingpin") master = room->findPlayer("sunshangxiang");
-    //wind
-    else if(objectName() == "saw") master = room->findPlayer("zhangjiao");
-    else if(objectName() == "amazonston") master = room->findPlayer("huangzhong");
-    else if(objectName() == "gnat") master = room->findPlayer("caoren");
-    else if(objectName() == "magicwand") master = room->findPlayer("yuji");
-    else if(objectName() == "chanel5") master = room->findPlayer("xiaoqiao");
-    else if(objectName() == "landrover") master = room->findPlayer("xiahouyuan");
-    else if(objectName() == "chiropter") master = room->findPlayer("weiyan");
-    else if(objectName() == "drum") master = room->findPlayer("zhoutai");
-    //thicket
-    else if(objectName() == "hydrogen") master = room->findPlayer("caopi");
-    else if(objectName() == "tranqgun") master = room->findPlayer("xuhuang");
-    else if(objectName() == "ghostcar") master = room->findPlayer("sunjian");
-    else if(objectName() == "snake") master = room->findPlayer("lusu");
-    else if(objectName() == "voodoo") master = room->findPlayer("jiaxu");
-    else if(objectName() == "tombstone") master = room->findPlayer("dongzhuo");
-    else if(objectName() == "snapshot") master = room->findPlayer("menghuo");
-    else if(objectName() == "fuckav") master = room->findPlayer("zhurong");
-
-    //sp
-    else if(objectName() == "morin_khuur") master = room->findPlayer("gongsunzan");
-    else if(objectName() == "greatchair") master = room->findPlayer("yuanshu");
-    //1j
-    else if(objectName() == "hawksbill") master = room->findPlayer("yujin");
-    else if(objectName() == "torture") master = room->findPlayer("xushu");
-    else if(objectName() == "rotate") master = room->findPlayer("lingtong");
-    else if(objectName() == "totocar") master = room->findPlayer("chengong");
-    else if(objectName() == "ch3oh") master = room->findPlayer("caozhi");
-    else if(objectName() == "teardan") master = room->findPlayer("masu");
-    else if(objectName() == "nanafist") master = room->findPlayer("xusheng");
-    else if(objectName() == "lrzt9hh") master = room->findPlayer("gaoshun");
-    else if(objectName() == "mushroom") master = room->findPlayer("fazheng");
-    else if(objectName() == "aofrog") master = room->findPlayer("wuguotai");
-    else if(objectName() == "coptis") master = room->findPlayer("chunhua");
-*/
-
-
+    LogMessage log;
     if(master && master->isAlive()){
         room->throwCard(master->getArmor());
 
-        LogMessage log;
-        if(source != master){
-            log.from = source;
-            log.type = "$Throwtoowner";
-            log.card_str = QString::number(getEffectiveId());
-            //room->sendLog(log);
-        }
         room->moveCardTo(this, master, Player::Equip, true);
-
         log.from = master;
         if(room->getNiubiOwner(objectName(), 2) == "standard")
-            log.type = "$Nstandard";
+            log.type = "$Nstandard";  //标准版武将神装台词未定义
         else
             log.type = "$" + objectName();
         room->sendLog(log);
 
         if(objectName() == "dustbin" || objectName() == "animals" ||
            objectName() == "rollingpin" || objectName() == "wookon")
-            room->attachSkillToPlayer(master, objectName());
+            room->attachSkillToPlayer(master, objectName()); //左下角显示按钮
         else
-            room->acquireSkill(master, objectName(), false);
+            room->acquireSkill(master, objectName(), false); //无按钮
     }
     else{
-      room->throwCard(this);
-      room->playCardEffect("@recast", source->getGeneral()->isMale());
+        room->throwCard(this);
+        room->playCardEffect("@recast", source->getGeneral()->isMale());
 
-      LogMessage log;
-      log.from = source;
-      log.type = "$Thrownb";
-      log.card_str = QString::number(getEffectiveId());
-      room->sendLog(log);
+        log.from = source;
+        log.type = "$Thrownb";
+        log.card_str = QString::number(getEffectiveId());
+        room->sendLog(log);
 
-      source->drawCards(1);
+        source->drawCards(1);
     }
 }
 
@@ -431,7 +352,7 @@ public:
     virtual const Card *viewAs(CardItem *card_item) const{
         DummyCard *dummy = new DummyCard();
         dummy->addSubcard(card_item->getCard());
-        dummy->setSkillName("dustbin");
+        dummy->setSkillName(objectName());
         Self->setFlags("dust");
         return dummy;
     }
@@ -612,9 +533,9 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         PindianStar pindian = data.value<PindianStar>();
         if(pindian->reason == "tianyi" &&
-           pindian->from->hasSkill("tianyi") &&
-           pindian->from_card->getNumber() > pindian->to_card->getNumber())
-            pindian->from->obtainCard(pindian->from_card);
+           player->hasSkill("tianyi") &&
+           pindian->isSuccess())
+            player->obtainCard(pindian->from_card);
         return false;
     }
 };
@@ -644,11 +565,13 @@ public:
 
     virtual const Card *viewAs(CardItem *card_item) const{
         WookonCard *card = new WookonCard;
-        card->addSubcard(card_item->getCard()->getId());
+        card->addSubcard(card_item->getFilteredCard());
         return card;
     }
 };
 
+
+//generals
 class Yabian: public TriggerSkill{
 public:
     Yabian():TriggerSkill("yabian"){
