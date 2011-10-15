@@ -95,6 +95,7 @@ SOURCES += src/main.cpp \
     src/package/lixianji.cpp\
     src/dialog/couplepairdialog.cpp\
         swig/sanguosha_wrap.cxx \
+    src/package/OETan.cpp\
 	
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -179,10 +180,9 @@ HEADERS += src/client/aux-skills.h \
     src/scenario/OExiapi-scenario.h \
     src/package/returnoflegend.h \
     src/package/lixianji.h \
-	src/util/recorder.h \
-	src/util/socket.h \
         src/dialog/halldialog.h \
-    src/dialog/couplepairdialog.h
+        src/dialog/couplepairdialog.h \
+        src/package/OETan.h\
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \

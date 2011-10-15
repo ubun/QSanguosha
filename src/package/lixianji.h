@@ -6,7 +6,6 @@
 #include "standard.h"
 #include "generaloverview.h"
 
-
 class XJfengliuCard: public SkillCard{
     Q_OBJECT
 

@@ -41,7 +41,8 @@ extern "C" {
     Package *NewYJCM();
     Package *NewWisdom();
     Package *NewReturnOfLegend();//OE
-    Package *NewLiXianJi();
+    Package *NewLiXianJi();//OE
+    Package *NewOETan();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -86,6 +87,7 @@ Engine::Engine()
     addPackage(NewWisdom());
     //addPackage(NewReturnOfLegend());
     addPackage(NewLiXianJi());
+    addPackage(NewOETan());
 
     {
         Package *test_package = new Package("test");
@@ -399,7 +401,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "tan";
 
     return kingdoms;
 }
@@ -412,6 +414,7 @@ QColor Engine::getKingdomColor(const QString &kingdom) const{
         color_map["wu"] = QColor(0x4D, 0xB8, 0x73);
         color_map["qun"] = QColor(0x8A, 0x80, 0x7A);
         color_map["god"] = QColor(0x96, 0x94, 0x3D);
+        color_map["tan"] = QColor(0x12, 0xAF, 0xB4);
     }
 
     return color_map.value(kingdom);

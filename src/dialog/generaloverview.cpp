@@ -75,8 +75,10 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
             qkColor = Qt::darkGray;
         }else if(general->getKingdom() == "god"){
             qkColor = Qt::darkYellow;
-        }else{
+        }else if(general->getKingdom() == "tan"){
             qkColor = Qt::cyan;
+        }else{
+            qkColor = Qt::black;
         }
 
         name_item->setBackgroundColor(qkColor);
@@ -85,12 +87,14 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         max_hp_item->setBackgroundColor(qkColor);
         package_item->setBackgroundColor(qkColor);
         oegennum_item->setBackgroundColor(qkColor);
-        name_item->setTextColor(Qt::white);
-        kingdom_item->setTextColor(Qt::white);
-        gender_item->setTextColor(Qt::white);
-        max_hp_item->setTextColor(Qt::white);
-        package_item->setTextColor(Qt::white);
-        oegennum_item->setTextColor(Qt::white);
+        if(general->getKingdom() != "tan"){
+            name_item->setTextColor(Qt::white);
+            kingdom_item->setTextColor(Qt::white);
+            gender_item->setTextColor(Qt::white);
+            max_hp_item->setTextColor(Qt::white);
+            package_item->setTextColor(Qt::white);
+            oegennum_item->setTextColor(Qt::white);
+        }
 
         if(general->getOEGenNum() == 2409 || general->getOEGenNum() == 3742){//xushu, XJzhonghui
             gender_item->setBackgroundColor(Qt::darkBlue);

@@ -6,7 +6,6 @@
 #include "engine.h"
 #include "carditem.h"
 #include "standard.h"
-/*#include "thicket.h"*/
 
 class OExiapiRule: public ScenarioRule{
 public:
