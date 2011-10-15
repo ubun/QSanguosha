@@ -558,8 +558,11 @@ public:
         return target->isAlive();
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *leo, QVariant &) const{
-        leo->getRoom()->askForUseCard(leo, "@@diansu", "@diansu");
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
+        Room *room = player->getRoom();
+        ServerPlayer *leo = room->findPlayerBySkillName(objectName());
+        if(leo)
+            room->askForUseCard(leo, "@@diansu", "@diansu");
         return false;
     }
 };
@@ -997,28 +1000,12 @@ public:
         skills << "none" << "yingzi" << "yinghun" << "shanguang";
         Room *room = player->getRoom();
         room->detachSkillFromPlayer(player, skills.at(player->getMark("yuanzi")));
-        /*switch(player->getMark("yuanzi")){
-        case 1 : room->detachSkillFromPlayer(player, "yingzi"); break;
-        case 2 : room->detachSkillFromPlayer(player, "yinghun"); break;
-        case 3 : room->detachSkillFromPlayer(player, "leiguang"); break;
-        default: break;
-        }*/
-        int atk = player->getAttackRange();
-        int hp = player->getHp();
-        if(atk > hp && !player->hasSkill(skills.at(1))){
-            room->acquireSkill(player, skills.at(1));
-            player->setMark("yuanzi", 1);
+        int index = player->getAttackRange() > player->getHp()? 1 :
+                    player->getAttackRange() == player->getHp()? 2 : 3;
+        if(!player->hasSkill(skills.at(index))){
+            room->acquireSkill(player, skills.at(index));
+            player->setMark("yuanzi", index);
         }
-        else if(atk < hp && !player->hasSkill(skills.at(3))){
-            room->acquireSkill(player, skills.at(3));
-            player->setMark("yuanzi", 3);
-        }
-        else if(!player->hasSkill(skills.at(2))){
-            room->acquireSkill(player, skills.at(2));
-            player->setMark("yuanzi", 2);
-        }
-        else
-            player->setMark("yuanzi", 0);
         return false;
     }
 };
@@ -1026,11 +1013,12 @@ public:
 ShanguangCard::ShanguangCard(){
     once = true;
 }
-bool ShanguangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool ShanguangCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
     return targets.isEmpty();
 }
 void ShanguangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ThunderSlash *slash = new ThunderSlash(this->getSuit(), this->getNumber());
+    const Card *subcard = Sanguosha->getCard(this->getSubcards().first());
+    ThunderSlash *slash = new ThunderSlash(subcard->getSuit(), subcard->getNumber());
     slash->setSkillName("shanguang");
     slash->addSubcard(this);
     CardUseStruct use;
@@ -1465,6 +1453,7 @@ GoldSeintoViVAPackage::GoldSeintoViVAPackage()
     addMetaObject<ShiqiCard>();
     addMetaObject<BaolunCard>();
     addMetaObject<HongzhenCard>();
+    addMetaObject<ShanguangCard>();
     addMetaObject<ShengjianCard>();
     addMetaObject<BingjiuCard>();
 
