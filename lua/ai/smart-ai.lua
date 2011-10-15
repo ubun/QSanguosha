@@ -856,8 +856,9 @@ function SmartAI:slashIsAvailable()
 end
 
 
-function SmartAI:getSlash()
-    local cards = self.player:getHandcards()
+function SmartAI:getSlash(player)
+	player = player or self.player
+    local cards = player:getHandcards()
     cards=sgs.QList2Table(cards)
     
     self:sortByUsePriority(cards)
@@ -880,7 +881,7 @@ function SmartAI:searchForAnaleptic(use,enemy,slash)
 	end
 
     if not use.to then return nil end
-    if self.anal_used then return nil end
+    if self.player:hasUsed("Analeptic") then return nil end
     
     local cards = self.player:getHandcards()
     cards=sgs.QList2Table(cards)
@@ -903,10 +904,14 @@ function SmartAI:searchForAnaleptic(use,enemy,slash)
 	
     for _, anal in ipairs(cards) do
         if (anal:className()=="Analeptic") and not (anal:getEffectiveId()==slash:getEffectiveId()) then
-            self.anal_used=true
-            
             return anal
         end
+    end
+    for _, anal in ipairs(cards) do
+		if self:canViewAs(anal, "Analeptic") and not (anal:getEffectiveId()==slash:getEffectiveId()) then
+			local card_str = self:getSkillViewCard(anal, "Analeptic")
+			return sgs.Card_Parse(card_str)
+		end
     end
 end
 
@@ -1423,6 +1428,11 @@ function SmartAI:getJinkNumber(player, only_self)
 	return getJinkNumber(player, only_self, self)
 end
 
+local function factorial(n)
+	if n<=0.1 then return 1 end
+	return n*factorial(n-1)
+end
+
 function SmartAI:useCardDuel(duel, use)
 	if self.player:hasSkill("wuyan") then return end
 	self:sort(self.enemies,"defense")
@@ -1452,11 +1462,6 @@ function SmartAI:useCardDuel(duel, use)
 			end
 		end
 	end
-end
-
-local function factorial(n)
-	if n<=0.1 then return 1 end
-	return n*factorial(n-1)
 end
 
 local function handcard_subtract_hp(a, b)
@@ -1960,6 +1965,15 @@ end
 function SmartAI:getUseValue(card)
 	local class_name = card:className()				
 	local v=0
+	
+	if card:inherits("GuhuoCard") then
+		local userstring = card:toString()
+		userstring = (userstring:split(":"))[2]
+		local guhuocard = sgs.Sanguosha:cloneCard(userstring, card:getSuit(), card:getNumber())
+		local usevalue = self:getUseValue(guhuocard,player) + #self.enemies*0.3
+		if sgs.Card_Parse(card:getSubcards():first()):objectName() == userstring and card:getSuit() == sgs.Card_Heart then usevalue = usevalue + 3 end
+		return usevalue
+	end
 	
 	if card:inherits("EquipCard") then 
 		if self:hasEquip(card) then return 9 end
@@ -2519,6 +2533,8 @@ function SmartAI:askForCard(pattern, prompt, data)
 		local dmgStr = {damage = 1, nature = 0}
 		local willTianxiang = sgs.ai_skill_use["@tianxiang"](self, dmgStr)
 		if willTianxiang ~= "." then return "." end
+	elseif self.player:hasSkill("longhun") and self.player:getHp() > 1 then 
+		return "." 
 	end
 
 	if pattern == "slash" and self:getSlashNumber(self.player) > 0 then
@@ -2607,26 +2623,24 @@ function SmartAI:askForAG(card_ids, refusable, reason)
 end
 
 function SmartAI:askForNullification(trick_name, from, to, positive)  							
-	local cards = self.player:getCards("h")
+	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
-	self:sortByUseValue(cards)
+	self:sortByUseValue(cards, true)
 	local null_card, hasNull
 	for _, card in ipairs(cards) do
 		if card:inherits("Nullification") then 
 			null_card = card
 			hasNull = true
 			break
-		end				
-		if card:isBlack() and self.player:hasSkill("kanpo") then
-			local number = card:getNumber()
-			local card_id = card:getEffectiveId()
-			local card_str = ("nullification:kanpo[%s:%d]=%d"):format(card:getSuitString(), number, card_id)
+		end	
+		
+		local card_str = self:getSkillViewCard(card, "Nullification")
+		if card_str then
 			null_card = sgs.Card_Parse(card_str)
 			hasNull = true
 			break
 		end
 	end
-	
 	if not hasNull then return nil end
   
 	if positive then
@@ -2696,8 +2710,8 @@ function SmartAI:askForSinglePeach(player, dying)
 				if not (card:getSuit() == sgs.Card_Heart and self.player:hasSkill("wushen")) then
 					return card
 				end
-			elseif card:isRed() and self.player:hasSkill("jijiu") then
-				return card
+			elseif self:canViewAs(card, "Peach") then
+				return sgs.Card_Parse(self:getSkillViewCard(card, "Peach"))
 			end
 		end
 	end	
@@ -2706,15 +2720,9 @@ function SmartAI:askForSinglePeach(player, dying)
 		for _, card in sgs.qlist(cards) do
 			if (self.player:objectName() == dying:objectName()) then
 				if card:inherits("Analeptic") and not self.player:hasSkill("jiejiu") then
-					if self.player:hasSkill("jiushi") and self.player:faceUp() then return nil end
 					return card
-				elseif card:getSuit() == sgs.Card_Spade and self.player:hasSkill("jiuchi") then
-					local suit = card:getSuitString()
-					local number = card:getNumber()
-					local card_id = card:getEffectiveId()
-					local card_str = ("analeptic[%s:%d]=%d"):format(suit, number, card_id)
-					local anal_card = sgs.Card_Parse(card_str)				
-					return anal_card
+				elseif self:canViewAs(card, "Analeptic") then
+					return sgs.Card_Parse(self:getSkillViewCard(card, "Analeptic"))
 				end
 			else
 				if card:inherits("Peach") then
@@ -2723,20 +2731,14 @@ function SmartAI:askForSinglePeach(player, dying)
 					end
 				elseif card:isRed() and self.player:hasSkill("jijiu") then
 					return card
+				elseif self:canViewAs(card, "Peach") then
+					return sgs.Card_Parse(self:getSkillViewCard(card, "Peach"))
 				end
 			end
 		end
 	end
 	
 	return nil
-end
-
-function SmartAI:getOneFriend()
-	for _, friend in ipairs(self.friends) do
-		if friend ~= self.player then
-			return friend
-		end
-	end
 end
 
 function SmartAI:getChainedFriends()
@@ -2770,18 +2772,6 @@ function SmartAI.newSubclass(theClass, name)
 	sgs.ai_classes[name] = new_class
 
 	return new_class
-end
-
-function SmartAI:setOnceSkill(name)
-	function self:filterEvent(event, player, data)
-		super.filterEvent(self, event, player, data)
-		if not player then return end
-		if event == sgs.PhaseChange and player:objectName() == self.player:objectName()
-			and player:getPhase() == sgs.Player_Play then
-			self[name .. "_used"] = false
-            self.toUse=nil
-		end
-	end
 end
 
 function SmartAI:hasSkill(skill)
@@ -2908,7 +2898,7 @@ sgs.ai_cardshow.fire_attack = function(self, requestor)
 			index = priority[card:getSuitString()]
 		end
 	end
-	if self.player:hasSkill("hongyan") and result:getTypeId() == sgs.Card_Spade then 
+	if self.player:hasSkill("hongyan") and result:getSuit() == sgs.Card_Spade then 
 		result = sgs.Sanguosha:cloneCard(card:objectName(), sgs.Card_heart, card:getNumber())
 		result:setSkillName("hongyan")
 	end
@@ -3027,12 +3017,22 @@ function SmartAI:getSkillViewCard(card,class_name,only_equip,player)
 				return ("slash:wusheng[%s:%s]=%d"):format(suit, number, card_id)
 			end
 		end	
+		if player:hasSkill("longhun") and player:getHp() <= 1 then
+			if card:getSuit() == sgs.Card_Diamond then
+				return ("slash:longhun[%s:%s]=%d"):format(suit, number, card_id)
+			end
+		end	
 		if not only_equip then
 			if player:hasSkill("longdan") and card:inherits("Jink") then
 				return ("slash:longdan[%s:%s]=%d"):format(suit, number, card_id)
 			end
 		end
 	elseif class_name == "Jink" then
+		if player:hasSkill("longhun") and player:getHp() <= 1 then
+			if card:getSuit() == sgs.Card_Club then
+				return ("jink:longhun[%s:%s]=%d"):format(suit, number, card_id)
+			end
+		end	
 		if not only_equip then
 			if player:hasSkill("longdan") and card:inherits("Slash") then
 				return ("jink:longdan[%s:%s]=%d"):format(suit, number, card_id)
@@ -3041,6 +3041,11 @@ function SmartAI:getSkillViewCard(card,class_name,only_equip,player)
 			end
 		end
 	elseif class_name == "Peach" then
+		if player:hasSkill("longhun") and player:getHp() <= 1 then
+			if card:getSuit() == sgs.Card_Heart then
+				return ("peach:longhun[%s:%s]=%d"):format(suit, number, card_id)
+			end
+		end	
 		if player:hasSkill("jijiu") and card:isRed() then 
 			return ("peach:jijiu[%s:%s]=%d"):format(suit, number, card_id)
 		end
@@ -3049,8 +3054,19 @@ function SmartAI:getSkillViewCard(card,class_name,only_equip,player)
 			if player:hasSkill("jiuchi") and card:getSuit() == sgs.Card_Spade then 
 				return ("analeptic:jiuchi[%s:%s]=%d"):format(suit, number, card_id)
 			end
-		end	
-	end
+			if player:hasSkill("jiushi") and player:faceUp() then 
+				player:turnOver()
+				return ("analeptic:jiushi[%s:%s]=%d"):format("no_suit", "0", -1)
+			end
+		end
+	elseif class_name == "Nullification" then
+		if card:isBlack() and self.player:hasSkill("kanpo") and self.room:getCardPlace(card:getEffectiveId()) ~= sgs.Player_Equip then
+			return ("nullification:kanpo[%s:%s]=%d"):format(suit, number, card_id)
+		end
+		if card:getSuit() == sgs.Card_Spade and self.player:getHp() == 1 and self.player:hasSkill("longhun") then
+			return ("nullification:longhun[%s:%s]=%d"):format(suit, number, card_id)
+		end
+ 	end
 end
 
 function SmartAI:getJiemingChaofeng(player)
