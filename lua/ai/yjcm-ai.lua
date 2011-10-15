@@ -113,28 +113,14 @@ sgs.ai_skill_playerchosen.xuanfeng_slash = function(self,targets)
 	local slash = sgs.Card_Parse(("slash[%s:%s]"):format(sgs.Card_NoSuit, 0))
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
-		if not self:slashProhibit(slash ,enemy) then return enemy end
+		if not (self:slashProhibit(slash ,enemy) or self:slashIsEffective(slash, enemy)) then return enemy end
 	end
 --	self:log("unfound")
 	return self.enemys:at(math.random(0, targets:length() - 1))
 end
 
--- local lingtong_ai = SmartAI:newSubclass "lingtong"
--- lingtong_ai:setOnceSkill("xuanfeng")
--- function lingtong_ai:activate(use)
-	-- local cards = self.player:getHandcards()
-	-- for _, card in sgs.qlist(cards) do
-		-- if card:inherits("EquipCard") then
-			-- use.card = card
-			-- return
-		-- end
-	-- end
-	-- super.activate(self, use)
--- end
-
 --xuanhuo
 local fazheng_ai = SmartAI:newSubclass "fazheng"
-fazheng_ai:setOnceSkill("xuanhuo")
 function fazheng_ai:activate(use)
 	super.activate(self, use)
 	if use:isValid() then
@@ -142,43 +128,48 @@ function fazheng_ai:activate(use)
 	end
 	
 	local cards = self.player:getHandcards()
-	if not self.xuanhuo_used then
+	if not self.player:hasUsed("XuanhuoCard") then
 		cards=sgs.QList2Table(cards)
 		self:sortByUseValue(cards,true)
 		
+		local target 
 		for _, friend in ipairs(self.friends) do
-			if friend:hasSkill("xiaoji") or friend:hasSkill("xuanfeng") then 
+			if self:hasSkills(sgs.lose_equip_skill, friend) then 
 				for _, card in ipairs(cards) do
 					if card:getSuit() == sgs.Card_Heart and self.player:getHandcardNum() > 1 then
 						use.card = sgs.Card_Parse("@XuanhuoCard=" .. card:getEffectiveId())
-						use.to:append(friend)
-						self.xuanhuo_used = true
-						return
+						target = friend
+						break
 					end	
 				end		
 			end
+			if target then break end
 		end
-		if self.xuanhuo_used then return end
-		
-		for _, enemy in ipairs(self.enemies) do
-			if not enemy:isKongcheng() then
-				for _, card in ipairs(cards)do
-					if card:getSuit() == sgs.Card_Heart and not card:inherits("Peach")  and self.player:getHandcardNum() > 1 then
-						use.card = sgs.Card_Parse("@XuanhuoCard=" .. card:getEffectiveId())
-						use.to:append(enemy)
-						self.xuanhuo_used = true
-						return
-					end	
-				end		
+		if not target then 
+			for _, enemy in ipairs(self.enemies) do
+				if not enemy:isKongcheng() then
+					for _, card in ipairs(cards)do
+						if card:getSuit() == sgs.Card_Heart and not card:inherits("Peach")  and self.player:getHandcardNum() > 1 then
+							use.card = sgs.Card_Parse("@XuanhuoCard=" .. card:getEffectiveId())
+							target = enemy
+							break
+						end	
+					end		
+				end
+				if target then break end
 			end
 		end
 		
+		if target then 
+			self.room:setPlayerFlag(target, "xuanhuo_target")
+			use.to:append(target) 
+		end
 	end
 end
 
 sgs.ai_skill_playerchosen.xuanhuo = function(self, targets)
 	for _, player in sgs.qlist(targets) do
-		if (player:getHandcardNum() <= 2 or player:getHp() < 2) and self:isFriend(player) then
+		if (player:getHandcardNum() <= 2 or player:getHp() < 2) and self:isFriend(player) and not player:hasFlag("xuanhuo_target") then
 			return player
 		end
 	end
@@ -186,8 +177,6 @@ end
 
 --ganlu
 local wuguotai_ai = SmartAI:newSubclass "wuguotai"
-wuguotai_ai:setOnceSkill("ganlu")
-
 function wuguotai_ai:activate(use)
 	super.activate(self, use)
 	if use:isValid() then
@@ -198,8 +187,7 @@ function wuguotai_ai:activate(use)
 	local enemy_equip = 0
 	local target
 	
-	if not self.ganlu_used then
-	
+	if not self.player:hasUsed("GanluCard") then
 		local has_xiaoji = false
 		local xiaoji_equip = 0
 		local sunshangxiang
@@ -232,11 +220,9 @@ function wuguotai_ai:activate(use)
 			use.to:append(sunshangxiang)
 			if (max_equip ~= 0) and ((max_equip-self:getEquipNumber(sunshangxiang))>=0) then
 				use.to:append(max_friend)
-				self.ganlu_used = true
 				return
 			elseif(min_equip ~= 5) and ((self:getEquipNumber(sunshangxiang)-min_equip)>=0) then
 				use.to:append(min_friend)
-				self.ganlu_used = true
 				return
 			end
 		end	
@@ -249,7 +235,6 @@ function wuguotai_ai:activate(use)
 							use.card = sgs.Card_Parse("@GanluCard=.")
 							use.to:append(friend)
 							use.to:append(enemy)
-							self.ganlu_used = true
 							return
 						end
 					end
@@ -265,10 +250,8 @@ end
 
 --jujian
 local xushu_ai = SmartAI:newSubclass "xushu"
-xushu_ai:setOnceSkill("jujian")
 
 function xushu_ai:activate(use)
-
 	super.activate(self, use)
 	if use:isValid() then return end
 	local abandon_handcard = {}
@@ -280,7 +263,7 @@ function xushu_ai:activate(use)
 	end
 	
 	local trick_num, basic_num, equip_num = 0, 0, 0
-	if not hasPeach and self.player:isWounded() and self.player:getHandcardNum() >=3 and not self.jujian_used then 
+	if not hasPeach and self.player:isWounded() and self.player:getHandcardNum() >=3 and not self.player:hasUsed("JujianCard") then 
 		local cards = self.player:getHandcards()
 		cards=sgs.QList2Table(cards)
 		self:sortByUseValue(cards, true)
@@ -309,12 +292,9 @@ function xushu_ai:activate(use)
 		if index == 3 then 
 			use.to:append(friend)
 			use.card = sgs.Card_Parse("@JujianCard=" .. table.concat(abandon_handcard, "+"))
-			self.jujian_used = true
 			return 
 		end	
-	
-	
-	elseif not self.jujian_used then
+	elseif not self.player:hasUsed("JujianCard") then
 		local cards = self.player:getHandcards()
 		cards=sgs.QList2Table(cards)
 		self:sortByUseValue(cards, true)
@@ -345,7 +325,6 @@ function xushu_ai:activate(use)
 				if index == 5 then 
 					use.card = sgs.Card_Parse("@JujianCard=" .. table.concat(abandon_handcard, "+"))
 					use.to:append(friend)
-					self.jujian_used = true
 					return
 				end
 			end			
@@ -361,6 +340,8 @@ mingce_skill={}
 mingce_skill.name="mingce"
 table.insert(sgs.ai_skills,mingce_skill)
 mingce_skill.getTurnUseCard=function(self)
+	if self.player:hasUsed("MingceCard") then return end
+	
 	local card
 	if self.player:getArmor() and (self.player:getArmor():objectName() == "silver_lion" and self.player:isWounded()) then 
 		card = self.player:getArmor()
@@ -383,11 +364,9 @@ mingce_skill.getTurnUseCard=function(self)
 	end
 
 	return nil
-	
 end
 
 sgs.ai_skill_use_func["MingceCard"]=function(card,use,self)
-	if self.mingce_used then return end
 	local target
 	self:sort(self.friends_noself, "defense")
 	local friends = self.friends_noself
@@ -412,7 +391,6 @@ sgs.ai_skill_use_func["MingceCard"]=function(card,use,self)
 		use.card=card
 		if use.to then
 			use.to:append(target)
-			self.mingce_used=true
 		end
 	end
 end

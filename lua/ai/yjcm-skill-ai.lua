@@ -5,7 +5,7 @@ xianzhen_skill.name="xianzhen"
 table.insert(sgs.ai_skills,xianzhen_skill)
 xianzhen_skill.getTurnUseCard=function(self)
     
-    if self.xianzhen_used then 
+    if self.player:hasUsed("XianzhenCard") then 
         local card_str = "@XianzhenSlashCard=."
 	    local card = sgs.Card_Parse(card_str)
 	    return card
@@ -15,13 +15,13 @@ xianzhen_skill.getTurnUseCard=function(self)
     cards=sgs.QList2Table(cards)
     
     local max_card = self:getMaxCard()
-    if not max_card then return nil end
+    if not max_card then return end
 	local max_point = max_card:getNumber()
 	
 	local slashNum=self:getSlashNumber(self.player)
 	if max_card:inherits("Slash") then slashNum=slashNum-1 end
 	
-	if slashNum<2 then return nil end
+	if slashNum<2 then return end
 	
 	self:sort(self.enemies, "hp")
 	
@@ -69,9 +69,7 @@ sgs.ai_skill_use_func["XianzhenCard"]=function(card,use,self)
 		if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) 
 			and (enemy_max_card and max_point > enemy_max_card:getNumber()) then
 		    if use.to then 
-		        self.xianzhen_used = true
 		        use.to:append(enemy)
-		        
             end
             use.card=card
             break
@@ -80,13 +78,7 @@ sgs.ai_skill_use_func["XianzhenCard"]=function(card,use,self)
 end
 
 local masu_ai = SmartAI:newSubclass "masu"
---masu_ai:setOnceSkill("masu")
 function masu_ai:activate(use)
---local xinzhan_skill={}
---xinzhan_skill.name="xinzhan"
---table.insert(sgs.ai_skills,xinzhan_skill)
---xinzhan_skill.getTurnUseCard=function(self,inclusive)
-	self:log("get")
 	if not self.player:hasUsed("XinzhanCard") and self.player:getHandcardNum() > self.player:getMaxHP() then
 		if use.to then 
 			use.card = sgs.Card_Parse("@XinzhanCard=.") 
