@@ -216,7 +216,11 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->hasLordSkill("jijiang") && Slash::IsAvailable(player);
+        if(player->hasLordSkill("jijiang"))
+            return Slash::IsAvailable(player);
+        else if(player->hasLordSkill("weidai")){
+            return !player->hasUsed("Analeptic") && !player->hasUsed("WeidaiCard");
+        }
     }
 
     virtual const Card *viewAs() const{
