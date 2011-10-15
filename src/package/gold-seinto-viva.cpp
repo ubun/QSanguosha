@@ -516,21 +516,22 @@ public:
     }
 };
 
-class Leiguang: public OneCardViewAsSkill{
+class DiansuViewAsSkill: public OneCardViewAsSkill{
 public:
-    Leiguang():OneCardViewAsSkill("leiguang"){
+    DiansuViewAsSkill():OneCardViewAsSkill("diansu"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return Slash::IsAvailable(player);
+        return false;
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "slash";
+        return pattern == "@@diansu";
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getCard()->isBlack();
+        return to_select->getCard()->isBlack() &&
+                to_select->getCard()->inherits("BasicCard");
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
@@ -539,6 +540,27 @@ public:
         thunderslash->addSubcard(first->getId());
         thunderslash->setSkillName(objectName());
         return thunderslash;
+    }
+};
+
+class Diansu:public TriggerSkill{
+public:
+    Diansu():TriggerSkill("diansu"){
+        events << FinishJudge;
+        view_as_skill = new DiansuViewAsSkill;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->isAlive();
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *leo, QVariant &) const{
+        leo->getRoom()->askForUseCard(leo, "@@diansu", "@diansu");
+        return false;
     }
 };
 
@@ -971,30 +993,77 @@ public:
     virtual bool onPhaseChange(ServerPlayer *player) const{
         if(player->getPhase() != Player::Start)
             return false;
+        QStringList skills;
+        skills << "none" << "yingzi" << "yinghun" << "shanguang";
         Room *room = player->getRoom();
-        switch(player->getMark("yuanzi")){
+        room->detachSkillFromPlayer(player, skills.at(player->getMark("yuanzi")));
+        /*switch(player->getMark("yuanzi")){
         case 1 : room->detachSkillFromPlayer(player, "yingzi"); break;
         case 2 : room->detachSkillFromPlayer(player, "yinghun"); break;
         case 3 : room->detachSkillFromPlayer(player, "leiguang"); break;
         default: break;
-        }
+        }*/
         int atk = player->getAttackRange();
         int hp = player->getHp();
-        if(atk > hp && !player->hasSkill("yingzi")){
-            room->acquireSkill(player, "yingzi");
+        if(atk > hp && !player->hasSkill(skills.at(1))){
+            room->acquireSkill(player, skills.at(1));
             player->setMark("yuanzi", 1);
         }
-        else if(atk < hp && !player->hasSkill("leiguang")){
-            room->acquireSkill(player, "leiguang");
+        else if(atk < hp && !player->hasSkill(skills.at(3))){
+            room->acquireSkill(player, skills.at(3));
             player->setMark("yuanzi", 3);
         }
-        else if(!player->hasSkill("yinghun")){
-            room->acquireSkill(player, "yinghun");
+        else if(!player->hasSkill(skills.at(2))){
+            room->acquireSkill(player, skills.at(2));
             player->setMark("yuanzi", 2);
         }
         else
             player->setMark("yuanzi", 0);
         return false;
+    }
+};
+
+ShanguangCard::ShanguangCard(){
+    once = true;
+}
+bool ShanguangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty();
+}
+void ShanguangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ThunderSlash *slash = new ThunderSlash(this->getSuit(), this->getNumber());
+    slash->setSkillName("shanguang");
+    slash->addSubcard(this);
+    CardUseStruct use;
+    use.card = slash;
+    use.from = source;
+    use.to = targets;
+
+    room->useCard(use);
+}
+
+class Shanguang: public OneCardViewAsSkill{
+public:
+    Shanguang():OneCardViewAsSkill("shanguang"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "slash";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->inherits("Slash") ||
+                to_select->getCard()->inherits("Jink") ||
+                to_select->getCard()->inherits("TrickCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        ShanguangCard *card = new ShanguangCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
     }
 };
 
@@ -1355,7 +1424,7 @@ GoldSeintoViVAPackage::GoldSeintoViVAPackage()
     related_skills.insertMulti("shiqi", "#shiqi-effect");
 
     leo = new General(this, "leo", "gold");
-    leo->addSkill(new Leiguang);
+    leo->addSkill(new Diansu);
 
     virgo = new General(this, "virgo", "gold");
     virgo->addSkill(new Budong);
@@ -1399,7 +1468,7 @@ GoldSeintoViVAPackage::GoldSeintoViVAPackage()
     addMetaObject<ShengjianCard>();
     addMetaObject<BingjiuCard>();
 
-    skills << new HongzhenEffect;
+    skills << new HongzhenEffect << new Shanguang;
 }
 
 ADD_PACKAGE(GoldSeintoViVA)
