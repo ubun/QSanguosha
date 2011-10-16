@@ -128,6 +128,26 @@ sgs.ai_skill_use["@@haojiao"] = function(self, prompt)
 	end
 end
 
+-- diansu
+sgs.ai_skill_use["@@diansu"] = function(self, prompt)
+	local others=self.room:getOtherPlayers(self.player)
+	others=sgs.QList2Table(others)
+	for _, enemy in ipairs(self.enemies) do
+		if self.player:canSlash(enemy,true) then
+            local cards = self.player:getCards("h")
+			for _, card in sgs.qlist(cards) do
+				if card:isBlack() and card:inherits("BasicCard") then
+					local suit = card:getSuitString()
+					local number = card:getNumberString()
+					local card_id = card:getEffectiveId()
+					return ("thunder_slash:diansu[%s:%s]=%d->%s"):format(suit, number, card_id, enemy:objectName())
+				end
+			end
+		end
+	end
+	return "."
+end
+
 -- longba
 sgs.ai_skill_invoke["longba"] = function(self, data)
 	return true
