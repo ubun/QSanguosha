@@ -85,7 +85,7 @@ public:
         Room *room = player->getRoom();
         if(event == HpLost){
             if(player->getPhase() != Player::NotActive
-                || player->getPile("wall").length() < 1)
+                || player->getPile("wall").isEmpty())
                 return false;
             LogMessage log;
             log.type = "#WallForbidden";
@@ -95,7 +95,7 @@ public:
         }
 
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.damage > 0 && player->getPile("wall").length()>0){
+        if(damage.damage > 0 && !player->getPile("wall").isEmpty()){
             LogMessage log;
             log.type = "$WallProtect";
             log.to << player;
@@ -103,8 +103,8 @@ public:
             log.card_str = QString::number(player->getPile("wall").first());
             room->sendLog(log);
 
-            room->throwCard(player->getPile("wall").first());
-            if(player->getPile("wall").length()==0)
+            room->throwCard(player->getPile("wall").last());
+            if(player->getPile("wall").isEmpty())
                 room->detachSkillFromPlayer(player, objectName());
 
             damage.damage --;
@@ -476,7 +476,7 @@ public:
     virtual const Card *viewAs(CardItem *card_item) const{
         DummyCard *dummy = new DummyCard();
         dummy->addSubcard(card_item->getCard());
-        dummy->setSkillName(objectName());
+        dummy->setObjectName(objectName());
         Self->setFlags("dust");
         return dummy;
     }
@@ -1071,7 +1071,7 @@ public:
     virtual bool onPhaseChange(ServerPlayer *miheng) const{
         Room *room = miheng->getRoom();
         if(miheng->getPhase() == Player::Finish &&
-           miheng->getPile("word").length() > 0 &&
+           !miheng->getPile("word").isEmpty() &&
            room->askForSkillInvoke(miheng, objectName())){
             Room *room = miheng->getRoom();
             QString c,word;
@@ -1122,7 +1122,7 @@ public:
                 //meimei:clear single player's all judge_area
                 QList<ServerPlayer *> players;
                 foreach(ServerPlayer *tmp, room->getAlivePlayers()){
-                    if(tmp->getJudgingArea().length() != 0)
+                    if(!tmp->getJudgingArea().isEmpty())
                         players << tmp;
                 }
                 if(!players.isEmpty()){
@@ -1488,7 +1488,7 @@ public:
 
         QVariant data = QVariant::fromValue(card);
         if(room->askForSkillInvoke(mh, objectName(), data)){
-            if(card->getSubcards().length() > 0)
+            if(!card->getSubcards().isEmpty())
                 foreach(int cd, card->getSubcards())
                     mh->addToPile("word", cd);
             else
