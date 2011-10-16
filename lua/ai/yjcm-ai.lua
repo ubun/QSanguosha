@@ -116,7 +116,7 @@ sgs.ai_skill_playerchosen.xuanfeng_slash = function(self,targets)
 		if not (self:slashProhibit(slash ,enemy) or self:slashIsEffective(slash, enemy)) then return enemy end
 	end
 --	self:log("unfound")
-	return self.enemys:at(math.random(0, targets:length() - 1))
+	return self.enemies:at(math.random(0, targets:length() - 1))
 end
 
 --xuanhuo

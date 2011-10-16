@@ -1218,6 +1218,10 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
         case Skill::Frequent:{
                 QCheckBox *checkbox = new QCheckBox();
                 checkbox->setObjectName(skill->objectName());
+                //
+                checkbox->setChecked(false);
+                connect(checkbox, SIGNAL(stateChanged(int)), ClientInstance, SLOT(updateFrequentFlags(int)));
+                //
                 checkbox->setChecked(true);
 
                 button = checkbox;

@@ -218,8 +218,10 @@ public:
     virtual bool isEnabledAtPlay(const Player *player) const{
         if(player->hasLordSkill("jijiang"))
             return Slash::IsAvailable(player);
-        else if(player->hasLordSkill("weidai")){
-            return !player->hasUsed("Analeptic") && !player->hasUsed("WeidaiCard");
+        else{
+            return player->hasLordSkill("weidai") &&
+                   !player->hasUsed("Analeptic") &&
+                   !player->hasUsed("WeidaiCard");
         }
     }
 
