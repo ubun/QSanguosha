@@ -78,7 +78,7 @@ public:
     virtual const Card *askForCardShow(ServerPlayer *requestor, const QString &reason);
     virtual const Card *askForPindian(ServerPlayer *requestor, const QString &reason);
     virtual ServerPlayer *askForPlayerChosen(const QList<ServerPlayer *> &targets, const QString &reason);
-    virtual const Card *askForSinglePeach(ServerPlayer *dying) ;
+    virtual const Card *askForSinglePeach(ServerPlayer *dying);
     virtual ServerPlayer *askForYiji(const QList<int> &cards, int &card_id);
     virtual void askForGuanxing(const QList<int> &cards, QList<int> &up, QList<int> &bottom, bool up_only);
 

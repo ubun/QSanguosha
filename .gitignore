@@ -14,3 +14,9 @@ swig/*.bat
 .DS_Store
 liblua5.1.dylib
 websitedata/
+ikpMP3.so
+irrKlang.lib
+libIrrKlang.so
+liblua.a
+libplibjs.a
+libplibul.a
