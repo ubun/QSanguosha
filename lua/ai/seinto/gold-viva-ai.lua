@@ -3,7 +3,7 @@ sgs.ai_skill_invoke["xiufu"] = function(self, data)
 	local dying = data:toDying()
 	return self:isFriend(dying.who)
 end
--- 这段有功能问题，修复用牌总是黑桃7的杀
+
 local xiufu_skill={}
 xiufu_skill.name = "xiufu"
 table.insert(sgs.ai_skills, xiufu_skill)
@@ -20,8 +20,7 @@ xiufu_skill.getTurnUseCard=function(self)
 		end
 	end
 	if red_card then
-		card = sgs.Card_Parse("@XiufuCard=." .. red_card:getEffectiveId()) 
-		return card
+		return sgs.Card_Parse("@XiufuCard=" .. red_card:getEffectiveId()) 
 	end
 	return nil
 end
@@ -46,7 +45,7 @@ sgs.ai_skill_playerchosen["jingqiang"] = function(self, targets)
 	return target
 end
 
---xingmie(未生效)
+--xingmie
 local xingmie_skill={}
 xingmie_skill.name = "xingmie"
 table.insert(sgs.ai_skills, xingmie_skill)
@@ -62,9 +61,18 @@ xingmie_skill.getTurnUseCard=function(self)
 			cardnummin = target:getHandcardNum()
 		end
 	end
-	if self:isFriend(target) or self.player == target then return end
-
-	return sgs.Card_Parse("@XingmieCard=.")
+	if cardnummin <= 2 then return end
+	local targets = {}
+	for _, player in ipairs(players) do
+		if player:getHandcardNum() == cardnummin then
+			table.insert(targets, player)
+		end
+	end
+	for _, target in ipairs(targets) do
+		if not self:isFriend(target) and not self.player == target then
+			return sgs.Card_Parse("@XingmieCard=.")
+		end
+	end
 end
 
 sgs.ai_skill_use_func["XingmieCard"]=function(card,use,self)
@@ -72,7 +80,7 @@ sgs.ai_skill_use_func["XingmieCard"]=function(card,use,self)
 	cards = sgs.QList2Table(cards)
 	local need_cards = {}
 	for _, card in ipairs(cards) do
-		table.insert(need_cards, card)
+		table.insert(need_cards, card:getEffectiveId())
 		if #need_cards == 3 then break end
 	end
 	if #need_cards ~= 3 then return end
@@ -82,7 +90,8 @@ end
 sgs.ai_skill_playerchosen["xingmie"] = function(self, targets)
 	for _, player in sgs.qlist(targets) do
 		if self:isEnemy(player) and 
-			not (player:getArmor() and player:getArmor():objectName() == "silver_lion") then
+			not (player:getArmor() and player:getArmor():objectName() == "silver_lion") and
+			player:getHandcardNum() > 1	then
 			return player
 		end
 	end
