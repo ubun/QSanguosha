@@ -1,8 +1,8 @@
--- translation for FanchengScenario
+-- translation for LiXianJiPackage
 
 return {
-	["lixianji"] = "李献计",
-	["LiXianJipackage"] = "李献计",
+	["lixianji"] = "战包",
+	["LiXianJipackage"] = "战包",
 	
 	["XJzhonghui"] = "年少异才-钟会",
 	["XJzhenggong"] = "争功",

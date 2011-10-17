@@ -29,7 +29,8 @@
 
 Engine *Sanguosha = NULL;
 
-extern "C" {
+extern "C" {    
+    Package *NewOETan();
     Package *NewStandard();
     Package *NewWind();
     Package *NewFire();
@@ -42,7 +43,6 @@ extern "C" {
     Package *NewWisdom();
     Package *NewReturnOfLegend();//OE
     Package *NewLiXianJi();//OE
-    Package *NewOETan();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -75,6 +75,7 @@ Engine::Engine()
 {
     Sanguosha = this;
 
+    addPackage(NewOETan());
     addPackage(NewStandard());
     addPackage(NewWind());
     addPackage(NewFire());
@@ -87,7 +88,6 @@ Engine::Engine()
     addPackage(NewWisdom());
     //addPackage(NewReturnOfLegend());
     addPackage(NewLiXianJi());
-    addPackage(NewOETan());
 
     {
         Package *test_package = new Package("test");
