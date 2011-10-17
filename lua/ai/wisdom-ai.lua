@@ -100,28 +100,3 @@ sgs.ai_skill_invoke["shipo"] = function(self, data)
 	end
 end
 
---houyuan(not finish)
-local wisjiangwan_ai = SmartAI:newSubclass "wisjiangwan"
-function wisjiangwan_ai:activate(use)
-	super.activate(self, use)
-	if use:isValid() then return end
-	local abandon_handcard = {}
-	local index = 0
-	
-	if self.player:getHandcardNum() > 1 and not self.player:hasUsed("HouyuanCard") then
-		local cards = self.player:getHandcards()
-		cards = sgs.QList2Table(cards)
-		for _, friend in ipairs(self.friends_noself) do
-			for _, fcard in ipairs(cards) do 
-				table.insert(abandon_handcard, fcard:getId())
-				index = index + 1
-			end
-			if index == 2 then break end
-		end
-		if index == 2 then 
-			use.to:append(friend)
-			use.card = sgs.Card_Parse("@HouyuanCard=" .. table.concat(abandon_handcard, "+"))
-			return
-		end
-	end
-end
