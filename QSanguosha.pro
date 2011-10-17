@@ -34,6 +34,7 @@ SOURCES += src/main.cpp \
 	src/dialog/mainwindow.cpp \
 	src/dialog/packagingeditor.cpp \
         src/dialog/playercarddialog.cpp \
+        src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
         src/dialog/halldialog.cpp \
 	src/package/firepackage.cpp \
@@ -76,6 +77,7 @@ SOURCES += src/main.cpp \
 	src/ui/carditem.cpp \
 	src/ui/clientlogbox.cpp \
         src/ui/dashboard.cpp \
+        src/ui/indicatoritem.cpp \
 	src/ui/photo.cpp \
 	src/ui/pixmap.cpp \
 	src/ui/rolecombobox.cpp \
@@ -83,20 +85,18 @@ SOURCES += src/main.cpp \
 	src/ui/startscene.cpp \
 	src/ui/window.cpp \
 	src/util/detector.cpp \
-	src/util/nativesocket.cpp \
+        src/util/nativesocket.cpp \
         src/util/recorder.cpp \
-    src/ui/indicatoritem.cpp \
-    src/dialog/roleassigndialog.cpp \
-    src/scenario/OExiaoyaojin-scenario.cpp \
-    src/scenario/OEhuangjin-scenario.cpp \
-    src/scenario/OEhulao-scenario.cpp \
-    src/scenario/OExiapi-scenario.cpp \
-    src/package/returnoflegend.cpp \
-    src/package/lixianji.cpp\
-    src/dialog/couplepairdialog.cpp\
         swig/sanguosha_wrap.cxx \
-    src/package/OETan.cpp\
-	
+        src/scenario/OExiaoyaojin-scenario.cpp \
+        src/scenario/OEhuangjin-scenario.cpp \
+        src/scenario/OEhulao-scenario.cpp \
+        src/scenario/OExiapi-scenario.cpp \
+        src/package/returnoflegend.cpp \
+        src/package/lixianji.cpp\
+        src/dialog/couplepairdialog.cpp\
+        src/package/OETan.cpp\
+
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
 	src/client/clientplayer.h \
@@ -172,16 +172,15 @@ HEADERS += src/client/aux-skills.h \
         src/util/nativesocket.h \
 	src/util/recorder.h \	
 	src/util/socket.h \ 
-    src/ui/indicatoritem.h \
-    src/dialog/roleassigndialog.h \
-    src/scenario/OExiaoyaojin-scenario.h \
-    src/scenario/OEhuangjin-scenario.h \
-    src/scenario/OEhulao-scenario.h \
-    src/scenario/OExiapi-scenario.h \
-    src/package/returnoflegend.h \
-    src/package/lixianji.h \
+        src/ui/indicatoritem.h \
+        src/dialog/roleassigndialog.h \
         src/dialog/halldialog.h \
-        src/dialog/couplepairdialog.h \
+        src/scenario/OExiaoyaojin-scenario.h \
+        src/scenario/OEhuangjin-scenario.h \
+        src/scenario/OEhulao-scenario.h \
+        src/scenario/OExiapi-scenario.h \
+        src/package/returnoflegend.h \
+        src/package/lixianji.h \
         src/package/OETan.h\
 	
 FORMS += src/dialog/cardoverview.ui \

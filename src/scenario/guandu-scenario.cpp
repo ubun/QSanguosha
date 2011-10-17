@@ -180,7 +180,7 @@ public:
                     room->acquireSkill(guanyu, "zhanshuangxiong");
 
                     ServerPlayer *zhenji = room->findPlayer("zhenji");
-                        room->setPlayerProperty(zhenji, "kingdom", "qun");
+                    room->setPlayerProperty(zhenji, "kingdom", "qun");
 
                     ServerPlayer *zhangliao = room->findPlayer("zhangliao");
                     room->acquireSkill(zhangliao, "smalltuxi");
@@ -195,6 +195,15 @@ public:
                         QString name = player->getGeneralName();
                         if(name == "caocao" || name == "guojia" || name == "guanyu"){
                             player->drawCards(1, false);
+                            return true;
+                        }
+                        else if(name == "zhangliao"){
+                            if(!room->askForUseCard(player, "@@smalltuxi", "@tuxi-card"))
+                                player->drawCards(1,false);
+                            LogMessage log;
+                            log.type = "#Guandu_Caojunqueliang";
+                            log.from = player;
+                            player->getRoom()->sendLog(log);
                             return true;
                         }
                     }
