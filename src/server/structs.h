@@ -97,6 +97,8 @@ struct PindianStruct{
     const Card *from_card;
     const Card *to_card;
     QString reason;
+    const Card *getPindianCard(ServerPlayer *target) const;
+    ServerPlayer *getPindianPlayer(const Card *pindian_card) const;
 };
 
 struct JudgeStruct{

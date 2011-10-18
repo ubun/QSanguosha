@@ -10,16 +10,6 @@ sgs.ai_skill_invoke["xiufu"] = function(self, data)
 	end
 	return false
 end
-sgs.ai_skill_invoke[".H"]=function(self, prompt)
-	if prompt ~= "@xiufu" then return end
-	local cards = self.player:getHandcards()
-    for _, card in ipairs(cards) do
-		if card:getSuitString() == "heart" then
-			return card
-		end
-	end
-	return "."
-end
 
 local xiufu_skill={}
 xiufu_skill.name = "xiufu"
