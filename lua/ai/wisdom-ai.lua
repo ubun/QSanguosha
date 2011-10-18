@@ -38,8 +38,8 @@ end
 -- tanlan
 sgs.ai_skill_invoke["tanlan"] = function(self, data)
 	local damage = data:toDamage()
-    local max_card = self:getMaxCard()
-    if not max_card then return end
+	local max_card = self:getMaxCard()
+	if not max_card then return end
 	if max_card:getNumber() > 10 or 
 		(self.player:getHp() > 2 and self.player:getHandcardNum() > 2 and max_card:getNumber() > 4) or
 		(self.player:getHp() > 1 and self.player:getHandcardNum() > 1 and max_card:getNumber() > 7) or
@@ -63,7 +63,7 @@ sgs.ai_skill_use["slash"] = function(self, prompt)
 	others=sgs.QList2Table(others)
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:canSlash(enemy, true) then
-            card_id = self:getCardId("Slash")
+			card_id = self:getCardId("Slash")
 			if card_id then
 				return ("%d->%s"):format(card_id, enemy:objectName())
 			end
@@ -86,7 +86,7 @@ end
 sgs.ai_skill_invoke["bawang"] = function(self, data)
 	local effect = data:toSlashEffect()
 	local max_card = self:getMaxCard()
-    if max_card and max_card:getNumber() > 9 then
+	if max_card and max_card:getNumber() > 9 then
 		return self:isEnemy(effect.to)
 	end
 end

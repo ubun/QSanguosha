@@ -102,7 +102,7 @@ sgs.ai_skill_invoke["haojiao"] = function(self, data)
 	return true
 end
 sgs.ai_skill_use["@@haojiao"] = function(self, prompt)
-	if self.player:getHp() > 1 and self.player:getHandcardNum() < self.player:getHp()-1 
+	if self.player:getHp() > 1 and self.player:getHandcardNum() < self.player:getHp() - 1 
 		and self.player:faceUp() then return "." end
 	local first, second
 	self:sort(self.enemies)
@@ -135,6 +135,64 @@ sgs.ai_skill_use["@@haojiao"] = function(self, prompt)
 	else
 		return "."
 	end
+end
+
+-- huanlong
+local huanlong_skill={}
+huanlong_skill.name = "huanlong"
+table.insert(sgs.ai_skills, huanlong_skill)
+huanlong_skill.getTurnUseCard=function(self)
+	if self.player:getHandcardNum() > 1 then
+		if self.player:hasUsed("HuanlongCard") then return end
+		local max_card = self:getMaxCard()
+		if max_card and max_card:getNumber() > 11 then
+			return sgs.Card_Parse("@HuanlongCard=" .. max_card:getId())
+		end
+	end
+end
+
+sgs.ai_skill_use_func["HuanlongCard"] = function(card, use, self)
+	self:sort(self.enemies, "handcard")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getHandcardNum() > 0 and use.to then
+			use.to:append(enemy)
+		end
+	end
+	use.card = card
+	return
+end
+
+-- shiqi
+local shiqi_skill={}
+shiqi_skill.name = "shiqi"
+table.insert(sgs.ai_skills, shiqi_skill)
+shiqi_skill.getTurnUseCard=function(self)
+	if not self.player:hasUsed("ShiqiCard") and self.player:getHandcardNum() > 1 then
+		local givecard = {}
+		local index = 0
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		for _, fcard in ipairs(cards) do 
+			if not fcard:inherits("Shit") then
+				table.insert(givecard, fcard:getId())
+				index = index + 1
+			end
+			if index == 2 then break end
+		end
+		if index < 2 then return end
+		return sgs.Card_Parse("@ShiqiCard=" .. table.concat(givecard, "+"))
+	end
+end
+
+sgs.ai_skill_use_func["ShiqiCard"] = function(card, use, self)
+	self:sort(self.friends_noself, "handcard")
+	if use.to then use.to:append(self.friends_noself[1]) end
+	use.card = card
+	return
+end
+
+sgs.ai_skill_choice["shiqi"] = function(self, choices)
+	return "draw"
 end
 
 -- diansu
@@ -178,6 +236,54 @@ sgs.ai_skill_playerchosen["hongzhen15"] = function(self, targets)
 			return player
 		end
 	end
+end
+
+-- shanguang
+local shanguang_skill={}
+shanguang_skill.name = "shanguang"
+table.insert(sgs.ai_skills, shanguang_skill)
+shanguang_skill.getTurnUseCard=function(self)
+	if self:slashIsAvailable() then
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		for _, hcard in ipairs(cards) do 
+			if hcard:inherits("Jink") or hcard:inherits("Slash") or hcard:inherits("TrickCard") then
+				return sgs.Card_Parse("@ShanguangCard=" .. hcard:getId())
+			end
+		end
+	end
+end
+
+sgs.ai_skill_use_func["ShanguangCard"] = function(card, use, self)
+	self:sort(self.enemies, "handcard")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy and use.to then
+			use.to:append(enemy)
+			use.card = card
+			return
+		end
+	end
+	return
+end
+
+-- shengjian
+sgs.ai_skill_use["@@shengjian"] = function(self, prompt)
+	self:sort(self.enemies, "handcard")
+	local x = self.player:getMaxHP() - self.player:getHp()
+	for _, enemy in ipairs(self.enemies) do
+		if self.player:distanceTo(enemy) <= x then
+			return ("@ShengjianCard=.->%s"):format(enemy:objectName())
+		end
+	end
+	local card_id = self:getCardId("Slash")
+	if card_id then
+		for _, enemy in ipairs(self.enemies) do
+			if self.player:distanceTo(enemy) > x then
+				return ("@ShengjianCard=%d->%s"):format(card_id, enemy:objectName())
+			end
+		end
+	end
+	return "."
 end
 
 -- binghuan

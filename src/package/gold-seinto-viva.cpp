@@ -1071,6 +1071,7 @@ bool ShengjianCard::targetFilter(const QList<const Player *> &targets, const Pla
 void ShengjianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     if(subcards.isEmpty()){
         Card *card = new Slash(Card::NoSuit, 0);
+        card->setSkillName("shengjian");
         CardUseStruct use;
         use.from = source;
         use.to << targets;
@@ -1098,7 +1099,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "@shengjian-card";
+        return pattern == "@@shengjian";
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -1123,9 +1124,9 @@ public:
         view_as_skill = new ShengjianViewAsSkill;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
         if(player->getPhase() == Player::Start && player->isWounded()){
-            player->getRoom()->askForUseCard(player, "@shengjian-card", "@shengjian");
+            player->getRoom()->askForUseCard(player, "@@shengjian", "@shengjian");
         }
 
         return false;
