@@ -4,7 +4,6 @@
 #include "engine.h"
 #include "carditem.h"
 #include "room.h"
-//#include "maneuvering.h"
 
 TongmouCard::TongmouCard(){
     target_fixed = true;
@@ -63,17 +62,6 @@ void TongmouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
         room->moveCardTo(card2, zhonghui, Player::Hand, false);
         delete card2;
     }
-/*
-    foreach(int card_id, zhonghui->handCards()){
-        zhonghui->addToPile("mycard", card_id, false);
-    }
-    foreach(int card_id, gay->handCards()){
-        room->moveCardTo(Sanguosha->getCard(card_id), zhonghui, Player::Hand, false);
-    }
-    foreach(int card_id, zhonghui->getPile("mycard")){
-        room->moveCardTo(Sanguosha->getCard(card_id), gay, Player::Hand, false);
-    }
-*/
     source->tag["flag"] = !source->tag.value("flag", true).toBool();
 }
 
@@ -136,16 +124,6 @@ public:
                     room->moveCardTo(card2, player, Player::Hand, false);
                     delete card2;
                 }
-                /*
-                foreach(int card_id, player->handCards()){
-                    player->addToPile("mycard", card_id, false);
-                }
-                foreach(int card_id, gay->handCards()){
-                    room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
-                }
-                foreach(int card_id, player->getPile("mycard")){
-                    room->moveCardTo(Sanguosha->getCard(card_id), gay, Player::Hand, false);
-                }*/
             }
         }
         if(player == zhonghui && player->getPhase() == Player::Play){
@@ -155,9 +133,6 @@ public:
             }
             QList<ServerPlayer *> players;
             foreach(ServerPlayer *p, room->getOtherPlayers(zhonghui)){
-                /*if(p->hasSkill("lianying") || p->hasSkill("tuntian")
-                || p->hasSkill("shangshi") || p->hasSkill("beifa"))
-                    continue;*/
                 players << p;
             }
             ServerPlayer *gay = room->askForPlayerChosen(zhonghui, players, "tongmou_tie");
@@ -999,7 +974,6 @@ public:
                 if(tmp->getMark("goulianA") > 0){
                     damage.to = tmp;
                     tmp->setMark("goulianA", 0);
-                    //data = QVariant::fromValue();
                     LogMessage log;
                     log.type = "#GoulianAdamage";
                     log.from = tmp;
@@ -1054,6 +1028,7 @@ public:
                 int x = menghuo->getLostHp() + 1;
                 room->playSkillEffect("zaiqi", 1);
                 bool has_heart = false;
+                int spade = 0, heart = 0;
 
                 for(int i=0; i<x; i++){
                     int card_id = room->drawCard();
@@ -1062,6 +1037,7 @@ public:
                     room->getThread()->delay();
                     const Card *card = Sanguosha->getCard(card_id);
                     if(card->getSuit() == Card::Spade){
+                        spade ++;
                         SavageAssault *nanmam = new SavageAssault(Card::Spade, card->getNumber());
                         nanmam->setSkillName(objectName());
                         nanmam->addSubcard(card);
@@ -1072,6 +1048,7 @@ public:
                         has_heart = true;
                     }
                     else if(card->getSuit() == Card::Heart){
+                        heart ++;
                         RecoverStruct recover;
                         recover.card = card;
                         recover.who = menghuo;
@@ -1087,6 +1064,10 @@ public:
                     room->playSkillEffect("zaiqi", 2);
                 else
                     room->playSkillEffect("zaiqi", 3);
+                if(heart > spade)
+                    room->setPlayerProperty(menghuo, "kingdom", "shu");
+                else
+                    room->setPlayerProperty(menghuo, "kingdom", "qun");
 
                 return true;
             }
