@@ -1,4 +1,35 @@
 -- Wisdom's AI by Ubun.
+
+-- shouye
+local shouye_skill={}
+shouye_skill.name = "shouye"
+table.insert(sgs.ai_skills, shouye_skill)
+shouye_skill.getTurnUseCard=function(self)
+	if self.player:getHandcardNum() > 0 then
+		local n = self.player:getMark("shouyeonce")
+		if n > 0 and self.player:hasUsed("ShouyeCard") then return end
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		for _, hcard in ipairs(cards) do 
+			if hcard:isRed() then
+				return sgs.Card_Parse("@ShouyeCard=" .. hcard:getId())
+			end
+		end
+	end
+end
+
+sgs.ai_skill_use_func["ShouyeCard"] = function(card, use, self)
+	self:sort(self.friends_noself, "handcard")
+	if self.friends_noself[1] then
+		if use.to then use.to:append(self.friends_noself[1]) end
+	end
+	if self.friends_noself[2] then
+		if use.to then use.to:append(self.friends_noself[2]) end
+	end
+	use.card = card
+	return
+end
+
 -- shien
 sgs.ai_skill_invoke["shien"] = function(self, data)
 	return self:isFriend(data:toPlayer())
@@ -17,19 +48,24 @@ sgs.ai_skill_invoke["tanlan"] = function(self, data)
 	end
 end
 
--- yicai (not finish)
+-- yicai
 sgs.ai_skill_invoke["yicai"] = function(self, data)
-	return true
+	for _, enemy in ipairs(self.enemies) do
+		if self.player:canSlash(enemy, true) and self:getCardsNum("Slash") > 0 then return true end
+	end
 end
+
+-- yicai,badao,yitian-slash,moon-spear-slash
 sgs.ai_skill_use["slash"] = function(self, prompt)
-	if prompt ~= "@yicai" then return end
+	if prompt ~= "@yicai" and prompt ~= "@badao" and
+		prompt ~= "yitian-slash" and prompt ~= "@moon-spear-slash" then return end
 	local others=self.room:getOtherPlayers(self.player)
 	others=sgs.QList2Table(others)
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:canSlash(enemy, true) then
             card_id = self:getCardId("Slash")
-			if card_id > -1 then
-				return ("useCard %d->%s"):format(card_id, enemy:objectName())
+			if card_id then
+				return ("%d->%s"):format(card_id, enemy:objectName())
 			end
 		end
 	end
@@ -49,39 +85,40 @@ end
 -- bawang
 sgs.ai_skill_invoke["bawang"] = function(self, data)
 	local effect = data:toSlashEffect()
-	return self:isEnemy(effect.to)
+	local max_card = self:getMaxCard()
+    if max_card and max_card:getNumber() > 9 then
+		return self:isEnemy(effect.to)
+	end
 end
 
 sgs.ai_skill_use["@@bawang"] = function(self, prompt)
 	local first_index, second_index
 	for i=1, #self.enemies-1 do																			
-		if (self.enemies[i]:hasSkill("kongcheng") and self.enemies[i]:getHandcardNum() == 0)  then 
-				local bullshit
-				
-		elseif not first_index then 
+		if not (self.enemies[i]:hasSkill("kongcheng") and self.enemies[i]:getHandcardNum() == 0) then				
+			if not first_index then 
 				first_index = i 
 			else 
 				second_index = i 
+			end
 		end
 		if second_index then break end
 	end
-	
-	if first_index and not second_index then
-		local others = self.room:getOtherPlayers(self.player)
-		for _, other in sgs.qlist(others) do
-			if (not self:isFriend(other) or (self:hasSkills(sgs.need_kongcheng, other) and other:getHandcardNum() == 0)) and 
-				self.enemies[first_index]:objectName() ~= other:objectName() then 
-				return ("@BawangCard=.->%s+%s"):format(self.enemies[first_index]:objectName(), other:objectName())
-			end
-		end
-	end
-	
-	if not second_index then return "." end
-	
-	self:log(self.enemies[first_index]:getGeneralName() .. "+" .. self.enemies[second_index]:getGeneralName())
+	if not first_index then return "." end
 	local first = self.enemies[first_index]:objectName()
-	local second = self.enemies[second_index]:objectName()
-	return ("@BawangCard=.->%s+%s"):format(first, second)
+	if not second_index then
+		return ("@BawangCard=.->%s"):format(first)
+	else
+		local second = self.enemies[second_index]:objectName()
+		return ("@BawangCard=.->%s+%s"):format(first, second)
+	end
+end
+
+-- weidai
+sgs.ai_skill_invoke["weidai"] = function(self, data)
+	return self:isFriend(data:toPlayer())
+end
+sgs.ai_skill_use["@@weidai"] = function(self, prompt)
+	return "@WeidaiCard=.->."
 end
 
 -- fuzuo
@@ -105,10 +142,11 @@ sgs.ai_skill_invoke["jincui"] = function(self, data)
 end
 sgs.ai_skill_playerchosen["jincui"] = function(self, targets)
 	for _, player in sgs.qlist(targets) do
-		if self:isFriend(player) and player:getHp() > player:getHandcardNum() then
+		if self:isFriend(player) and player:getHp() - player:getHandcardNum() > 1 then
 			return player
 		end
 	end
+	return self.friends[1]
 end
 sgs.ai_skill_choice["jincui"] = function(self, choices)
 	return "draw"
@@ -120,6 +158,13 @@ sgs.ai_skill_invoke["shipo"] = function(self, data)
 	if ((target:containsTrick("supply_shortage") and target:getHp() > target:getHandcardNum()) or
 		(target:containsTrick("indulgence") and target:getHandcardNum() > target:getHp()-1)) then
 		return self:isFriend(target)
+	end
+end
+
+-- badao
+sgs.ai_skill_invoke["badao"] = function(self, data)
+	for _, enemy in ipairs(self.enemies) do
+		if self.player:canSlash(enemy, true) and self:getCardsNum("Slash") > 0 then return true end
 	end
 end
 
@@ -272,4 +317,3 @@ sgs.ai_skill_use_func["JuaoCard"] = function(card, use, self)
 	end
 	return
 end
-
