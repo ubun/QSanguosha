@@ -1,7 +1,24 @@
 -- xiufu
 sgs.ai_skill_invoke["xiufu"] = function(self, data)
 	local dying = data:toDying()
-	return self:isFriend(dying.who)
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+	for _, card in ipairs(cards) do
+		if card:getSuitString() == "heart" then
+			return self:isFriend(dying.who)
+		end
+	end
+	return false
+end
+sgs.ai_skill_invoke[".H"]=function(self, prompt)
+	if prompt ~= "@xiufu" then return end
+	local cards = self.player:getHandcards()
+    for _, card in ipairs(cards) do
+		if card:getSuitString() == "heart" then
+			return card
+		end
+	end
+	return "."
 end
 
 local xiufu_skill={}
@@ -12,7 +29,7 @@ xiufu_skill.getTurnUseCard=function(self)
 	local cards = self.player:getCards("he")	
     cards = sgs.QList2Table(cards)
 	local red_card
---	self:sortByUseValue(cards, true)
+	self:sortByUseValue(cards, true)
 	for _, card in ipairs(cards) do
 		if card:getSuitString() == "heart" then
 			red_card = card
@@ -154,8 +171,9 @@ end
 sgs.ai_skill_use_func["HuanlongCard"] = function(card, use, self)
 	self:sort(self.enemies, "handcard")
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:getHandcardNum() > 0 and use.to then
+		if enemy:getHandcardNum() > 1 and use.to then
 			use.to:append(enemy)
+			break
 		end
 	end
 	use.card = card
@@ -243,7 +261,7 @@ local shanguang_skill={}
 shanguang_skill.name = "shanguang"
 table.insert(sgs.ai_skills, shanguang_skill)
 shanguang_skill.getTurnUseCard=function(self)
-	if self:slashIsAvailable() then
+	if self:slashIsAvailable(self.player) then
 		local cards = self.player:getHandcards()
 		cards = sgs.QList2Table(cards)
 		for _, hcard in ipairs(cards) do 
@@ -259,10 +277,10 @@ sgs.ai_skill_use_func["ShanguangCard"] = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
 		if enemy and use.to then
 			use.to:append(enemy)
-			use.card = card
-			return
+			break
 		end
 	end
+	use.card = card
 	return
 end
 
