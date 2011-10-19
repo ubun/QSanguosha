@@ -908,27 +908,11 @@ public:
     }
 };
 
-class Diezhi: public ZeroCardViewAsSkill{
-public:
-    Diezhi():ZeroCardViewAsSkill("diezhi"){
-        frequency = Limited;
-    }
-
-    virtual const Card *viewAs() const{
-        return new DiezhiCard;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("@drig") > 0;
-    }
-};
-
 DiezhiCard::DiezhiCard(){
     target_fixed = true;
 }
 
 void DiezhiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-
     source->loseMark("@drig");
     QString myrole = source->getRole();
     room->broadcastInvoke("animate", "lightbox:$diezhi");
@@ -955,16 +939,30 @@ void DiezhiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
             damage.nature = DamageStruct::Thunder;
             room->setEmotion(player, "bad");
             room->damage(damage);
-
             if(player->isAlive())
                 room->loseHp(player);
         }
-
     }
     foreach(ServerPlayer *player, lucky_players){
         player->drawCards(3);
     }
 }
+
+class Diezhi: public ZeroCardViewAsSkill{
+public:
+    Diezhi():ZeroCardViewAsSkill("diezhi"){
+        frequency = Limited;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->getMark("@drig") > 0;
+    }
+
+    virtual const Card *viewAs() const{
+        return new DiezhiCard;
+    }
+
+};
 
 class Jieao: public PhaseChangeSkill{
 public:

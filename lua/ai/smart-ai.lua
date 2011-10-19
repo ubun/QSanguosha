@@ -1148,6 +1148,27 @@ function SmartAI:useBasicCard(card, use,no_distance)
 		local next_player = self.player:getNextAlive()
 		if self:isFriend(next_player) then return end
 		use.card = card
+	elseif card:inherits("JuicePeach") then
+		self:sort(self.friends_noself, "hp")
+		for _, friend in ipairs(self.friends_noself) do
+			if friend:isWounded() then
+				use.card = card
+				if use.to then
+					use.to:append(friend)
+				end
+				break
+			end
+		end
+	elseif card:inherits("Poison") then
+		for _, enemy in ipairs(self.enemies) do
+			if self.player:distanceTo(enemy) <= 1 then
+				use.card = card
+				if use.to then
+					use.to:append(enemy)
+				end
+				break
+			end
+		end
 	end
 end
 
