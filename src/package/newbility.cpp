@@ -999,7 +999,7 @@ public:
         }
         if(player->getMark("@pear") > 0 || player->getPhase() != Player::Draw)
             return false;
-        if(player->askForSkillInvoke(objectName())){
+        if(player->askForSkillInvoke(objectName(), data)){
             QList<ServerPlayer *> players;
             foreach(ServerPlayer *tmp, room->getAlivePlayers()){
                 if(tmp->getHandcardNum() < 2){
@@ -1043,44 +1043,65 @@ public:
     }
 };
 
-class Yulu: public ZeroCardViewAsSkill{
+YuluCard::YuluCard(){
+    target_fixed = true;
+    will_throw = false;
+}
+
+void YuluCard::use(Room *, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    int word_id = this->getSubcards().first();
+    if(word_id > -1)
+        source->addToPile("word", word_id);
+}
+
+class Yulu: public OneCardViewAsSkill{
 public:
-    Yulu():ZeroCardViewAsSkill("yulu"){
+    Yulu():OneCardViewAsSkill("yulu"){
     }
-    virtual const Card *viewAs() const{
-        return new YuluCard;
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        YuluCard *card = new YuluCard;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
     }
 };
 
-YuluCard::YuluCard(){
-    once = true;
+ViewMyWordsCard::ViewMyWordsCard(){
     target_fixed = true;
 }
 
-void YuluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    //const Card *word = room->askForCardShow(source, source, "yuluword");
-    const Card *word = room->askForCard(source, ".", "yuluword", false);
-    if(!word)
+void ViewMyWordsCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    QList<int> words = source->getPile("word");
+    if(words.isEmpty())
         return;
-    QString special_skill = word->getSkillName();
-    if(special_skill == "hongyan" ||
-       special_skill == "wushen" ||
-       special_skill == "jiejiu" ||
-       special_skill == "guhuo" ||
-       special_skill == "lexue"){
-        //room->moveCardTo(Sanguosha->getCard(word->getSubcards().first()), source, Player::Special);
-        source->addToPile("word", word->getSubcards().first());
+    room->fillAG(words, source);
+    int card_id = room->askForAG(source, words, true, "viewmywords");
+    if(card_id != -1){
+        words.removeOne(card_id);
+        room->moveCardTo(Sanguosha->getCard(card_id), source, Player::Hand, false);
     }
-    else{
-        //room->moveCardTo(word, source, Player::Special);
-        source->addToPile("word", word->getId());
-    }
+    source->invoke("clearAG");
+    words.clear();
 }
+
+class ViewMyWords: public ZeroCardViewAsSkill{
+public:
+    ViewMyWords():ZeroCardViewAsSkill("numa"){
+    }
+    virtual const Card *viewAs() const{
+        return new ViewMyWordsCard;
+    }
+};
 
 class Numa: public PhaseChangeSkill{
 public:
     Numa():PhaseChangeSkill("numa"){
         frequency = Frequent;
+        view_as_skill = new ViewMyWords;
     }
 
     virtual bool onPhaseChange(ServerPlayer *miheng) const{
@@ -1091,7 +1112,6 @@ public:
             Room *room = miheng->getRoom();
             QString c,word;
             foreach(int i, miheng->getPile("word")){
-                //room->throwCard(i);
                 c = Sanguosha->getCard(i)->getSuitString().left(1);
 
                 LogMessage log;
@@ -1481,10 +1501,8 @@ public:
                 gitlog.from = miheng;
                 room->sendLog(gitlog);
             }
-
             foreach(int i, miheng->getPile("word"))
                 room->throwCard(i);
-
         }
         return false;
     }
@@ -1494,13 +1512,11 @@ class Fanchun:public MasochismSkill{
 public:
     Fanchun():MasochismSkill("fanchun"){
     }
-
     virtual void onDamaged(ServerPlayer *mh, const DamageStruct &damage) const{
         Room *room = mh->getRoom();
         const Card *card = damage.card;
         if(!room->obtainable(card, mh))
             return;
-
         QVariant data = QVariant::fromValue(card);
         if(room->askForSkillInvoke(mh, objectName(), data)){
             if(!card->getSubcards().isEmpty())
@@ -1869,7 +1885,7 @@ NewbilityGeneralPackage::NewbilityGeneralPackage()
     General *xunyou = new General(this, "xunyou", "wei", 3);
     xunyou->addSkill(new Baichu);
 
-    General *ganmi = new General(this, "ganmi", "shu", 3, false);
+    General *ganmi = new General(this, "ganmi", "shu", 4, false);
     ganmi->addSkill(new Yuren);
     ganmi->addSkill(new YurenRov);
     ganmi->addSkill(new Zhenlie);
@@ -1889,6 +1905,7 @@ NewbilityGeneralPackage::NewbilityGeneralPackage()
     addMetaObject<DiezhiCard>();
     addMetaObject<WutianCard>();
     addMetaObject<YuluCard>();
+    addMetaObject<ViewMyWordsCard>();
     addMetaObject<BaichuCard>();
 
     type = GeneralPack;

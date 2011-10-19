@@ -158,7 +158,7 @@ sgs.ai_skill_use["@@wutian"] = function(self, prompt)
 	self:sort(self.friends_noself, "hp")
 	for _, friend in ipairs(self.friends_noself) do
 		if not friend:isAllNude() and friend:getPile("wall"):length() < 2 then
-			if not first then 
+			if not first then
 				first = friend
 			else
 				second = friend
@@ -200,7 +200,7 @@ sgs.ai_skill_choice["drig-guess"] = function(self, choices)
 	for _, other in ipairs(players) do
 		if other:hasSkill("diezhi") then kanze = other break end
 	end
-	if kanze:isLord() then return "lord" 
+	if kanze:isLord() then return "lord"
 	else
 		local r = math.random(0, 1)
 		if r == 0 then
@@ -215,7 +215,7 @@ end
 sgs.ai_skill_invoke["rangli"] = true
 sgs.ai_skill_playerchosen["rangli"] = function(self, targets)
 	local next_player = self.player:getNextAlive()
-	self:sort(targets, "hp")
+--	self:sort(targets, "hp")
 	for _, target in ipairs(targets) do
 		if next_player == target and self:isFriend(target) then
 			return target
@@ -227,12 +227,12 @@ sgs.ai_skill_playerchosen["rangli"] = function(self, targets)
 			return target
 		end
 	end
-	return
+	return self.friends[1]
 end
 
 -- yuren
 sgs.ai_skill_playerchosen["yuren"] = function(self, targets)
-	self:sort(targets, "hp")
+--	self:sort(targets, "hp")
 	for _, friend in ipairs(targets) do
 		if self:isFriend(friend) and friend:hasSkill("rende") and self.player.isWounded() then
 			return friend
@@ -243,7 +243,7 @@ sgs.ai_skill_playerchosen["yuren"] = function(self, targets)
 			return friend
 		end
 	end
-	return
+	return self.friends[1]
 end
 
 -- zhenlie
@@ -257,7 +257,7 @@ sgs.ai_skill_playerchosen["zhenlie"] = function(self, targets)
 			return friend
 		end
 	end
-	return
+	return self.friends[1]
 end
 
 -- baichu

@@ -130,6 +130,15 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class ViewMyWordsCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ViewMyWordsCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 class BaichuCard: public SkillCard{
     Q_OBJECT
 
