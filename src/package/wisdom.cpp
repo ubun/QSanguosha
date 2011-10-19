@@ -521,13 +521,15 @@ public:
         if(intervention){
             log.type = "$Fuzuo";
             log.to.clear();
+            ServerPlayer *target = zhangzhao;
             if(choice == pindian->from->getGeneralName())
-                log.to << pindian->from;
+                target = pindian->from;
             else
-                log.to << pindian->to;
+                target = pindian->to;
+            log.to << target;
             log.card_str = intervention->getEffectIdString();
             room->sendLog(log);
-            ServerPlayer *target = log.to.first();
+
             const Card *pindian_card = target == pindian->from ? pindian->from_card : pindian->to_card;
             int num = pindian_card->getNumber() + intervention->getNumber() / 2;
             Card *use_card = Sanguosha->cloneCard(pindian_card->objectName(), pindian_card->getSuit(), num);
@@ -728,6 +730,7 @@ public:
         LogMessage log;
         log.type = "#YuwenEffect";
         log.from = tianfeng;
+        log.arg = objectName();
         tianfeng->getRoom()->sendLog(log);
 
         return false;

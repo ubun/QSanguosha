@@ -1,6 +1,6 @@
 -- jianxiong
 sgs.ai_skill_invoke.jianxiong = function(self, data)
-        return not sgs.Shit_HasShit(data:toCard())
+		return not sgs.Shit_HasShit(data:toCard())
 end
 
 sgs.ai_skill_invoke.jijiang = function(self, data)
@@ -24,8 +24,8 @@ sgs.ai_skill_choice.jijiang = function(self , choices)
 			end
 		end
 		if target and self:isEnemy(target) then return "ignore" end
-    elseif self:isFriend(self.room:getLord()) then return "accept" end
-    return "ignore"
+	elseif self:isFriend(self.room:getLord()) then return "accept" end
+	return "ignore"
 end
 
 sgs.ai_skill_choice.hujia = function(self , choices)
@@ -41,8 +41,8 @@ sgs.ai_skill_choice.hujia = function(self , choices)
 			end
 		end
 		if target and self:isEnemy(target) then return "ignore" end
-    elseif self:isFriend(self.room:getLord()) then return "accept" end
-    return "ignore"
+	elseif self:isFriend(self.room:getLord()) then return "accept" end
+	return "ignore"
 end
 
 -- hujia
@@ -96,7 +96,7 @@ sgs.ai_skill_invoke.tiandu = sgs.ai_skill_invoke.jianxiong
 
 -- ganglie
 sgs.ai_skill_invoke.ganglie = function(self, data)
-    return not self:isFriend(data:toPlayer())
+	return not self:isFriend(data:toPlayer())
 end
 
 -- fankui 
@@ -112,7 +112,7 @@ sgs.ai_skill_invoke.fankui = function(self, data)
 				end
 			end
 	end
-                --self:updateRoyalty(-0.8*sgs.ai_royalty[target:objectName()],self.player:objectName())
+				--self:updateRoyalty(-0.8*sgs.ai_royalty[target:objectName()],self.player:objectName())
 	return true
 end
 
@@ -135,24 +135,24 @@ sgs.ai_skill_use["@@liuli"] = function(self, prompt)
 	end
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:canSlash(enemy,true) and not (source:objectName() == enemy:objectName()) then	
-            local cards = self.player:getCards("he")
-            cards=sgs.QList2Table(cards)
-            for _,card in ipairs(cards) do
-                if (self.player:getWeapon() and card:getId() == self.player:getWeapon():getId()) and self.player:distanceTo(enemy)>1 then local bullshit
-                elseif card:inherits("OffensiveHorse") and self.player:getAttackRange()==self.player:distanceTo(enemy)
-                    and self.player:distanceTo(enemy)>1 then
-                    local bullshit
-                else
-                    return "@LiuliCard="..card:getEffectiveId().."->"..enemy:objectName()
-                end
-            end
+			local cards = self.player:getCards("he")
+			cards=sgs.QList2Table(cards)
+			for _,card in ipairs(cards) do
+				if (self.player:getWeapon() and card:getId() == self.player:getWeapon():getId()) and self.player:distanceTo(enemy)>1 then local bullshit
+				elseif card:inherits("OffensiveHorse") and self.player:getAttackRange()==self.player:distanceTo(enemy)
+					and self.player:distanceTo(enemy)>1 then
+					local bullshit
+				else
+					return "@LiuliCard="..card:getEffectiveId().."->"..enemy:objectName()
+				end
+			end
 		end
 	end
 	return "."
 end
 
-sgs.ai_skill_invoke["@guicai"]=function(self,prompt)
-    local judge = self.player:getTag("Judge"):toJudge()
+sgs.ai_skill_invoke["@guicai"]=function(self,prompt,judge)
+	judge = judge or self.player:getTag("Judge"):toJudge()
 	
 	if self:needRetrial(judge) then
 		local cards = sgs.QList2Table(self.player:getHandcards())		

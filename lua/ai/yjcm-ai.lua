@@ -22,8 +22,8 @@ local jiejiu_skill={}
 jiejiu_skill.name="jiejiu"
 table.insert(sgs.ai_skills,jiejiu_skill)
 jiejiu_skill.getTurnUseCard=function(self)
-    local cards = self.player:getCards("h")	
-    cards=sgs.QList2Table(cards)
+	local cards = self.player:getCards("h")	
+	cards=sgs.QList2Table(cards)
 	
 	local anal_card
 	
@@ -38,12 +38,12 @@ jiejiu_skill.getTurnUseCard=function(self)
 
 	if anal_card then		
 		local suit = anal_card:getSuitString()
-    	local number = anal_card:getNumberString()
+		local number = anal_card:getNumberString()
 		local card_id = anal_card:getEffectiveId()
 		local card_str = ("slash:jiejiu[%s:%s]=%d"):format(suit, number, card_id)
 		local slash = sgs.Card_Parse(card_str)
-        
-        return slash
+		
+		return slash
 	end
 end
 
@@ -380,21 +380,21 @@ sgs.ai_skill_use_func["MingceCard"]=function(card,use,self)
 end
 
 sgs.ai_skill_choice.mingce = function(self, choices)
-    if self.player:getHandcardNum()<=2 then return "draw" end
+	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	if self.player:getHandcardNum()<=2 then return "draw" end
 	if self.player:getHp()<=1 then return "draw" end
 	for _,enemy in ipairs(self.enemies) do
 		if self.player:canSlash(enemy) and not self:slashProhibit(slash ,enemy) then return "use" end
 	end
-    return "draw"
+	return "draw"
 end
 
 sgs.ai_skill_playerchosen.mingce = function(self, targets)
-	local slash = sgs.Card_Parse(("slash[%s:%s]"):format(sgs.Card_NoSuit, 0))
+	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
 	local targetlist=sgs.QList2Table(targets)
-
 	self:sort(targetlist, "defense")
 	for _, target in ipairs(targetlist) do
-		if self:isEnemy(target) and self.player:canSlash(target) and not self:slashProhibit(slash ,target) then
+		if self:isEnemy(target) and not self:slashProhibit(slash ,target) then
 		return target
 		end
 	end
