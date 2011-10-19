@@ -360,6 +360,213 @@ public:
     }
 };
 
+ShaobingCard::ShaobingCard(){
+    once = true;
+}
+
+bool ShaobingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
+    return to_select != Self;
+}
+
+void ShaobingCard::use(Room *room, ServerPlayer *OEhyk, const QList<ServerPlayer *> &targets) const{
+    room->loseHp(OEhyk);
+    room->setPlayerProperty(targets.first(), "maxhp", targets.first()->getMaxHP()+1);
+}
+
+class Shaobing: public ZeroCardViewAsSkill{
+public:
+    Shaobing():ZeroCardViewAsSkill("shaobing"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("ShaobingCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new ShaobingCard;
+    }
+};
+
+class Maozhua:public OneCardViewAsSkill{
+public:
+    Maozhua():OneCardViewAsSkill("maozhua"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return  pattern == "slash";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+
+        if(card->getSuit() != Card::Club)
+            return false;
+
+        if(card == Self->getWeapon() && card->objectName() == "crossbow")
+            return Self->canSlashWithoutCrossbow();
+        else
+            return true;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getCard();
+        Card *slash = new Slash(card->getSuit(), card->getNumber());
+        slash->addSubcard(card->getId());
+        slash->setSkillName(objectName());
+        return slash;
+    }
+};
+
+class Aiqing: public TriggerSkill{
+public:
+    Aiqing():TriggerSkill("aiqing"){
+        events << Predamaged;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        if(event == Predamaged){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(damage.from->getGeneral()->isMale() != player->getGeneral()->isMale()){
+                if(!player->askForSkillInvoke(objectName()))
+                    return false;
+                JudgeStruct judge;
+                judge.pattern = QRegExp("(.*):(heart):(.*)");
+                judge.good = true;
+                judge.reason = "aiqing";
+                judge.who = player;
+
+                room->judge(judge);
+
+                if(judge.isBad()){
+                    return false;
+                }
+                /*
+                LogMessage log;
+                log.type = "#AiqingProtect";
+                log.to << player;
+                log.from = damage.from;
+                room->sendLog(log);
+                */
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Shuihun: public ViewAsSkill{
+public:
+    Shuihun():ViewAsSkill("shuihun"){
+
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return /* pattern == "slash"
+                || pattern == "jink"
+                || pattern.contains("peach")
+                ||*/ pattern == "nullification";
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return true;//player->isWounded() || Slash::IsAvailable(player);
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        int n = qMax(1, Self->getHp());
+
+        if(selected.length() >= n)
+            return false;
+
+        if(n > 1 && !selected.isEmpty()){
+            Card::Suit suit = selected.first()->getFilteredCard()->getSuit();
+            return card->getSuit() == suit;
+        }
+
+        switch(ClientInstance->getStatus()){
+        case Client::Playing:{
+                /*if(Self->isWounded() && card->getSuit() == Card::Heart)
+                    return true;
+                else if(Slash::IsAvailable(Self) && card->getSuit() == Card::Diamond)
+                    return true;
+                else
+                    return false;*/
+                if(card->getSuit() != Card::Club)
+                    return true;
+            }
+
+        case Client::Responsing:{
+                QString pattern = ClientInstance->getPattern();
+                /*if(pattern == "jink")
+                    return card->getSuit() == Card::Club;
+                else */if(pattern == "nullification")
+                    return card->getSuit() == Card::Club;/*Spade;
+                else if(pattern == "peach" || pattern == "peach+analeptic")
+                    return card->getSuit() == Card::Heart;
+                else if(pattern == "slash")
+                    return card->getSuit() == Card::Diamond;*/
+            }
+
+        default:
+            break;
+        }
+
+        return false;
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        int n = qMax(1, Self->getHp());
+
+        if(cards.length() != n)
+            return NULL;
+
+        const Card *card = cards.first()->getFilteredCard();
+        Card *new_card = NULL;
+
+        Card::Suit suit = card->getSuit();
+        int number = cards.length() > 1 ? 0 : card->getNumber();
+        switch(card->getSuit()){
+        case Card::Spade:{
+                new_card = new SavageAssault(suit, number);
+                break;
+            }
+
+        case Card::Heart:{
+                new_card = new ExNihilo(suit, number);
+                break;
+            }
+
+        case Card::Club:{
+                new_card = new Nullification(suit, number);
+                break;
+            }
+
+        case Card::Diamond:{
+                new_card = new ArcheryAttack(suit, number);
+                break;
+            }
+        default:
+            break;
+        }
+
+        if(new_card){
+            new_card->setSkillName(objectName());
+            new_card->addSubcards(cards);
+        }
+
+        return new_card;
+    }
+};
+
 OETanPackage::OETanPackage()
     :Package("OEtan")
 {
@@ -378,7 +585,23 @@ OETanPackage::OETanPackage()
     OEtenkei->addSkill(new Guisu);
     OEtenkei->addSkill(new Menghua);
 
+    General *OEhyk, *OEgoldlryr, *OEsilvlryr, *OEsrhrsr, *OEwbolir;
+    OEhyk = new General(this, 3118, "hyk3374", "tan", 4, true);
+    OEhyk->addSkill(new Shaobing);
+    OEhyk->addSkill(new Maozhua);
+    OEhyk->addSkill(new Aiqing);
+
+    OEgoldlryr = new General(this, 3119, "godsiyeliuyue", "tan", 3, false);
+    OEgoldlryr->addSkill(new Shuihun);
+
+    OEsilvlryr = new General(this, 3120, "silversiyeliuyue", "tan", 3, false);
+
+    OEsrhrsr = new General(this, 3123, "shihunzhishi", "tan", 3, true);
+
+    OEwbolir = new General(this, 3124, "wocaokongming", "tan", 3, false);
+
     addMetaObject<MaimengCard>();
+    addMetaObject<ShaobingCard>();
     skills << new Mod << new MaimengViewAsSkill;
 }
 
