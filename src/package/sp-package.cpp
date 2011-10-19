@@ -227,6 +227,7 @@ public:
         else if(player->hasLordSkill("weidai")){
             return !player->hasUsed("Analeptic") && !player->hasUsed("WeidaiCard");
         }
+        return false;
     }
 
     virtual const Card *viewAs() const{

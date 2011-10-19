@@ -777,7 +777,6 @@ public:
     Yabian():TriggerSkill("yabian"){
         events << Damage;
         frequency = Frequent;
-        default_choice = "yes";
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *yanpeng, QVariant &data) const{
@@ -786,7 +785,7 @@ public:
         if(damage.card && damage.card->inherits("Slash") &&
            damage.from == yanpeng && damage.to != yanpeng){
             Room *room = yanpeng->getRoom();
-            if(room->askForSkillInvoke(yanpeng, objectName())){
+            if(room->askForSkillInvoke(yanpeng, objectName(), data)){
                 if(damage.to->getGeneralName() == "zuoci")
                     yanpeng->setMark("yanp", damage.damage);
                 else if(damage.to->getGeneralName() == "shenzhugeliang"){
@@ -826,15 +825,50 @@ public:
     }
 };
 
+WutianCard::WutianCard(){
+    once = true;
+}
+
+bool WutianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.length() > 1)
+        return false;
+    return !to_select->isAllNude() && to_select->getPile("wall").length() < 2;
+}
+
+void WutianCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    int card_id = room->askForCardChosen(effect.from, effect.to, "hej", "wutian");
+    effect.to->addToPile("wall",card_id);
+    room->acquireSkill(effect.to, "wall");
+    room->setEmotion(effect.to, "good");
+    room->playCardEffect("wall",true);
+}
+
+class WutianViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    WutianViewAsSkill(): ZeroCardViewAsSkill("wutian"){
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@wutian";
+    }
+
+    virtual const Card *viewAs() const{
+        WutianCard *card = new WutianCard;
+        card->setSkillName("wutian");
+        return card;
+    }
+};
+
 class Wutian: public PhaseChangeSkill{
 public:
     Wutian():PhaseChangeSkill("wutian"){
+        view_as_skill = new WutianViewAsSkill;
     }
 
     virtual bool onPhaseChange(ServerPlayer *shixie) const{
         if(shixie->getPhase() == Player::Finish){
             Room *room = shixie->getRoom();
-
             if(!shixie->isWounded()){
                 QList<ServerPlayer *> players = room->getOtherPlayers(shixie);
                 foreach(ServerPlayer *player, players){
@@ -842,27 +876,7 @@ public:
                         return false;
                 }
             }
-            int count = 2;
-            ServerPlayer *to, *store = NULL;
-            while(count > 0 && room->askForSkillInvoke(shixie, objectName())){
-                QList<ServerPlayer *> players;
-                foreach(ServerPlayer *tmp, room->getAlivePlayers()){
-                    if(!tmp->isAllNude() && tmp->getPile("wall").length() < 2)
-                        players << tmp;
-                    if(store)
-                        continue;
-                }
-                to = room->askForPlayerChosen(shixie, players, objectName());
-//                if(store && to == store)
-//                    return false;  //2 wutian do not choose same player
-                int card_id = room->askForCardChosen(shixie, to, "hej", objectName());
-                to->addToPile("wall",card_id);
-                room->acquireSkill(to, "wall");
-                room->setEmotion(to, "good");
-                room->playCardEffect("wall",true);
-                store = to;
-                count--;
-            }
+            room->askForUseCard(shixie, "@@wutian", "@wutian");
         }
         return false;
     }
@@ -874,9 +888,13 @@ public:
         events << GameStart;
     }
 
+    virtual int getPriority() const{
+        return -3;
+    }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *shixie, QVariant &) const{
         Room *room = shixie->getRoom();
-        if(room->askForSkillInvoke(shixie,objectName())){
+        if(room->askForSkillInvoke(shixie, objectName(), true)){
             ServerPlayer *target = room->askForPlayerChosen(shixie,room->getOtherPlayers(shixie),objectName());
             QString role = target->getRole();
             room->setPlayerProperty(target, "role", shixie->getRole());
@@ -1869,6 +1887,7 @@ NewbilityGeneralPackage::NewbilityGeneralPackage()
 
     skills << new Fanchun;
     addMetaObject<DiezhiCard>();
+    addMetaObject<WutianCard>();
     addMetaObject<YuluCard>();
     addMetaObject<BaichuCard>();
 
