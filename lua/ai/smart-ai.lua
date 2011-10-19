@@ -1160,11 +1160,15 @@ function SmartAI:useBasicCard(card, use,no_distance)
 			end
 		end
 	elseif card:inherits("Poison") then
-		for _, enemy in ipairs(self.enemies) do
-			if self.player:distanceTo(enemy) <= 1 then
+		local players = self.room:getAllPlayers()
+		players = sgs.QList2Table(players)
+		for _, target in ipairs(players) do
+			if self.player:distanceTo(target) <= 1 and
+				((self:isFriend(target) and target:getMark("poison") > 0) or
+				(self:isEnemy(target) and target:getMark("poison") == 0)) then
 				use.card = card
 				if use.to then
-					use.to:append(enemy)
+					use.to:append(target)
 				end
 				break
 			end
@@ -1796,6 +1800,8 @@ function SmartAI:useEquipCard(card, use)
 		use.card = card		
 		end
 	elseif card:inherits("Armor") then
+		if card:inherits("Niubi") then self:useNiubi(card, use) return end
+		if card:inherits("ClearShirt") then self:useClearShirt(card, use) return end
 		if card:inherits("GaleShell") then self:useGaleShell(card, use) return end
 	    if self.player:hasSkill("bazhen") then return end
 	 	if not self.player:getArmor() or self.player:getArmor():objectName() == "gale-shell" then use.card=card

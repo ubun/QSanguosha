@@ -385,6 +385,8 @@ public:
     }
 
     virtual bool match(const Player *player, const Card *card) const{
+        if(name == "peach")
+            return card->inherits("Peach");
         return ! player->hasEquip(card) && card->objectName() == name;
     }
 

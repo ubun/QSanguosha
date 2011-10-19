@@ -594,8 +594,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         ServerPlayer *xh = target->getRoom()->findPlayerBySkillName("duanliang");
-        if(!xh) return false;
-        return xh->hasArmorEffect("tranqgun");
+        return xh && xh->hasArmorEffect("tranqgun");
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
@@ -603,7 +602,7 @@ public:
             return false;
         Room *room = player->getRoom();
         ServerPlayer *xh = room->findPlayerBySkillName("duanliang");
-        if(xh && room->askForSkillInvoke(xh, "tranqgun") && room->askForCard(xh,".C","tranqgun_ask")){
+        if(xh && room->askForSkillInvoke(xh, "tranqgun", QVariant::fromValue(player)) && room->askForCard(xh,".C","tranqgun_ask")){
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(club):(.*)");
             judge.good = true;
