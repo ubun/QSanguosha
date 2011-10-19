@@ -71,7 +71,7 @@ end
 local rollingpin_skill={}
 rollingpin_skill.name = "rollingpin"
 table.insert(sgs.ai_skills, rollingpin_skill)
-rollingpin_skill.getTurnUseCard=function(self)
+rollingpin_skill.getTurnUseCard = function(self)
 	if self.player:hasUsed("RollingpinCard") or self.player:getHandcardNum()<2 then return end
 	if self.player:getLostHp() < 2 then return end
 	local cards = self.player:getHandcards()
@@ -98,6 +98,21 @@ end
 -- Âé×íÇ¹
 sgs.ai_skill_invoke["tranqgun"] = function(self, data)
 	return self:isEnemy(data:toPlayer())
+end
+
+-- ´óÊ¥Æì
+local wookon_skill={}
+wookon_skill.name = "wookon"
+table.insert(sgs.ai_skills, wookon_skill)
+wookon_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("WookonCard") or self.player:getHandcardNum() < 2 then return end
+	local card_id = self:getCardRandomly(self.player, "h")
+	local card_str = ("@WookonCard=" .. card_id)
+	assert(card_str)
+	return sgs.Card_Parse(card_str)
+end
+sgs.ai_skill_use_func["WookonCard"] = function(card,use,self)
+	use.card = card
 end
 
 -- clearShirt
@@ -131,6 +146,41 @@ function SmartAI:useCardSacrifice(sacrifice, use)
 	end
 end
 
+-- yabian
+sgs.ai_skill_invoke["yabian"] = function(self, data)
+	local damage = data:toDamage()
+	return self:isEnemy(damage.to)
+end
+
+-- wutian
+sgs.ai_skill_use["@@wutian"] = function(self, prompt)
+	local first, second
+	self:sort(self.friends_noself, "hp")
+	for _, friend in ipairs(self.friends_noself) do
+		if not friend:isAllNude() and friend:getPile("wall"):length() < 2 then
+			if not first then 
+				first = friend
+			else
+				second = friend
+			end
+		end
+	end
+	if first and second then
+		self:log(first:getGeneralName() .. "+" .. second:getGeneralName())
+		local first_o = first:objectName()
+		local second_o = second:objectName()
+		return ("@WutianCard=.->%s+%s"):format(first_o, second_o)
+	elseif first and not second then
+		self:log(first:getGeneralName())
+		return ("@WutianCard=.->%s"):format(first:objectName())
+	else
+		return "."
+	end
+end
+
+-- wuzheng (frequent)
+sgs.ai_skill_invoke["wuzheng"] = true
+
 -- diezhi
 local diezhi_skill = {}
 diezhi_skill.name = "diezhi"
@@ -142,7 +192,7 @@ end
 sgs.ai_skill_use_func["DiezhiCard"] = function(card, use, self)
 	use.card = card
 end
-
+-- diezhi respond
 sgs.ai_skill_choice["drig-guess"] = function(self, choices)
 	local players = self.room:getOtherPlayers(self.player)
 	players = sgs.QList2Table(players)
@@ -161,3 +211,71 @@ sgs.ai_skill_choice["drig-guess"] = function(self, choices)
 	end
 end
 
+-- rangli
+sgs.ai_skill_invoke["rangli"] = true
+sgs.ai_skill_playerchosen["rangli"] = function(self, targets)
+	local next_player = self.player:getNextAlive()
+	self:sort(targets, "hp")
+	for _, target in ipairs(targets) do
+		if next_player == target and self:isFriend(target) then
+			return target
+		end
+		if self:isEnemy(target) and target:getHp() < 2 and
+			not target:hasSkill("lianying") and
+			not target:hasSkill("shangshi") and
+			not target:hasSkill("tuntian") then
+			return target
+		end
+	end
+	return
+end
+
+-- yuren
+sgs.ai_skill_playerchosen["yuren"] = function(self, targets)
+	self:sort(targets, "hp")
+	for _, friend in ipairs(targets) do
+		if self:isFriend(friend) and friend:hasSkill("rende") and self.player.isWounded() then
+			return friend
+		end
+	end
+	for _, friend in ipairs(targets) do
+		if self:isFriend(friend) then
+			return friend
+		end
+	end
+	return
+end
+
+-- zhenlie
+sgs.ai_skill_invoke["zhenlie"] = function(self, data)
+	return self.player:getRole() ~= "renegade"
+end
+sgs.ai_skill_playerchosen["zhenlie"] = function(self, targets)
+	self:sort(targets, "handcard")
+	for _, friend in ipairs(targets) do
+		if self:isFriend(friend) then
+			return friend
+		end
+	end
+	return
+end
+
+-- baichu
+sgs.ai_skill_invoke["baichu"] = true
+local baichu_skill = {}
+baichu_skill.name = "baichu"
+table.insert(sgs.ai_skills, baichu_skill)
+baichu_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("BaichuCard") then return end
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+	for _, card in ipairs(cards) do
+		if card:getNumber() > 5 and card:getNumber() < 9 then
+			return sgs.Card_Parse("@BaichuCard=" .. card:getId())
+		end
+	end
+	return
+end
+sgs.ai_skill_use_func["BaichuCard"] = function(card, use, self)
+	use.card = card
+end

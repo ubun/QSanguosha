@@ -894,6 +894,12 @@ local function getSkillViewCard(card, class_name, player, card_place)
 			end
 		end
 	elseif class_name == "Jink" then
+		if player:hasSkill("baichu") then
+			baichu_card = sgs.Sanguosha:getCard(player:getPile("ji")[1])
+			if card:getNumber() >= baichu_card:getNumber() then
+				return ("jink:baichu[%s:%s]=%d"):format(suit, number, card_id)
+			end
+		end
 		if player:hasSkill("longhun") and player:getHp() <= 1 then
 			if card:getSuit() == sgs.Card_Club then
 				return ("jink:longhun[%s:%s]=%d"):format(suit, number, card_id)

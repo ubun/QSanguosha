@@ -981,24 +981,6 @@ public:
 
 };
 
-class Jieao: public PhaseChangeSkill{
-public:
-    Jieao():PhaseChangeSkill("jieao"){
-        frequency = Compulsory;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *miheng) const{
-        if(miheng->getPhase() == Player::Start && miheng->getHp() > miheng->getHandcardNum()){
-            LogMessage log;
-            log.type = "#Jieao";
-            log.from = miheng;
-            miheng->getRoom()->sendLog(log);
-            miheng->drawCards(2);
-        }
-        return false;
-    }
-};
-
 class Rangli: public TriggerSkill{
 public:
     Rangli():TriggerSkill("rangli"){
@@ -1038,6 +1020,24 @@ public:
             player->obtainCard(room->askForCardShow(target, player, objectName()));
             player->obtainCard(room->askForCardShow(target, player, objectName()));
             return true;
+        }
+        return false;
+    }
+};
+
+class Jieao: public PhaseChangeSkill{
+public:
+    Jieao():PhaseChangeSkill("jieao"){
+        frequency = Compulsory;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *miheng) const{
+        if(miheng->getPhase() == Player::Start && miheng->getHp() > miheng->getHandcardNum()){
+            LogMessage log;
+            log.type = "#Jieao";
+            log.from = miheng;
+            miheng->getRoom()->sendLog(log);
+            miheng->drawCards(2);
         }
         return false;
     }
