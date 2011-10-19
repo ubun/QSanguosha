@@ -841,6 +841,10 @@ function SmartAI:slashIsEffective(slash, to)
 		not slash:inherits("ThunderSlash") then 
 		return false 
 	end
+	
+    if to:getMark("@fog") and not slash:inherits("ThunderSlash") then
+	    return false
+	end
 
 	return true
 end
@@ -1431,7 +1435,7 @@ function SmartAI:useCardDuel(duel, use)
 			local n2 = enemy:getHandcardNum()
 			local useduel
 			if self:hasTrickEffective(duel, enemy) then
-				if n1 >= n2 or self.player:getLostHp() < 1 then		
+				if n1 >= n2 then		
 					useduel = true
 				else
 					local percard=0.35
@@ -1870,7 +1874,7 @@ function SmartAI:activate(use)
 	self.toUse =self:getTurnUse()
 	self:printCards(self.toUse)
 
-	self:sortByUsePriority(self.toUse)
+--	self:sortByUsePriority(self.toUse)
 	self:sortByDynamicUsePriority(self.toUse)
 	for _, card in ipairs(self.toUse) do
 		if not self.player:isJilei(card) then
@@ -1937,7 +1941,7 @@ function SmartAI:getUseValue(card)
 	
 	if card:inherits("EquipCard") then 
 		if self:hasEquip(card) then return 9 end
-		if self:hasSkills(sgs.lose_equip_skill) then return 9 end
+		if self:hasSkills(sgs.lose_equip_skill) then return 10 end
 		if self.player:hasSkill("kurou") and card:inherits("Crossbow") then return 9 end
 		if card:inherits("Armor") and not self.player:getArmor() then v = 8.9
 		elseif card:inherits("Weapon") and not self.player:getWeapon() then v = 6.2
@@ -2014,6 +2018,8 @@ function SmartAI:getUsePriority(card)
 end
 
 function SmartAI:getDynamicUsePriority(card)
+	if not card then return 0 end
+	
 	local type = card:getTypeId()
 	local dummy_use = {}
 	dummy_use.isDummy = true
@@ -2037,48 +2043,80 @@ function SmartAI:getDynamicUsePriority(card)
 	
 	local value = self:getUsePriority(card)
 	if dummy_use.card then
-		local card_name = card:className()
+		local use_card = dummy_use.card
+		local card_name = use_card:className()
+		local dynamic_value
+		
+		if use_card:getTypeId() == sgs.Card_Equips then
+			if self:hasSkills(sgs.lose_equip_skill) then value = value + 8 end
+		end
+		
 		if sgs.dynamic_value.benefit[class_name] then 
-			local dynamic_value = 10
-			if card:inherits("AmazingGrace") then
+			dynamic_value = 10
+			if use_card:inherits("AmazingGrace") then
 				for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-					if self:isEnemy(player) then dynamic_value = dynamic_value - ((player:getHandcardNum()+player:getHp())/player:getHp())
-					else dynamic_value = dynamic_value + ((player:getHandcardNum()+player:getHp())/player:getHp())
-					end
 					dynamic_value = dynamic_value - 1
+					if self:isEnemy(player) then dynamic_value = dynamic_value - ((player:getHandcardNum()+player:getHp())/player:getHp())*dynamic_value
+					else dynamic_value = dynamic_value + ((player:getHandcardNum()+player:getHp())/player:getHp())*dynamic_value
+					end
 				end
-			elseif card:inherits("QingnangCard") and self:getCardsNum(sgs.dynamic_value.control_card) > 0 and good_null > bad_null then
-				dynamic_value = 6.5
+			elseif use_card:inherits("Peach") then 
+				dynamic_value = 9.5
+			elseif use_card:inherits("QingnangCard") and self:getCardsNum("Snatch") > 0 and good_null > bad_null then
+				dynamic_value = 6.55
+			elseif use_card:inherits("RendeCard") and self.player:usedTimes("RendeCard") < 2 then
+				if not self.player:isWounded() then dynamic_value = 6.57 
+				elseif self:isWeak() then dynamic_value = 7.9
+				else dynamic_value = 7.5
+				end
+			elseif use_card:inherits("JieyinCard") and self:getCardsNum("Peach") >= self.player:getLostHp() then
+			    dynamic_value = 7.51
 			end
 			value = value + dynamic_value
 		elseif sgs.dynamic_value.damage_card[class_name] then
 			local others
 			if dummy_use.to then others = dummy_use.to else others = self.room:getOtherPlayers(self.player) end
+			dummy_use.probably_hit = {}
 			
 			for _, enemy in sgs.qlist(others) do
-				if self:isEnemy(enemy) and (enemy:getHp() <= 1 or enemy:isKongcheng()) 
+				if self:isEnemy(enemy) and (enemy:getHp() <= 2 or enemy:isKongcheng()) 
 					and self:getCardsNum("Analeptic", enemy) == 0 and self:getCardsNum("Peach", enemy) == 0 then
-					dummy_use.probably_hit = enemy
+					table.insert(dummy_use.probably_hit, enemy)
 					break
 				end
 			end
 				
-			if dummy_use.probably_hit then
-				if card:inherits("Slash") and self:getCardsNum("Jink", dummy_use.probably_hit) then
-					if not self:hasSkills(masochism_skill, dummy_use.probably_hit) then
-						value = value + 8
+			if #dummy_use.probably_hit > 0 then
+				self:sort(dummy_use.probably_hit, "defense")
+				local probably_hit
+				for _, hit in ipairs(dummy_use.probably_hit) do
+					if not self:hasSkills(masochism_skill, hit) then
+						probably_hit = hit 
+						break
 					end
-				elseif card:inherits("FireAttack") then 
-					value = value + self:getHandcardNum()
-				elseif card:inherits("Duel") then
-					value = value + (self:getHandcardNum() - self:getCardsNum("Slash", dummy_use.probably_hit))
+				end
+				if not probably_hit then
+					probably_hit = dummy_use.probably_hit[1]
+					value = value + 1.5
+				else
+					value = value + 3
+				end
+				value = value - (probably_hit:getHp() - 1)/2.0
+				
+				if use_card:inherits("Slash") and self:getCardsNum("Jink", probably_hit) == 0 then
+					value = value + 5
+				elseif use_card:inherits("FireAttack") then 
+					value = value + 0.5 + self:getHandcardNum()
+				elseif use_card:inherits("Duel") then
+					value = value + 2 + (self:getHandcardNum() - self:getCardsNum("Slash", probably_hit))
 				end
 			end
-		elseif sgs.dynamic_value.control_card then
-			value = value + (7 - bad_null/good_null)
-		elseif sgs.dynamic_value.control_usecard then
+		elseif sgs.dynamic_value.control_card[class_name] then
+			if use_card:getTypeId() == sgs.Card_Trick then dynamic_value = 7 - bad_null/good_null else dynamic_value = 6.65 end
+			value = value + dynamic_value
+		elseif sgs.dynamic_value.control_usecard[class_name] then
 			value = value + 6.6
-		else
+		elseif sgs.dynamic_value.lucky_chance[class_name] then
 			value = value + (#self.enemies - #self.friends)
 		end
 	end
@@ -2139,7 +2177,11 @@ function SmartAI:sortByDynamicUsePriority(cards)
         local value1 = self:getDynamicUsePriority(a)
         local value2 = self:getDynamicUsePriority(b)
 
-		return value1 >= value2
+		if value1 ~= value2 then
+			return value1 > value2
+		else
+			return a and a:getTypeId() ~= sgs.Card_Skill
+		end
 	end
 
 	table.sort(cards, compare_func)
@@ -2270,18 +2312,6 @@ function SmartAI:askForPlayerChosen(targets, reason)
 		local r = math.random(0, targets:length() - 1)
 		return targets:at(r)
 	end
-end
-
-sgs.ai_skill_playerchosen.zero_card_as_slash = function(self, targets)
-	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-	local targetlist=sgs.QList2Table(targets)
-	self:sort(targetlist, "defense")
-	for _, target in ipairs(targetlist) do
-		if self:isEnemy(target) and not self:slashProhibit(slash ,target) then
-		return target
-		end
-	end
-	return targets:first()
 end
 
 -- used for SmartAI:askForChoice
@@ -2453,6 +2483,7 @@ end
 
 function SmartAI:askForCard(pattern, prompt, data)
 	self.room:output(prompt)
+	if sgs.ai_skill_invoke[pattern] then return sgs.ai_skill_invoke[pattern](self, prompt) end
 	
 	local target, target2
 	if not prompt then return end
@@ -2946,6 +2977,7 @@ function SmartAI:hasTrickEffective(card, player)
 		if (player:hasSkill("zhichi") and self.room:getTag("Zhichi"):toString() == player:objectName()) or player:hasSkill("wuyan") then
 			if card and not (card:inherits("Indulgence") or card:inherits("SupplyShortage")) then return false end
 		end
+		if player:getMark("@fog") and card:inherits("Duel") then return false end
 	else
 		if self.player:hasSkill("wuyan") then 
 			if card:inherits("TrickCard") and not 
@@ -3073,7 +3105,7 @@ end
 
 function SmartAI:isWeak(player)
 	player = player or self.player
-	return player:getHp() <= 2 and player:getHandcardNum() <= 1 and not player:hasSkill("buqu")
+	return player:getHp() <= 2 and player:getHandcardNum() <= 2 and not player:hasSkill("buqu")
 end
 
 function SmartAI:getAoeValue(card, player)
@@ -3211,8 +3243,8 @@ function SmartAI:getCard(class_name, player)
     cards=sgs.QList2Table(cards)
     self:sortByUsePriority(cards)
     
-    for _, slash in ipairs(cards) do
-        if slash:inherits(class_name) then return slash end
+    for _, card in ipairs(cards) do
+        if card:inherits(class_name) then return card end
     end
     return nil
 end
