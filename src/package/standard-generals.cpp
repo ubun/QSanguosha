@@ -1277,7 +1277,7 @@ void StandardPackage::addGenerals(){
 
     xiahoudun = new General(this, 203, "xiahoudun", "wei");
     xiahoudun->addSkill(new Ganglie);
-
+	
     simayi = new General(this, 202, "simayi", "wei", 3);
     simayi->addSkill(new Fankui);
     simayi->addSkill(new Guicai);
@@ -1285,7 +1285,6 @@ void StandardPackage::addGenerals(){
     xuchu = new General(this, 205, "xuchu", "wei");
     xuchu->addSkill(new Luoyi);
     xuchu->addSkill(new LuoyiBuff);
-
     related_skills.insertMulti("luoyi", "#luoyi");
 
     zhenji = new General(this, 207, "zhenji", "wei", 3, false);
@@ -1302,7 +1301,7 @@ void StandardPackage::addGenerals(){
 
     zhangfei = new General(this, 103, "zhangfei", "shu");
     zhangfei->addSkill(new Skill("paoxiao"));
-
+	
     zhaoyun = new General(this, 105, "zhaoyun", "shu");
     zhaoyun->addSkill(new Longdan);
 
@@ -1333,7 +1332,6 @@ void StandardPackage::addGenerals(){
     lumeng = new General(this, 303, "lumeng", "wu");
     lumeng->addSkill(new Keji);
     lumeng->addSkill(new KejiSkip);
-
     related_skills.insertMulti("keji", "#keji-skip");
 
     luxun = new General(this, 307, "luxun", "wu", 3);
@@ -1350,7 +1348,7 @@ void StandardPackage::addGenerals(){
     daqiao->addSkill(new Guose);
     daqiao->addSkill(new Liuli);
 
-    sunshangxiang = new General(this, 308, "sunshangxiang", "wu", 3, false);
+    sunshangxiang = new General(this, 308, "sunshangxiang", "wu", 3, false);	
     sunshangxiang->addSkill(new Chujia);
     sunshangxiang->addSkill(new Jieyin);
     sunshangxiang->addSkill(new Xiaoji);

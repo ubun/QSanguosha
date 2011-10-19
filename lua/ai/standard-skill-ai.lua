@@ -1,3 +1,15 @@
+sgs.ai_skill_playerchosen.zero_card_as_slash = function(self, targets)
+	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	local targetlist=sgs.QList2Table(targets)
+	self:sort(targetlist, "defense")
+	for _, target in ipairs(targetlist) do
+		if self:isEnemy(target) and not self:slashProhibit(slash ,target) then
+		return target
+		end
+	end
+	return targets:first()
+end
+
 sgs.ai_skill_invoke.ice_sword=function(self, data)
 	if self.player:hasFlag("drank") then return false end
 	local effect = data:toSlashEffect() 
@@ -19,7 +31,7 @@ sgs.ai_skill_cardchosen.ice_sword = function(self, who)
 	local hcards = who:getCards("h")
 	hcards = sgs.QList2Table(hcards)
 	for _, peach in ipairs(hcards) do
-		if peach:inherits("Peach") or peach:inherits("Analeptic") then return peach:getId() end
+		if peach:inherits("Peach") or peach:inherits("Analeptic") then return peach end
 	end
 end
 
@@ -220,11 +232,17 @@ jieyin_skill.getTurnUseCard=function(self)
 		local cards = self.player:getHandcards()
 		cards=sgs.QList2Table(cards)
 		
+		local first, second
 		self:sortByUseValue(cards,true)
+		for _, card in ipairs(cards) do
+			if not card:getTypeId() == sgs.Card_Equip then
+				if not first then first  = cards[1]:getEffectiveId()
+				else second = cards[2]:getEffectiveId()
+				end
+			end
+			if second then break end
+		end
 		
-		local first  = cards[1]:getEffectiveId()
-		local second = cards[2]:getEffectiveId()
-
 		local card_str = ("@JieyinCard=%d+%d"):format(first, second)
 		return sgs.Card_Parse(card_str)
 end
