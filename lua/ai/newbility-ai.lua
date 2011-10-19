@@ -1,10 +1,15 @@
 -- diezhi
-local kanze_ai = SmartAI:newSubclass "kanze"
-
-function kanze_ai:activate_dummy(use)
-	super.activate(self, use)
-	use.card = sgs.Card_Parse("@DiezhiCard=.")
-	return
+diezhi_skill={}
+diezhi_skill.name = "diezhi"
+table.insert(sgs.ai_skills, diezhi_skill)
+diezhi_skill.getTurnUseCard = function(self)
+	if self.player:isLord() or self.player:getMark("@drig") < 1 then return end
+	if self.player:getHandcardNum() > self.player:getHp() then
+		return sgs.Card_Parse("@DiezhiCard=.")
+	end
+end
+sgs.ai_skill_use_func["DiezhiCard"]=function(card,use,self)
+	use.card = card
 end
 
 sgs.ai_skill_choice["drig-guess"] = function(self, choices)

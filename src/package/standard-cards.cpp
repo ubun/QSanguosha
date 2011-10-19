@@ -133,7 +133,6 @@ void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
             room->cardEffect(this, source, tmp);
 
     if(getSuit() == Card::Spade){
-        //source->addMark("poison");
         room->setPlayerMark(source, "poison",1);
         room->setEmotion(source, "bad");
         LogMessage log;

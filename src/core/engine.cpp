@@ -91,7 +91,7 @@ Engine::Engine()
     addPackage(NewManeuvering());
     addPackage(NewSPCard());
     addPackage(NewYitianCard());
-    //addPackage(NewNostalgia());
+    addPackage(NewNostalgia());
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());

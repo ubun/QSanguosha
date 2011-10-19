@@ -412,6 +412,8 @@ public:
                 if(dying_data.damage == NULL || dying_data.damage->nature == DamageStruct::Normal)
                     room->setPlayerProperty(pangtong, "chained", false);
             }
+			if(!pangtong->faceUp())
+                pangtong->turnOver();
             if(pangtong->getMark("@nirvana") > 0 && armor)
                 room->moveCardTo(armor, pangtong, Player::Equip);
         }

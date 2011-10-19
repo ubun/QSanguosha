@@ -475,7 +475,6 @@ public:
                 int discard = qMax(zhoutai->getHandcardNum()-2,0);
                 room->askForDiscard(zhoutai,objectName(),discard);
                 return true;
-            //zhoutai->skip(Player::Discard);
             }
         }
         else if(event == Dying){
