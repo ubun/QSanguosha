@@ -250,11 +250,13 @@ function SmartAI:updateLoyalTarget(player)
 	
     if (self:objectiveLevel(player)>=4) then
         if not sgs.loyal_target then sgs.loyal_target=player 
-		elseif self:getCardsNum(".", sgs.loyal_target, "e")>self:getCardsNum(".", player, "e") then sgs.loyal_target=player 
+		elseif player:getHp() == 1 and sgs.rebel_target:getHp() >= 2 then sgs.loyal_target = player
         elseif (sgs.ai_chaofeng[player:getGeneralName()] or 0)<(sgs.ai_chaofeng[sgs.loyal_target:getGeneralName()] or 0) then sgs.loyal_target=player 
-        elseif (sgs.loyal_target:getHp()>1) and (getDefense(player)<=3) then sgs.loyal_target=player 
-        elseif (sgs.loyal_target:getHandcardNum()>0) and (player:getHandcardNum()==0) then sgs.loyal_target=player 
         elseif (sgs.loyal_target:getArmor()) and (not player:getArmor()) then sgs.loyal_target=player 
+        elseif (sgs.loyal_target:getHp()>1) and (getDefense(player)<=3) then sgs.loyal_target=player 
+		elseif sgs.rebel_target:getHp()-player:getHp()>=2 then sgs.loyal_target = player
+        elseif (sgs.loyal_target:getHandcardNum()>0) and (player:getHandcardNum()==0) then sgs.loyal_target=player 
+		elseif self:getCardsNum(".", sgs.loyal_target, "e")>self:getCardsNum(".", player, "e") then sgs.loyal_target=player 
         end
     end
 end
@@ -264,10 +266,10 @@ function SmartAI:updateRebelTarget(player)
 	if not sgs.rebel_target then sgs.rebel_target=player end
 	if self.room:getLord():objectName() == player:objectName() then sgs.rebel_target=player
 	elseif self:objectiveLevel(player)>=4 and self:objectiveLevel(player)<5 then
-		if player:getHp() == 1 and sgs.rebel_target:getHp() > 2 then sgs.rebel_target=player
-		elseif (sgs.rebel_target:getArmor()) and (not player:getArmor() and sgs.rebel_target:getHp()>player:getHp()) then sgs.rebel_target=player 
-		elseif sgs.rebel_target:getHp()-player:getHp()>2 then sgs.rebel_target=player
+		if player:getHp() == 1 and sgs.rebel_target:getHp() >= 2 then sgs.rebel_target=player
         elseif (sgs.ai_chaofeng[player:getGeneralName()] or 0)<(sgs.ai_chaofeng[sgs.rebel_target:getGeneralName()] or 0) then sgs.rebel_target=player 
+		elseif (sgs.rebel_target:getArmor()) and (not player:getArmor() and sgs.rebel_target:getHp()>player:getHp()) then sgs.rebel_target=player 
+		elseif sgs.rebel_target:getHp()-player:getHp()>=2 then sgs.rebel_target=player
 		end
 	end
 end
@@ -2062,14 +2064,14 @@ function SmartAI:getDynamicUsePriority(card)
 				end
 			elseif use_card:inherits("Peach") then 
 				dynamic_value = 9.5
-			elseif use_card:inherits("QingnangCard") and self:getCardsNum("Snatch") > 0 and good_null > bad_null then
+			elseif use_card:inherits("QingnangCard") and self:getCardsNum("Snatch") > 0 and good_null >= bad_null then
 				dynamic_value = 6.55
 			elseif use_card:inherits("RendeCard") and self.player:usedTimes("RendeCard") < 2 then
 				if not self.player:isWounded() then dynamic_value = 6.57 
 				elseif self:isWeak() then dynamic_value = 7.9
 				else dynamic_value = 7.5
 				end
-			elseif use_card:inherits("JieyinCard") and self:getCardsNum("Peach") < self.player:getLostHp() then
+			elseif use_card:inherits("JieyinCard") and self:getCardsNum("Peach") >= self.player:getLostHp() then
 			    dynamic_value = 7.51
 			end
 			value = value + dynamic_value
@@ -2101,11 +2103,12 @@ function SmartAI:getDynamicUsePriority(card)
 				else
 					value = value + 3
 				end
+				value = value - (probably_hit:getHp() - 1)/2.0
 				
 				if use_card:inherits("Slash") and self:getCardsNum("Jink", probably_hit) == 0 then
 					value = value + 5
 				elseif use_card:inherits("FireAttack") then 
-					value = value + 1.2 + self:getHandcardNum()
+					value = value + 0.5 + self:getHandcardNum()
 				elseif use_card:inherits("Duel") then
 					value = value + 2 + (self:getHandcardNum() - self:getCardsNum("Slash", probably_hit))
 				end
@@ -2179,7 +2182,7 @@ function SmartAI:sortByDynamicUsePriority(cards)
 		if value1 ~= value2 then
 			return value1 > value2
 		else
-			return a && a:getTypeId() ~= sgs.Card_Skill
+			return a and a:getTypeId() ~= sgs.Card_Skill
 		end
 	end
 
