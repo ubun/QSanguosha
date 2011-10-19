@@ -1753,6 +1753,8 @@ public:
         return -1;
     }
     virtual void onGameStart(ServerPlayer *sb) const{
+        if(sb->getMaxHP() < 1)
+            sb->getRoom()->setPlayerProperty(sb, "maxhp", 1);
         sb->drawCards(10);
         QList<int> quan = sb->handCards().mid(0, 10);
         foreach(int card_id, quan)
@@ -1792,6 +1794,10 @@ class Beigong: public PhaseChangeSkill{
 public:
     Beigong():PhaseChangeSkill("beigong"){
         frequency = Compulsory;
+    }
+
+    virtual int getPriority() const{
+        return 3;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{

@@ -8,6 +8,7 @@ end
 
 -- Ïã½¶
 sgs.ai_skill_playerchosen["banana"] = function(self, targets)
+	targets = sgs.QList2Table(targets)
 	self:sort(targets, "hp")
 	for _, enemy in ipairs(targets) do
 		if self:isEnemy(enemy) then
@@ -22,6 +23,7 @@ sgs.ai_skill_invoke["madamfeng"] = function(self, data)
 	return self.friends[1]:isWounded()
 end
 sgs.ai_skill_playerchosen["madamfeng"] = function(self, targets)
+	targets = sgs.QList2Table(targets)
 	self:sort(targets, "hp")
 	for _, friend in ipairs(targets) do
 		if self:isFriend(friend) then
@@ -178,7 +180,7 @@ sgs.ai_skill_use["@@wutian"] = function(self, prompt)
 	end
 end
 
--- wuzheng (frequent)
+-- wuzheng
 sgs.ai_skill_invoke["wuzheng"] = true
 
 -- diezhi
@@ -215,7 +217,8 @@ end
 sgs.ai_skill_invoke["rangli"] = true
 sgs.ai_skill_playerchosen["rangli"] = function(self, targets)
 	local next_player = self.player:getNextAlive()
---	self:sort(targets, "hp")
+	targets = sgs.QList2Table(targets)
+	self:sort(targets, "hp")
 	for _, target in ipairs(targets) do
 		if next_player == target and self:isFriend(target) then
 			return target
@@ -232,7 +235,8 @@ end
 
 -- yuren
 sgs.ai_skill_playerchosen["yuren"] = function(self, targets)
---	self:sort(targets, "hp")
+	targets = sgs.QList2Table(targets)
+	self:sort(targets, "hp")
 	for _, friend in ipairs(targets) do
 		if self:isFriend(friend) and friend:hasSkill("rende") and self.player.isWounded() then
 			return friend
@@ -251,6 +255,7 @@ sgs.ai_skill_invoke["zhenlie"] = function(self, data)
 	return self.player:getRole() ~= "renegade"
 end
 sgs.ai_skill_playerchosen["zhenlie"] = function(self, targets)
+	targets = sgs.QList2Table(targets)
 	self:sort(targets, "handcard")
 	for _, friend in ipairs(targets) do
 		if self:isFriend(friend) then
@@ -271,11 +276,19 @@ baichu_skill.getTurnUseCard = function(self)
 	cards = sgs.QList2Table(cards)
 	for _, card in ipairs(cards) do
 		if card:getNumber() > 5 and card:getNumber() < 9 then
-			return sgs.Card_Parse("@BaichuCard=" .. card:getId())
+			return sgs.Card_Parse("@BaichuCard=" .. card:getEffectiveId())
 		end
 	end
-	return
 end
 sgs.ai_skill_use_func["BaichuCard"] = function(card, use, self)
 	use.card = card
+end
+
+-- nongquan
+sgs.ai_skill_invoke["nongquan"] = true
+
+-- jielue
+sgs.ai_skill_invoke["jielue"] = function(self, data)
+	local damage = data:toSlashEffect()
+	return self:isEnemy(effect.to)
 end
