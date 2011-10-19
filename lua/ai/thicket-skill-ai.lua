@@ -40,7 +40,7 @@ duanliang_skill.getTurnUseCard=function(self)
 	self:sortByUseValue(cards,true)
 	
 	for _,acard in ipairs(cards)  do
-		if (acard:isBlack()) and (acard:inherits("BasicCard") or acard:inherits("EquipCard")) and (self:getUseValue(acard)<(sgs.ai_use_value["SupplyShortage"] or 0)) then
+		if (acard:isBlack()) and (acard:inherits("BasicCard") or acard:inherits("EquipCard")) then
 			card = acard
 			break
 		end
@@ -113,13 +113,13 @@ luanwu_skill.getTurnUseCard=function(self)
 	if good == 0 then return end
 	
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if self:getAnalepticNum(player) > 0 then 
+		if self:getCardsNum("Analeptic", player) > 0 then 
 			if self:isFriend(player) then good = good + 1.0/player:getHp()
 			else bad = bad + 1.0/player:getHp()
 			end
 		end
 		
-		local has_slash = self:getSlash(player)
+		local has_slash = self:getCard("Slash", player)
 		local can_slash = false
 		if not can_slash then
 			for _, p in sgs.qlist(self.room:getOtherPlayers(player)) do
@@ -127,12 +127,12 @@ luanwu_skill.getTurnUseCard=function(self)
 			end
 		end
 		if not has_slash or not can_slash then
-			if self:isFriend(player) then good = good + math.max(self:getPeachNum(player), 1)
-			else bad = bad + math.max(self:getPeachNum(player), 1)
+			if self:isFriend(player) then good = good + math.max(self:getCardsNum("Peach", player), 1)
+			else bad = bad + math.max(self:getCardsNum("Peach", player), 1)
 			end
 		end
 		
-		if self:getJinkNumber(player) == 0 then
+		if self:getCardsNum("Jink", player) == 0 then
 			local lost_value = 0
 			if self:hasSkills(sgs.masochism_skill, player) then lost_value = player:getHp()/2 end
 			if self:isFriend(player) then bad = bad + (lost_value+1)/player:getHp()
