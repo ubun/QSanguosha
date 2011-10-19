@@ -129,6 +129,7 @@ sgs.ai_skill_invoke["@guidao"]=function(self,prompt)
     local judge = self.player:getTag("Judge"):toJudge()
 	
 	if self:needRetrial(judge) then
+		self:log("guidao!!!!!!!!")
 		local all_cards = self.player:getCards("he")
 		local cards = {}
 		for _, card in sgs.qlist(all_cards) do
@@ -136,7 +137,6 @@ sgs.ai_skill_invoke["@guidao"]=function(self,prompt)
 				table.insert(cards, card)
 			end
 		end
-		
 		local card_id = self:getRetrialCardId(cards, judge)
 		if card_id ~= -1 then
 			return "@GuidaoCard=" .. card_id
