@@ -528,7 +528,7 @@ public:
             log.card_str = intervention->getEffectIdString();
             room->sendLog(log);
             ServerPlayer *target = log.to.first();
-            const Card *pindian_card = pindian->getPindianCard(target);
+            const Card *pindian_card = target == pindian->from ? pindian->from_card : pindian->to_card;
             int num = pindian_card->getNumber() + intervention->getNumber() / 2;
             Card *use_card = Sanguosha->cloneCard(pindian_card->objectName(), pindian_card->getSuit(), num);
             use_card->setSkillName(objectName());

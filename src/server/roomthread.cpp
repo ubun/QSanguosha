@@ -59,20 +59,6 @@ bool PindianStruct::isSuccess() const{
     return from_card->getNumber() > to_card->getNumber();
 }
 
-const Card *PindianStruct::getPindianCard(ServerPlayer *target) const{
-    if(target == from)
-        return from_card;
-    else
-        return to_card;
-}
-
-ServerPlayer *PindianStruct::getPindianPlayer(const Card *pindian_card) const{
-    if(pindian_card == from_card)
-        return from;
-    else
-        return to;
-}
-
 JudgeStruct::JudgeStruct()
     :who(NULL), card(NULL), good(true)
 {
