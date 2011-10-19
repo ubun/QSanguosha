@@ -153,21 +153,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
     switch(event){
     case GameStart: {
-            if(player->getGeneral()->getKingdom() == "god"){
-                QString new_kingdom = room->askForKingdom(player);
-                room->setPlayerProperty(player, "kingdom", new_kingdom);
-
-                LogMessage log;
-                log.type = "#ChooseKingdom";
-                log.from = player;
-                log.arg = new_kingdom;
-                room->sendLog(log);
-            }
-
-            if(player->isLord()){
-                setGameProcess(room);
-            }
-
             if(player->isLord() && !Sanguosha->getBanPackages().contains("newbility")){
                 //niubi-card get out
                 ServerPlayer *niubi_player = player;
@@ -195,6 +180,26 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                     room->niubiMoveout(result);
                     room->getThread()->delay();
                 }
+            }
+
+            if(player->getGeneral()->getKingdom() == "god"){
+                QString new_kingdom = room->askForKingdom(player);
+                room->setPlayerProperty(player, "kingdom", new_kingdom);
+
+                LogMessage log;
+                log.type = "#ChooseKingdom";
+                log.from = player;
+                log.arg = new_kingdom;
+                room->sendLog(log);
+            }
+
+            if(player->getMaxHP() < 1){
+                room->setPlayerProperty(player, "maxhp", 1);
+                room->setPlayerProperty(player, "hp", 1);
+            }
+
+            if(player->isLord()){
+                setGameProcess(room);
             }
 
             player->drawCards(4, false);

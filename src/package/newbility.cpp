@@ -1100,7 +1100,6 @@ public:
 class Numa: public PhaseChangeSkill{
 public:
     Numa():PhaseChangeSkill("numa"){
-        frequency = Frequent;
         view_as_skill = new ViewMyWords;
     }
 
@@ -1753,8 +1752,6 @@ public:
         return -1;
     }
     virtual void onGameStart(ServerPlayer *sb) const{
-        if(sb->getMaxHP() < 1)
-            sb->getRoom()->setPlayerProperty(sb, "maxhp", 1);
         sb->drawCards(10);
         QList<int> quan = sb->handCards().mid(0, 10);
         foreach(int card_id, quan)

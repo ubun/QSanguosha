@@ -39,6 +39,11 @@ sgs.ai_use_value =
 		ShenfenCard = 8,
 		GreatYeyanCard = 8,
 		MediumYeyanCard = 5.6,
+		
+		DiezhiCard = 10,
+		BaichuCard = 9.1,
+		WookonCard = 7,
+		RollingpinCard = 2.5,
 --normal cards
 		ExNihilo=10,
 
@@ -57,7 +62,6 @@ sgs.ai_use_value =
 
 		FireAttack=4.8,
 
-
 		FireSlash = 4.4,
 		ThunderSlash = 4.5,
 		Slash = 4.6,
@@ -72,6 +76,11 @@ sgs.ai_use_value =
 		--special
 		Analeptic = 5.98,
 		Jink=8.9,
+		
+		Stink = 5,
+		Wall = 9.9,
+		Poison = 4,
+		Sacrifice = 3.5,
 }
 
 sgs.ai_use_priority = {
@@ -151,7 +160,8 @@ sgs.ai_use_priority = {
 
 		DefensiveHorse = 0,
 
-
+		ClearShirt = 6,
+		Niubi = 5,
 		--god_salvation
 		--deluge
 		--supply_shortage
@@ -216,5 +226,16 @@ sgs.ai_chaofeng = {
 
 		shencaocao = -6,
 		shenguanyu = -6,
+		
+-- niubi
+		kanze = 0,
+		shixie = -1,
+		yanpeng = 4,
+		kongrong = 5,
+		miheng = 3,
+		xunyou = 2,
+		ganmi = 4,
+		tensb = -3,
+		yanbh = 1,
 }
 
