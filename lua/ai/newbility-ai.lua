@@ -120,14 +120,15 @@ end
 -- clearShirt
 function SmartAI:useClearShirt(card, use)
 	local next_player = self.player:getNextAlive()
-	if self:isFriend(next_player) and next_player:getArmor() then
-		if next_player:getArmor():objectName() == "gale-shell" or
-			(next_player:getArmor():objectName() == "silver_lion" and next_player:isWounded()) then
+	if self:isFriend(next_player) then
+		if self:isEquip("GaleShell", next_player) or
+			(self:isEquip("SilverLion", next_player) and next_player:isWounded()) then
 			use.card = card
 		end
-	elseif self:isEnemy(next_player) and (not next_player:getArmor() or
-		next_player:getArmor():objectName() ~= "gale-shell") then
-		use.card = card
+	elseif self:isEnemy(next_player) then
+		if not self:isEquip("GaleShell", next_player) then
+			use.card = card
+		end
 	end
 	return
 end
