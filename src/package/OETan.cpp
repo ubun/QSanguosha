@@ -735,6 +735,41 @@ public:
     }
 };
 
+class Fadai: public TriggerSkill{
+public:
+    Fadai():TriggerSkill("fadai"){
+        events << PhaseChange << Predamaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *OEwbolir = room->findPlayerBySkillName(objectName());
+        if(OEwbolir->getPhase() == Player::Finish){
+            if(room->askForSkillInvoke(OEwbolir, objectName())){
+                OEwbolir->gainMark("fadai");
+                //room->playSkillEffect(objectName());
+                OEwbolir->throwAllCards();
+            }
+            return false;
+        }
+        else if(OEwbolir->getPhase() == Player::Start){
+            OEwbolir->loseAllMarks("fadai");
+            return false;
+        }
+        else if(event == Predamaged){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(OEwbolir->getMark("fadai") && damage.to == OEwbolir
+               && !damage.card->inherits("SavageAssault") && !damage.card->inherits("ArcheryAttack"))
+                return true;
+        }
+        return false;
+    }
+};
+
 OETanPackage::OETanPackage()
     :Package("OEtan")
 {
@@ -770,8 +805,9 @@ OETanPackage::OETanPackage()
     OEsrhrsr = new General(this, 3123, "shihunzhishi", "tan", 2, true);
     OEsrhrsr->addSkill(new Jiangyou);
 
-    OEwbolir = new General(this, 3124, "wocaokongming", "tan", 3, false);
+    OEwbolir = new General(this, 3124, "wocaokongming", "tan", 2, false);
     OEwbolir->addSkill(new Baihe);
+    OEwbolir->addSkill(new Fadai);
 
     addMetaObject<MaimengCard>();
     addMetaObject<ShaobingCard>();
