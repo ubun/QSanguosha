@@ -1,0 +1,98 @@
+太阳神三国杀扩充包·牛逼神装系列
+——宇文天启作品。根据零度天风“一人一件神装”系列改编，登陆太阳神三国杀平台。
+
+牛逼神装系列（以下简称神装）是由神装主体和附属元素两部分组成。其中神装主体因为对太阳神三国杀（以下简称神杀）原代码修改较大，故而编写此文档，将其中差异列出，以便于开源学习交流。
+
+神装系列的实现大部分是插足技，即将神装代码插在原武将技能代码之中，没有神装也不影响原有代码的正常运行。这样做虽然简单但难以维护。所以尽可能的，我都将代码独立到newbility.cpp文件中，除非实在难以独立。
+
+以下是详细差异清单：
+audio\card\common\
+	poison.ogg 21,830
+	stink.ogg 21,509
+	wall.ogg 17,047
+-- 毒、屁、墙的音效文件
+image\
+	...
+-- 各种图片资源，主要是神装卡牌图片和神装武将头像图片
+lang\zh_CN\
+	NewbilityPackage.lua
+	TechnologyPackage.lua
+-- 翻译文件，前者是神装，后者是方技传
+lua\ai\
+	chat-ai.lua
+	general_config.lua
+	newbility-ai.lua
+	smart-ai.lua
+	value_config.lua
+-- 神装的AI文件，包括主体AI，写入smart的AI和技能优先级相关设置
+
+src\client\clientplayer.cpp{
+156+
+	if(mark.endsWith("poison"))
+        emit poison_changed();
+	//中毒标记的处理
+}
+src\client\clientplayer.h{
+43+
+	void poison_changed();
+}
+src\core\engine.cpp{
+43+
+    Package *NewNewbility();
+    Package *NewNewbilityGeneral();
+    Package *NewTechnology();
+85+
+	addPackage(NewNewbilityGeneral());
+    addPackage(NewTechnology());
+	addPackage(NewNewbility());
+124+
+	modes["08raw"] = tr("8 players (runaway mode)");
+133+
+	translations.insert("runaway", tr("Runaway mode"));
+	//跑路模式
+}
+src\dialog\scenario-overview.cpp{
+31.
+	names << "bossmode" << "hulaopass" << "runaway";
+}
+src\server\gamerule.cpp{
+156~184+
+	//神装初始化相关代码
+244~260+
+	//铁索传导回复相关代码
+865~954+
+	//跑路模式代码
+}
+src\dialo\room.cpp{
+1957+
+	else if(mode == "08raw")
+        game_rule = new RunawayMode(this);
+	//跑路模式
+1984+
+	QVariant drawdata = n;
+    thread->trigger(ToDrawNCards, player, drawdata);
+    n = drawdata.toInt();
+	//方技传杜夔要用到的，摸牌事件
+3072+
+	//神装数据库(图)和取值方法
+}
+src\server\structs.h{
+119+
+	ToDrawNCards,
+	//摸牌事件定义
+}
+src\ui\photo.cpp{
+193+
+	void Photo::setPoisonState(){
+    if(player->getMark("poison") > 0)
+        avatar_area->setBrush(QColor(0x00, 0xFF, 0x00, 255 * 0.3));
+    else
+        avatar_area->setBrush(Qt::NoBrush);
+}
+238+
+	connect(player, SIGNAL(poison_changed()), this, SLOT(setPoisonState()));
+	//中毒脸绿效果
+}
+src\package\newbility.cpp
+src\package\technology.cpp
+//神装和方技传的主体代码
