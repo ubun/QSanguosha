@@ -296,11 +296,15 @@ void Niubi::onUninstall(ServerPlayer *player) const{
 }
 
 void Niubi::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    QString owner = room->getNiubiOwner(objectName());
     ServerPlayer *master = targets.isEmpty() ?
-                           room->findPlayer(room->getNiubiOwner(objectName())) : targets.first();
+                           room->findPlayer(owner) : targets.first();
     if(!master){
+        QString sp_owner = "sp_" + owner;
         foreach(ServerPlayer *tmp, room->getAllPlayers()){
-            if(tmp->getGeneral2Name() == room->getNiubiOwner(objectName())){
+            if(tmp->getGeneral2Name() == owner ||
+               tmp->getGeneralName() == sp_owner ||
+               tmp->getGeneral2Name() == sp_owner){
                 master = tmp;
                 break;
             }
@@ -1034,8 +1038,9 @@ public:
     virtual bool onPhaseChange(ServerPlayer *miheng) const{
         if(miheng->getPhase() == Player::Start && miheng->getHp() > miheng->getHandcardNum()){
             LogMessage log;
-            log.type = "#Jieao";
+            log.type = "#TriggerSkill";
             log.from = miheng;
+            log.arg = objectName();
             miheng->getRoom()->sendLog(log);
             miheng->drawCards(2);
         }

@@ -801,10 +801,10 @@ void Snatch::onEffect(const CardEffectStruct &effect) const{
 
     if(room->getCardPlace(card_id) == Player::Hand)
         room->moveCardTo(Sanguosha->getCard(card_id), effect.from, Player::Hand, false);
+    else if(Sanguosha->getCard(card_id)->inherits("Niubi") && effect.from->getState() == "robot")
+        room->throwCard(card_id);
     else
         room->obtainCard(effect.from, card_id);
-    if(Sanguosha->getCard(card_id)->inherits("Niubi") && effect.from->getState() == "robot")
-        room->throwCard(card_id);
 }
 
 Dismantlement::Dismantlement(Suit suit, int number)
