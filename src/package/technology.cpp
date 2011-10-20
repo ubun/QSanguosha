@@ -368,13 +368,13 @@ public:
         case Player::Play:{
             room->detachSkillFromPlayer(target, "yingzi");
             target->loseSkill("yingzi");
-            if(!target->isWounded() && target->askForSkillInvoke(objectName()))
-                room->acquireSkill(target, "tiaoxin");
+            if(target->askForSkillInvoke(objectName()))
+                room->acquireSkill(target, "tiaoxin_clone");
             break;
         }
         case Player::Discard:{
-            room->detachSkillFromPlayer(target, "tiaoxin");
-            target->loseSkill("tiaoxin");
+            room->detachSkillFromPlayer(target, "tiaoxin_clone");
+            target->loseSkill("tiaoxin_clone");
             if(target->askForSkillInvoke(objectName())){
                 if(target->getHandcardNum() >= target->getHp())
                     room->acquireSkill(target, "qinyin");
@@ -393,8 +393,23 @@ public:
         default:
             break;
         }
-
         return false;
+    }
+};
+
+class TiaoxinClone: public ZeroCardViewAsSkill{
+public:
+    TiaoxinClone():ZeroCardViewAsSkill("tiaoxin_clone"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        if(!player->hasSkill("bianxiang"))
+            return false;
+        return !player->hasUsed("TiaoxinCard") && !player->isWounded();
+    }
+
+    virtual const Card *viewAs() const{
+        return Sanguosha->cloneSkillCard("TiaoxinCard");
     }
 };
 
@@ -416,6 +431,8 @@ TechnologyPackage::TechnologyPackage()
 
     General *zhujianping = new General(this, "zhujianping", "god", 3);
     zhujianping->addSkill(new Bianxiang);
+
+    skills << new TiaoxinClone;
 }
 
 ADD_PACKAGE(Technology);

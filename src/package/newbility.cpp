@@ -1551,18 +1551,23 @@ public:
                 gentlemen << tmp;
         }
         if(event == PhaseChange){
-            if(player->getPhase() == Player::Start && !gentlemen.isEmpty())
+            if(player->getPhase() != Player::Start)
+                return false;
+            if(player->getMark("@yuren") > 0)
+                player->loseAllMarks("@yuren");
+            if(!gentlemen.isEmpty())
                 foreach(ServerPlayer *tmp, gentlemen)
-                    tmp->setMark("yuren",0);
+                    if(tmp->getMark("@yuren") > 0)
+                        tmp->loseAllMarks("@yuren");
         }
         else if(player->getPhase() == Player::Discard && !gentlemen.isEmpty()){
-            QVariantList yuren = player->tag["Yuren"].toList();
+            QVariantList yuren_card = player->tag["Yuren"].toList();
 
             CardStar card = data.value<CardStar>();
             foreach(int card_id, card->getSubcards()){
-                yuren << card_id;
+                yuren_card << card_id;
             }
-            player->tag["Yuren"] = yuren;
+            player->tag["Yuren"] = yuren_card;
 
             if(!player->askForSkillInvoke(objectName(), data))
                 return false;
@@ -1570,9 +1575,10 @@ public:
             foreach(QVariant card_data, player->tag["Yuren"].toList()){
                 int card_id = card_data.toInt();
                 if(room->getCardPlace(card_id) == Player::DiscardedPile)
-                    target->obtainCard(Sanguosha->getCard(card_id));
+                    room->obtainCard(target, card_id);
             }
-            target->addMark("yuren");
+            target->gainMark("@yuren");
+            player->gainMark("@yuren");
         }
         return false;
     }
@@ -1587,21 +1593,22 @@ public:
         return -1;
     }
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("yuren") > 0;
+        return target->getMark("@yuren") > 0 && !target->hasSkill("yuren");
     }
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        ServerPlayer *ganmi = room->findPlayerBySkillName("yuren");
-        if(!ganmi) return false;
         RecoverStruct recover = data.value<RecoverStruct>();
         LogMessage log;
         log.type = "#Yuren_rov";
         log.from = player;
-        log.to << ganmi;
-        log.arg = QString::number(recover.recover);
+        foreach(ServerPlayer *target, room->getOtherPlayers(player)){
+            if(target->getMark("@yuren") > 0)
+                log.to << target;
+        }
+        log.arg = "yuren";
         room->sendLog(log);
-
-        room->recover(ganmi, recover, true);
+        foreach(ServerPlayer *tmp, log.to)
+            room->recover(tmp, recover, true);
         return false;
     }
 };
@@ -1828,6 +1835,7 @@ public:
             LogMessage log;
             log.type = "#Yinfu";
             log.from = ten;
+            log.arg2 = objectName();
             log.arg = QString::number(1 - ten->getMark("yinfu"));
             ten->getRoom()->sendLog(log);
 
