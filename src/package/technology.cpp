@@ -34,12 +34,12 @@ public:
         }
         int precardnum = lu->tag.value("bo").toInt();
         if(lu->getMark("tuiyanfalse") == 0 && usecard->getNumber() > precardnum){
-            if(precardnum == 0 || lu->askForSkillInvoke(objectName(), data)){
+            if(lu->askForSkillInvoke(objectName(), data)){
                 ServerPlayer *target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
                 use.to.clear();
                 use.to << target;
                 if(usecard->inherits("Collateral")){
-                    target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
+                    target = room->askForPlayerChosen(lu, room->getAllPlayers(), objectName());
                     use.to << target;
                 }
                 LogMessage log;
@@ -141,7 +141,7 @@ public:
             if(dukui->getMark("m_dnc") > 0)
                 return false;
             for(int i = recover.recover; i > 0; i--){
-                if(dukui->askForSkillInvoke(objectName(), data)){
+                if(dukui->askForSkillInvoke("yueli_h2d", data)){
                     dukui->setMark("m_rec", 1);
                     dukui->drawCards(2);
                     recover.recover --;
@@ -158,7 +158,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             int dmgnum = damage.damage;
             for(int i = damage.damage; i > 0; i--){
-                if(dukui->getCardCount(true) > 1 && dukui->askForSkillInvoke(objectName(), data)){
+                if(dukui->getCardCount(true) > 1 && dukui->askForSkillInvoke("yueli_m2t", data)){
                     dukui->setMark("m_pdm", 1);
                     room->askForDiscard(dukui, objectName(), 2, false, true);
                     damage.damage --;
@@ -176,7 +176,7 @@ public:
             int drawnum = data.toInt();
             if(dukui->getMark("m_rec") > 0)
                 return false;
-            while(dukui->isWounded() && drawnum >= 2 && dukui->askForSkillInvoke(objectName())){
+            while(dukui->isWounded() && drawnum >= 2 && dukui->askForSkillInvoke("yueli_d2h", data)){
                 drawnum = drawnum - 2;
                 RecoverStruct rec;
                 rec.who = dukui;
@@ -198,7 +198,7 @@ public:
             QList<int> cards = card->getSubcards();
             room->fillAG(cards, dukui);
             int oldhp = dukui->getHp();
-            while(cards.length() > 1 && dukui->askForSkillInvoke(objectName(), data)){
+            while(cards.length() > 1 && dukui->askForSkillInvoke("yueli_t2m", data)){
                 room->loseHp(dukui);
                 int card_id = room->askForAG(dukui, cards, false, objectName());
                 cards.removeOne(card_id);
@@ -299,7 +299,7 @@ public:
             }
         }
 
-        if(enable && room->askForSkillInvoke(zhou, objectName())){
+        if(enable && room->askForSkillInvoke(zhou, objectName(), data)){
             ServerPlayer *tmp;
             int count = 10000;
             while(use.to.length() != count){

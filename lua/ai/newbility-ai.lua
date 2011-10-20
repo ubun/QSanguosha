@@ -53,7 +53,7 @@ animals_skill.getTurnUseCard = function(self)
 	local cards = self.player:getCards("h")
 	cards=sgs.QList2Table(cards)
 	local card
-	for _,acard in ipairs(cards)  do
+	for _,acard in ipairs(cards) do
 		if acard:inherits("TrickCard") and acard:getSuit() == sgs.Card_Spade then
 			card = acard
 			break

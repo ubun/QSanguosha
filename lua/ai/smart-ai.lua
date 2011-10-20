@@ -3391,3 +3391,4 @@ dofile "lua/ai/hulaoguan-ai.lua"
 dofile "lua/ai/guanxing-ai.lua"
 
 dofile "lua/ai/newbility-ai.lua"
+dofile "lua/ai/technology-ai.lua"
