@@ -567,6 +567,174 @@ public:
     }
 };
 
+class Huanshen: public TriggerSkill{
+public:
+    Huanshen():TriggerSkill("huanshen"){
+        events << Predamaged;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        //Room *room = player->getRoom();
+        if(event == Predamaged){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(damage.nature != DamageStruct::Normal){
+                /*
+                LogMessage log;
+                log.type = "#HuanshenProtect";
+                log.to << player;
+                log.from = damage.from;
+                room->sendLog(log);
+                */
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Jiyu: public TriggerSkill{
+public:
+    Jiyu():TriggerSkill("jiyu"){
+        events << Damage << Damaged;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        /*
+        LogMessage log;
+        log.type = event == Damage ? "#JiyuDamage" : "#JiyuDamaged";
+        log.from = player;
+        log.arg = QString::number(damage.damage);
+        player->getRoom()->sendLog(log);
+        */
+        player->gainMark("@lywater", damage.damage);
+        //player->getRoom()->playSkillEffect(objectName());
+
+        return false;
+    }
+};
+
+DuihuanCard::DuihuanCard(){
+
+}
+
+bool DuihuanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
+    return true;
+}
+
+void DuihuanCard::use(Room *room, ServerPlayer *OEsilvlryr, const QList<ServerPlayer *> &targets) const{
+    OEsilvlryr->loseMark("@lywater", 2);
+    if(targets.first() == OEsilvlryr)
+        OEsilvlryr->drawCards(2);
+    else{
+        DamageStruct damage;
+        damage.from = OEsilvlryr;
+        damage.to = targets.first();
+        damage.card = NULL;
+
+        room->damage(damage);
+    }
+}
+
+class Duihuan: public ZeroCardViewAsSkill{
+public:
+    Duihuan():ZeroCardViewAsSkill("duihuan"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->getMark("@lywater") >= 2;
+    }
+
+    virtual const Card *viewAs() const{
+        return new DuihuanCard;
+    }
+};
+
+class Jiangyou: public TriggerSkill{
+public:
+    Jiangyou():TriggerSkill("jiangyou"){
+        events << Damaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        Room *room = player->getRoom();
+        ServerPlayer *OEsrhrsr = room->findPlayerBySkillName(objectName());
+        if(damage.nature != DamageStruct::Normal){
+            RecoverStruct recover;
+            recover.who = damage.from;
+            recover.recover = damage.damage;
+            room->recover(OEsrhrsr, recover, true);
+        }
+        if(damage.card && damage.card->inherits("Slash"))
+            OEsrhrsr->drawCards(damage.damage);
+        return false;
+    }
+};
+
+BaiheCard::BaiheCard(){
+}
+
+bool BaiheCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty())
+        return true;
+    if(targets.length() == 1)
+        return to_select->getGeneral()->isFemale() && targets.first()->getGeneral()->isFemale();
+    return false;
+}
+
+void BaiheCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *a = targets.at(0);
+    ServerPlayer *b = targets.at(1);
+
+    room->throwCard(this);
+
+    RecoverStruct recover;
+    recover.card = this;
+    recover.who = source;
+    room->recover(a, recover, true);
+    room->recover(b, recover, true);
+
+}
+
+class Baihe: public ViewAsSkill{
+public:
+    Baihe():ViewAsSkill("baihe"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("BaiheCard");
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        if(selected.length() > 1)
+            return false;
+
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.length() != 1)
+            return NULL;
+
+        BaiheCard *baihe_card = new BaiheCard();
+        baihe_card->addSubcards(cards);
+
+        return baihe_card;
+    }
+};
+
 OETanPackage::OETanPackage()
     :Package("OEtan")
 {
@@ -575,7 +743,7 @@ OETanPackage::OETanPackage()
     OEibicdlcod->addSkill(new Qianshui);
     OEibicdlcod->addSkill(new Shangfu);
 
-    OEubun = new General(this, 3105, "ubun$", "tan", 4, true);
+    OEubun = new General(this, 3103, "ubun$", "tan", 4, true);
     OEubun->addSkill(new Niubi);
     OEubun->addSkill(new Meikong);
     OEubun->addSkill(new Maimeng);
@@ -591,17 +759,24 @@ OETanPackage::OETanPackage()
     OEhyk->addSkill(new Maozhua);
     OEhyk->addSkill(new Aiqing);
 
-    OEgoldlryr = new General(this, 3119, "godsiyeliuyue", "tan", 3, false);
+    OEgoldlryr = new General(this, 3119, "goldsiyeliuyue", "tan", 2, false);
     OEgoldlryr->addSkill(new Shuihun);
+    OEgoldlryr->addSkill(new Huanshen);
 
     OEsilvlryr = new General(this, 3120, "silversiyeliuyue", "tan", 3, false);
+    OEsilvlryr->addSkill(new Jiyu);
+    OEsilvlryr->addSkill(new Duihuan);
 
-    OEsrhrsr = new General(this, 3123, "shihunzhishi", "tan", 3, true);
+    OEsrhrsr = new General(this, 3123, "shihunzhishi", "tan", 2, true);
+    OEsrhrsr->addSkill(new Jiangyou);
 
     OEwbolir = new General(this, 3124, "wocaokongming", "tan", 3, false);
+    OEwbolir->addSkill(new Baihe);
 
     addMetaObject<MaimengCard>();
     addMetaObject<ShaobingCard>();
+    addMetaObject<DuihuanCard>();
+    addMetaObject<BaiheCard>();
     skills << new Mod << new MaimengViewAsSkill;
 }
 
