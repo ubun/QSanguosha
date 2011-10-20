@@ -35,6 +35,7 @@ sgs.ai_use_value =
 		LijianCard=8.5,
 		RendeCard=8.5,
 		MinceCard=5.9,
+		ZhihengCard = 9,
 
 		ShenfenCard = 8,
 		GreatYeyanCard = 8,
@@ -147,6 +148,7 @@ sgs.ai_use_priority = {
 		EightDiagram=0.8,
 		RenwangShield=0.7,
 		Vine=0.6,
+		GaleShell=0.9,
 
 		DefensiveHorse = 0,
 
@@ -167,8 +169,10 @@ sgs.ai_use_priority = {
 sgs.ai_chaofeng = {
 		huatuo = 6,
 		sunshangxiang = 6,
+		wisjiangwan = 6,
 
 		erzhang = 5,
+		wisshuijing = 5,
 
 		huangyueying = 4,
 		diaochan = 4,
@@ -184,20 +188,25 @@ sgs.ai_chaofeng = {
 		zhouyu = 3,
 		huanggai = 3,
 		xunyu = 3,
+		wishuaxiong = 3,
 
 		ganning = 2,
 		daqiao = 2,
 		dianwei = 2,
+		wisjiangwei = 2,
 
 		lubu = 1,
 		huangzhong = 1,
 		machao = 1,
 		shuangxiong = 1,
 		yuanshao = 1,
+		wissunce = 1,
+
+		wisxuyou = 0,
 
 		luxun = -1,
-
 		pangtong = -1,
+		wiszhangzhao = -1,
 
 		simayi = -2,
 		liubei = -2,
@@ -206,6 +215,7 @@ sgs.ai_chaofeng = {
 		xiahoudun = -3,
 		caopi = -3,
 		fazheng = -3,
+		wistianfeng = -3,
 
 		zhoutai = -4,
 		guojia = -4,
