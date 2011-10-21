@@ -192,7 +192,6 @@ fanjian_skill.getTurnUseCard=function(self)
 		local cards = self.player:getHandcards()
 		
 		for _, card in sgs.qlist(cards) do
-		--	if card:getSuit() == sgs.Card_Diamond or card:inherits("Peach") or card:inherits("Analeptic") then		
 			if card:getSuit() == sgs.Card_Diamond and self.player:getHandcardNum() == 1 then
 				return nil
 			elseif card:inherits("Peach") or card:inherits("Analeptic") then
@@ -212,14 +211,13 @@ end
 sgs.ai_skill_use_func["FanjianCard"]=function(card,use,self)
 	self:sort(self.enemies, "hp")
 			
-			for _, enemy in ipairs(self.enemies) do								
-				if (not enemy:hasSkill("qingnang")) or (enemy:getHp() == 1 and enemy:getHandcardNum() == 0 and not enemy:getEquips()) then
-					use.card = card
-					if use.to then use.to:append(enemy) end
-					
-					return
-				end
-			end
+	for _, enemy in ipairs(self.enemies) do								
+		if (not enemy:hasSkill("qingnang")) or (enemy:getHp() == 1 and enemy:getHandcardNum() == 0 and not enemy:getEquips()) then
+			use.card = card
+			if use.to then use.to:append(enemy) end
+			return
+		end
+	end
 end
 
 local jieyin_skill={}
@@ -560,7 +558,7 @@ sgs.ai_skill_use_func["ZhihengCard"] = function(card, use, self)
 			table.insert(unpreferedCards, self.player:getWeapon():getId())
 		end
 				
-		if self.player:getArmor() and self.player:getArmor():objectName() == "silver_lion" and self.player:isWounded() then
+		if self:isEquip("SilverLion") and self.player:isWounded() then
 			table.insert(unpreferedCards, self.player:getArmor():getId())
 		end	
 				
@@ -612,7 +610,7 @@ lijian_skill.getTurnUseCard=function(self)
 	if not self.player:isNude() then
 		local card
 		local card_id
-		if self.player:getArmor() and self.player:isWounded() and self.player:getArmor():objectName()=="silver_lion" then
+		if self:isEquip("SilverLion") and self.player:isWounded() then
 			card = sgs.Card_Parse("@LijianCard=" .. self.player:getArmor():getId())
 		elseif self.player:getHandcardNum() > self.player:getHp() then
 			local cards = self.player:getHandcards()
