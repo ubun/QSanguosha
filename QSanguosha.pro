@@ -111,6 +111,7 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/distanceviewdialog.h \
 	src/dialog/generaloverview.h \
 	src/dialog/generalselector.h \
+	src/dialog/halldialog.h \
 	src/dialog/mainwindow.h \
 	src/dialog/packagingeditor.h \
 	src/dialog/playercarddialog.h \
@@ -169,8 +170,7 @@ HEADERS += src/client/aux-skills.h \
 	src/util/detector.h \
 	src/util/nativesocket.h \
 	src/util/recorder.h \
-	src/util/socket.h \
-        src/dialog/halldialog.h
+	src/util/socket.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \

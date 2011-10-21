@@ -290,6 +290,6 @@ sgs.ai_skill_invoke["nongquan"] = true
 
 -- jielue
 sgs.ai_skill_invoke["jielue"] = function(self, data)
-	local damage = data:toSlashEffect()
+	local effect = data:toSlashEffect()
 	return self:isEnemy(effect.to)
 end
