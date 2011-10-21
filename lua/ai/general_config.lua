@@ -40,6 +40,7 @@ sgs.ai_use_value =
 		ShenfenCard = 8,
 		GreatYeyanCard = 8,
 		MediumYeyanCard = 5.6,
+		BaichuCard = 9.1,
 --normal cards
 		ExNihilo=10,
 
@@ -73,6 +74,8 @@ sgs.ai_use_value =
 		--special
 		Analeptic = 5.98,
 		Jink=8.9,
+		Stink = 5,
+		Sacrifice = 3.5,
 }
 
 sgs.ai_use_priority = {
@@ -99,6 +102,7 @@ sgs.ai_use_priority = {
 		MediumYeyanCard = 6,
 		SmallYeyanCard = 2.3,
 		JilveCard = 0.4,
+		BaichuCard = 2,
 --
 
 
@@ -152,6 +156,7 @@ sgs.ai_use_priority = {
 
 		DefensiveHorse = 0,
 
+		ClearShirt = 0.5,
 
 		--god_salvation
 		--deluge
@@ -225,5 +230,29 @@ sgs.ai_chaofeng = {
 
 		shencaocao = -6,
 		shenguanyu = -6,
+		
+-- red
+		redzhonghui = 7,
+		redxunyou = 2,
+		redhejin = 3,
+		redguansuo = 7,
+		redyanbaihu = 1,
+		redwutugu = 4,
+		redchunyuqiong = 5,
+		redsunluban = 2,
+-- cyan
+		cyankongrong = 5,
+		cyancaochong = -2,
+		cyanliaohua = 3,
+		cyanyufan = 4,
+		cyanlidian = 3,
+		cyanwuanguo = 1,
+		cyanpuyuan = 2,
+		cyanfanqiangzhangda = -1,
+-- kuso
+		kusoking = 5,
+		tianyin = -4,
+		miheng = 3,
+		tensb = -3,
 }
 

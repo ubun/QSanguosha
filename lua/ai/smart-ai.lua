@@ -899,7 +899,9 @@ local function getSkillViewCard(card, class_name, player, card_place)
 		end
 	elseif class_name == "Jink" then
 		if player:hasSkill("baichu") then
-			baichu_card = sgs.Sanguosha:getCard(player:getPile("ji")[1])
+			local jis = player:getPile("ji")
+			jis = sgs.QList2Table(jis)
+			local baichu_card = sgs.Sanguosha:getCard(jis[1])
 			if card:getNumber() >= baichu_card:getNumber() then
 				return ("jink:baichu[%s:%s]=%d"):format(suit, number, card_id)
 			end
@@ -3205,7 +3207,7 @@ function SmartAI:getAoeValueTo(card, to , from)
 					value = value + 20
 				end
 			end
-			if to:hasSkill("qingguo") or self:isEquip("EightDiagram", to) then
+			if to:hasSkill("qingguo") or self:isEquip("EightDiagram", to) or to:hasSkill("baichu") then
 				value = value + 10
 			end	
 		end	
