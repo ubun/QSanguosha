@@ -96,6 +96,7 @@ SOURCES += src/main.cpp \
         src/package/lixianji.cpp\
         src/dialog/couplepairdialog.cpp\
         src/package/OETan.cpp\
+    src/package/OETanB.cpp
 
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -182,6 +183,7 @@ HEADERS += src/client/aux-skills.h \
         src/package/returnoflegend.h \
         src/package/lixianji.h \
         src/package/OETan.h\
+    src/package/OETanB.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \

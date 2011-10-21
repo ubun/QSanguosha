@@ -449,13 +449,13 @@ public:
                 if(judge.isBad()){
                     return false;
                 }
-                /*
+
                 LogMessage log;
                 log.type = "#AiqingProtect";
                 log.to << player;
                 log.from = damage.from;
                 room->sendLog(log);
-                */
+
                 return true;
             }
         }
@@ -660,6 +660,7 @@ class Jiangyou: public TriggerSkill{
 public:
     Jiangyou():TriggerSkill("jiangyou"){
         events << Damaged;
+        frequency = Compulsory;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{

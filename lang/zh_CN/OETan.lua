@@ -2,10 +2,11 @@
 
 return {
 	["tan"] = "坛",
-	["OEtan"] = "坛包",
+	["OEtan"] = "坛包A",
 
 ["ibicdlcod"] = "圆月",
 ["designer:ibicdlcod"] = "ibicdlcod",
+["cv:ibicdlcod"] = "暂无",
 ["qianshui"] = "潜水",
 [":qianshui"] = "锁定技，【决斗】和红色的【杀】对你无效。",
 ["shangfu"] = "上浮",
@@ -17,6 +18,7 @@ return {
 
 ["ubun"] = "宇文",
 ["designer:ubun"] = "ibicdlcod,宇文天启（图）",
+["cv:ubun"] = "暂无",
 ["niubi"] = "顶座",
 [":niubi"] = "出牌阶段前，你可弃X张牌，若如此做，回合结束阶段，你可任意安排场上角色的位置。X为场上存活角色数/2（向上取整）",
 ["@niubi"] = "你可任意安排场上座位",
@@ -29,6 +31,7 @@ return {
 [":maimengv"] = "出牌阶段，可展示并给宇文两张同花色手牌，若如此做，宇文回复1点体力。",
 
 ["tenkei"] = "天启",
+["cv:tenkei"] = "暂无",
 ["designer:tenkei"] = "ibicdlcod,荧光狂鲨（图）",
 ["zhongpao"] = "重炮",
 [":zhongpao"] = "锁定技，你使用的【杀】伤害+1.",
@@ -38,4 +41,47 @@ return {
 ["menghua"] = "萌化",
 [":menghua"] = "你可以防止其他角色对你造成的伤害。每回合开始至下一回合开始限一次。",	
 ["#menghuaPrevent"] = "%from 发动了技能【萌化】，防止了 %arg 点伤害",
+
+["hyk3374"] = "猫猫",
+["designer:hyk3374"] = "hyk3374",
+["cv:hyk3374"] = "暂无",
+["shaobing"] = "烧饼",
+[":shaobing"] = "出牌阶段，出牌阶段，你可以自减1点体力，令任一角色增加1点体力上限。每回合限用一次。",
+["maozhua"] = "猫爪",
+[":maozhua"] = "你可以将你的任意一张梅花牌当【杀】使用或打出。",
+["aiqing"] = "爱情",
+[":aiqing"] = "当你受到异性角色的伤害前，可进行一次判定，若判定结果为红桃，则防止此伤害。",
+["#AiqingProtect"] = "%to 发动了技能【爱情】，防止了 %from 造成的伤害",
+
+["goldsiyeliuyue"] = "黄金似夜流月",
+["designer:goldsiyeliuyue"] = "似夜流月",
+["cv:goldsiyeliuyue"] = "暂无",
+["shuihun"] = "水魂",
+[":shuihun"] = "你可将同花色的X张牌按下列规则使用/打出：红桃当【无中生有】，方片当【万箭齐发】，黑桃当【南蛮入侵】，梅花当【无懈可击】。X为你当前体力值和1中较大数。",
+["huanshen"] = "幻身",
+[":huanshen"] = "锁定技，属性伤害对你无效，你的手牌上限始终为你的体力上限。",
+
+["silversiyeliuyue"] = "白银似夜流月",
+["designer:silversiyeliuyue"] = "似夜流月",
+["cv:silversiyeliuyue"] = "暂无",
+["jiyu"] = "际遇",
+[":jiyu"] = "锁定技，你每造成或受到1点伤害，获得1枚【水】标记。",
+["lywater"] = "水（论坛）",
+["duihuan"] = "兑换",
+[":duihuan"] = "出牌阶段，可弃2枚【水】标记，选择下列两项中的一项执行：1.对任意一名其他角色造成1点伤害。2.摸两张牌。",
+
+["shihunzhishi"] = "弑魂之诗",
+["designer:shihunzhishi"] = "J~弑魂の诗~L",
+["cv:shihunzhishi"] = "暂无",
+["jiangyou"] = "酱油",
+[":jiangyou"] = "锁定技，场上每出现一点【杀】造成的伤害，你摸一张牌；场上每出现1点属性伤害，你回复1点体力。",
+
+["wocaokongming"] = "卧槽孔明",
+["designer:wocaokongming"] = "卧槽孔明",
+["cv:wocaokongming"] = "暂无",
+["baihe"] = "百合",
+[":baihe"] = "出牌阶段，你可以弃一张手牌，指定两名女性角色各回复1点体力。",
+["fadai"] = "发呆",
+[":fadai"] = "回合结束阶段，你可以弃置所有牌，则直至你的下回合开始，防止你受到的除【南蛮入侵】和【万箭齐发】造成外的一切伤害。",
+
 }

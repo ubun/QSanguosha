@@ -31,6 +31,7 @@ Engine *Sanguosha = NULL;
 
 extern "C" {    
     Package *NewOETan();
+    Package *NewOETanB();
     Package *NewStandard();
     Package *NewWind();
     Package *NewFire();
@@ -76,6 +77,7 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewOETan());
+    addPackage(NewOETanB());
     addPackage(NewStandard());
     addPackage(NewWind());
     addPackage(NewFire());
