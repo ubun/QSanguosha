@@ -6,7 +6,7 @@ function SmartAI:useNiubi(card, use)
 	return
 end
 
--- �㽶
+-- 香蕉
 sgs.ai_skill_playerchosen["banana"] = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	self:sort(targets, "hp")
@@ -17,7 +17,7 @@ sgs.ai_skill_playerchosen["banana"] = function(self, targets)
 	end
 end
 
--- ��־��Ƭ
+-- 励志照片
 sgs.ai_skill_invoke["madamfeng"] = function(self, data)
 	self:sort(self.friends, "hp")
 	return self.friends[1]:isWounded()
@@ -32,7 +32,7 @@ sgs.ai_skill_playerchosen["madamfeng"] = function(self, targets)
 	end
 end
 
--- ����Ͱ
+-- 垃圾桶
 local dustbin_skill = {}
 dustbin_skill.name = "dustbin"
 table.insert(sgs.ai_skills, dustbin_skill)
@@ -45,7 +45,7 @@ dustbin_skill.getTurnUseCard = function(self)
 	end
 end
 
--- ����ͼ
+-- 禽兽图
 local animals_skill={}
 animals_skill.name = "animals"
 table.insert(sgs.ai_skills, animals_skill)
@@ -69,7 +69,7 @@ animals_skill.getTurnUseCard = function(self)
 	return skillcard
 end
 
--- ߦ����
+-- 擀面杖
 local rollingpin_skill={}
 rollingpin_skill.name = "rollingpin"
 table.insert(sgs.ai_skills, rollingpin_skill)
@@ -97,12 +97,19 @@ sgs.ai_skill_use_func["RollingpinCard"] = function(card,use,self)
 	use.card = card
 end
 
--- ����ǹ
+-- 麻醉枪
 sgs.ai_skill_invoke["tranqgun"] = function(self, data)
-	return self:isEnemy(data:toPlayer())
+	if not self:isEnemy(data:toPlayer()) return false end
+	local cards = self.player:getHandcards()
+	for _, card in sgs.qlist(cards) do
+		if card:getSuit() == sgs.Card_Club then
+			return true
+		end
+	end
+	return false
 end
 
--- ��ʥ��
+-- 大圣旗
 local wookon_skill={}
 wookon_skill.name = "wookon"
 table.insert(sgs.ai_skills, wookon_skill)
