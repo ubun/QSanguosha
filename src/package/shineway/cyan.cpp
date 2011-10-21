@@ -23,7 +23,7 @@ public:
         }
         if(player->getMark("@pear") > 0 || player->getPhase() != Player::Draw)
             return false;
-        if(player->askForSkillInvoke(objectName())){
+        if(player->askForSkillInvoke(objectName(), data)){
             QList<ServerPlayer *> players;
             foreach(ServerPlayer *tmp, room->getAlivePlayers()){
                 if(tmp->getHandcardNum() < 2){

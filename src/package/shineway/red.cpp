@@ -808,7 +808,8 @@ public:
         if(qiong->getPhase() != Player::Start)
             return false;
         Room *room = qiong->getRoom();
-        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask");
+        QVariant x = qiong->getPile("niangA").length() + qiong->getPile("niangB").length();
+        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask", x);
         if(card){
             qiong->addToPile("niangA", card->getId());
         }
