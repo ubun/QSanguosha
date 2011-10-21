@@ -27,7 +27,7 @@ sgs.ai_skill_invoke["super_zaiqi"] = sgs.ai_skill_invoke["zhubing"]
 
 -- jielue
 sgs.ai_skill_invoke["jielue"] = function(self, data)
-	local damage = data:toSlashEffect()
+	local effect = data:toSlashEffect()
 	return self:isEnemy(effect.to)
 end
 
@@ -37,15 +37,17 @@ sgs.ai_skill_invoke["xujiu"] = function(self, data)
 	return self:isEnemy(damage.to)
 end
 sgs.ai_skill_invoke[".black"]=function(self, prompt, data)
-	if prompt ~= "@xujiu_ask" then return end
-	local jiu = data:toInt()
-	if jiu >= 3 then
+	if prompt ~= "xujiu_ask" then return end
+	local jiu = self.player:getPile("niangA"):length() + self.player:getPile("niangB"):length()
+	if jiu < 3 then
 		local cards = self.player:getHandcards()
-		cards = sgs.QList2Table(cards)
-		for _, card in ipairs(cards) do
+		for _, card in sgs.qlist(cards) do
 			if card:isBlack() then
-				return card
+				return card:getEffectiveId()
 			end
 		end
 	end
+	return "."
 end
+
+dofile "lua/ai/shineway/kuso-ai.lua"
