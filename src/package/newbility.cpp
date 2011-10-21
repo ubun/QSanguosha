@@ -42,7 +42,7 @@ void Stink::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
     room->throwCard(this);
     ServerPlayer *nextfriend = targets.isEmpty() ? source->getNextAlive() : targets.first();
     room->setEmotion(nextfriend, "bad");
-    if(!room->askForCard(nextfriend, "wall", "haochou", true)){
+    if(!room->askForCard(nextfriend, "wall", "haochou")){
         room->swapSeat(nextfriend, nextfriend->getNextAlive());
     }
     else room->setEmotion(nextfriend, "good");
@@ -1708,6 +1708,16 @@ void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     source->addToPile("ji", this->getSubcards().first(), false);
 }
 
+class BaichuPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return !player->hasEquip(card);
+    }
+    virtual bool willThrow() const{
+        return false;
+    }
+};
+
 class Baichu: public TriggerSkill{
 public:
     Baichu():TriggerSkill("baichu"){
@@ -1730,7 +1740,7 @@ public:
         }
         if(player->getMark("begin") == 0 && event == TurnStart){
             player->drawCards(1);
-            const Card *card = room->askForCard(player, ".", "@baichu", false, false);
+            const Card *card = room->askForCard(player, ".baichu", "@baichu", data);
             if(card)
                 player->addToPile("ji", card->getId());
             else
@@ -1900,6 +1910,7 @@ NewbilityGeneralPackage::NewbilityGeneralPackage()
 
     General *xunyou = new General(this, "xunyou", "wei", 3);
     xunyou->addSkill(new Baichu);
+    patterns.insert(".baichu", new BaichuPattern);
 
     General *ganmi = new General(this, "ganmi", "shu", 4, false);
     ganmi->addSkill(new Yuren);

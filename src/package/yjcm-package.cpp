@@ -328,7 +328,7 @@ public:
             if(source && source != player){
                 if(!player->hasArmorEffect("mushroom")){
 				room->playSkillEffect(objectName(), qrand() % 2 + 3);
-                const Card *card = room->askForCard(source, ".H", "@enyuan", false);
+                const Card *card = room->askForCard(source, ".enyuan", "@enyuan");
                 if(card){
                     room->showCard(source, card->getEffectiveId());
                     player->obtainCard(card);
