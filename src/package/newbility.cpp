@@ -898,7 +898,7 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *shixie, QVariant &) const{
         Room *room = shixie->getRoom();
-        if(room->askForSkillInvoke(shixie, objectName(), true)){
+        if(shixie->isLord() && room->askForSkillInvoke(shixie, objectName(), true)){
             ServerPlayer *target = room->askForPlayerChosen(shixie,room->getOtherPlayers(shixie),objectName());
             QString role = target->getRole();
             room->setPlayerProperty(target, "role", shixie->getRole());
@@ -1766,45 +1766,28 @@ public:
     }
 };
 
-class Nongquan: public GameStartSkill{
+class Nongquan: public TriggerSkill{
 public:
-    Nongquan():GameStartSkill("nongquan"){
-    }
-    virtual int getPriority() const{
-        return -1;
-    }
-    virtual void onGameStart(ServerPlayer *sb) const{
-        sb->drawCards(10);
-        QList<int> quan = sb->handCards().mid(0, 10);
-        foreach(int card_id, quan)
-            sb->addToPile("quan", card_id, false);
-    }
-};
-
-class NongquanEffect: public TriggerSkill{
-public:
-    NongquanEffect():TriggerSkill("#nongquaneffect"){
-        events << AskForPeaches;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target);
+    Nongquan():TriggerSkill("nongquan"){
+        events << Dying;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *sb, QVariant &data) const{
         DyingStruct dying_data = data.value<DyingStruct>();
-        if(dying_data.who != sb || sb->getPile("quan").isEmpty())
+        if(dying_data.who != sb || sb->getMark("@quan") < 1)
             return false;
 
         Room *room = sb->getRoom();
         if(sb->askForSkillInvoke("nongquan", data)){
-            room->throwCard(sb->getPile("quan").first());
+            sb->loseMark("@quan");
             room->setPlayerProperty(sb, "hp", 1);
             sb->drawCards(3);
             if(!sb->faceUp())
                 sb->turnOver();
+            if(sb->isChained()){
+                room->setPlayerProperty(sb, "chained", false);
+            }
         }
-
         return false;
     }
 };
@@ -1849,8 +1832,7 @@ public:
             log.arg = QString::number(1 - ten->getMark("yinfu"));
             ten->getRoom()->sendLog(log);
 
-            ten->obtainCard(card);
-            ten->addToPile("quan", card->getId(), false);
+            ten->gainMark("@quan");
             ten->addMark("yinfu");
         }
         return false;
@@ -1920,10 +1902,10 @@ NewbilityGeneralPackage::NewbilityGeneralPackage()
 
     General *tensb = new General(this, "tensb", "god", 1);
     tensb->addSkill(new Nongquan);
-    tensb->addSkill(new NongquanEffect);
+    tensb->addSkill(new MarkAssignSkill("@quan", 10));
+    related_skills.insertMulti("nongquan", "#@quan");
     tensb->addSkill(new Beigong);
     tensb->addSkill(new Yinfu);
-    related_skills.insertMulti("nongquan", "#nongquaneffect");
 
     General *yanbh = new General(this, "yanbh", "wu", 4);
     yanbh->addSkill(new Jielue);
