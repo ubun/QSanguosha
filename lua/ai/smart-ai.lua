@@ -1430,7 +1430,7 @@ end
 
 function SmartAI:useCardDuel(duel, use)
 	if self.player:hasSkill("wuyan") then return end
-	self:sort(self.enemies,"defense")
+	self:sort(self.enemies,"handcard")
 	local enemies = self:exclude(self.enemies, duel)
 	for _, enemy in ipairs(enemies) do
 		if self:objectiveLevel(enemy)>3 then
