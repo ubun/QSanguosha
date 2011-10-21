@@ -898,6 +898,12 @@ local function getSkillViewCard(card, class_name, player, card_place)
 			end
 		end
 	elseif class_name == "Jink" then
+		if player:hasSkill("baichu") then
+			baichu_card = sgs.Sanguosha:getCard(player:getPile("ji")[1])
+			if card:getNumber() >= baichu_card:getNumber() then
+				return ("jink:baichu[%s:%s]=%d"):format(suit, number, card_id)
+			end
+		end
 		if player:hasSkill("longhun") and player:getHp() <= 1 then
 			if card:getSuit() == sgs.Card_Club then
 				return ("jink:longhun[%s:%s]=%d"):format(suit, number, card_id)
@@ -1145,6 +1151,10 @@ function SmartAI:useBasicCard(card, use,no_distance)
 			end	
 			
 		use.card = card	
+	elseif card:inherits("Stink") then
+		local next_player = self.player:getNextAlive()
+		if self:isFriend(next_player) then return end
+		use.card = card
 	end
 end
 
@@ -1772,6 +1782,7 @@ function SmartAI:useEquipCard(card, use)
 		use.card = card		
 		end
 	elseif card:inherits("Armor") then
+		if card:inherits("ClearShirt") then self:useClearShirt(card, use) return end
 		if card:inherits("GaleShell") then self:useGaleShell(card, use) return end
 	    if self.player:hasSkill("bazhen") then return end
 	 	if not self.player:getArmor() or self.player:getArmor():objectName() == "gale-shell" then use.card=card
