@@ -28,7 +28,7 @@ sgs.dynamic_value = {
 		Collateral = true,
 		
 		GaleShell = true,
-
+		
 		TianyiCard = true,
 		XianzhenCard = true,
 		DimengCard = true,
