@@ -6,7 +6,7 @@ function SmartAI:useNiubi(card, use)
 	return
 end
 
--- Ïã½¶
+-- ï¿½ã½¶
 sgs.ai_skill_playerchosen["banana"] = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	self:sort(targets, "hp")
@@ -17,7 +17,7 @@ sgs.ai_skill_playerchosen["banana"] = function(self, targets)
 	end
 end
 
--- ÀøÖ¾ÕÕÆ¬
+-- ï¿½ï¿½Ö¾ï¿½ï¿½Æ¬
 sgs.ai_skill_invoke["madamfeng"] = function(self, data)
 	self:sort(self.friends, "hp")
 	return self.friends[1]:isWounded()
@@ -32,7 +32,7 @@ sgs.ai_skill_playerchosen["madamfeng"] = function(self, targets)
 	end
 end
 
--- À¬»øÍ°
+-- ï¿½ï¿½ï¿½ï¿½Í°
 local dustbin_skill = {}
 dustbin_skill.name = "dustbin"
 table.insert(sgs.ai_skills, dustbin_skill)
@@ -45,7 +45,7 @@ dustbin_skill.getTurnUseCard = function(self)
 	end
 end
 
--- ÇÝÊÞÍ¼
+-- ï¿½ï¿½ï¿½ï¿½Í¼
 local animals_skill={}
 animals_skill.name = "animals"
 table.insert(sgs.ai_skills, animals_skill)
@@ -69,7 +69,7 @@ animals_skill.getTurnUseCard = function(self)
 	return skillcard
 end
 
--- ß¦ÃæÕÈ
+-- ß¦ï¿½ï¿½ï¿½ï¿½
 local rollingpin_skill={}
 rollingpin_skill.name = "rollingpin"
 table.insert(sgs.ai_skills, rollingpin_skill)
@@ -97,12 +97,12 @@ sgs.ai_skill_use_func["RollingpinCard"] = function(card,use,self)
 	use.card = card
 end
 
--- Âé×íÇ¹
+-- ï¿½ï¿½ï¿½ï¿½Ç¹
 sgs.ai_skill_invoke["tranqgun"] = function(self, data)
 	return self:isEnemy(data:toPlayer())
 end
 
--- ´óÊ¥Æì
+-- ï¿½ï¿½Ê¥ï¿½ï¿½
 local wookon_skill={}
 wookon_skill.name = "wookon"
 table.insert(sgs.ai_skills, wookon_skill)
