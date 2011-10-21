@@ -289,6 +289,16 @@ void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     source->addToPile("ji", this->getSubcards().first(), false);
 }
 
+class BaichuPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return !player->hasEquip(card);
+    }
+    virtual bool willThrow() const{
+        return false;
+    }
+};
+
 class Baichu: public TriggerSkill{
 public:
     Baichu():TriggerSkill("baichu"){
@@ -311,7 +321,7 @@ public:
         }
         if(player->getMark("begin") == 0 && event == TurnStart){
             player->drawCards(1);
-            const Card *card = room->askForCard(player, ".", "@baichu", false, false);
+            const Card *card = room->askForCard(player, ".baichu", "@baichu", data);
             if(card)
                 player->addToPile("ji", card->getId());
             else
@@ -798,7 +808,7 @@ public:
         if(qiong->getPhase() != Player::Start)
             return false;
         Room *room = qiong->getRoom();
-        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask", false, false);
+        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask");
         if(card){
             qiong->addToPile("niangA", card->getId());
         }
@@ -810,6 +820,9 @@ class BlackPattern: public CardPattern{
 public:
     virtual bool match(const Player *player, const Card *card) const{
         return card->isBlack();
+    }
+    virtual bool willThrow() const{
+        return false;
     }
 };
 
@@ -1090,17 +1103,12 @@ RedPackage::RedPackage()
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
     redxunyou->addSkill(new Baichu);
+    patterns[".baichu"] = new BaichuPattern;
 
     General *redhejin = new General(this, "redhejin", "qun", 4);
     redhejin->addSkill(new Tonglu);
     redhejin->addSkill(new Liehou);
     redhejin->addSkill(new Zide);
-/*
-何进 群 4体力
-【同戮】出牌阶段，你可以令场上武将牌正面朝上的角色依次选择是否愿意将自己的武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为愿意翻面的武将数量
-【列侯】弃牌阶段弃牌后，你可选择一个背面向上的角色，令其获得你弃掉的牌或摸一张牌
-【自得】锁定技，回合结束阶段，若你在本回合内没有发动“同戮”，立即摸一张牌
-*/
 
     General *redguansuo = new General(this, "redguansuo", "shu", 3);
     redguansuo->addSkill(new Xiefang);

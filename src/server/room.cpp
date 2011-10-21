@@ -206,12 +206,6 @@ void Room::killPlayer(ServerPlayer *victim, DamageStruct *reason){
     alive_players.removeOne(victim);
 
     LogMessage log;
-    /*if(victim->hasSkill("yuwen")){
-        killer = victim;
-        log.type = "#Yuweneffect";
-        log.from = killer;
-        sendLog(log);
-    }*/
     log.to << victim;
     log.arg = victim->getRole();
     log.from = killer;
@@ -603,7 +597,7 @@ int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QStrin
     return card_id;
 }
 
-const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data, bool will_throw){
+const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data){
     const Card *card = NULL;
 
     QVariant asked = pattern;
@@ -645,9 +639,8 @@ const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const
         if(card->getTypeId() != Card::Skill){
             const CardPattern *card_pattern = Sanguosha->getPattern(pattern);
             if(card_pattern == NULL || card_pattern->willThrow())
-                if(will_throw)
-                    throwCard(card);
-        }else if(card->willThrow() && will_throw)
+                throwCard(card);
+        }else if(card->willThrow())
             throwCard(card);
 
         QVariant decisionData = QVariant::fromValue("cardResponsed:"+pattern+":"+prompt+":_"+card->toString()+"_");
