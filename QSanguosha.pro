@@ -134,7 +134,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/standard.h \
 	src/package/thicket.h \
 	src/package/wind.h \
-	src/package/wisdom.h \
+	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
 	src/scenario/boss-mode-scenario.h \
