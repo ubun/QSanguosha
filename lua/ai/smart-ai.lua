@@ -3350,3 +3350,6 @@ dofile "lua/ai/fancheng-ai.lua"
 dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"
+
+dofile "lua/ai/shineway/red-ai.lua"
+dofile "lua/ai/shineway/cyan-ai.lua"
