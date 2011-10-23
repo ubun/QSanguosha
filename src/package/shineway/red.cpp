@@ -197,6 +197,20 @@ public:
     }
 };
 
+XianhaiCard::XianhaiCard(){
+}
+
+bool XianhaiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(to_select->getJudgingArea().contains(Sanguosha->getCard(this->getSubcards().first())))
+        return false;
+    return targets.isEmpty();
+}
+
+void XianhaiCard::onEffect(const CardEffectStruct &effect) const{
+    effect.from->getRoom()->moveCardTo(Sanguosha->getCard(this->getSubcards().first()), effect.to, Player::Judging);
+    effect.from->drawCards(1);
+}
+
 class Xianhai: public OneCardViewAsSkill{
 public:
     Xianhai():OneCardViewAsSkill("xianhai"){
@@ -214,19 +228,6 @@ public:
         return card;
     }
 };
-
-XianhaiCard::XianhaiCard(){
-}
-
-bool XianhaiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(to_select->getJudgingArea().contains(Sanguosha->getCard(this->getSubcards().first())))
-        return false;
-    return targets.isEmpty();
-}
-
-void XianhaiCard::onEffect(const CardEffectStruct &effect) const{
-    effect.from->getRoom()->moveCardTo(Sanguosha->getCard(this->getSubcards().first()), effect.to, Player::Judging);
-}
 
 class BaichuViewAsSkill:public OneCardViewAsSkill{
 public:

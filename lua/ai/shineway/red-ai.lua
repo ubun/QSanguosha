@@ -1,5 +1,24 @@
 -- RedPackage's AI by Ubun.
 
+-- xianhai
+sgs.ai_skill_invoke["xianhai"] = true
+local xianhai_skill = {}
+xianhai_skill.name = "xianhai"
+table.insert(sgs.ai_skills, xianhai_skill)
+baichu_skill.getTurnUseCard = function(self)
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+	for _, card in ipairs(cards) do
+		if card:inherits("Disaster") then
+			return sgs.Card_Parse("@XianhaiCard=" .. card:getEffectiveId())
+		end
+	end
+end
+sgs.ai_skill_use_func["XianhaiCard"] = function(card, use, self)
+	use.card = card
+	if use.to then use.to:append(self.enemies[1]) end
+end
+
 -- baichu
 sgs.ai_skill_invoke["baichu"] = true
 local baichu_skill = {}
@@ -20,10 +39,8 @@ sgs.ai_skill_use_func["BaichuCard"] = function(card, use, self)
 end
 
 -- zhubing
-sgs.ai_skill_invoke["zhubing"] = function(self, data)
-	return self.player:getLostHp() > 1
-end
-sgs.ai_skill_invoke["super_zaiqi"] = sgs.ai_skill_invoke["zhubing"]
+sgs.ai_skill_invoke["zhubing"] = sgs.ai_skill_invoke["zaiqi"]
+sgs.ai_skill_invoke["super_zaiqi"] = sgs.ai_skill_invoke["zaiqi"]
 
 -- jielue
 sgs.ai_skill_invoke["jielue"] = function(self, data)
