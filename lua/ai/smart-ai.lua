@@ -802,15 +802,12 @@ end
 -- yicai,badao,yitian-slash,moon-spear-slash
 sgs.ai_skill_use["slash"] = function(self, prompt)
 	if prompt ~= "@yicai" and prompt ~= "@badao" and
-		prompt ~= "yitian-slash" and prompt ~= "@moon-spear-slash" then return end
-	local others=self.room:getOtherPlayers(self.player)
-	others=sgs.QList2Table(others)
+		prompt ~= "yitian-slash" and prompt ~= "@moon-spear-slash" then return "." end
+    local slash=self:getCard("Slash")
+	if not slash then return "." end
 	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy, true) then
-            card_id = self:getCardId("Slash")
-			if card_id then
-				return ("%d->%s"):format(card_id, enemy:objectName())
-			end
+		if self.player:canSlash(enemy, true) and not self:slashProhibit(slash, enemy) and self:slashIsEffective(slash, enemy) then
+			return ("%d->%s"):format(slash:getId(), enemy:objectName())
 		end
 	end
 	return "."
@@ -1430,12 +1427,13 @@ end
 
 function SmartAI:useCardDuel(duel, use)
 	if self.player:hasSkill("wuyan") then return end
-	self:sort(self.enemies,"defense")
+	self:sort(self.enemies,"handcard")
 	local enemies = self:exclude(self.enemies, duel)
 	for _, enemy in ipairs(enemies) do
 		if self:objectiveLevel(enemy)>3 then
 			local n1 = self:getCardsNum("Slash")
 			local n2 = enemy:getHandcardNum()
+			if enemy:hasSkill("wushuang") then n2=n2*2 end
 			local useduel
 			if self:hasTrickEffective(duel, enemy) then
 				if n1 >= n2 then		
@@ -2339,7 +2337,8 @@ end
 
 
 function SmartAI:getCardRandomly(who, flags)
-	local cards = who:getCards(flags)						
+	local cards = who:getCards(flags)
+	if cards:isEmpty() then return -1 end
 	local r = math.random(0, cards:length()-1)
 	local card = cards:at(r)
 	if self:isEquip("SilverLion", who) then
