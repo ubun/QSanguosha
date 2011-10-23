@@ -5,7 +5,7 @@ sgs.ai_skill_invoke["xianhai"] = true
 local xianhai_skill = {}
 xianhai_skill.name = "xianhai"
 table.insert(sgs.ai_skills, xianhai_skill)
-baichu_skill.getTurnUseCard = function(self)
+xianhai_skill.getTurnUseCard = function(self)
 	local cards = self.player:getHandcards()
 	cards = sgs.QList2Table(cards)
 	for _, card in ipairs(cards) do
@@ -41,7 +41,7 @@ end
 -- tonglu-response
 sgs.ai_skill_choice["tonglu"] = function(self, choices)
 	local hejin = self.room:findPlayerBySkillName("tonglu")
-	if hejin and self:isFriend(hejin) and self.player:getHp() > 2 and player:getHandcardNum() > 2 then
+	if hejin and self:isFriend(hejin) and self.player:getHp() > 2 and self.player:getHandcardNum() > 2 then
 		return "agree"
 	else
 		return "deny"
@@ -52,6 +52,7 @@ end
 sgs.ai_skill_choice["liehou"] = function(self, choices)
 	for _, player in sgs.qlist(self.room:getAllPlayers()) do
 		if not player:faceUp() and self:isFriend(player) then
+			if choices == "get+draw+cancel" then return "get" end
 			return "draw"
 		end
 	end
@@ -64,6 +65,62 @@ sgs.ai_skill_playerchosen["liehou"] = function(self, targets)
 		end
 	end
 	return self.friends[1]
+end
+
+-- xiefang
+sgs.ai_skill_invoke["xiefang"] = true
+local xiefang_skill = {}
+xiefang_skill.name = "xiefang"
+table.insert(sgs.ai_skills, xiefang_skill)
+xiefang_skill.getTurnUseCard = function(self)
+	if not self:slashIsAvailable(self.player) then return end
+	for _, enemy in ipairs(self.enemies) do
+		local weapon = enemy:getWeapon()
+		if weapon then
+			return sgs.Card_Parse("@XiefangCard=.")
+		end
+	end
+end
+sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
+	self:sort(self.enemies, "handcard")
+	for _, enemy in ipairs(self.enemies) do
+		if self.player:canSlash(enemy, true) and use.to then
+			use.to:append(enemy)
+			use.card = card
+			return
+		end
+	end
+	return
+end
+
+-- xiefang-slash&jink
+sgs.ai_skill_invoke["xiefang"] = function(self, data)
+	local asked = data:toString()
+	for _, enemy in ipairs(self.enemies) do
+		local weapon = enemy:getWeapon()
+		local armor = enemy:getArmor() or enemy:getDefensiveHorse() or enemy:getOffensiveHorse()
+		if asked == "slash" then
+			return weapon
+		elseif asked == "jink" then
+			return armor
+		end
+	end
+end
+sgs.ai_skill_playerchosen["xiefang"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isEnemy(player) then
+			return player
+		end
+	end
+end
+sgs.ai_skill_cardchosen["xiefang"] = function(self, who)
+	local ecards = who:getCards("e")
+	ecards = sgs.QList2Table(ecards)
+	for _, unweapon in ipairs(ecards) do
+		if not unweapon:inherits("Weapon") then
+			return unweapon
+		end
+	end
 end
 
 -- zhubing

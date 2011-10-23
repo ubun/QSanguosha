@@ -40,7 +40,10 @@ sgs.ai_use_value =
 		ShenfenCard = 8,
 		GreatYeyanCard = 8,
 		MediumYeyanCard = 5.6,
+		
 		BaichuCard = 9.1,
+		XiefangCard = 9.3,
+		XianhaiCard = 5,
 --normal cards
 		ExNihilo=10,
 
@@ -74,6 +77,7 @@ sgs.ai_use_value =
 		--special
 		Analeptic = 5.98,
 		Jink=8.9,
+		
 		Stink = 5,
 		Sacrifice = 3.5,
 }
@@ -102,7 +106,10 @@ sgs.ai_use_priority = {
 		MediumYeyanCard = 6,
 		SmallYeyanCard = 2.3,
 		JilveCard = 0.4,
+		
 		BaichuCard = 2,
+		XiefangCard = 10,
+		XianhaiCard = 3,
 --
 
 

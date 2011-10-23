@@ -287,7 +287,7 @@ BaichuCard::BaichuCard(){
 
 void BaichuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     room->obtainCard(source, source->getPile("ji").first());
-    source->addToPile("ji", this->getSubcards().first(), false);
+    source->addToPile("ji", this->getSubcards().first());
 }
 
 class BaichuPattern: public CardPattern{
@@ -578,7 +578,7 @@ public:
         }
         if(players.isEmpty())
             return false;
-        if(room->askForSkillInvoke(player, objectName())){
+        if(room->askForSkillInvoke(player, objectName(), data)){
             ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
             int card_id = asked == "slash" ?
                           target->getWeapon()->getId() :
