@@ -38,6 +38,34 @@ sgs.ai_skill_use_func["BaichuCard"] = function(card, use, self)
 	use.card = card
 end
 
+-- tonglu-response
+sgs.ai_skill_choice["tonglu"] = function(self, choices)
+	local hejin = self.room:findPlayerBySkillName("tonglu")
+	if hejin and self:isFriend(hejin) and self.player:getHp() > 2 and player:getHandcardNum() > 2 then
+		return "agree"
+	else
+		return "deny"
+	end
+end
+
+-- liehou
+sgs.ai_skill_choice["liehou"] = function(self, choices)
+	for _, player in sgs.qlist(self.room:getAllPlayers()) do
+		if not player:faceUp() and self:isFriend(player) then
+			return "draw"
+		end
+	end
+	return "cancel"
+end
+sgs.ai_skill_playerchosen["liehou"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isFriend(player) and player:getHandcardNum() < 2 then
+			return player
+		end
+	end
+	return self.friends[1]
+end
+
 -- zhubing
 sgs.ai_skill_invoke["zhubing"] = sgs.ai_skill_invoke["zaiqi"]
 sgs.ai_skill_invoke["super_zaiqi"] = sgs.ai_skill_invoke["zaiqi"]

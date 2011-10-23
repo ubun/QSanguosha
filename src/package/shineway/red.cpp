@@ -405,14 +405,6 @@ void TongluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     source->setMark("@wocao", 0);
     foreach(ServerPlayer *tmp, players){
         QString result = room->askForChoice(tmp, "tonglu", "agree+deny");
-        if(tmp->getState() == "robot" || tmp->getState() == "offline" || tmp->getState() == "trust"){
-            if(tmp->getRole() == source->getRole())
-                result = "agree";
-            else if(source->isLord() && tmp->getRole() == "loyalist")
-                result == "agree";
-            else
-                result = "deny";
-        }
         if(result != "deny"){
             tmp->turnOver();
             source->gainMark("@wocao", 1);
