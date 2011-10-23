@@ -50,7 +50,7 @@ SOURCES += src/main.cpp \
 	src/package/standard.cpp \
 	src/package/thicket.cpp \
 	src/package/wind.cpp \
-	src/package/wisdom.cpp \
+	src/package/wisdompackage.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \
 	src/scenario/boss-mode-scenario.cpp \
@@ -94,7 +94,6 @@ SOURCES += src/main.cpp \
         src/scenario/OExiapi-scenario.cpp \
         src/package/returnoflegend.cpp \
         src/package/lixianji.cpp\
-        src/dialog/couplepairdialog.cpp\
         src/package/OETan.cpp\
     src/package/OETanB.cpp
 
@@ -118,6 +117,7 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/distanceviewdialog.h \
 	src/dialog/generaloverview.h \
 	src/dialog/generalselector.h \
+	src/dialog/halldialog.h \
 	src/dialog/mainwindow.h \
 	src/dialog/packagingeditor.h \
         src/dialog/playercarddialog.h \
@@ -135,7 +135,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/standard.h \
 	src/package/thicket.h \
 	src/package/wind.h \
-	src/package/wisdom.h \
+	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
 	src/scenario/boss-mode-scenario.h \
@@ -169,13 +169,12 @@ HEADERS += src/client/aux-skills.h \
 	src/ui/roomscene.h \
 	src/ui/startscene.h \
 	src/ui/window.h \
-	src/util/detector.h \
+        src/util/detector.h \
         src/util/nativesocket.h \
 	src/util/recorder.h \	
 	src/util/socket.h \ 
         src/ui/indicatoritem.h \
         src/dialog/roleassigndialog.h \
-        src/dialog/halldialog.h \
         src/scenario/OExiaoyaojin-scenario.h \
         src/scenario/OEhuangjin-scenario.h \
         src/scenario/OEhulao-scenario.h \

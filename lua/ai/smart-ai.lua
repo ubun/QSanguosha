@@ -802,15 +802,12 @@ end
 -- yicai,badao,yitian-slash,moon-spear-slash
 sgs.ai_skill_use["slash"] = function(self, prompt)
 	if prompt ~= "@yicai" and prompt ~= "@badao" and
-		prompt ~= "yitian-slash" and prompt ~= "@moon-spear-slash" then return end
-	local others=self.room:getOtherPlayers(self.player)
-	others=sgs.QList2Table(others)
+		prompt ~= "yitian-slash" and prompt ~= "@moon-spear-slash" then return "." end
+    local slash=self:getCard("Slash")
+	if not slash then return "." end
 	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy, true) then
-            card_id = self:getCardId("Slash")
-			if card_id then
-				return ("%d->%s"):format(card_id, enemy:objectName())
-			end
+		if self.player:canSlash(enemy, true) and not self:slashProhibit(slash, enemy) and self:slashIsEffective(slash, enemy) then
+			return ("%d->%s"):format(slash:getId(), enemy:objectName())
 		end
 	end
 	return "."
@@ -1012,39 +1009,39 @@ function SmartAI:slashProhibit(card,enemy)
             if self:hasArmor(enemy, "vine") then return true end
         end
         if enemy:isChained() and not card:inherits("NatureSlash") then return true end
-    end
-    
-    if enemy:hasSkill("liuli") then 
-        if enemy:getHandcardNum()<1 then return false end
-        for _, friend in ipairs(self.friends_noself) do
-            if enemy:canSlash(friend,true) and self:slashIsEffective(card, friend) then return true end
-        end
-    end
-    
-    if enemy:hasSkill("leiji") then 
-        if self.player:hasSkill("tieji") or self.player:hasSkill("liegong") then return false end
-        
-        if enemy:getHandcardNum()>=2 then return true end
-        if self:isEquip("EightDiagram", enemy) then 
-            local equips=enemy:getEquips()
-            for _,equip in sgs.qlist(equips) do
-                if equip:getSuitString()=="spade" then return true end
-            end
-        end
-    end
-    
-    if enemy:hasSkill("tiandu") then 
-        if self:hasArmor(enemy, "eight_diagram") then return true end
-    end
-    
-    if enemy:hasSkill("ganglie") then
-        if self.player:getHandcardNum()+self.player:getHp()<5 then return true end
-    end
-	
-	if enemy:hasSkill("shenjun") and (enemy:getGeneral():isMale()~=self.player:getGeneral():isMale()) and not card:inherits("ThunderSlash") then
-	    return true
+    else    
+		if enemy:hasSkill("liuli") then 
+			if enemy:getHandcardNum()<1 then return false end
+			for _, friend in ipairs(self.friends_noself) do
+				if enemy:canSlash(friend,true) and self:slashIsEffective(card, friend) then return true end
+			end
+		end
+		
+		if enemy:hasSkill("leiji") then 
+			if self.player:hasSkill("tieji") or self.player:hasSkill("liegong") then return false end
+			
+			if enemy:getHandcardNum()>=2 then return true end
+			if self:isEquip("EightDiagram", enemy) then 
+				local equips=enemy:getEquips()
+				for _,equip in sgs.qlist(equips) do
+					if equip:getSuitString()=="spade" then return true end
+				end
+			end
+		end
+		
+		if enemy:hasSkill("tiandu") then 
+			if self:hasArmor(enemy, "eight_diagram") then return true end
+		end
+
+		if enemy:hasSkill("ganglie") then
+			if self.player:getHandcardNum()+self.player:getHp()<5 then return true end
+		end	
+		
+		if enemy:hasSkill("shenjun") and (enemy:getGeneral():isMale()~=self.player:getGeneral():isMale()) and not card:inherits("ThunderSlash") then
+			return true
+		end
 	end
-	
+
 	return not self:slashIsEffective(card, enemy)
 end
 
@@ -1430,12 +1427,13 @@ end
 
 function SmartAI:useCardDuel(duel, use)
 	if self.player:hasSkill("wuyan") then return end
-	self:sort(self.enemies,"defense")
+	self:sort(self.enemies,"handcard")
 	local enemies = self:exclude(self.enemies, duel)
 	for _, enemy in ipairs(enemies) do
 		if self:objectiveLevel(enemy)>3 then
 			local n1 = self:getCardsNum("Slash")
 			local n2 = enemy:getHandcardNum()
+			if enemy:hasSkill("wushuang") then n2=n2*2 end
 			local useduel
 			if self:hasTrickEffective(duel, enemy) then
 				if n1 >= n2 then		
@@ -2182,7 +2180,7 @@ function SmartAI:sortByDynamicUsePriority(cards)
 		if value1 ~= value2 then
 			return value1 > value2
 		else
-			return a and a:getTypeId() ~= sgs.Card_Skill
+			return a and a:getTypeId() ~= sgs.Card_Skill and not (b and b:getTypeId() ~= sgs.Card_Skill)
 		end
 	end
 
@@ -2339,7 +2337,8 @@ end
 
 
 function SmartAI:getCardRandomly(who, flags)
-	local cards = who:getCards(flags)						
+	local cards = who:getCards(flags)
+	if cards:isEmpty() then return -1 end
 	local r = math.random(0, cards:length()-1)
 	local card = cards:at(r)
 	if self:isEquip("SilverLion", who) then
