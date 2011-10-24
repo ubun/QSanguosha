@@ -852,6 +852,8 @@ end
 
 function SmartAI:slashIsAvailable(player)
 	player = player or self.player
+	if player:hasFlag("tianyi_failed") or player:hasFlag("xianzhen_failed") then return false end
+	
 	if player:hasWeapon("crossbow") or player:hasSkill("paoxiao") then
 		return true
 	end
@@ -1008,7 +1010,8 @@ function SmartAI:slashProhibit(card,enemy)
         if card:inherits("FireSlash") or self.player:hasWeapon("fan") then
             if self:hasArmor(enemy, "vine") then return true end
         end
-        if enemy:isChained() and not card:inherits("NatureSlash") then return true end
+        if enemy:isChained() and card:inherits("NatureSlash") then return true end
+		if self:getCardsNum("Jink",enemy)==0 and enemy:getHp()<2 and self:slashIsEffective(card,enemy) then return true end
     else    
 		if enemy:hasSkill("liuli") then 
 			if enemy:getHandcardNum()<1 then return false end
@@ -1955,6 +1958,8 @@ function SmartAI:getUseValue(card)
 			v=v+self:getCardsNum("Slash") 
 		elseif card:inherits("Jink") then
 			if self:getCardsNum("Jink")>1 then v=v-6 end
+		elseif card:inherits("Shit") and self.player:hasSkill("kuanggu") and card:getSuit()~=sgs.Card_Spade then
+			v = 0.1
 		end
 	elseif card:getTypeId() == sgs.Card_Trick then
 		if self.player:getWeapon() and not self:hasSkills(sgs.lose_equip_skill) and card:inherits("Collateral") then v=2 end
@@ -2813,7 +2818,9 @@ function SmartAI:askForSinglePeach(dying)
 	end	
 	
 	if self:isFriend(dying) then
-		card_str = self:getGuhuoCard("Analeptic") or self:getGuhuoCard("Peach")
+		if self.player:objectName() == dying:objectName() then card_str = self:getGuhuoCard("Peach") 
+		else card_str = self:getGuhuoCard("Analeptic") or self:getGuhuoCard("Peach")
+		end
 		if card_str then return sgs.Card_Parse(card_str) end
 		
 		for _, card in sgs.qlist(cards) do
@@ -2824,17 +2831,15 @@ function SmartAI:askForSinglePeach(dying)
 					card_str = getSkillViewCard(card, "Analeptic", self.player, self.room:getCardPlace(card:getEffectiveId()))
 					if card_str then return sgs.Card_Parse(card_str) end
 				end
-			else
-				if card:inherits("Peach") then
-					if not (card:getSuit() == sgs.Card_Heart and self.player:hasSkill("wushen")) then
-						return card
-					end
-				elseif card:isRed() and self.player:hasSkill("jijiu") then
+			end
+			
+			if card:inherits("Peach") then
+				if not (card:getSuit() == sgs.Card_Heart and self.player:hasSkill("wushen")) then
 					return card
-				elseif self:canViewAs(card, "Peach") then
-					card_str = getSkillViewCard(card, "Peach", self.player, self.room:getCardPlace(card:getEffectiveId()))
-					if card_str then return sgs.Card_Parse(card_str) end
 				end
+			elseif self:canViewAs(card, "Peach") then
+				card_str = getSkillViewCard(card, "Peach", self.player, self.room:getCardPlace(card:getEffectiveId()))
+				if card_str then return sgs.Card_Parse(card_str) end
 			end
 		end
 	end
@@ -2947,6 +2952,12 @@ function SmartAI:cardNeed(card)
     end
     if card:inherits("Slash") and (self:getCardsNum("Slash")>0) then return 4 end
     if card:inherits("Weapon") and (not self.player:getWeapon()) and (self:getCardsNum("Slash")>1) then return 6 end
+	if card:inherits("Nullification") and self:getCardsNum("Nullification")==0 then
+		if self.player:containsTrick("indulgence") or self.player:containsTrick("supply_shortage") then return 10 end
+		for _,friend in ipairs(self.friends) do
+			if friend:containsTrick("indulgence") or friend:containsTrick("supply_shortage") then return 7 end
+		end
+	end
     return self:getUseValue(card)
 end
 
