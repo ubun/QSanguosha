@@ -228,4 +228,34 @@ sgs.ai_skill_invoke[".black"]=function(self, prompt, data)
 	return "."
 end
 
+-- goulian
+sgs.ai_skill_invoke["goulian"] = true
+local goulian_skill = {}
+goulian_skill.name = "goulian"
+table.insert(sgs.ai_skills, goulian_skill)
+goulian_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("GoulianCard") or self.player:isKongcheng() then return end
+	local card = self.player:getRandomHandCard()
+	return sgs.Card_Parse("@GoulianCard=" .. card:getEffectiveId())
+end
+sgs.ai_skill_use_func["GoulianCard"] = function(card, use, self)
+	for _, player in ipairs (self.friends_noself) do
+		if player:getGeneral():isMale() then
+			if use.to then use.to:append(player) end
+			use.card = card
+			return
+		end
+	end
+end
+sgs.ai_skill_choice["goulian"] = function(self, choices)
+	if self.player:isWounded() then
+		return "a"
+	end
+	local luban = self.room:findPlayerBySkillName("goulian")
+	if luban and self:isFriend(luban) then
+		return "b"
+	end
+	return "a"
+end
+
 dofile "lua/ai/shineway/kuso-ai.lua"

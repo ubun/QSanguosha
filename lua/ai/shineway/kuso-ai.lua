@@ -23,7 +23,7 @@ function SmartAI:useClearShirt(card, use)
 end
 
 -- kawaii_dress
-function SmartAI:self:useKawaiiDress(card, use)
+function SmartAI:useKawaiiDress(card, use)
 	if self.player:getGeneral():isFemale() then
 		use.card = card
 	elseif self.player:getHp() > 1 then
