@@ -852,6 +852,8 @@ end
 
 function SmartAI:slashIsAvailable(player)
 	player = player or self.player
+	if player:hasFlag("tianyi_failed") or player:hasFlag("xianzhen_failed") then return false end
+	
 	if player:hasWeapon("crossbow") or player:hasSkill("paoxiao") then
 		return true
 	end
@@ -1016,7 +1018,8 @@ function SmartAI:slashProhibit(card,enemy)
         if card:inherits("FireSlash") or self.player:hasWeapon("fan") then
             if self:hasArmor(enemy, "vine") then return true end
         end
-        if enemy:isChained() and not card:inherits("NatureSlash") then return true end
+        if enemy:isChained() and card:inherits("NatureSlash") then return true end
+		if self:getCardsNum("Jink",enemy)==0 and enemy:getHp()<2 and self:slashIsEffective(card,enemy) then return true end
     else    
 		if enemy:hasSkill("liuli") then 
 			if enemy:getHandcardNum()<1 then return false end
@@ -2826,7 +2829,9 @@ function SmartAI:askForSinglePeach(dying)
 	end	
 	
 	if self:isFriend(dying) then
-		card_str = self:getGuhuoCard("Analeptic") or self:getGuhuoCard("Peach")
+		if self.player:objectName() == dying:objectName() then card_str = self:getGuhuoCard("Peach") 
+		else card_str = self:getGuhuoCard("Analeptic") or self:getGuhuoCard("Peach")
+		end
 		if card_str then return sgs.Card_Parse(card_str) end
 		
 		for _, card in sgs.qlist(cards) do
@@ -2837,17 +2842,15 @@ function SmartAI:askForSinglePeach(dying)
 					card_str = getSkillViewCard(card, "Analeptic", self.player, self.room:getCardPlace(card:getEffectiveId()))
 					if card_str then return sgs.Card_Parse(card_str) end
 				end
-			else
-				if card:inherits("Peach") then
-					if not (card:getSuit() == sgs.Card_Heart and self.player:hasSkill("wushen")) then
-						return card
-					end
-				elseif card:isRed() and self.player:hasSkill("jijiu") then
+			end
+			
+			if card:inherits("Peach") then
+				if not (card:getSuit() == sgs.Card_Heart and self.player:hasSkill("wushen")) then
 					return card
-				elseif self:canViewAs(card, "Peach") then
-					card_str = getSkillViewCard(card, "Peach", self.player, self.room:getCardPlace(card:getEffectiveId()))
-					if card_str then return sgs.Card_Parse(card_str) end
 				end
+			elseif self:canViewAs(card, "Peach") then
+				card_str = getSkillViewCard(card, "Peach", self.player, self.room:getCardPlace(card:getEffectiveId()))
+				if card_str then return sgs.Card_Parse(card_str) end
 			end
 		end
 	end
