@@ -1,5 +1,27 @@
 -- RedPackage's AI by Ubun.
 
+-- tongmou
+sgs.ai_skill_invoke["tongmou"] = true
+sgs.ai_skill_playerchosen["tongmou_tie"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isEnemy(player) and player:getHandcardNum() > 2 then
+			return player
+		end
+	end
+	return self.enemies[1]
+end
+sgs.ai_skill_invoke["tongmou"] = true
+local tongmou_skill = {}
+tongmou_skill.name = "tongmou"
+table.insert(sgs.ai_skills, tongmou_skill)
+tongmou_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("TongmouCard") then return end
+	return sgs.Card_Parse("@TongmouCard=.")
+end
+sgs.ai_skill_use_func["TongmouCard"] = function(card, use, self)
+	use.card = card
+end
+
 -- xianhai
 sgs.ai_skill_invoke["xianhai"] = true
 local xianhai_skill = {}
@@ -82,15 +104,57 @@ xiefang_skill.getTurnUseCard = function(self)
 	end
 end
 sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
-	self:sort(self.enemies, "handcard")
-	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy, true) and use.to then
-			use.to:append(enemy)
-			use.card = card
-			return
+--	self:sort(self.enemies, "handcard")
+	self:sort(self.enemies, "threat")
+	
+	for _, friend in ipairs(self.friends_noself) do
+		if friend:getWeapon() and self:hasSkills(sgs.lose_equip_skill, friend) then
+			for _, enemy in ipairs(self.enemies) do
+				if self.player:canSlash(enemy) then
+					use.card = card
+				end
+				if use.to then use.to:append(friend) end
+				if use.to then use.to:append(enemy) end
+				return
+			end
 		end
 	end
-	return
+
+	local n = nil 
+	local final_enemy = nil
+	for _, enemy in ipairs(self.enemies) do
+		if not self.room:isProhibited(self.player, enemy, card)
+			and not self:hasSkill(sgs.lose_equip_skill, enemy)
+			and enemy:getWeapon() then
+
+			for _, enemy2 in ipairs(self.enemies) do
+				if self.player:canSlash(enemy2) then
+					if enemy:getHandcardNum() == 0 then
+						use.card = card
+						if enemy == enemy2 then
+							if use.to then use.to:append(enemy) end
+							return
+						end
+						if use.to then use.to:append(enemy) end
+						if use.to then use.to:append(enemy2) end
+						return
+					else
+						n = 1;
+						final_enemy = enemy2
+					end
+				end
+			end
+			if n then use.card = card end
+			if enemy == final_enemy then
+				if use.to then use.to:append(enemy) end
+				return
+			end
+			if use.to then use.to:append(enemy) end
+			if use.to then use.to:append(final_enemy) end
+			return
+		end
+		n = nil
+	end
 end
 
 -- xiefang-slash&jink
@@ -121,6 +185,18 @@ sgs.ai_skill_cardchosen["xiefang"] = function(self, who)
 			return unweapon
 		end
 	end
+end
+
+-- yanyun
+sgs.ai_skill_invoke["slash"] = function(self, prompt, data)
+	if prompt ~= "yanyun-slash" then return end
+	local cards = self.player:getHandcards()
+	for _, card in sgs.qlist(cards) do
+		if card:inherits("Slash") then
+			return card:getEffectiveId()
+		end
+	end
+	return "."
 end
 
 -- zhubing

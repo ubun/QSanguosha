@@ -43,6 +43,7 @@ sgs.ai_use_value =
 		
 		BaichuCard = 9.1,
 		XiefangCard = 9.3,
+		TongmouCard = 9.2,
 		XianhaiCard = 5,
 --normal cards
 		ExNihilo=10,
@@ -109,6 +110,7 @@ sgs.ai_use_priority = {
 		
 		BaichuCard = 2,
 		XiefangCard = 10,
+		TongmouCard = 0.5,
 		XianhaiCard = 3,
 --
 
