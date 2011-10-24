@@ -22,6 +22,16 @@ function SmartAI:useClearShirt(card, use)
 	return
 end
 
+-- kawaii_dress
+function SmartAI:self:useKawaiiDress(card, use)
+	if self.player:getGeneral():isFemale() then
+		use.card = card
+	elseif self.player:getHp() > 1 then
+		use.card = card
+	end
+	return
+end
+
 -- sacrifice
 function SmartAI:useCardSacrifice(sacrifice, use)
 	if self.player:hasSkill("wuyan") then return end

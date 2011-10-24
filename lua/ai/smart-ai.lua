@@ -1786,6 +1786,7 @@ function SmartAI:useEquipCard(card, use)
 		end
 	elseif card:inherits("Armor") then
 		if card:inherits("ClearShirt") then self:useClearShirt(card, use) return end
+		if card:inherits("KawaiiDress") then self:useKawaiiDress(card, use) return end
 		if card:inherits("GaleShell") then self:useGaleShell(card, use) return end
 	    if self.player:hasSkill("bazhen") then return end
 	 	if not self.player:getArmor() or self.player:getArmor():objectName() == "gale-shell" then use.card=card
