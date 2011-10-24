@@ -110,7 +110,7 @@ sgs.ai_use_priority = {
 		JilveCard = 0.4,
 
 		DiezhiCard = 10,
-		BaichuCard = 8,
+		BaichuCard = 2,
 		WookonCard = 5.7,
 		RollingpinCard = 2.8,
 --
