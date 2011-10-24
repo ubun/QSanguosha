@@ -80,24 +80,9 @@ sgs.ai_skill_choice.xuanfeng = function(self, choices)
 	return "nothing"
 end
 
-sgs.ai_skill_playerchosen.xuanfeng_damage = function(self,targets)
-	self:sort(self.enemies, "defense")
-	for _, enemy in ipairs(self.enemies) do
-		if self.player:distanceTo(enemy)<=1 then return enemy end
-	end
+sgs.ai_skill_playerchosen.xuanfeng_damage = sgs.ai_skill_playerchosen.damage
 
-	return nil
-end
-
-sgs.ai_skill_playerchosen.xuanfeng_slash = function(self,targets)
-	local slash = sgs.Card_Parse(("slash[%s:%s]"):format(sgs.Card_NoSuit, 0))
-	self:sort(self.enemies, "defense")
-	for _, enemy in ipairs(self.enemies) do
-		if not (self:slashProhibit(slash ,enemy) or self:slashIsEffective(slash, enemy)) then return enemy end
-	end
---	self:log("unfound")
-	return self.enemies[1]
-end
+sgs.ai_skill_playerchosen.xuanfeng_slash = sgs.ai_skill_playerchosen.zero_card_as_slash
 
 --xuanhuo
 xuanhuo_skill={}
@@ -219,7 +204,8 @@ sgs.ai_skill_use_func["GanluCard"] = function(card, use, self)
 		for _, enemy in ipairs(self.enemies) do
 			if not self:hasSkills(sgs.lose_equip_skill, enemy) then
 				if ((self:getCardsNum(".", enemy, "e")-self:getCardsNum(".", friend, "e"))<= lost_hp) and
-					(self:getCardsNum(".", enemy, "e")>=self:getCardsNum(".", friend, "e"))then
+					(self:getCardsNum(".", enemy, "e")>=self:getCardsNum(".", friend, "e")) and
+					(self:getCardsNum(".", enemy, "e")>0) then
 					use.card = sgs.Card_Parse("@GanluCard=.")
 					if use.to then use.to:append(friend) end
 					if use.to then use.to:append(enemy) end

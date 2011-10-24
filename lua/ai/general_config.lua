@@ -82,6 +82,7 @@ sgs.ai_use_value =
 		Wall = 9.9,
 		Poison = 4,
 		Sacrifice = 3.5,
+		Shit=-10,
 }
 
 sgs.ai_use_priority = {
