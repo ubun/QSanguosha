@@ -147,11 +147,65 @@ public:
     }
 };
 
+class Shuaijin: public TriggerSkill{
+public:
+    Shuaijin():TriggerSkill("shuaijin"){
+        events << Damage;
+        frequency = Frequent;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+
+        if(damage.card && damage.card->isBlack() && player->askForSkillInvoke(objectName(), data)){
+            Room *room = player->getRoom();
+            player->drawCards(2);
+            QList<int> yiji_cards = player->handCards().mid(player->getHandcardNum() - 2);
+            while(room->askForYiji(player, yiji_cards));
+        }
+        return false;
+    }
+};
+
+class Liufang: public TriggerSkill{
+public:
+    Liufang():TriggerSkill("liufang"){
+        events << CardLost;
+        frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return TriggerSkill::triggerable(target) && target->getPhase() == Player::NotActive;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardMoveStar move = data.value<CardMoveStar>();
+        if((move->from_place == Player::Hand || move->from_place == Player::Equip)
+            && move->to != player && player->askForSkillInvoke(objectName(), data)){
+            JudgeStruct judge;
+            judge.reason = objectName();
+            judge.who = player;
+            player->getRoom()->judge(judge);
+            if(judge.card->isBlack() && !judge.card->inherits("EquipCard"))
+                player->getRoom()->obtainCard(player, move->card_id);
+        }
+        return false;
+    }
+};
+
 CyanPackage::CyanPackage()
     :Package("cyan")
 {
     General *cyankongrong = new General(this, "cyankongrong", "qun");
     cyankongrong->addSkill(new Rangli);
+
+    General *cyanyufan = new General(this, "cyanyufan", "wu", 3);
+    cyanyufan->addSkill(new Shuaijin);
+    cyanyufan->addSkill(new Liufang);
 
     General *cyanzhangxiu = new General(this, "cyanzhangxiu$", "qun");
     cyanzhangxiu->addSkill(new Baiming);

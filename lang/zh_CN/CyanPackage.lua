@@ -86,4 +86,5 @@ return {
 
 	["cv:cyankongrong"] = "",
 	["cv:cyanzhangxiu"] = "",
+	["cv:cyanyufan"] = "",
 }
