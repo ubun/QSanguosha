@@ -382,6 +382,9 @@ void Room::detachSkillFromPlayer(ServerPlayer *player, const QString &skill_name
     if(skill && skill->isVisible()){
         foreach(const Skill *skill, Sanguosha->getRelatedSkills(skill_name))
             detachSkillFromPlayer(player, skill->objectName());
+        foreach(const Skill *skill, Sanguosha->getRelatedSkillsAttached(skill_name))
+            foreach(ServerPlayer *player, alive_players)
+                detachSkillFromPlayer(player,skill->objectName());
     }
 }
 

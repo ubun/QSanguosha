@@ -976,6 +976,7 @@ WindPackage::WindPackage()
     zhangjiao->addSkill(new Guidao);
     zhangjiao->addSkill(new Leiji);
     zhangjiao->addSkill(new Huangtian);
+    related_skills_attached.insertMulti("huangtian$", "huangtianv");
 
     zhoutai = new General(this, "zhoutai", "wu");
     zhoutai->addSkill(new Buqu);
