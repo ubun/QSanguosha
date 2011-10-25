@@ -85,7 +85,7 @@ Engine::Engine()
     addPackage(NewYitian());
     addPackage(NewWisdom());
     addPackage(NewRed());
-    //addPackage(NewCyan());
+    addPackage(NewCyan());
     //addPackage(NewGreen());
     addPackage(NewKuso());
     addPackage(NewTest());
