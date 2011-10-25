@@ -34,6 +34,12 @@ return {
 	["#NoqingLoseHp"] = "受到 %from 【%arg】锁定技的影响，%to 流失了一点体力",
 	["#NoqingLoseMaxHp"] = "受到 %from 【%arg】锁定技的影响，%to 流失了一点体力上限",
 
+	["tenkei"] = "天启",
+	["designer:tenkei"] = "宇文天启",
+	["cv:tenkei"] = "",
+	["shishi"] = "拾尸",
+	[":shishi"] = "当有角色死亡时，你可以失去一个因“拾尸”获得的技能(如果有的话)，然后失去一点体力上限并获得该角色当前的所有武将技",
+
 --cards
 	["kuso_cards"] = "小笼包",
 

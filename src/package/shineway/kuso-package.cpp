@@ -247,6 +247,47 @@ public:
     }
 };
 
+class Shishi: public TriggerSkill{
+public:
+    Shishi():TriggerSkill("shishi"){
+        events << Death;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *tenkei = room->findPlayerBySkillName(objectName());
+        if(!tenkei)
+            return false;
+        QVariantList shishi_skills = tenkei->tag["Shishi"].toList();
+        if(room->askForSkillInvoke(tenkei, objectName(), data)){
+            QStringList shishis;
+            foreach(QVariant tmp, shishi_skills)
+                shishis << tmp.toString();
+            if(!shishis.isEmpty()){
+                QString choice = room->askForChoice(tenkei, objectName(), shishis.join("+"));
+                room->detachSkillFromPlayer(tenkei, choice);
+                shishi_skills.removeOne(choice);
+            }
+            room->loseMaxHp(tenkei);
+            QList<const Skill *> skills = player->getVisibleSkillList();
+            foreach(const Skill *skill, skills){
+                if(skill->parent()){
+                    QString sk = skill->objectName();
+                    room->acquireSkill(tenkei, sk);
+                    shishi_skills << sk;
+                }
+            }
+            tenkei->tag["Shishi"] = shishi_skills;
+        }
+
+        return false;
+    }
+};
+
 KusoPackage::KusoPackage()
     :Package("kuso")
 {
@@ -261,6 +302,9 @@ KusoPackage::KusoPackage()
     General *tianyin = new General(this, "tianyin", "god", 5, false);
     tianyin->addSkill(new Skydao);
     tianyin->addSkill(new Noqing);
+
+    General *tenkei = new General(this, "tenkei", "god", 5, false);
+    tenkei->addSkill(new Shishi);
 
     addMetaObject<LiaotingCard>();
 }
