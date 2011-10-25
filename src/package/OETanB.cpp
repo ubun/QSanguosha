@@ -12,7 +12,6 @@
 #include "room.h"
 #include "ai.h"
 
-
 GuayanCard::GuayanCard(){
     will_throw = false;
 }
@@ -132,7 +131,6 @@ public:
     }
 };
 
-
 class Nitai: public PhaseChangeSkill{
 public:
     Nitai():PhaseChangeSkill("nitai"){
@@ -188,6 +186,69 @@ public:
     }
 };
 
+class Skydao:public MasochismSkill{
+public:
+    Skydao():MasochismSkill("skydao"){
+        frequency = Compulsory;
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        if(damage.to && damage.to == player && player->getPhase() == Player::NotActive){
+            LogMessage log;
+            log.from = player;
+            log.type = "#SkydaoMAXHP";
+            log.arg2 = objectName();
+            room->setPlayerProperty(player, "maxhp", player->getMaxHP() + 1);
+            log.arg = QString::number(player->getMaxHP());
+            room->sendLog(log);
+        }
+    }
+};
+
+class Noqing:public MasochismSkill{
+public:
+    Noqing():MasochismSkill("noqing"){
+        frequency = Compulsory;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual QString getDefaultChoice(ServerPlayer *player) const{
+        if(player->getMaxHP() >= player->getHp() + 2)
+            return "maxhp";
+        else
+            return "hp";
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        if(damage.to && damage.to == player){
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(player))
+                if(tmp->getHp() < player->getHp())
+                    return;
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                QString choice = room->askForChoice(tmp, objectName(), "hp+max_hp");
+                LogMessage log;
+                log.from = player;
+                log.to << tmp;
+                log.arg = objectName();
+                if(choice == "hp"){
+                    log.type = "#NoqingLoseHp";
+                    room->sendLog(log);
+                    room->loseHp(tmp);
+                }else{
+                    log.type = "#NoqingLoseMaxHp";
+                    room->sendLog(log);
+                    room->loseMaxHp(tmp);
+                }
+            }
+        }
+    }
+};
+
 OETanBPackage::OETanBPackage()
     :Package("OEtanb")
 {
@@ -196,6 +257,10 @@ OETanBPackage::OETanBPackage()
     OEedado->addSkill("#luoyi");
     OEedado->addSkill(new Nitai);
     related_skills.insertMulti("guayan", "#luoyi");
+
+    General *OEtianyin = new General(this, 3144, "tianyin", "tan", 4, false);
+    OEtianyin->addSkill(new Skydao);
+    OEtianyin->addSkill(new Noqing);
 
     addMetaObject<GuayanCard>();
 }
