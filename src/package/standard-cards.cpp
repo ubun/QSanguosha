@@ -25,10 +25,7 @@ bool Slash::IsAvailable(const Player *player){
         || player->hasFlag("xianzhen_failed"))
         return false;
 
-    if(player->hasWeapon("crossbow"))
-        return true;
-    else
-        return player->canSlashWithoutCrossbow();
+    return player->hasWeapon("crossbow") || player->canSlashWithoutCrossbow();
 }
 
 bool Slash::isAvailable(const Player *player) const{
