@@ -795,7 +795,7 @@ OETanPackage::OETanPackage()
     OEhyk->addSkill(new Maozhua);
     OEhyk->addSkill(new Aiqing);
 
-    OEgoldlryr = new General(this, 3119, "goldsiyeliuyue", "tan", 2, false);
+    OEgoldlryr = new General(this, 3119, "goldsiyeliuyue", "tan", 2, true);
     OEgoldlryr->addSkill(new Shuihun);
     OEgoldlryr->addSkill(new Huanshen);
 

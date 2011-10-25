@@ -75,7 +75,7 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *OEedado, QVariant &data) const{
         Room *room = OEedado->getRoom();
-        if(event == PhaseChange && OEedado->getPhase() == Player::Start){            
+        if(event == PhaseChange && OEedado->getPhase() == Player::Judge){
             if(OEedado->askForSkillInvoke("guayan")){
                 //room->playSkillEffect(objectName());
 
@@ -96,6 +96,8 @@ public:
                     }
 
                 case Card::Diamond:{
+                        if(OEedado->isKongcheng())
+                            return false;
                         room->askForUseCard(OEedado, "@@guayan", "@guayan");
                         break;
                     }
@@ -121,8 +123,8 @@ public:
             }
         }else if(event == FinishJudge){
             JudgeStar judge = data.value<JudgeStar>();
-            if(judge->reason == "guayan" && judge->isGood()){
-                player->addToPile("guayan", judge->card->getEffectiveId());
+            if(judge->reason == "guayan" && judge->isGood() && !(OEedado->hasSkill("tiandu")) ){
+                OEedado->addToPile("guayanpile", judge->card->getEffectiveId());
                 return true;
             }
         }
@@ -138,14 +140,33 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getMark("nitai") == 0
-                && target->getPhase() == Player::Start
-                && target->getPile("guayan").length() >= 3;
+        return (PhaseChangeSkill::triggerable(target)
+            && target->getMark("nitai") == 0
+            && target->getPhase() == Player::Start);
+            //target->getPile("guayanp").length() >= 3;
     }
 
     virtual bool onPhaseChange(ServerPlayer *OEedado) const{
+        int m = 0;
         Room *room = OEedado->getRoom();
+        //const QList<int> &guayanpile = OEedado->getPile("guanyanile");
+        QList<int> hearts, clubs, spades, diamonds;
+        foreach(int card_id, OEedado->getPile("guayanpile")){
+            const Card *card = Sanguosha->getCard(card_id);
+            Card::Suit suit = card->getSuit();
+
+            switch(suit){
+            case Card::Heart:   hearts << card_id;  break;
+            case Card::Diamond: diamonds << card_id;break;
+            case Card::Spade:   spades << card_id;  break;
+            case Card::Club:    clubs << card_id;   break;
+            default: break;
+            }
+        }
+        if(hearts.length() > 2 || diamonds.length() > 2 || spades.length() > 2 || clubs.length() > 2)
+            m++;
+
+        if(!m) return false;
         /*
         LogMessage log;
         log.type = "#NitaiWake";
