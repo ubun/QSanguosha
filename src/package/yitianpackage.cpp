@@ -1850,7 +1850,7 @@ YitianPackage::YitianPackage()
 
     related_skills.insertMulti("jueji", "#jueji-get");
 
-    General *lukang = new General(this, "lukang", "wu", 3);
+    General *lukang = new General(this, "lukang", "wu", 4);
     lukang->addSkill(new LukangWeiyan);
     lukang->addSkill(new Kegou);
 
