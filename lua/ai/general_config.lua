@@ -79,7 +79,8 @@ sgs.ai_use_value =
 		Analeptic = 5.98,
 		Jink=8.9,
 		
-		Stink = 5,
+		Shit=-10,
+
 		Sacrifice = 3.5,
 }
 
