@@ -268,6 +268,7 @@ void Engine::addPackage(Package *package){
 
     patterns.unite(package->getPatterns());
     related_skills.unite(package->getRelatedSkills());
+    related_skills_attached.unite(package->getRelatedSkillsAttached());
 }
 
 void Engine::addBanPackage(const QString &package_name){
@@ -303,6 +304,14 @@ const CardPattern *Engine::getPattern(const QString &name) const{
 QList<const Skill *> Engine::getRelatedSkills(const QString &skill_name) const{
     QList<const Skill *> skills;
     foreach(QString name, related_skills.values(skill_name))
+        skills << getSkill(name);
+
+    return skills;
+}
+
+QList<const Skill *> Engine::getRelatedSkillsAttached(const QString &skill_name) const{
+    QList<const Skill *> skills;
+    foreach(QString name, related_skills_attached.values(skill_name))
         skills << getSkill(name);
 
     return skills;
