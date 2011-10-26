@@ -373,6 +373,117 @@ public:
     }
 };
 
+RujiCard::RujiCard(){
+
+}
+
+bool RujiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return to_select != Self && !to_select->isKongcheng();
+}
+
+void RujiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    const Card *card = Sanguosha->getCard(this->getSubcards().first());
+    ServerPlayer *target = targets.first();
+    if(source->pindian(target, "ruji", card)){
+        QList<int> card_ids;
+        foreach(const Card *card, target->getHandcards()){
+            card_ids << card->getEffectiveId();
+        }
+        room->fillAG(card_ids);
+        int card_id = room->askForAG(source, card_ids, true, "ruji");
+        if(card_id > -1){
+            room->throwCard(card_id);
+            room->broadcastInvoke("clearAG");
+            return;
+        }
+        else
+            room->broadcastInvoke("clearAG");
+        card_id = room->askForCardChosen(source, target, "ej", "ruji_success");
+        room->throwCard(card_id);
+    }
+    else{
+        for(int i = 2; i > 0; i--){
+            int card_id = room->askForCardChosen(target, source, "he", "ruji_fail");
+            if(room->getCardPlace(card_id) == Player::Hand)
+                room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, false);
+            else
+                room->obtainCard(target, card_id);
+            if(source->isNude())
+                break;
+        }
+    }
+}
+
+class RujiViewAsSkill: public OneCardViewAsSkill{
+public:
+    RujiViewAsSkill():OneCardViewAsSkill("ruji"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@ruji";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        RujiCard *card = new RujiCard;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
+    }
+};
+
+class Ruji: public PhaseChangeSkill{
+public:
+    Ruji():PhaseChangeSkill("ruji"){
+        view_as_skill = new RujiViewAsSkill;
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() != Player::Start)
+            return false;
+        Room *room = player->getRoom();
+        if(player->askForSkillInvoke(objectName())){
+            player->drawCards(1);
+            room->askForUseCard(player, "@@ruji", "@ruji-card");
+        }
+        return false;
+    }
+};
+
+class Caishi:public PhaseChangeSkill{
+public:
+    Caishi():PhaseChangeSkill("caishi"){
+        frequency = Compulsory;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+        Room *room = player->getRoom();
+        LogMessage log;
+        log.type = "#Caishi";
+        log.from = player;
+        log.arg = objectName();
+        room->sendLog(log);
+
+        room->askForDiscard(player, objectName(), qMin(2, player->getHandcardNum()));
+        player->drawCards(1);
+        return false;
+    }
+};
+
 CyanPackage::CyanPackage()
     :Package("cyan")
 {
@@ -389,6 +500,10 @@ CyanPackage::CyanPackage()
     cyanyufan->addSkill(new Shuaijin);
     cyanyufan->addSkill(new Liufang);
 
+    General *cyanlidian = new General(this, "cyanlidian", "wei");
+    cyanlidian->addSkill(new Ruji);
+    cyanlidian->addSkill(new Caishi);
+
     General *cyanzhangxiu = new General(this, "cyanzhangxiu$", "qun");
     cyanzhangxiu->addSkill(new Baiming);
     cyanzhangxiu->addSkill(new Junling);
@@ -397,6 +512,7 @@ CyanPackage::CyanPackage()
     cyanpuyuan->addSkill(new Hunren);
     cyanpuyuan->addSkill(new Cuihuo);
 
+    addMetaObject<RujiCard>();
     addMetaObject<JunlingCard>();
 }
 

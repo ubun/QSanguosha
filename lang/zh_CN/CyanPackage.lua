@@ -37,12 +37,17 @@ return {
 	[":liufang"] = "回合外，每失去一张牌，可进行一次判定，若结果为黑色基本牌或黑色锦囊牌，你立即获得失去的那张牌",
 
 --WEI#04
+--http://www.qsanguosha.com/forum.php?mod=viewthread&tid=5800
 	["cyanlidian"] = "李典",
 	["designer:cyanlidian"] = "sailiss",
 	["ruji"] = "儒计",
 	[":ruji"] = "回合开始时，你可摸一张牌后与任一其他角色拼点，若你赢，你展示目标角色手牌后弃置目标角色处（手牌、装备区、判定区）的一张牌。若你没赢，对方从你那里获得两张牌",
 	["caishi"] = "才逝",
 	[":caishi"] = "锁定技，回合结束时，你须弃置两张手牌（不足则全弃）后摸一张牌",
+	["#Caishi"] = "%from 的锁定技【%arg】被触发，必须弃掉两张手牌（不足则全弃）",
+	["@ruji-card"] = "请选择【儒计】的拼点牌和拼点目标",
+	["ruji_success"] = "儒计成功",
+	["ruji_fail"] = "儒计失败",
 
 --QUN#04
 	["cyanzhangxiu"] = "张绣",
