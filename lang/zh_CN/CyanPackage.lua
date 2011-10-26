@@ -27,6 +27,7 @@ return {
 	[":guolie"] = "出牌阶段，你的【杀】能攻击到手牌数与你体力差为1的任一角色",
 	["zhongshu"] = "终蜀",
 	[":zhongshu"] = "当你造成一次伤害时，可以防止此伤害，改为与目标角色交换手牌",
+	["#Zhongshu"] = "%from 与 %to 交换了手牌",
 
 --WU#03
 	["cyanyufan"] = "虞翻",
@@ -44,10 +45,12 @@ return {
 	[":ruji"] = "回合开始时，你可摸一张牌后与任一其他角色拼点，若你赢，你展示目标角色手牌后弃置目标角色处（手牌、装备区、判定区）的一张牌。若你没赢，对方从你那里获得两张牌",
 	["caishi"] = "才逝",
 	[":caishi"] = "锁定技，回合结束时，你须弃置两张手牌（不足则全弃）后摸一张牌",
-	["#Caishi"] = "%from 的锁定技【%arg】被触发，必须弃掉两张手牌（不足则全弃）",
+	["#Caishi"] = "%from 的锁定技【%arg】被触发，必须弃掉 %arg2 张手牌",
 	["@ruji-card"] = "请选择【儒计】的拼点牌和拼点目标",
 	["ruji_success"] = "儒计成功",
 	["ruji_fail"] = "儒计失败",
+	["#RujiSucc"] = "%from 将 %to 的全部手牌示众",
+	["#RujiFail"] = "%from 出师不利，不得不乖乖地让 %to 摸走 %arg 张牌",
 
 --QUN#04
 	["cyanzhangxiu"] = "张绣",
@@ -95,4 +98,9 @@ return {
 	["cv:cyankongrong"] = "",
 	["cv:cyanzhangxiu"] = "",
 	["cv:cyanyufan"] = "",
+	["cv:cyanpuyuan"] = "",
+	["cv:cyanlidian"] = "",
+	["cv:cyancaochong"] = "",
+	["cv:cyanliaohua"] = "",
+	["cv:cyanfanqiangzhangda"] = "",
 }

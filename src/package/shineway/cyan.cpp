@@ -391,19 +391,37 @@ void RujiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
         foreach(const Card *card, target->getHandcards()){
             card_ids << card->getEffectiveId();
         }
-        room->fillAG(card_ids);
-        int card_id = room->askForAG(source, card_ids, true, "ruji");
-        if(card_id > -1){
-            room->throwCard(card_id);
-            room->broadcastInvoke("clearAG");
-            return;
+        if(!card_ids.isEmpty()){
+            room->fillAG(card_ids);
+            LogMessage log;
+            log.type = "#RujiSucc";
+            log.from = source;
+            log.to << target;
+            room->sendLog(log);
+
+            int card_id = room->askForAG(source, card_ids, true, "ruji");
+            if(card_id > -1){
+                room->throwCard(card_id);
+                room->broadcastInvoke("clearAG");
+                return;
+            }
+            else
+                room->broadcastInvoke("clearAG");
         }
-        else
-            room->broadcastInvoke("clearAG");
-        card_id = room->askForCardChosen(source, target, "ej", "ruji_success");
+        if(target->getEquips().length() + target->getJudgingArea().length() == 0)
+            return;
+        int card_id = room->askForCardChosen(source, target, "ej", "ruji_success");
         room->throwCard(card_id);
     }
     else{
+        LogMessage log;
+        log.type = "#RujiFail";
+        log.from = source;
+        log.to << target;
+        log.arg = source->getCardCount(true) > 1 ? QString::number(2) :
+                  source->getCardCount(true) == 1 ? QString::number(1) : QString::number(0);
+        room->sendLog(log);
+
         for(int i = 2; i > 0; i--){
             int card_id = room->askForCardChosen(target, source, "he", "ruji_fail");
             if(room->getCardPlace(card_id) == Player::Hand)
@@ -443,6 +461,7 @@ public:
 class Ruji: public PhaseChangeSkill{
 public:
     Ruji():PhaseChangeSkill("ruji"){
+        frequency = Frequent;
         view_as_skill = new RujiViewAsSkill;
     }
 
@@ -456,7 +475,8 @@ public:
         Room *room = player->getRoom();
         if(player->askForSkillInvoke(objectName())){
             player->drawCards(1);
-            room->askForUseCard(player, "@@ruji", "@ruji-card");
+            if(!room->askForUseCard(player, "@@ruji", "@ruji-card"))
+                room->throwCard(player->getHandcards().last());
         }
         return false;
     }
@@ -476,10 +496,94 @@ public:
         log.type = "#Caishi";
         log.from = player;
         log.arg = objectName();
+        log.arg2 = player->getHandcardNum() > 1 ? QString::number(2) :
+                   player->getHandcardNum() == 1 ? QString::number(1) : QString::number(0);
         room->sendLog(log);
 
-        room->askForDiscard(player, objectName(), qMin(2, player->getHandcardNum()));
+        int discardnum = qMin(2, player->getHandcardNum());
+        if(player->getHandcardNum() > 2)
+            room->askForDiscard(player, objectName(), discardnum);
+        else
+            player->throwAllHandCards();
         player->drawCards(1);
+        return false;
+    }
+};
+
+GuolieCard::GuolieCard(){
+    once = true;
+}
+bool GuolieCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    if(Self->canSlash(to_select))
+        return true;
+    return qAbs(to_select->getHandcardNum() - Self->getHp()) == 1;
+}
+void GuolieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    const Card *slash = Sanguosha->getCard(this->getSubcards().first());
+
+    CardUseStruct use;
+    use.card = slash;
+    use.from = source;
+    use.to = targets;
+
+    room->useCard(use);
+}
+
+class Guolie: public OneCardViewAsSkill{
+public:
+    Guolie():OneCardViewAsSkill("guolie"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player) && player->getPhase() == Player::Play;
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->inherits("Slash");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        GuolieCard *card = new GuolieCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
+    }
+};
+
+class Zhongshu: public TriggerSkill{
+public:
+    Zhongshu():TriggerSkill("zhongshu"){
+        events << Predamage;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        DamageStruct damage = data.value<DamageStruct>();
+        if(player->askForSkillInvoke(objectName(), data)){
+            DummyCard *card1 = damage.to->wholeHandCards();
+            DummyCard *card2 = damage.from->wholeHandCards();
+
+            if(card1){
+                room->moveCardTo(card1, damage.from, Player::Hand, false);
+                delete card1;
+            }
+            if(card2){
+                room->moveCardTo(card2, damage.to, Player::Hand, false);
+                delete card2;
+            }
+
+            LogMessage log;
+            log.type = "#Zhongshu";
+            log.from = damage.from;
+            log.to << damage.to;
+            room->sendLog(log);
+            return true;
+        }
         return false;
     }
 };
@@ -495,6 +599,10 @@ CyanPackage::CyanPackage()
     cyancaochong->addSkill(new Kuanhou);
     cyancaochong->addSkill(new KuanhouEffect);
     related_skills.insertMulti("kuanhou", "#kuanhou_effect");
+
+    General *cyanliaohua = new General(this, "cyanliaohua", "shu");
+    cyanliaohua->addSkill(new Guolie);
+    cyanliaohua->addSkill(new Zhongshu);
 
     General *cyanyufan = new General(this, "cyanyufan", "wu", 3);
     cyanyufan->addSkill(new Shuaijin);
@@ -512,6 +620,7 @@ CyanPackage::CyanPackage()
     cyanpuyuan->addSkill(new Hunren);
     cyanpuyuan->addSkill(new Cuihuo);
 
+    addMetaObject<GuolieCard>();
     addMetaObject<RujiCard>();
     addMetaObject<JunlingCard>();
 }
