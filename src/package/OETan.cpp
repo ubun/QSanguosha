@@ -11,8 +11,10 @@
 #include "maneuvering.h"
 #include "room.h"
 #include "ai.h"
-#include "mountainpackage.h"
 
+//OE3112 圆月-潜水，上浮，MOD
+/*潜水：锁定技，【决斗】和红色的【杀】对你无效。
+  防御技，毅重的效果比这个强一些，不过毅重会让防具几乎变成废牌，此乃毅重比八阵坑爹的地方：防具都是黑的，卧龙可以拿来当无懈*/
 class Qianshui: public TriggerSkill{
 public:
     Qianshui():TriggerSkill("qianshui"){
@@ -27,12 +29,15 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if(effect.card->inherits("Duel") || (effect.card->inherits("Slash") && effect.card->isRed())){
-            //Room *room = player->getRoom();
             if(effect.to->hasSkill(objectName()) && effect.from){
-                if(effect.to->getMark("shangfu")){return false;
-                }/*
+                if(effect.to->getMark("shangfu"))
+                    return false;
+                /*上浮的设计成功表明，断肠是可以不变素将的，不过比空城还蛋疼。此法不宜推广*/
+                /*待补*/
+                //Room *room = player->getRoom();
+                /*
                 LogMessage log;
-                log.type = "#SkillNullify";
+                log.type = "#QianshuiNullify";
                 log.from = effect.to;
                 log.to << effect.from;
                 log.arg = effect.card->objectName();
@@ -45,6 +50,8 @@ public:
     }
 };
 
+/*上浮：觉醒技，回合开始阶段，若你装备区的装备达到2个或更多，你须减1点体力上限，失去技能【潜水】，并永久获得技能【MOD】。
+  装备意指做MOD用到的Qt等一堆东西。如果有意保存实力，可以不急着觉醒*/
 class Shangfu: public PhaseChangeSkill{
 public:
     Shangfu():PhaseChangeSkill("shangfu"){
@@ -75,6 +82,9 @@ public:
     }
 };
 
+/*MOD：回合开始和结束阶段，你可分别声明并获得场上存活角色的两个技能直至你再次声明为止。
+  Er...这个设计的不很成功，想想蛋疼的同将模式吧。。。
+  待修复的BUG：技能按钮不会消失，即使你已经声明了其他技能*/
 class Mod: public PhaseChangeSkill{
 public:
     Mod():PhaseChangeSkill("mod"){
@@ -95,13 +105,9 @@ public:
         {
             ibicdlcod->loseAllSkills();
             room->acquireSkill(ibicdlcod, "mod");
-            //QStringList lords = Sanguosha->getLords();
-            QList<ServerPlayer *> players = room->getAlivePlayers();//getOtherPlayers(ibicdlcod);
-            //foreach(ServerPlayer *player, players){
-                //lords.removeOne(player->getGeneralName());
-            //}
+            QList<ServerPlayer *> players = room->getAlivePlayers();
             for(i=0;i<2;i++){
-            QStringList lord_skills;
+            QStringList lord_skills;//魏武帝遗留，这里只是一般技能
 
             foreach(ServerPlayer *pp, players){
                 QString lord = pp->getGeneralName();
@@ -130,6 +136,11 @@ public:
     }
 };
 
+//OE3103 宇文$-顶座（牛逼），妹控，卖萌$
+/*牛逼：出牌阶段前，你可弃X张牌，若如此做，回合结束阶段，你可任意安排场上角色的位置。X为场上存活角色数/2（向上取整）
+  好吧我承认修改这个技能是我严重偷懒。。。
+  不过原设定成X张不同花色牌会导致9人局或以上严重白板且嘲讽较高，改了也好。
+  灵感来源是牛逼神装的屁*/
 class Niubi: public PhaseChangeSkill{
 public:
     Niubi():PhaseChangeSkill("niubi"){
@@ -170,6 +181,8 @@ public:
     }
 };
 
+/*妹控：联动技，锁定技，你对天启造成伤害时，防止此伤害，且天启回复与伤害等量的体力。
+  不解释。。。我怎么想到了刮骨疗毒。。。M神马的（话说某日没事搜了一下Masochism什么意思，瞎了）*/
 class Meikong: public TriggerSkill{
 public:
     Meikong():TriggerSkill("meikong"){
@@ -197,8 +210,10 @@ public:
     }
 };
 
+/*卖萌：主公技，坛势力角色在他们各自的出牌阶段可展示并给你两张同花色手牌，若如此做，你回复1点体力。
+  DIY区无存在感，随便想的，设计得不好，求更好设计
+  注意送出的牌是正面朝上的，并且每回合限一次（技能表述已经隐含，无需另外说明）*/
 MaimengCard::MaimengCard(){
-    once = true;
 }
 
 void MaimengCard::use(Room *room, ServerPlayer *player, const QList<ServerPlayer *> &targets) const{
@@ -259,6 +274,9 @@ public:
     }
 };
 
+//OE3136 天启-重炮，龟速，萌化
+/*重炮：锁定技，你使用的【杀】伤害+1。
+  许褚：555.。。。。。*/
 class Zhongpao: public TriggerSkill{
 public:
     Zhongpao():TriggerSkill("zhongpao"){
@@ -274,7 +292,7 @@ public:
         return target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *xuchu, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *tenkei, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
 
         const Card *reason = damage.card;
@@ -285,11 +303,11 @@ public:
 
             LogMessage log;
             log.type = "#zhongpao";
-            log.from = xuchu;
+            log.from = tenkei;
             log.to << damage.to;
             log.arg = QString::number(damage.damage);
             log.arg2 = QString::number(damage.damage + 1);
-            xuchu->getRoom()->sendLog(log);
+            tenkei->getRoom()->sendLog(log);
 
             damage.damage ++;
             data = QVariant::fromValue(damage);
@@ -298,6 +316,9 @@ public:
     }
 };
 
+/*龟速：锁定技，你使用【杀】时须弃掉X张牌，否则【杀】不能生效。X为你到目标角色的距离-1.
+  本来加了一句“至少为0”，后来发现我烧饼了。。。
+  另外本来想弄成弃手牌的，好吧我又偷懒了。。。。*/
 class Guisu: public TriggerSkill{
 public:
     Guisu():TriggerSkill("guisu"){
@@ -327,6 +348,7 @@ public:
     }
 };
 
+/*萌化：你可以防止其他角色对你造成的伤害。每回合开始至下一回合开始限一次。*/
 class Menghua: public TriggerSkill{
 public:
     Menghua():TriggerSkill("menghua"){
@@ -360,15 +382,16 @@ public:
     }
 };
 
+//OE3118 猫猫-烧饼，猫爪，爱情
+/*烧饼：出牌阶段，你可以自减1点体力，令任一角色增加1点体力上限。每回合限用一次。
+  主技能，跟某武将配合或双将极为强力，你懂的。。。
+  好吧一开始我烧饼了，居然设成不能对自己使用，其实原来技能表述没这个，估计是写的那会我在OL上测试孙坚呢*/
 ShaobingCard::ShaobingCard(){
     once = true;
 }
 
 bool ShaobingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty())
-        return false;
-
-    return to_select != Self;
+    return targets.isEmpty();
 }
 
 void ShaobingCard::use(Room *room, ServerPlayer *OEhyk, const QList<ServerPlayer *> &targets) const{
@@ -391,6 +414,8 @@ public:
     }
 };
 
+/*猫爪：你可以将你的任意一张梅花牌当【杀】使用或打出。
+  跟武圣比起来不知弱了多少，因为我记得梅花牌一堆杀。。。。*/
 class Maozhua:public OneCardViewAsSkill{
 public:
     Maozhua():OneCardViewAsSkill("maozhua"){
@@ -425,6 +450,8 @@ public:
     }
 };
 
+/*爱情：异性角色对你造成伤害时，你可进行一次判定，若判定结果为红桃，则防止此伤害。
+  发动频率太低，纯一娱乐技能。后两个技能都太弱，第一个还降低防御，以至于不得不4血，真囧*/
 class Aiqing: public TriggerSkill{
 public:
     Aiqing():TriggerSkill("aiqing"){
@@ -446,9 +473,7 @@ public:
 
                 room->judge(judge);
 
-                if(judge.isBad()){
-                    return false;
-                }
+                if(judge.isBad()) return false;
 
                 LogMessage log;
                 log.type = "#AiqingProtect";
@@ -463,6 +488,12 @@ public:
     }
 };
 
+//OE3119 黄金似夜流月-水魂，幻身
+/*水魂：你可将同花色的X张牌按下列规则使用/打出：
+  红桃当【无中生有】，方片当【万箭齐发】，黑桃当【南蛮入侵】，梅花当【无懈可击】。X为你当前体力值和1中较大数。
+  吐槽：神赵的描述（甚至上溯到诸葛亮的描述）“X为你当前的体力值且至少为1”是非常烧饼的，可以理解为神赵不会濒死吗？？？
+  好吧变种神赵的原因是当初漏抄了2，后来审查技能描述的时候不知道是几张就写成X了。。。。
+  注意可以水魂装备*/
 class Shuihun: public ViewAsSkill{
 public:
     Shuihun():ViewAsSkill("shuihun"){
@@ -470,14 +501,11 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return /* pattern == "slash"
-                || pattern == "jink"
-                || pattern.contains("peach")
-                ||*/ pattern == "nullification";
+        return pattern == "nullification";
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return true;//player->isWounded() || Slash::IsAvailable(player);
+        return true;
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -494,32 +522,18 @@ public:
 
         switch(ClientInstance->getStatus()){
         case Client::Playing:{
-                /*if(Self->isWounded() && card->getSuit() == Card::Heart)
-                    return true;
-                else if(Slash::IsAvailable(Self) && card->getSuit() == Card::Diamond)
-                    return true;
-                else
-                    return false;*/
                 if(card->getSuit() != Card::Club)
                     return true;
             }
-
         case Client::Responsing:{
                 QString pattern = ClientInstance->getPattern();
-                /*if(pattern == "jink")
+                if(pattern == "nullification")
                     return card->getSuit() == Card::Club;
-                else */if(pattern == "nullification")
-                    return card->getSuit() == Card::Club;/*Spade;
-                else if(pattern == "peach" || pattern == "peach+analeptic")
-                    return card->getSuit() == Card::Heart;
-                else if(pattern == "slash")
-                    return card->getSuit() == Card::Diamond;*/
+                /*吐槽：所有跟无懈有关的都尼玛是系统技*/
             }
-
         default:
             break;
         }
-
         return false;
     }
 
@@ -567,6 +581,9 @@ public:
     }
 };
 
+/*幻身：锁定技，属性伤害对你无效，你的手牌上限始终为你的体力上限。
+  其实挺牛逼一技能，雷击啊业炎啊闪电啊这些神赵的致命威胁对他无效，另外藤甲是这货神器？
+  手牌上限始终为2其实有点烧饼（忒脆了点），不过给他3血我真的有点嫌多。。。*/
 class Huanshen: public TriggerSkill{
 public:
     Huanshen():TriggerSkill("huanshen"){
@@ -593,6 +610,9 @@ public:
     }
 };
 
+//OE3120 白银似夜流月-际遇，兑换
+/*际遇：锁定技，你每造成或受到1点伤害，获得1枚【水】标记。
+  其实就是开局不拿标记的【狂暴】*/
 class Jiyu: public TriggerSkill{
 public:
     Jiyu():TriggerSkill("jiyu"){
@@ -616,6 +636,9 @@ public:
     }
 };
 
+/*兑换：出牌阶段，可弃2枚【水】标记，选择下列两项中的一项执行：1.对任意一名其他角色造成1点伤害。2.摸两张牌。
+  话说原先是1枚标记，然后目测极强，给了2血。测试的时候才看出来问题：卧槽直接无限伤害啊！！！（流月你淫了。。。）
+  其实这货仍然可以靠AOE获得极为强大的爆发，比典韦牛逼多了，2血3血的噩梦（除卖血流及某武将以外）*/
 DuihuanCard::DuihuanCard(){
 
 }
@@ -656,6 +679,9 @@ public:
     }
 };
 
+//OE3123 侍魂-酱油
+/*酱油：锁定技，场上每出现一点【杀】造成的伤害，你摸一张牌；场上每出现1点属性伤害，你回复1点体力。
+  吐槽在弑魂武将牌里*/
 class Jiangyou: public TriggerSkill{
 public:
     Jiangyou():TriggerSkill("jiangyou"){
@@ -683,6 +709,9 @@ public:
     }
 };
 
+//OE3124 卧槽孔明-百合，发呆
+/*百合：出牌阶段，你可以弃一张手牌，指定两名女性角色各回复1点体力。
+  其实她自己就是女性角色。。。当然仍然有点观赏性，你不一定能有女将队友*/
 BaiheCard::BaiheCard(){
 }
 
@@ -736,6 +765,8 @@ public:
     }
 };
 
+/*回合结束阶段，你可以弃置所有牌，则直至你的下回合开始，防止你受到的除【南蛮入侵】和【万箭齐发】造成外的一切伤害。
+  发呆锁定技，谁用谁知道。对付这货的方法。。。攒AOE？？？*/
 class Fadai: public TriggerSkill{
 public:
     Fadai():TriggerSkill("fadai"){
@@ -818,4 +849,3 @@ OETanPackage::OETanPackage()
 }
 
 ADD_PACKAGE(OETan)
-

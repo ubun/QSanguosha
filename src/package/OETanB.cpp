@@ -12,6 +12,18 @@
 #include "room.h"
 #include "ai.h"
 
+/*edado-寡言，拟态*/
+/*寡言：
+  回合开始阶段，你可进行一次判定：
+  若为红桃，你回复1点体力；
+  若为黑桃，获得【天义】拼点胜利效果直至回合结束；
+  若为方片，你可和任意一名角色拼点，若你赢，你抽取该角色一半手牌（向上取整）；
+  若为梅花，你获得【裸衣】效果直至回合结束。
+  然后将判定牌放在你的武将牌上（移出游戏）
+
+  改成天义和裸衣纯粹偷懒，天义和裸衣的代码都不少来着
+  方片的效果改为可选（不然如果你没有手牌或场上其他人都没有手牌怎么办？注：若你无手牌，则点确定也无事发生）
+  判定牌放在武将牌上是为了拟态的发动（不然你得记得你判出过三张同花色牌，面杀还可以，这里不能接受）*/
 GuayanCard::GuayanCard(){
     will_throw = false;
 }
@@ -27,7 +39,7 @@ bool GuayanCard::targetFilter(const QList<const Player *> &targets, const Player
 }
 
 void GuayanCard::use(Room *room, ServerPlayer *OEedado, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *tiger = targets.first();
+    ServerPlayer *tiger = targets.first();//驱虎遗留，别吐槽了
     if(tiger->isKongcheng())
         return;
 
@@ -131,6 +143,9 @@ public:
     }
 };
 
+/*拟态：觉醒技，回合开始阶段，若你拥有三张同花色【寡言】牌，须减1点体力上限，并永久获得技能【天妒】【MOD】。
+  话说被不屈代码误导了好几天。。。
+  2血加个英姿忒脆，所以我又加了个【MOD】（围观群众：把妹自重！！！），其实本来想加【化身】的，预料到会有严重BUG，放弃了*/
 class Nitai: public PhaseChangeSkill{
 public:
     Nitai():PhaseChangeSkill("nitai"){
@@ -186,6 +201,10 @@ public:
     }
 };
 
+//FROM UBUN TENKEI
+//天音-天道，无情（代码来自宇文天启，话说技能名真瞎！！！）
+//话说这位是版主，那么主公技待补
+/*天道：锁定技，回合外你每受到1点伤害增加1点体力上限。*/
 class Skydao:public MasochismSkill{
 public:
     Skydao():MasochismSkill("skydao"){
@@ -206,6 +225,8 @@ public:
     }
 };
 
+/*无情：锁定技，你受到伤害时，若你的体力是全场最少或同时为最少，则所有人必须减少1点体力或1点体力上限
+  阵阵寒意。。。因为我出了不少2血。。。*/
 class Noqing:public MasochismSkill{
 public:
     Noqing():MasochismSkill("noqing"){
@@ -258,7 +279,7 @@ OETanBPackage::OETanBPackage()
     OEedado->addSkill(new Nitai);
     related_skills.insertMulti("guayan", "#luoyi");
 
-    General *OEtianyin = new General(this, 3144, "tianyin", "tan", 4, false);
+    General *OEtianyin = new General(this, 3144, "tianyin$", "tan", 4, false);
     OEtianyin->addSkill(new Skydao);
     OEtianyin->addSkill(new Noqing);
 
