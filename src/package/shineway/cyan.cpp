@@ -291,6 +291,18 @@ public:
         map["crossbow"] = "rende";
         map["double_sword"] = "jizhi";
         map["qinggang_sword"] = "juejing";
+        map["guding_blade"] = "yinghun";
+        map["ice_sword"] = "tianxiang";
+        map["blade"] = "wusheng";
+        map["axe"] = "duanliang";
+        map["spear"] = "paoxiao";
+        map["fan"] = "bazhen";
+        map["halberd"] = "wushuang";
+        map["kylin_bow"] = "liegong";
+        map["moon_spear"] = "longdan";
+        map["yitian_sword"] = "jianxiong";
+        map["yx_sword"] = "fangzhu";
+        map["sp_moonspear"] = "qingguo";
 
         return map.value(weapon, QString());
     }
