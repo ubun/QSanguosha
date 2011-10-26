@@ -200,8 +200,8 @@ public:
 class Weighing: public TriggerSkill{
 public:
     Weighing():TriggerSkill("weighing"){
-        events << CardLostDone << CardFinished << CardResponsed << HpChanged;
-        frequency = Frequent;
+        events << CardLostDone << CardFinished << HpChanged;
+        frequency = Compulsory;
     }
 
     virtual int getPriority() const{
@@ -213,7 +213,13 @@ public:
             return false;
         int handcard = player->getHandcardNum();
         int hp = player->getHp();
-        if(handcard != hp && player->askForSkillInvoke(objectName(), data)){
+        if(handcard != hp){
+            LogMessage log;
+            log.type = "#TriggerSkill";
+            log.from = player;
+            log.arg = objectName();
+            player->getRoom()->sendLog(log);
+
             if(handcard < hp)
                 player->drawCards(hp - handcard);
             else
@@ -253,10 +259,104 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *cc = room->findPlayerBySkillName("kuanhou");
         if(cc && player->getPhase() == Player::NotActive){
+            LogMessage log;
+            log.type = "#Kuanhou";
+            log.from = player;
+            log.to << cc;
+            room->sendLog(log);
+
             ServerPlayer *target = room->askForPlayerChosen(cc, room->getOtherPlayers(player), "kuanhou");
-            room->setCurrent(target);
-            room->getThread()->trigger(TurnStart, target);
-            room->setCurrent(player);
+            player->setMark("kuanhou", 0);
+            QList<Player::Phase> phases;
+            phases << Player::Play;
+            target->play(phases);
+        }
+        return false;
+    }
+};
+
+class Hunren: public TriggerSkill{
+public:
+    Hunren():TriggerSkill("hunren"){
+        events << CardLost << CardFinished;
+        frequency = Compulsory;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    static QString PuyuanBook(QString weapon){
+        QMap<QString, QString> map;
+
+        map["crossbow"] = "rende";
+        map["double_sword"] = "jizhi";
+        map["qinggang_sword"] = "juejing";
+
+        return map.value(weapon, QString());
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        const Card *weapon;
+        if(event == CardLost){
+            CardMoveStar move = data.value<CardMoveStar>();
+            if(move->from_place == Player::Equip){
+                weapon = Sanguosha->getCard(move->card_id);
+                if(weapon->inherits("Weapon")){
+                    LogMessage log;
+                    log.type = "#HunrenSkill";
+                    log.from = player;
+                    log.arg = objectName();
+                    log.arg2 = PuyuanBook(weapon->objectName());
+                    room->detachSkillFromPlayer(player, log.arg2);
+                    room->sendLog(log);
+                }
+            }
+            return false;
+        }
+        CardUseStruct card_use = data.value<CardUseStruct>();
+        if(card_use.card->inherits("Weapon")){
+            weapon = player->getWeapon();
+            if(weapon){
+                LogMessage log;
+                log.type = "#TriggerSkill";
+                log.from = player;
+                log.arg = objectName();
+                room->sendLog(log);
+                room->acquireSkill(player, PuyuanBook(weapon->objectName()));
+            }
+        }
+        return false;
+    }
+};
+
+class Cuihuo: public TriggerSkill{
+public:
+    Cuihuo():TriggerSkill("cuihuo"){
+        events << CardLost;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardMoveStar move = data.value<CardMoveStar>();
+        if(move->from_place == Player::Equip){
+            Room *room = player->getRoom();
+            if(Sanguosha->getCard(move->card_id)->inherits("Weapon")){
+                if(player->getPhase() == Player::Play && player->hasFlag("cuihuo"))
+                    return false;
+                LogMessage log;
+                log.type = "#TriggerSkill";
+                log.from = player;
+                log.arg = objectName();
+                room->sendLog(log);
+
+                RecoverStruct recover;
+                recover.who = player;
+                room->recover(player, recover);
+                if(player->getPhase() == Player::Play)
+                    player->setFlags("cuihuo");
+            }
         }
         return false;
     }
@@ -281,6 +381,10 @@ CyanPackage::CyanPackage()
     General *cyanzhangxiu = new General(this, "cyanzhangxiu$", "qun");
     cyanzhangxiu->addSkill(new Baiming);
     cyanzhangxiu->addSkill(new Junling);
+
+    General *cyanpuyuan = new General(this, "cyanpuyuan", "shu");
+    cyanpuyuan->addSkill(new Hunren);
+    cyanpuyuan->addSkill(new Cuihuo);
 
     addMetaObject<JunlingCard>();
 }

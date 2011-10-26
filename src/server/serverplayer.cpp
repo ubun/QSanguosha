@@ -496,6 +496,24 @@ void ServerPlayer::play(){
     }
 }
 
+void ServerPlayer::play(QList<Player::Phase> &set_phases){
+    if(!set_phases.contains(NotActive))
+        set_phases << NotActive;
+
+    phases = set_phases;
+    while(!phases.isEmpty()){
+        Phase phase = phases.takeFirst();
+        setPhase(phase);
+        room->broadcastProperty(this, "phase");
+        room->getThread()->trigger(PhaseChange, this);
+
+        if(isDead() && phase != NotActive){
+            phases.clear();
+            phases << NotActive;
+        }
+    }
+}
+
 QList<Player::Phase> &ServerPlayer::getPhases(){
     return phases;
 }
