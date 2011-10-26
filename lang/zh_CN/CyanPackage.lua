@@ -3,15 +3,15 @@
 return {
 	["cyan"] = "青包", 
 
---QUN#03
+--QUN#03 北海太守
 	["cyankongrong"] = "孔融",
-	["designer:cyankongrong"] = "宇文天启、筱音",
+	["designer:cyankongrong"] = "宇文天启",
 	["rangli"] = "让梨",
 	[":rangli"] = "摸牌阶段摸牌前，你可以放弃摸牌并指定一名可以给你两张牌的角色，该角色必须给你两张手牌，然后该角色在自己的下一个摸牌阶段摸牌时额外摸两张牌（让梨效果可以累积）\
 ★如孔融让梨张辽，张辽选择发动突袭跳过摸牌阶段，孔融下次依然让梨张辽，若这次张辽没有发动突袭，可以额外摸4张牌",
 	["@pear"] = "梨",
 
---WEI#03
+--WEI#03 邓哀王
 	["cyancaochong"] = "曹冲",
 	["designer:cyancaochong"] = "竹影澜轩",
 	["weighing"] = "称象",
@@ -20,16 +20,16 @@ return {
 	[":kuanhou"] = "你每受到一次伤害,若你的武将牌正面朝上,你可将你的武将牌翻面,然后在伤害来源的回合结束时可令一名其他角色进行一个额外的出牌阶段",
 	["#Kuanhou"] = "%from 的回合结束，%to 可以令一名角色进行一个额外的出牌阶段",
 
---SHU#03
+--SHU#03 中流砥柱
 	["cyanliaohua"] = "廖化",
 	["designer:cyanliaohua"] = "玩玩百姐",
 	["guolie"] = "果烈",
 	[":guolie"] = "出牌阶段，你的【杀】能攻击到手牌数与你体力差为1的任一角色",
 	["zhongshu"] = "终蜀",
-	[":zhongshu"] = "当你造成一次伤害时，可以防止此伤害，改为与目标角色交换手牌",
+	[":zhongshu"] = "当你造成一次伤害时，可防止此伤害，改为与受伤害的角色交换手牌",
 	["#Zhongshu"] = "%from 与 %to 交换了手牌",
 
---WU#03
+--WU#03 性不协俗
 	["cyanyufan"] = "虞翻",
 	["designer:cyanyufan"] = "游神ViVA",
 	["shuaijin"] = "率进",
@@ -37,7 +37,7 @@ return {
 	["liufang"] = "流放",
 	[":liufang"] = "回合外，每失去一张牌，可进行一次判定，若结果为黑色基本牌或黑色锦囊牌，你立即获得失去的那张牌",
 
---WEI#04
+--WEI#04 长者之风
 --http://www.qsanguosha.com/forum.php?mod=viewthread&tid=5800
 	["cyanlidian"] = "李典",
 	["designer:cyanlidian"] = "sailiss",
@@ -52,7 +52,8 @@ return {
 	["#RujiSucc"] = "%from 将 %to 的全部手牌示众",
 	["#RujiFail"] = "%from 出师不利，不得不乖乖地让 %to 摸走 %arg 张牌",
 
---QUN#04
+--QUN#04 北地枪王
+--http://blog.sina.com.cn/s/blog_7d07da460100y0x3.html
 	["cyanzhangxiu"] = "张绣",
 	["designer:cyanzhangxiu"] = "浦原秀一",
 	["baiming"] = "百鸣",
@@ -63,7 +64,7 @@ return {
 	[":junling"] = "主公技，出牌阶段，你可以指定任意一名角色对其攻击范围内的另一名角色使用一张【杀】，若该角色不如此做，你从他那里获得一张手牌，每阶段限一次",
 	["junling-slash"] = "%src 发动了技能【军令】，目标是 %dest，请打出一张【杀】以响应", 
 
---SHU#04
+--SHU#04 天使之艺
 	["cyanpuyuan"] = "蒲元",
 	["designer:cyanpuyuan"] = "天使之艺",
 	["hunren"] = "魂刃",
@@ -87,7 +88,7 @@ return {
 	["cuihuo"] = "淬火",
 	[":cuihuo"] = "锁定技,当你失去装备区里的武器时,你回复1点体力值;若在你的出牌阶段失去,则每阶段限用一次",
 
---WU#04 
+--WU#04 倒戈之悟
 	["cyanfanqiangzhangda"] = "范彊张达",
 	["designer:cyanfanqiangzhangda"] = "筱音",
 	["qianpan"] = "潜叛",

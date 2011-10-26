@@ -299,7 +299,7 @@ KusoPackage::KusoPackage()
     kusoking->addSkill(new MarkAssignSkill("liaot", 1));
     related_skills.insertMulti("liaoting", "#liaot");
 
-    General *tianyin = new General(this, "tianyin", "god", 5, false);
+    General *tianyin = new General(this, "tianyin", "god", 5);
     tianyin->addSkill(new Skydao);
     tianyin->addSkill(new Noqing);
 
