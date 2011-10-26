@@ -1974,6 +1974,7 @@ void Room::broadcastProperty(ServerPlayer *player, const char *property_name, co
 }
 
 void Room::drawCards(ServerPlayer *player, int n){
+    int num_old = player->getHandcardNum();
     if(n <= 0)
         return;
 
@@ -2019,6 +2020,8 @@ void Room::drawCards(ServerPlayer *player, int n){
         }
     }else
         broadcastInvoke("drawNCards", draw_str, player);
+    if(num_old - player->getHandcardNum() != 0)
+        thread->trigger(HandCardNumChange, player);
 }
 
 void Room::throwCard(const Card *card){
@@ -2043,10 +2046,14 @@ RoomThread *Room::getThread() const{
 
 void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, bool open){
     QSet<ServerPlayer *> scope;
+    int from_old = 0, to_old = 0;
+    if(to)
+        to_old = to->getHandcardNum();
 
     if(!open){
         int eid = card->getEffectiveId();
         ServerPlayer *from = getCardOwner(eid);
+        from_old = from->getHandcardNum();
         Player::Place from_place= getCardPlace(eid);
 
         scope.insert(from);
@@ -2100,6 +2107,7 @@ void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, b
         foreach(int subcard, subcards){
             move.card_id = subcard;
             move.from = getCardOwner(subcard);
+            from_old = move.from->getHandcardNum();
             move.from_place = getCardPlace(subcard);
             doMove(move, scope);
 
@@ -2109,6 +2117,7 @@ void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, b
     }else{
         move.card_id = card->getId();
         move.from = getCardOwner(move.card_id);
+        from_old = move.from->getHandcardNum();
         move.from_place = getCardPlace(move.card_id);
         doMove(move, scope);
 
@@ -2118,6 +2127,10 @@ void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, b
 
     if(from)
         thread->trigger(CardLostDone, from);
+    if(from && from_old - from->getHandcardNum() != 0)
+        thread->trigger(HandCardNumChange, from);
+    if(to && to_old - to->getHandcardNum() != 0)
+        thread->trigger(HandCardNumChange, to);
 }
 
 void Room::doMove(const CardMoveStruct &move, const QSet<ServerPlayer *> &scope){

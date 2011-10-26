@@ -200,7 +200,7 @@ public:
 class Weighing: public TriggerSkill{
 public:
     Weighing():TriggerSkill("weighing"){
-        events << CardLostDone << CardFinished << HpChanged;
+        events << HandCardNumChange << HpChanged;
         frequency = Compulsory;
     }
 
@@ -208,22 +208,32 @@ public:
         return -1;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::NotActive)
-            return false;
-        int handcard = player->getHandcardNum();
-        int hp = player->getHp();
-        if(handcard != hp){
-            LogMessage log;
-            log.type = "#TriggerSkill";
-            log.from = player;
-            log.arg = objectName();
-            player->getRoom()->sendLog(log);
+    virtual bool triggerable(const ServerPlayer *target) const{
+        ServerPlayer *cc = target->getRoom()->findPlayerBySkillName(objectName());
+        return cc;
+    }
 
-            if(handcard < hp)
-                player->drawCards(hp - handcard);
-            else
-                player->getRoom()->askForDiscard(player, objectName(), handcard - hp);
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        foreach(ServerPlayer *cc, room->getAllPlayers()){
+           if(!cc->hasSkill(objectName()))
+               continue;
+           if(!cc || player->getPhase() != Player::NotActive)
+               return false;
+           int handcard = cc->getHandcardNum();
+           int hp = cc->getHp();
+           if(handcard != hp){
+               LogMessage log;
+               log.type = "#TriggerSkill";
+               log.from = cc;
+               log.arg = objectName();
+               room->sendLog(log);
+
+               if(handcard < hp)
+                   cc->drawCards(hp - handcard);
+               else
+                   room->askForDiscard(cc, objectName(), handcard - hp);
+           }
         }
         return false;
     }

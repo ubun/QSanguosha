@@ -155,6 +155,7 @@ enum TriggerEvent{
     CardEffect,
     CardEffected,
     CardFinished,
+    HandCardNumChange,
 
     ChoiceMade,
 
