@@ -578,7 +578,7 @@ public:
         }
         if(players.isEmpty())
             return false;
-        if(room->askForSkillInvoke(player, objectName(), data)){
+        if(room->askForSkillInvoke(player, "xiefang", data)){
             ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
             int card_id = asked == "slash" ?
                           target->getWeapon()->getId() :
