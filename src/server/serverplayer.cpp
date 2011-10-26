@@ -13,7 +13,12 @@ ServerPlayer::ServerPlayer(Room *room)
 }
 
 void ServerPlayer::drawCard(const Card *card){
+    int old_num = handcards.length();
     handcards << card;
+    if(this->getMark("cx") == 0){
+        QVariant num = handcards.length() - old_num;
+        room->getThread()->trigger(HandCardNumChange, this, num);
+    }
 }
 
 Room *ServerPlayer::getRoom() const{
@@ -263,7 +268,12 @@ void ServerPlayer::sendProperty(const char *property_name, const Player *player)
 void ServerPlayer::removeCard(const Card *card, Place place){
     switch(place){
     case Hand: {
+            int old_num = handcards.length();
             handcards.removeOne(card);
+            if(this->getMark("cx") == 0){
+                QVariant num = handcards.length() - old_num;
+                room->getThread()->trigger(HandCardNumChange, this, num);
+            }
             break;
         }
 
@@ -305,7 +315,12 @@ void ServerPlayer::removeCard(const Card *card, Place place){
 void ServerPlayer::addCard(const Card *card, Place place){
     switch(place){
     case Hand: {
+            int old_num = handcards.length();
             handcards << card;
+            if(this->getMark("cx") == 0){
+                QVariant num = handcards.length() - old_num;
+                room->getThread()->trigger(HandCardNumChange, this, num);
+            }
             break;
         }
 

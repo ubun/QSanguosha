@@ -204,22 +204,9 @@ public:
         frequency = Compulsory;
     }
 
-    virtual int getPriority() const{
-        return -1;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        ServerPlayer *cc = target->getRoom()->findPlayerBySkillName(objectName());
-        return cc;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        foreach(ServerPlayer *cc, room->getAllPlayers()){
-           if(!cc->hasSkill(objectName()))
-               continue;
-           if(!cc || player->getPhase() != Player::NotActive)
-               return false;
+    virtual bool trigger(TriggerEvent , ServerPlayer *cc, QVariant &) const{
+        Room *room = cc->getRoom();
+        if(room->getCurrent() && room->getCurrent() != cc){
            int handcard = cc->getHandcardNum();
            int hp = cc->getHp();
            if(handcard != hp){
@@ -229,10 +216,12 @@ public:
                log.arg = objectName();
                room->sendLog(log);
 
+               cc->setMark("cx", 1);
                if(handcard < hp)
                    cc->drawCards(hp - handcard);
                else
                    room->askForDiscard(cc, objectName(), handcard - hp);
+               cc->setMark("cx", 0);
            }
         }
         return false;
