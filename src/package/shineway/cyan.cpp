@@ -197,11 +197,82 @@ public:
     }
 };
 
+class Weighing: public TriggerSkill{
+public:
+    Weighing():TriggerSkill("weighing"){
+        events << CardLostDone << CardFinished << CardResponsed << HpChanged;
+        frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+        int handcard = player->getHandcardNum();
+        int hp = player->getHp();
+        if(handcard != hp && player->askForSkillInvoke(objectName(), data)){
+            if(handcard < hp)
+                player->drawCards(hp - handcard);
+            else
+                player->getRoom()->askForDiscard(player, objectName(), handcard - hp);
+        }
+        return false;
+    }
+};
+
+class Kuanhou:public MasochismSkill{
+public:
+    Kuanhou():MasochismSkill("kuanhou"){
+    }
+
+    virtual void onDamaged(ServerPlayer *cc, const DamageStruct &damage) const{
+        Room *room = cc->getRoom();
+        if(!cc->faceUp())
+            return;
+        QVariant data = QVariant::fromValue(damage);
+        if(room->askForSkillInvoke(cc, objectName(), data)){
+            cc->turnOver();
+            damage.from->setMark("kuanhou", 1);
+        }
+    }
+};
+
+class KuanhouEffect:public PhaseChangeSkill{
+public:
+    KuanhouEffect():PhaseChangeSkill("#kuanhou_effect"){
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("kuanhou") > 0;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        ServerPlayer *cc = room->findPlayerBySkillName("kuanhou");
+        if(cc && player->getPhase() == Player::NotActive){
+            ServerPlayer *target = room->askForPlayerChosen(cc, room->getOtherPlayers(player), "kuanhou");
+            room->setCurrent(target);
+            room->getThread()->trigger(TurnStart, target);
+            room->setCurrent(player);
+        }
+        return false;
+    }
+};
+
 CyanPackage::CyanPackage()
     :Package("cyan")
 {
     General *cyankongrong = new General(this, "cyankongrong", "qun");
     cyankongrong->addSkill(new Rangli);
+
+    General *cyancaochong = new General(this, "cyancaochong", "wei", 3);
+    cyancaochong->addSkill(new Weighing);
+    cyancaochong->addSkill(new Kuanhou);
+    cyancaochong->addSkill(new KuanhouEffect);
+    related_skills.insertMulti("kuanhou", "#kuanhou_effect");
 
     General *cyanyufan = new General(this, "cyanyufan", "wu", 3);
     cyanyufan->addSkill(new Shuaijin);
