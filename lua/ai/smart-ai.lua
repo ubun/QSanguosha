@@ -560,8 +560,11 @@ function SmartAI:filterEvent(event, player, data)
 		local source= self.room:getCurrent()                   
 
 		for _, eachTo in ipairs(to) do
-			if sgs.ai_carduse_intention[card:className()] then
-				local intention=sgs.ai_carduse_intention[card:className()](card,from,eachTo,source)
+			local use_intension = sgs.ai_carduse_intention[card:className()]
+			if use_intension then
+				local different = true
+				if self:isFriend(from, eachTo) then different = false end
+				local intention= use_intension(card,from,eachTo,source,different) or use_intension(card,from,eachTo,source)
 				self:refreshRoyalty(from,intention)
 				
 				if eachTo:isLord() and intention<0 then 
@@ -886,12 +889,12 @@ local function getSkillViewCard(card, class_name, player, card_place)
 				return ("slash:longhun[%s:%s]=%d"):format(suit, number, card_id)
 			end
 		end	
+		if player:hasSkill("wusheng") then
+			if card:isRed() and not card:inherits("Peach") then
+				return ("slash:wusheng[%s:%s]=%d"):format(suit, number, card_id)
+			end
+		end	
 		if card_place ~= sgs.Player_Equip then
-			if player:hasSkill("wusheng") then
-				if card:isRed() and not card:inherits("Peach") then
-					return ("slash:wusheng[%s:%s]=%d"):format(suit, number, card_id)
-				end
-			end	
 			if player:hasSkill("longdan") and card:inherits("Jink") then
 				return ("slash:longdan[%s:%s]=%d"):format(suit, number, card_id)
 			end
@@ -1782,7 +1785,8 @@ function SmartAI:useEquipCard(card, use)
 		end
 	elseif card:inherits("Armor") then
 		if card:inherits("GaleShell") then self:useGaleShell(card, use) return end
-	    if self.player:hasSkill("bazhen") then return end
+	    if self.player:hasSkill("bazhen") and not self.player:getArmor() then return end
+		if self.player:hasSkill("yizhong") and not card:inherits("EightDiagram") and not self.player:getArmor() then return end
 	 	if not self.player:getArmor() or self.player:getArmor():objectName() == "gale-shell" then use.card=card
 	 	elseif (self.player:getArmor():objectName())=="silver_lion" then use.card=card
 	 	elseif self.player:isChained()  and (self.player:getArmor():inherits("vine")) and not (card:objectName()=="silver_lion") then use.card=card
@@ -2507,7 +2511,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 	local new_flag=""
     if flags:match("h") then new_flag="h" end
     if flags:match("e") then new_flag=new_flag.."e" end
-    return self:getCardRandomly(who, new_flag)							
+    return self:getCardRandomly(who, new_flag) or who:getCards(flags):first():getEffectiveId()							
 end
 
 function SmartAI:askForCard(pattern, prompt, data)
