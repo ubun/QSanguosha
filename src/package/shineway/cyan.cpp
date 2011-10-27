@@ -5,9 +5,49 @@
 #include "carditem.h"
 #include "room.h"
 
+PearCard::PearCard(){
+    target_fixed = true;
+}
+
+void PearCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    ServerPlayer *kongrong = room->getCurrent();
+    if(kongrong->hasSkill("rangli")){
+        kongrong->obtainCard(this);
+    }
+}
+
+class RangliViewAsSkill: public ViewAsSkill{
+public:
+    RangliViewAsSkill():ViewAsSkill("rangli"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@rangli";
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        if(selected.length() > 2)
+            return false;
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.length() != 2)
+            return NULL;
+        PearCard *card = new PearCard();
+        card->addSubcards(cards);
+        return card;
+    }
+};
+
 class Rangli: public TriggerSkill{
 public:
     Rangli():TriggerSkill("rangli"){
+        view_as_skill = new RangliViewAsSkill;
         events << PhaseChange << DrawNCards;
     }
     virtual bool triggerable(const ServerPlayer *player) const{;
@@ -41,8 +81,12 @@ public:
                 return false;
             ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
             target->gainMark("@pear");
-            player->obtainCard(room->askForCardShow(target, player, objectName()));
-            player->obtainCard(room->askForCardShow(target, player, objectName()));
+            if(!room->askForUseCard(target, "@@rangli", "@rangli-ask:" + player->objectName())){
+                int card_id = room->askForCardChosen(player, target, "h", "rangli");
+                room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
+                card_id = room->askForCardChosen(player, target, "h", "rangli");
+                room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
+            }
             return true;
         }
         return false;
@@ -709,6 +753,7 @@ CyanPackage::CyanPackage()
     cyanfanqiangzhangda->addSkill(new Qianpan);
     cyanfanqiangzhangda->addSkill(new Anshi);
 
+    addMetaObject<PearCard>();
     addMetaObject<GuolieCard>();
     addMetaObject<RujiCard>();
     addMetaObject<JunlingCard>();

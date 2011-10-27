@@ -5,6 +5,15 @@
 #include "card.h"
 #include "standard.h"
 
+class PearCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE PearCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
+};
+
 class GuolieCard: public SkillCard{
     Q_OBJECT
 

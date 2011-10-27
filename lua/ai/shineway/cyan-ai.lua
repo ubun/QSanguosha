@@ -18,5 +18,5 @@ sgs.ai_skill_playerchosen["rangli"] = function(self, targets)
 			return target
 		end
 	end
-	return self.friends[1]
+	return targets[1]
 end
