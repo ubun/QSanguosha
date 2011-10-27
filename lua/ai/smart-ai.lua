@@ -1043,6 +1043,10 @@ function SmartAI:slashProhibit(card,enemy)
 		if enemy:hasSkill("shenjun") and (enemy:getGeneral():isMale()~=self.player:getGeneral():isMale()) and not card:inherits("ThunderSlash") then
 			return true
 		end
+		
+		if enemy:hasSkill("xiangle") and self:getCardsNum("Slash")+self:getCardsNum("Analpetic")+math.max(self:getCardsNum("Jink")-1,0)<2 then
+			return true
+		end
 	end
 
 	return not self:slashIsEffective(card, enemy)
@@ -1098,7 +1102,7 @@ function SmartAI:useBasicCard(card, use,no_distance)
 				self:slashIsEffective(card, enemy) then
 					-- fill the card use struct
 					local anal=self:searchForAnaleptic(use,enemy,card)
-					if anal then 
+					if anal and not self:isEquip("SilverLion", enemy) then 
 						use.card = anal
 						return 
 					end
