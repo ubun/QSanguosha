@@ -138,7 +138,7 @@ sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
 
 		local targets = {}
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:getArmor() and not has_armor and card_for_qiaobian(self, enemy) then
+			if enemy:getArmor() and not has_armor and card_for_qiaobian(self, enemy, ".") then
 				table.insert(targets, enemy)
 			end
 		end
@@ -277,7 +277,8 @@ jixi_skill.getTurnUseCard = function(self)
 
 	if self.player:getPile("field"):isEmpty()
 		or #targets == 0
-		or self.player:getHandcardNum()>=self.player:getHp() then
+		or (self.player:getHandcardNum()>=self.player:getHp() and
+		self.player:getPile("field"):length()<= self.room:getAlivePlayers():length()/2) then
 		return
 	end
 	return sgs.Card_Parse("@JixiCard=.")
@@ -400,7 +401,8 @@ zhiba_skill.getTurnUseCard = function(self)
 		or self.player:getHandcardNum() < self.player:getHp()
 		or self.player == lord
 		or self.player:getKingdom() ~= "wu"
-		or self.player:hasUsed("ZhibaCard") then
+		or self.player:hasUsed("ZhibaCard")
+		or not lord:hasSkill("sunce_zhiba") then
 		return
 	end
 

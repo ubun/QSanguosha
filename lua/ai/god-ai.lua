@@ -207,7 +207,13 @@ sgs.ai_skill_use_func["ShenfenCard"]=function(card,use,self)
 end
 
 --qinyin
-sgs.ai_skill_invoke.qinyin = true
+sgs.ai_skill_invoke.qinyin = function(self, data)
+	for _,friend in ipairs(self.friends) do
+		if friend:isWounded() then return true end
+	end
+	if sgs.ai_skill_invoke.qinyin(self,"up+down")=="down" then return true end
+	return false
+end
 
 sgs.ai_skill_choice.qinyin = function(self, choices)
 	self:sort(self.friends, "hp")
@@ -345,20 +351,18 @@ sgs.ai_skill_invoke.jilve=function(self,data)
 	struct=data:toJudge()
 	if struct then if not struct.card then struct=nil end end
 	if not struct then assert(false) end
-	return (use and sgs.ai_skill_invoke["@guicai"](self,"dummyprompt",struct))
+	return (use and sgs.ai_skill_invoke["@guicai"](self,"dummyprompt",struct)~=".")
 end
 
 local jilve_skill={}
 jilve_skill.name="jilve"
 table.insert(sgs.ai_skills,jilve_skill)
 jilve_skill.getTurnUseCard=function(self)
-	if self.player:getMark("@bear")<1 then return end
-	local zhiheng_skill
-	for _, skill in ipairs(sgs.ai_skills) do
-		if skill.name=="zhiheng" then zhiheng_skill=skill break end
-	end
-	local card=zhiheng_skill.getTurnUseCard(self)
-	if card then return sgs.Card_Parse("@JilveCard=.") end
+	if self.player:getMark("@bear")<1 or self.player:hasUsed("ZhihengCard") then return end
+	local card=sgs.Card_Parse("@ZhihengCard=.")
+	local dummy_use={isDummy=true}
+	self:useSkillCard(card,dummy_use)
+	if dummy_use.card then return sgs.Card_Parse("@JilveCard=.") end
 end
 
 sgs.ai_skill_choice.jilve="zhiheng"
@@ -368,10 +372,9 @@ sgs.ai_skill_use_func["JilveCard"]=function(card,use,self)
 end
 
 sgs.ai_skill_use["@zhiheng"]=function(self,prompt)
-	for _, skill in ipairs(sgs.ai_skills) do
-		if skill.name=="zhiheng" then zhiheng_skill=skill break end
-	end
-	local card=zhiheng_skill.getTurnUseCard(self)
-	if card then return card:toString() .. "->." end
+	local card=sgs.Card_Parse("@ZhihengCard=.")
+	local dummy_use={isDummy=true}
+	self:useSkillCard(card,dummy_use)
+	if dummy_use.card then return (dummy_use.card):toString() .. "->." end
 	return "."
 end

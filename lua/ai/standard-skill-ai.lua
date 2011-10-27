@@ -3,11 +3,25 @@ sgs.ai_skill_playerchosen.zero_card_as_slash = function(self, targets)
 	local targetlist=sgs.QList2Table(targets)
 	self:sort(targetlist, "defense")
 	for _, target in ipairs(targetlist) do
-		if self:isEnemy(target) and not self:slashProhibit(slash ,target) then
-		return target
+		if self:isEnemy(target) and not self:slashProhibit(slash ,target) and self:slashIsEffective(slash,target) then
+			return target
+		end
+	end
+	for i=#targetlist, 1, -1 do
+		if not self:slashProhibit(slash, targetlist[i]) then
+			return targetlist[i]
 		end
 	end
 	return targets:first()
+end
+
+sgs.ai_skill_playerchosen.damage = function(self, targets)
+	local targetlist=sgs.QList2Table(targets)
+	self:sort(targetlist,"hp")
+	for _, target in ipairs(targetlist) do
+		if self:isEnemy(target) then return target end
+	end
+	return targetlist[#targetlist]
 end
 
 sgs.ai_skill_invoke.ice_sword=function(self, data)
@@ -347,18 +361,6 @@ sgs.ai_skill_use_func["JijiangCard"]=function(card,use,self)
 	
 end
 
-local rende_skill={}
-rende_skill.name="jijiang"
-table.insert(sgs.ai_skills,rende_skill)
-rende_skill.getTurnUseCard=function(self)
-        local cards = self.player:getHandcards()	
-		cards=sgs.QList2Table(cards)
-		
-		for _,acard in ipairs(cards)  do
-			
-		end
-end
-
 local guose_skill={}
 guose_skill.name="guose"
 table.insert(sgs.ai_skills,guose_skill)
@@ -416,7 +418,7 @@ local rende_skill={}
 rende_skill.name="rende"
 table.insert(sgs.ai_skills, rende_skill)
 rende_skill.getTurnUseCard=function(self)
-	if self.player:usedTimes("RendeCard") < 2 or self:getOverflow() > 0 then 
+	if self.player:usedTimes("RendeCard") < 2 or self:getOverflow() > 0 or self:getCard("Shit") then 
 		local card_id = self:getCardRandomly(self.player, "h")
 		return sgs.Card_Parse("@RendeCard=" .. card_id)
 	end
@@ -488,16 +490,28 @@ sgs.ai_skill_use_func["RendeCard"] = function(card, use, self)
 		end
 	end
 	
-	if (self.player:getHandcardNum()>=self.player:getHp()) or (self.player:isWounded() and self.player:usedTimes("RendeCard") < 2) then 
+	local shit
+	shit = self:getCard("Shit")
+	if shit then
+		use.card = sgs.Card_Parse("@RendeCard=" .. shit:getId())
+		self:sort(self.enemies,"hp")
+		if use.to then use.to:append(self.enemies[1]) end
+		return
+	end
+	
+	if (self.player:getHandcardNum()>self.player:getHp()) or (self.player:isWounded() and self.player:usedTimes("RendeCard") < 2 and not self.player:isKongcheng()) then 
 		if #self.friends_noself == 0 then return end
 		
 		self:sort(self.friends_noself, "handcard")
 		local friend = self.friends_noself[1]
 		local card_id = self:getCardRandomly(self.player, "h")
-		use.card = sgs.Card_Parse("@RendeCard=" .. card_id)
+		if not sgs.Sanguosha:getCard(card_id):inherits("Shit") then
+			use.card = sgs.Card_Parse("@RendeCard=" .. card_id)
+		end
 		if use.to then use.to:append(friend) end
 		return
     end
+	
 end
 
 local zhiheng_skill={}
