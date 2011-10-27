@@ -151,6 +151,7 @@ public:
     void askForGeneralAsync(ServerPlayer *player);
     const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
 
+    void toggleReadyCommand(ServerPlayer *player, const QString &);
     void speakCommand(ServerPlayer *player, const QString &arg);
     void trustCommand(ServerPlayer *player, const QString &arg);
     void kickCommand(ServerPlayer *player, const QString &arg);
@@ -180,7 +181,6 @@ private:
     QList<int> *draw_pile, *discard_pile;
     bool game_started;
     bool game_finished;
-    int signup_count;
     lua_State *L;
     QList<AI *> ais;
 

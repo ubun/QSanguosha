@@ -380,7 +380,6 @@ public:
             Room *room = zhenji->getRoom();
             int num=1;
             while(zhenji->askForSkillInvoke("luoshen")){
-                zhenji->setFlags("luoshen");
                 room->playSkillEffect(objectName());
 
                 JudgeStruct judge;
@@ -399,10 +398,9 @@ public:
                 }
             }
 
-            zhenji->setFlags("-luoshen");
         }else if(event == FinishJudge){
-            if(zhenji->hasFlag("luoshen")){
-                JudgeStar judge = data.value<JudgeStar>();
+            JudgeStar judge = data.value<JudgeStar>();
+            if(judge->reason == objectName()){
                 if(judge->card->isBlack()){
                     zhenji->obtainCard(judge->card);
                     return true;

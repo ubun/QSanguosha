@@ -24,7 +24,7 @@
 Room::Room(QObject *parent, const QString &mode)
     :QThread(parent), mode(mode), current(NULL), reply_player(NULL), pile1(Sanguosha->getRandomCards()),
     draw_pile(&pile1), discard_pile(&pile2),
-    game_started(false), game_finished(false), signup_count(0),
+    game_started(false), game_finished(false),
     L(NULL), thread(NULL), thread_3v3(NULL), sem(new QSemaphore), provided(NULL), _virtual(false)
 {
     player_count = Sanguosha->getPlayerCount(mode);
@@ -52,6 +52,7 @@ void Room::initCallbacks(){
     callbacks["replyGongxinCommand"] = &Room::commonCommand;
     callbacks["assignRolesCommand"] = &Room::commonCommand;
 
+    callbacks["toggleReadyCommand"] = &Room::toggleReadyCommand;
     callbacks["addRobotCommand"] = &Room::addRobotCommand;
     callbacks["fillRobotsCommand"] = &Room::fillRobotsCommand;
     callbacks["chooseCommand"] = &Room::chooseCommand;
@@ -858,9 +859,8 @@ ServerPlayer *Room::addSocket(ClientSocket *socket){
     return player;
 }
 
-bool Room::isFull() const
-{
-    return signup_count == player_count;
+bool Room::isFull() const{
+    return players.length() == player_count;
 }
 
 bool Room::isFinished() const{
@@ -1174,7 +1174,7 @@ void Room::reportDisconnection(){
         players.removeOne(player);
     }else if(player->getRole().isEmpty()){
         // second case
-        if(signup_count < player_count){
+        if(players.length() < player_count){
             player->setParent(NULL);
             players.removeOne(player);
 
@@ -1185,7 +1185,6 @@ void Room::reportDisconnection(){
             }
 
             broadcastInvoke("removePlayer", player->objectName());
-            signup_count --;
         }
     }else{
         if(!game_started){
@@ -1321,8 +1320,8 @@ void Room::addRobotCommand(ServerPlayer *player, const QString &){
 }
 
 void Room::fillRobotsCommand(ServerPlayer *player, const QString &){
-    int left = player_count - signup_count, i;
-    for(i=0; i<left; i++){
+    int left = player_count - players.length();
+    for(int i=0; i<left; i++){
         addRobotCommand(player, QString());
     }
 }
@@ -1334,6 +1333,30 @@ ServerPlayer *Room::getOwner() const{
     }
 
     return NULL;
+}
+
+void Room::toggleReadyCommand(ServerPlayer *player, const QString &){
+    if(game_started)
+        return;
+
+    setPlayerProperty(player, "ready", ! player->isReady());
+
+    if(player->isReady() && isFull()){
+        bool allReady = true;
+        foreach(ServerPlayer *player, players){
+            if(!player->isReady()){
+                allReady = false;
+                break;
+            }
+        }
+
+        if(allReady){
+            foreach(ServerPlayer *player, players)
+                setPlayerProperty(player, "ready", false);
+
+            start();
+        }
+    }
 }
 
 void Room::signup(ServerPlayer *player, const QString &screen_name, const QString &avatar, bool is_robot){
@@ -1367,12 +1390,8 @@ void Room::signup(ServerPlayer *player, const QString &screen_name, const QStrin
             if(p != player)
                 p->introduceTo(player);
         }
-    }
-
-    signup_count ++;
-
-    if(isFull())
-        start();
+    }else
+        toggleReadyCommand(player, QString());
 }
 
 void Room::assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign){
@@ -1844,8 +1863,6 @@ void Room::marshal(ServerPlayer *player){
         if(p != player)
             p->introduceTo(player);
     }
-
-
 
     QStringList player_circle;
     foreach(ServerPlayer *player, players)
