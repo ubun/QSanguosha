@@ -560,8 +560,11 @@ function SmartAI:filterEvent(event, player, data)
 		local source= self.room:getCurrent()                   
 
 		for _, eachTo in ipairs(to) do
-			if sgs.ai_carduse_intention[card:className()] then
-				local intention=sgs.ai_carduse_intention[card:className()](card,from,eachTo,source)
+			local use_intension = sgs.ai_carduse_intention[card:className()]
+			if use_intension then
+				local different = true
+				if self:isFriend(from, eachTo) then different = false end
+				local intention= use_intension(card,from,eachTo,source,different) or use_intension(card,from,eachTo,source)
 				self:refreshRoyalty(from,intention)
 				
 				if eachTo:isLord() and intention<0 then 
@@ -2507,7 +2510,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 	local new_flag=""
     if flags:match("h") then new_flag="h" end
     if flags:match("e") then new_flag=new_flag.."e" end
-    return self:getCardRandomly(who, new_flag)							
+    return self:getCardRandomly(who, new_flag) or who:getCards(flags):first():getEffectiveId()							
 end
 
 function SmartAI:askForCard(pattern, prompt, data)
