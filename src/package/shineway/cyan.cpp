@@ -588,6 +588,83 @@ public:
     }
 };
 
+class Qianpan:public MasochismSkill{
+public:
+    Qianpan():MasochismSkill("qianpan"){
+        frequency = Compulsory;
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        const char *kingdom = player->getKingdom() == "shu" ? "wu" : "shu";
+        LogMessage log;
+        log.type = "#Qianpan";
+        log.from = player;
+        log.arg = (QString)kingdom;
+        log.arg2= objectName();
+        room->sendLog(log);
+
+        room->setPlayerProperty(player, kingdom, QVariant::fromValue(damage.from));
+    }
+};
+
+class QianpanProtect: public TriggerSkill{
+public:
+    QianpanProtect():TriggerSkill("#qianpanpro"){
+        events << CardEffected;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        CardEffectStruct effect = data.value<CardEffectStruct>();
+        if(effect.card->isNDTrick() && effect.from->getKingdom() != effect.to->getKingdom()){
+
+            LogMessage log;
+            log.type = "#QianpanProtect";
+            log.from = effect.to;
+            log.to << effect.from;
+            log.arg = effect.card->objectName();
+            log.arg2 = objectName();
+            room->sendLog(log);
+
+            return true;
+        }
+        return false;
+    }
+};
+
+class Anshi: public TriggerSkill{
+public:
+    Anshi():TriggerSkill("anshi"){
+        events << Dying << PhaseChange;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *fanzhang = room->findPlayerBySkillName(objectName());
+        if(!fanzhang)
+            return false;
+        if(event == PhaseChange && fanzhang->hasFlag("Anshi") && fanzhang->getPhase() == Player::NotActive){
+            room->detachSkillFromPlayer(fanzhang, "wansha");
+            room->loseHp(fanzhang, fanzhang->getHp());
+            return false;
+        }
+        if(event == Dying && fanzhang->getPhase() == Player::Play){
+            DamageStar damage = data.value<DamageStar>();
+            if(damage->from == fanzhang && fanzhang->askForSkillInvoke(objectName(), data)){
+                fanzhang->acquireSkill("wansha");
+                room->setPlayerFlag(fanzhang, "Anshi");
+            }
+        }
+        return false;
+    }
+};
+
 CyanPackage::CyanPackage()
     :Package("cyan")
 {
@@ -619,6 +696,12 @@ CyanPackage::CyanPackage()
     General *cyanpuyuan = new General(this, "cyanpuyuan", "shu");
     cyanpuyuan->addSkill(new Hunren);
     cyanpuyuan->addSkill(new Cuihuo);
+
+    General *cyanfanqiangzhangda = new General(this, "cyanfanqiangzhangda", "shu");
+    cyanfanqiangzhangda->addSkill(new Qianpan);
+    cyanfanqiangzhangda->addSkill(new QianpanProtect);
+    related_skills.insertMulti("qianpan", "#qianpanpro");
+    cyanfanqiangzhangda->addSkill(new Anshi);
 
     addMetaObject<GuolieCard>();
     addMetaObject<RujiCard>();
