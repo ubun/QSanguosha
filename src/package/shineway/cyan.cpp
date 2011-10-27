@@ -588,35 +588,35 @@ public:
     }
 };
 
-class Qianpan:public MasochismSkill{
+class Qianpan: public TriggerSkill{
 public:
-    Qianpan():MasochismSkill("qianpan"){
+    Qianpan():TriggerSkill("qianpan"){
+        events << CardEffected << Damaged << HpRecover;
         frequency = Compulsory;
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        const char *kingdom = player->getKingdom() == "shu" ? "wu" : "shu";
-        LogMessage log;
-        log.type = "#Qianpan";
-        log.from = player;
-        log.arg = (QString)kingdom;
-        log.arg2= objectName();
-        room->sendLog(log);
+        if(event == Damaged || event == HpRecover){
+            QString kingdom;
+            if(event == HpRecover){
+                RecoverStruct recover = data.value<RecoverStruct>();
+                if(!recover.who || recover.who == player)
+                    return false;
+                kingdom = recover.who->getKingdom();
+            }
+            else
+                kingdom = player->getKingdom() == "shu" ? "wu" : "shu";
+            LogMessage log;
+            log.type = "#Qianpan";
+            log.from = player;
+            log.arg = kingdom;
+            log.arg2 = objectName();
+            room->sendLog(log);
 
-        room->setPlayerProperty(player, kingdom, QVariant::fromValue(damage.from));
-    }
-};
-
-class QianpanProtect: public TriggerSkill{
-public:
-    QianpanProtect():TriggerSkill("#qianpanpro"){
-        events << CardEffected;
-        frequency = Compulsory;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
+            room->setPlayerProperty(player, "kingdom", kingdom);
+            return false;
+        }
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if(effect.card->isNDTrick() && effect.from->getKingdom() != effect.to->getKingdom()){
 
@@ -651,12 +651,20 @@ public:
             return false;
         if(event == PhaseChange && fanzhang->hasFlag("Anshi") && fanzhang->getPhase() == Player::NotActive){
             room->detachSkillFromPlayer(fanzhang, "wansha");
+            LogMessage log;
+            log.type = "#AnshiSuicide";
+            log.from = fanzhang;
+            log.arg = objectName();
+            room->sendLog(log);
+
             room->loseHp(fanzhang, fanzhang->getHp());
             return false;
         }
+        if(room->getCurrent() != fanzhang)
+            return false;
         if(event == Dying && fanzhang->getPhase() == Player::Play){
-            DamageStar damage = data.value<DamageStar>();
-            if(damage->from == fanzhang && fanzhang->askForSkillInvoke(objectName(), data)){
+            DyingStruct dying = data.value<DyingStruct>();
+            if(dying.who != fanzhang && fanzhang->askForSkillInvoke(objectName(), data)){
                 fanzhang->acquireSkill("wansha");
                 room->setPlayerFlag(fanzhang, "Anshi");
             }
@@ -699,8 +707,6 @@ CyanPackage::CyanPackage()
 
     General *cyanfanqiangzhangda = new General(this, "cyanfanqiangzhangda", "shu");
     cyanfanqiangzhangda->addSkill(new Qianpan);
-    cyanfanqiangzhangda->addSkill(new QianpanProtect);
-    related_skills.insertMulti("qianpan", "#qianpanpro");
     cyanfanqiangzhangda->addSkill(new Anshi);
 
     addMetaObject<GuolieCard>();
