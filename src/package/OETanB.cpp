@@ -12,7 +12,7 @@
 #include "room.h"
 #include "ai.h"
 
-/*edado-寡言，拟态*/
+/*OE3126 edado-寡言，拟态*/
 /*寡言：
   回合开始阶段，你可进行一次判定：
   若为红桃，你回复1点体力；
@@ -202,7 +202,7 @@ public:
 };
 
 //FROM UBUN TENKEI
-//天音-天道，无情（代码来自宇文天启，话说技能名真瞎！！！）
+//OE3144 天音-天道，无情（代码来自宇文天启，话说技能名真瞎！！！）
 //话说这位是版主，那么主公技待补
 /*天道：锁定技，回合外你每受到1点伤害增加1点体力上限。*/
 class Skydao:public MasochismSkill{
@@ -270,6 +270,104 @@ public:
     }
 };
 
+//OE3134 猴子-消失，出现，指引
+/*消失（代码误作Tuiyin）：你可以弃一张手牌来跳过自己的出牌阶段和弃牌阶段。若如此做，获得一个【退隐】标记。*/
+class Tuiyin: public PhaseChangeSkill{
+public:
+    Tuiyin():PhaseChangeSkill("tuiyin"){
+
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target) && !target->isKongcheng();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *OEjuzu) const{
+        Room *room = OEjuzu->getRoom();
+
+        if(OEjuzu->getPhase() == Player::Play){
+            if(!room->askForDiscard(OEjuzu, "tuiyin", 1, true, false))
+                return false;
+            OEjuzu->gainMark("@tuiyin");
+            OEjuzu->setFlags("disappear");
+            return true;
+        }else if(OEjuzu->getPhase() == Player::Discard || OEjuzu->hasFlag("disappear")){
+            OEjuzu->setFlags("-disappear");
+            return true;
+        }
+        return false;
+    }
+};
+
+class Chuxian: public PhaseChangeSkill{
+public:
+    Chuxian():PhaseChangeSkill("chuxian"){
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::Start
+                && target->getMark("chuxian") == 0
+                && target->getMark("@tuiyin") >= 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *OEjuzu) const{
+        Room *room = OEjuzu->getRoom();
+
+        room->setPlayerMark(OEjuzu, "chuxian", 1);
+        room->loseMaxHp(OEjuzu);
+        /*
+        LogMessage log;
+        log.type = "#ChuxianWake";
+        log.from = OEjuzu;
+        log.arg = QString::number(OEjuzu->getPile("field").length());
+        room->sendLog(log);
+        */
+        room->acquireSkill(OEjuzu, "zhiyin");
+
+        return false;
+    }
+};
+
+class Zhiyin: public PhaseChangeSkill{
+public:
+    Zhiyin():PhaseChangeSkill("zhiyin"){
+
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+
+    virtual bool onPhaseChange(ServerPlayer *OEjuzu) const{
+        if(OEjuzu->getPhase() == Player::Finish && OEjuzu->getMark("@tuiyin")){
+            if(OEjuzu->askForSkillInvoke(objectName())){
+                OEjuzu->loseMark("@tuiyin");
+                Room *room = OEjuzu->getRoom();
+
+                ServerPlayer *player = room->askForPlayerChosen(OEjuzu, room->getOtherPlayers(OEjuzu), objectName());
+                /*
+                LogMessage log;
+                log.type = "#Fangquan";
+                log.from = liushan;
+                log.to << player;
+                room->sendLog(log);
+                */
+                room->setCurrent(player);
+                room->getThread()->trigger(TurnStart, player);
+                room->setCurrent(OEjuzu);
+            }
+        }
+        return false;
+    }
+};
+
 OETanBPackage::OETanBPackage()
     :Package("OEtanb")
 {
@@ -282,6 +380,12 @@ OETanBPackage::OETanBPackage()
     General *OEtianyin = new General(this, 3144, "tianyin$", "tan", 4, false);
     OEtianyin->addSkill(new Skydao);
     OEtianyin->addSkill(new Noqing);
+
+    General *OEjuzu = new General(this, 3134, "houzi", "tan", 4, true);
+    OEjuzu->addSkill(new Tuiyin);
+    OEjuzu->addSkill(new Chuxian);
+
+    skills << new Zhiyin;
 
     addMetaObject<GuayanCard>();
 }
