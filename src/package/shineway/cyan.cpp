@@ -505,8 +505,18 @@ public:
         if(player->getPhase() != Player::Start)
             return false;
         Room *room = player->getRoom();
+        bool fadong = false;
         if(player->askForSkillInvoke(objectName())){
             player->drawCards(1);
+
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                if(!tmp->isKongcheng()){
+                    fadong = true;
+                    break;
+                }
+            }
+            if(!fadong)
+                return false;
             room->setPlayerMark(player, "CannotCancel", 1);
             if(!room->askForUseCard(player, "@@ruji", "@ruji-card"))
                 room->throwCard(player->getHandcards().last());
