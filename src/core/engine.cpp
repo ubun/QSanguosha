@@ -30,6 +30,10 @@
 Engine *Sanguosha = NULL;
 
 extern "C" {
+#ifdef OMEGAERA
+    Package *NewOETanA();
+    Package *NewOETanB();
+#endif
     Package *NewStandard();
     Package *NewWind();
     Package *NewFire();
@@ -68,7 +72,10 @@ extern "C" {
 Engine::Engine()
 {
     Sanguosha = this;
-
+#ifdef OMEGAERA
+    addPackage(NewOETanA());
+    addPackage(NewOETanB());
+#endif
     addPackage(NewStandard());
     addPackage(NewWind());
     addPackage(NewFire());

@@ -14,9 +14,10 @@
 #include <QStringList>
 #include <QMetaObject>
 
-/*this line is for Global Control For OmegaPlan MOD. if this line is deleted, all features should return to
+/*this line is for Global Control For OmegaPlan MOD. if the second line is invoked, all features should return to
   origin QSanguosha. See another in lua/sgs_ex.lua. */
 #define OMEGAERA 1
+//#undef OMEGAERA
 
 class AI;
 class Scenario;

@@ -103,7 +103,7 @@ return {
 	--yitians
 	["!shencc3v3"] = "3300", -- 保留，见倚天复刻贴
 	["!shencc"] = "3302",
-	["!caozhong"] = "3301",
+	["!caochong"] = "3301",
 	["!zhangjunyi"] = "3316",
 	["!lukang"] = "3303",
 	["!jinxuandi"] = "3305",

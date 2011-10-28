@@ -102,12 +102,15 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         max_hp_item->setBackgroundColor(qkColor);
         package_item->setBackgroundColor(qkColor);
         number_item->setBackgroundColor(qkColor);
-        name_item->setTextColor(Qt::white);
-        kingdom_item->setTextColor(Qt::white);
-        gender_item->setTextColor(Qt::white);
-        max_hp_item->setTextColor(Qt::white);
-        package_item->setTextColor(Qt::white);
-        number_item->setTextColor(Qt::white);
+
+        QColor qColort = Qt::white;
+        if(general->getKingdom() == "tan") qColort = Qt::black;
+        name_item->setTextColor(qColort);
+        kingdom_item->setTextColor(qColort);
+        gender_item->setTextColor(qColort);
+        max_hp_item->setTextColor(qColort);
+        package_item->setTextColor(qColort);
+        number_item->setTextColor(qColort);
 
         if(general->objectName() == "xushu"){//xushu
             gender_item->setBackgroundColor(Qt::darkBlue);

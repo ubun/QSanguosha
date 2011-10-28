@@ -1,3 +1,4 @@
+#include "engine.h"
 #include "mainwindow.h"
 #include "startscene.h"
 #include "roomscene.h"
