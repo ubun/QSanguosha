@@ -52,11 +52,36 @@ public:
     }
 };
 
+class Diezhi: public TriggerSkill{
+public:
+    Diezhi():TriggerSkill("diezhi"){
+        events << ToDrawNCards;
+    }
+
+    virtual bool triggerable(const ServerPlayer *player) const{;
+        return player->getMark("Exception") == 0;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *kanze = room->findPlayerBySkillName(objectName());
+        if(!kanze || room->getCurrent() == player)
+            return false;
+        DrawStruct draw_data = data.value<DrawStruct>();
+        if(draw_data.draw > 0 && kanze->askForSkillInvoke(objectName())){
+            room->askForDiscard(kanze, objectName(), 1, false, true);
+            return true;
+        }
+        return false;
+    }
+};
+
 GreenPackage::GreenPackage()
     :Package("green")
 {
     General *greenyanpeng = new General(this, "greenyanpeng", "shu");
     greenyanpeng->addSkill(new Yabian);
+    greenyanpeng->addSkill(new Diezhi);
 }
 
 ADD_PACKAGE(Green)

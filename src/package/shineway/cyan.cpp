@@ -50,9 +50,11 @@ public:
         view_as_skill = new RangliViewAsSkill;
         events << PhaseChange << DrawNCards;
     }
+
     virtual bool triggerable(const ServerPlayer *player) const{;
         return player->hasSkill(objectName()) || player->getMark("@pear") > 0;
     }
+
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(event == DrawNCards){
@@ -205,9 +207,9 @@ public:
             Room *room = player->getRoom();
             player->drawCards(1);
             QList<int> sj_cards = player->handCards().mid(player->getHandcardNum() - 1);
-            room->setPlayerMark(player, "shuaijin", 1);
+            room->setPlayerMark(player, "Shuaijin", 1);
             while(room->askForYiji(player, sj_cards));
-            room->setPlayerMark(player, "shuaijin", 0);
+            room->setPlayerMark(player, "Shuaijin", 0);
         }
         return false;
     }
@@ -231,7 +233,7 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         CardMoveStar move = data.value<CardMoveStar>();
         if((move->from_place == Player::Hand || move->from_place == Player::Equip)
-            && move->to != player && player->getMark("shuaijin") == 0
+            && move->to != player && player->getMark("Shuaijin") == 0
             && player->askForSkillInvoke(objectName(), data)){
             JudgeStruct judge;
             judge.reason = objectName();
@@ -263,12 +265,12 @@ public:
                log.arg = objectName();
                room->sendLog(log);
 
-               cc->setMark("cx", 1);
+               cc->setMark("Exception", 1);
                if(handcard < hp)
                    cc->drawCards(hp - handcard);
                else
                    room->askForDiscard(cc, objectName(), handcard - hp);
-               cc->setMark("cx", 0);
+               cc->setMark("Exception", 0);
            }
         }
         return false;

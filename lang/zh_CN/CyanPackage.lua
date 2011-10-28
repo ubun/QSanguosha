@@ -37,7 +37,7 @@ return {
 	["shuaijin"] = "率进",
 	[":shuaijin"] = "你每用黑色牌对其他角色造成一次伤害，可以摸一张牌，然后交给任意一名角色(此时不能发动“流放”)",
 	["liufang"] = "流放",
-	[":liufang"] = "回合外，每失去一张牌，可进行一次判定，若结果为黑色基本牌或黑色锦囊牌，你立即获得失去的那张牌",
+	[":liufang"] = "回合外，每失去一张牌，可进行一次判定，若为黑色基本牌或黑色锦囊牌，你立即获得失去的那张牌",
 
 --WEI#04 长者之风
 --http://www.qsanguosha.com/forum.php?mod=viewthread&tid=5800
@@ -90,7 +90,7 @@ return {
 	["cuihuo"] = "淬火",
 	[":cuihuo"] = "锁定技,当你失去装备区里的武器时,你回复1点体力值;若在你的出牌阶段失去,则每阶段限用一次",
 
---WU#04 倒戈之悟
+--SHU#05 倒戈之悟
 	["cyanfanqiangzhangda"] = "范彊张达",
 	["designer:cyanfanqiangzhangda"] = "筱音",
 	["qianpan"] = "潜叛",

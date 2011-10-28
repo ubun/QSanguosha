@@ -15,7 +15,7 @@ ServerPlayer::ServerPlayer(Room *room)
 void ServerPlayer::drawCard(const Card *card){
     int old_num = handcards.length();
     handcards << card;
-    if(this->getMark("cx") == 0){
+    if(this->getMark("Exception") == 0){
         QVariant num = handcards.length() - old_num;
         room->getThread()->trigger(HandCardNumChanged, this, num);
     }
@@ -270,7 +270,7 @@ void ServerPlayer::removeCard(const Card *card, Place place){
     case Hand: {
             int old_num = handcards.length();
             handcards.removeOne(card);
-            if(this->getMark("cx") == 0){
+            if(this->getMark("Exception") == 0){
                 QVariant num = handcards.length() - old_num;
                 room->getThread()->trigger(HandCardNumChanged, this, num);
             }
@@ -317,7 +317,7 @@ void ServerPlayer::addCard(const Card *card, Place place){
     case Hand: {
             int old_num = handcards.length();
             handcards << card;
-            if(this->getMark("cx") == 0){
+            if(this->getMark("Exception") == 0){
                 QVariant num = handcards.length() - old_num;
                 room->getThread()->trigger(HandCardNumChanged, this, num);
             }

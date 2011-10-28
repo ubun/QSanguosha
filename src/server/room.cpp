@@ -1978,7 +1978,8 @@ void Room::drawCards(ServerPlayer *player, int n){
     draw_data.draw = n;
     draw_data.git = player;
     QVariant data = QVariant::fromValue(draw_data);
-    thread->trigger(ToDrawNCards, player, data);
+    if(thread->trigger(ToDrawNCards, player, data))
+        return;
     draw_data = data.value<DrawStruct>();
     n = draw_data.draw;
     player = draw_data.git;
