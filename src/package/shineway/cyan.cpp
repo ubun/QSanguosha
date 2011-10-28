@@ -247,7 +247,7 @@ public:
 class Weighing: public TriggerSkill{
 public:
     Weighing():TriggerSkill("weighing"){
-        events << HandCardNumChange << HpChanged;
+        events << HandCardNumChanged << HpChanged;
         frequency = Compulsory;
     }
 

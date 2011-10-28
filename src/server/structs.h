@@ -111,11 +111,19 @@ struct JudgeStruct{
     QString reason;
 };
 
+struct DrawStruct{
+    DrawStruct();
+
+    int draw;
+    ServerPlayer *git;
+};
+
 enum TriggerEvent{
     GameStart,
     TurnStart,
     PhaseChange,
     DrawNCards,
+    ToDrawNCards,
     HpRecover,
     HpLost,
     HpChanged,
@@ -155,7 +163,7 @@ enum TriggerEvent{
     CardEffect,
     CardEffected,
     CardFinished,
-    HandCardNumChange,
+    HandCardNumChanged,
 
     ChoiceMade,
 
@@ -181,5 +189,6 @@ Q_DECLARE_METATYPE(RecoverStruct);
 Q_DECLARE_METATYPE(JudgeStar);
 Q_DECLARE_METATYPE(DamageStar);
 Q_DECLARE_METATYPE(PindianStar);
+Q_DECLARE_METATYPE(DrawStruct);
 
 #endif // STRUCTS_H

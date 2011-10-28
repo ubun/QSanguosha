@@ -110,6 +110,12 @@ void CardUseStruct::parse(const QString &str, Room *room){
     }
 }
 
+DrawStruct::DrawStruct()
+    :draw(2), git(NULL)
+{
+
+}
+
 RoomThread::RoomThread(Room *room)
     :QThread(room), room(room)
 {

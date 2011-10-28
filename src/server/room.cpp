@@ -1974,6 +1974,15 @@ void Room::broadcastProperty(ServerPlayer *player, const char *property_name, co
 }
 
 void Room::drawCards(ServerPlayer *player, int n){
+    DrawStruct draw_data;
+    draw_data.draw = n;
+    draw_data.git = player;
+    QVariant data = QVariant::fromValue(draw_data);
+    thread->trigger(ToDrawNCards, player, data);
+    draw_data = data.value<DrawStruct>();
+    n = draw_data.draw;
+    player = draw_data.git;
+
     if(n <= 0)
         return;
 
