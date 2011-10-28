@@ -408,4 +408,8 @@ for _, horse in ipairs(dhorses) do
 	t[":" .. horse] = t[":+1 horse"]
 end
 
+if(OMEGAERA == 0) then
+	t[":fanjian"] = "出牌阶段，你可以令另一名角色选择一种花色，抽取你的一张手牌并亮出，若此牌与所选花色不吻合，则你对该角色造成1点伤害。然后不论结果，该角色都获得此牌。每回合限用一次"
+end
+
 return t

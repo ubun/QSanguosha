@@ -128,9 +128,12 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     room->sendLog(log);
 
     room->getThread()->delay();
+#ifdef OMEGAERA
+    room->showCard(zhouyu, card_id);
+#else
     target->obtainCard(card);
     room->showCard(target, card_id);
-
+#endif
     if(card->getSuit() != suit){
         DamageStruct damage;
         damage.card = NULL;
@@ -139,6 +142,11 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
 
         room->damage(damage);
     }
+#ifdef OMEGAERA
+    if(target->isAlive()){
+        target->obtainCard(card);
+    }
+#endif
 }
 
 KurouCard::KurouCard(){
