@@ -557,17 +557,17 @@ public:
     }
 };
 
-GuolieCard::GuolieCard(){
+ZhongshuCard::ZhongshuCard(){
     once = true;
 }
-bool GuolieCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool ZhongshuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
     if(Self->canSlash(to_select))
         return true;
     return qAbs(to_select->getHandcardNum() - Self->getHp()) == 1;
 }
-void GuolieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+void ZhongshuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     const Card *slash = Sanguosha->getCard(this->getSubcards().first());
 
     CardUseStruct use;
@@ -578,9 +578,9 @@ void GuolieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     room->useCard(use);
 }
 
-class Guolie: public OneCardViewAsSkill{
+class Zhongshu: public OneCardViewAsSkill{
 public:
-    Guolie():OneCardViewAsSkill("guolie"){
+    Zhongshu():OneCardViewAsSkill("zhongshu"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -592,15 +592,15 @@ public:
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
-        GuolieCard *card = new GuolieCard;
+        ZhongshuCard *card = new ZhongshuCard;
         card->addSubcard(card_item->getFilteredCard());
         return card;
     }
 };
 
-class Zhongshu: public TriggerSkill{
+class Guolie: public TriggerSkill{
 public:
-    Zhongshu():TriggerSkill("zhongshu"){
+    Guolie():TriggerSkill("guolie"){
         events << Predamage;
     }
 
@@ -625,7 +625,7 @@ public:
             }
 
             LogMessage log;
-            log.type = "#Zhongshu";
+            log.type = "#Guolie";
             log.from = damage.from;
             log.to << damage.to;
             room->sendLog(log);
@@ -733,8 +733,8 @@ CyanPackage::CyanPackage()
     related_skills.insertMulti("kuanhou", "#kuanhou_effect");
 
     General *cyanliaohua = new General(this, "cyanliaohua", "shu");
-    cyanliaohua->addSkill(new Guolie);
     cyanliaohua->addSkill(new Zhongshu);
+    cyanliaohua->addSkill(new Guolie);
 
     General *cyanyufan = new General(this, "cyanyufan", "wu", 3);
     cyanyufan->addSkill(new Shuaijin);
@@ -757,7 +757,7 @@ CyanPackage::CyanPackage()
     cyanfanqiangzhangda->addSkill(new Anshi);
 
     addMetaObject<PearCard>();
-    addMetaObject<GuolieCard>();
+    addMetaObject<ZhongshuCard>();
     addMetaObject<RujiCard>();
     addMetaObject<JunlingCard>();
 }

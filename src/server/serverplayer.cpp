@@ -20,7 +20,8 @@ void ServerPlayer::drawCard(const Card *card){
         hcctrl.flag = 1;
         hcctrl.card = card;
         hcctrl.from = this;
-        room->getThread()->trigger(HandCardNumChange, this, QVariant::fromValue(hcctrl));
+        QVariant data = QVariant::fromValue(hcctrl);
+        room->getThread()->trigger(HandCardNumChange, this, data);
     }
 }
 
@@ -278,7 +279,8 @@ void ServerPlayer::removeCard(const Card *card, Place place){
                 hcctrl.flag = -1;
                 hcctrl.card = card;
                 hcctrl.from = this;
-                room->getThread()->trigger(HandCardNumChange, this, QVariant::fromValue(hcctrl));
+                QVariant data = QVariant::fromValue(hcctrl);
+                room->getThread()->trigger(HandCardNumChange, this, data);
             }
             break;
         }
@@ -335,7 +337,8 @@ void ServerPlayer::addCard(const Card *card, Place place){
                 hcctrl.flag = 1;
                 hcctrl.card = card;
                 hcctrl.from = this;
-                room->getThread()->trigger(HandCardNumChange, this, QVariant::fromValue(hcctrl));
+                QVariant data = QVariant::fromValue(hcctrl);
+                room->getThread()->trigger(HandCardNumChange, this, data);
             }
             break;
         }
