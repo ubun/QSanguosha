@@ -10,7 +10,7 @@ sgs.ai_skill_use["@@leiji"]=function(self,prompt)
     self:updatePlayers()
 	self:sort(self.enemies,"hp")
 	for _,enemy in ipairs(self.enemies) do
-		if self:objectiveLevel(enemy)>3 and not self:isEquip("SilverLion", enemy) and not enemy:hasSkill("hongyan") then
+		if not self:isEquip("SilverLion", enemy) and not enemy:hasSkill("hongyan") then
 			return "@LeijiCard=.->"..enemy:objectName() 
 		end
 	end
@@ -154,7 +154,7 @@ huangtianv_skill.getTurnUseCard=function(self)
     if self.player:hasUsed("HuangtianCard") then return nil end
     if self.player:isLord() then return nil end
     if self.player:getKingdom() ~= "qun" then return nil end
-	if not self.player:getLord():hasSkill("huangtian") then return nil end
+	if not self.room:getLord():hasSkill("huangtian") then return nil end
 
     local cards = self.player:getCards("h")	
     cards=sgs.QList2Table(cards)

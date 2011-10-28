@@ -5,11 +5,7 @@ end
 
 -- Sunjian's AI
 sgs.ai_skill_choice.yinghun = function(self, choices)
-	if self:isFriend(self.yinghun) then
-		return "dxt1"
-	else
-		return "d1tx"
-	end
+	return self.yinghunchoice
 end
 
 sgs.ai_skill_use["@@yinghun"] = function(self, prompt)
@@ -19,11 +15,25 @@ sgs.ai_skill_use["@@yinghun"] = function(self, prompt)
 	end
 
 	if #self.friends > 1 then
+		for _, friend in ipairs(self.friends_noself) do
+			if self:hasSkills(sgs.lose_equip_skill, friend) and friend:getEquips():length()>x/2 then
+				self.yinghun = friend
+				self.yinghunchoice = "d1tx"
+				break
+			end
+		end
 		self:sort(self.friends, "chaofeng")
 		self.yinghun = self.friends_noself[1]
+		self.yinghunchoice = "dxt1"
 	else
 		self:sort(self.enemies, "chaofeng")
-		self.yinghun = self.enemies[1]
+		for _, enemy in ipairs(self.enemies) do
+			if not self:hasSkills(sgs.lose_equip_skill, enemy) or enemy:getEquips():length()<x/2 then
+				self.yinghun = enemy
+				self.yinghunchoice = "d1tx"
+				break
+			end
+		end
 	end
 
 	if self.yinghun then
@@ -139,10 +149,11 @@ sgs.ai_skill_use["@@haoshi!"] = function(self, prompt)
 	local beggar = getBeggar(self)
 
 	local cards = self.player:getHandcards()
-	local n = math.floor(self.player:getHandcardNum()/2)
+	cards = sgs.QList2Table(cards)
+	self:sortByUseValue(cards,true)
 	local card_ids = {}
-	for i=1, n do
-		table.insert(card_ids, cards:at(i-1):getEffectiveId())
+	for i=1, math.floor(#cards/2) do
+		table.insert(card_ids, cards[i]:getEffectiveId())
 	end
 
 	return "@HaoshiCard=" .. table.concat(card_ids, "+") .. "->" .. beggar:objectName()
