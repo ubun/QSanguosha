@@ -9,7 +9,6 @@ class Yabian: public TriggerSkill{
 public:
     Yabian():TriggerSkill("yabian"){
         events << Damage;
-        frequency = Frequent;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *yanpeng, QVariant &data) const{

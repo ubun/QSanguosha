@@ -203,9 +203,11 @@ public:
 
         if(damage.card && damage.card->isBlack() && player->askForSkillInvoke(objectName(), data)){
             Room *room = player->getRoom();
-            player->drawCards(2);
-            QList<int> yiji_cards = player->handCards().mid(player->getHandcardNum() - 2);
-            while(room->askForYiji(player, yiji_cards));
+            player->drawCards(1);
+            QList<int> sj_cards = player->handCards().mid(player->getHandcardNum() - 1);
+            room->setPlayerMark(player, "shuaijin", 1);
+            while(room->askForYiji(player, sj_cards));
+            room->setPlayerMark(player, "shuaijin", 0);
         }
         return false;
     }
@@ -229,7 +231,8 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         CardMoveStar move = data.value<CardMoveStar>();
         if((move->from_place == Player::Hand || move->from_place == Player::Equip)
-            && move->to != player && player->askForSkillInvoke(objectName(), data)){
+            && move->to != player && player->getMark("shuaijin") == 0
+            && player->askForSkillInvoke(objectName(), data)){
             JudgeStruct judge;
             judge.reason = objectName();
             judge.who = player;

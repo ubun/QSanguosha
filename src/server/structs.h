@@ -111,6 +111,13 @@ struct JudgeStruct{
     QString reason;
 };
 
+struct HandCardCtrlStruct{
+    HandCardCtrlStruct();
+    int flag;
+    const Card *card;
+    ServerPlayer *from;
+};
+
 enum TriggerEvent{
     GameStart,
     TurnStart,

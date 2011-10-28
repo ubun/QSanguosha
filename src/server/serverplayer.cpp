@@ -13,11 +13,14 @@ ServerPlayer::ServerPlayer(Room *room)
 }
 
 void ServerPlayer::drawCard(const Card *card){
-    int old_num = handcards.length();
-    handcards << card;
+    //int old_num = handcards.length();
+    //handcards << card;
     if(this->getMark("cx") == 0){
-        QVariant num = handcards.length() - old_num;
-        room->getThread()->trigger(HandCardNumChange, this, num);
+        HandCardCtrlStruct hcctrl;
+        hcctrl.flag = 1;
+        hcctrl.card = card;
+        hcctrl.from = this;
+        room->getThread()->trigger(HandCardNumChange, this, QVariant::fromValue(hcctrl));
     }
 }
 
@@ -268,11 +271,14 @@ void ServerPlayer::sendProperty(const char *property_name, const Player *player)
 void ServerPlayer::removeCard(const Card *card, Place place){
     switch(place){
     case Hand: {
-            int old_num = handcards.length();
-            handcards.removeOne(card);
+            //int old_num = handcards.length();
+            //handcards.removeOne(card);
             if(this->getMark("cx") == 0){
-                QVariant num = handcards.length() - old_num;
-                room->getThread()->trigger(HandCardNumChange, this, num);
+                HandCardCtrlStruct hcctrl;
+                hcctrl.flag = -1;
+                hcctrl.card = card;
+                hcctrl.from = this;
+                room->getThread()->trigger(HandCardNumChange, this, QVariant::fromValue(hcctrl));
             }
             break;
         }
@@ -312,14 +318,24 @@ void ServerPlayer::removeCard(const Card *card, Place place){
     }
 }
 
+void ServerPlayer::ctrlHandCards(const Card *card, int flag){
+    if(flag < 0)
+        handcards.removeOne(card);
+    else
+        handcards << card;
+}
+
 void ServerPlayer::addCard(const Card *card, Place place){
     switch(place){
     case Hand: {
-            int old_num = handcards.length();
-            handcards << card;
+            //int old_num = handcards.length();
+            //handcards << card;
             if(this->getMark("cx") == 0){
-                QVariant num = handcards.length() - old_num;
-                room->getThread()->trigger(HandCardNumChange, this, num);
+                HandCardCtrlStruct hcctrl;
+                hcctrl.flag = 1;
+                hcctrl.card = card;
+                hcctrl.from = this;
+                room->getThread()->trigger(HandCardNumChange, this, QVariant::fromValue(hcctrl));
             }
             break;
         }

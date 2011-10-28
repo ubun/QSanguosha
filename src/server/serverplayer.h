@@ -64,6 +64,7 @@ public:
 
     virtual int aliveCount() const;
     virtual int getHandcardNum() const;
+    virtual void ctrlHandCards(const Card *card, int flag = 1);
     virtual void removeCard(const Card *card, Place place);
     virtual void addCard(const Card *card, Place place);
     virtual bool isLastHandCard(const Card *card) const;
