@@ -462,25 +462,8 @@ void RujiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
         int card_id = room->askForCardChosen(source, target, "ej", "ruji_success");
         room->throwCard(card_id);
     }
-    else{
-        LogMessage log;
-        log.type = "#RujiFail";
-        log.from = source;
-        log.to << target;
-        log.arg = source->getCardCount(true) > 1 ? QString::number(2) :
-                  source->getCardCount(true) == 1 ? QString::number(1) : QString::number(0);
-        room->sendLog(log);
-
-        for(int i = 2; i > 0; i--){
-            int card_id = room->askForCardChosen(target, source, "he", "ruji_fail");
-            if(room->getCardPlace(card_id) == Player::Hand)
-                room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, false);
-            else
-                room->obtainCard(target, card_id);
-            if(source->isNude())
-                break;
-        }
-    }
+    else
+        target->drawCards(2);
 }
 
 class RujiViewAsSkill: public OneCardViewAsSkill{
@@ -524,8 +507,10 @@ public:
         Room *room = player->getRoom();
         if(player->askForSkillInvoke(objectName())){
             player->drawCards(1);
+            room->setPlayerMark(player, "CannotCancel", 1);
             if(!room->askForUseCard(player, "@@ruji", "@ruji-card"))
                 room->throwCard(player->getHandcards().last());
+            room->setPlayerMark(player, "CannotCancel", 0);
         }
         return false;
     }

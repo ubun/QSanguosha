@@ -686,6 +686,8 @@ bool Room::askForUseCard(ServerPlayer *player, const QString &pattern, const QSt
 
         answer = result;
     }
+    if(answer == "." && player->getMark("CannotCancel") > 0)
+        return askForUseCard(player, pattern, prompt);
 
     if(answer != "."){
         CardUseStruct card_use;
