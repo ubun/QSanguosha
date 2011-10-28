@@ -525,12 +525,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
             break;
         }
-    case HandCardNumChange:{
-            HandCardCtrlStruct hc = data.value<HandCardCtrlStruct>();
-            hc.from->ctrlHandCards(hc.card, hc.flag);
-
-            break;
-        }
 
     default:
         ;

@@ -110,12 +110,6 @@ void CardUseStruct::parse(const QString &str, Room *room){
     }
 }
 
-HandCardCtrlStruct::HandCardCtrlStruct()
-    :from(NULL), card(NULL), flag(0)
-{
-
-}
-
 RoomThread::RoomThread(Room *room)
     :QThread(room), room(room)
 {

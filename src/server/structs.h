@@ -111,13 +111,6 @@ struct JudgeStruct{
     QString reason;
 };
 
-struct HandCardCtrlStruct{
-    HandCardCtrlStruct();
-    int flag;
-    const Card *card;
-    ServerPlayer *from;
-};
-
 enum TriggerEvent{
     GameStart,
     TurnStart,
@@ -188,6 +181,5 @@ Q_DECLARE_METATYPE(RecoverStruct);
 Q_DECLARE_METATYPE(JudgeStar);
 Q_DECLARE_METATYPE(DamageStar);
 Q_DECLARE_METATYPE(PindianStar);
-Q_DECLARE_METATYPE(HandCardCtrlStruct);
 
 #endif // STRUCTS_H
