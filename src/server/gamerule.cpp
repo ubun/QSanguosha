@@ -167,7 +167,9 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(player->isLord())
                 setGameProcess(room);
 
+            player->setMark("cx", 1);
             player->drawCards(4, false);
+            player->setMark("cx", 0);
 
             if(room->getMode() == "02_1v1")
                 room->setTag("FirstRound", true);
