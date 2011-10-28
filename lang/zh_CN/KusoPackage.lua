@@ -1,7 +1,7 @@
 -- translation for KusoPackage
 
 return {
-	["kuso"] = "豆沙包", 
+	["kuso"] = "灌汤包", 
 
 	["kusoking"] = "屎皇帝",
 	["designer:kusoking"] = "宇文天启",
@@ -61,6 +61,8 @@ return {
 	["fiveline"] = "五道杠",
 	[":fiveline"] = "<br><font color=blue>德杠</font>·体力为1时可以发动【仁德】<br><font color=green>智杠</font>·体力为2时可以发动【集智】<br><font color=gold>体杠</font>·体力为3时可以发动【结姻】<br><font color=red>美杠</font>·体力为4时可以发动【国色】<br><font color=brown>劳杠</font>·体力为5时可以发动【苦肉】",
 
+	["ufo"] = "不明飞行物",
+	[":ufo"] = "锁定技，回合开始阶段，将你的手牌补至上限，若补牌数为0，此装备转移到下家的装备区内",
 --joy
 	["stink"] = "屁",
 	[":stink"] = "出牌阶段对下家使用，除非目标角色打出一张【闪】，否则必须和自己的下家（你的下下家）交换位置",

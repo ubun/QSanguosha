@@ -451,7 +451,7 @@ public:
             return false;
         Room *room = player->getRoom();
         QStringList skills;
-        skills << "rende" << "jizhi" << "jieyin" << "guose" << "kurou";
+        skills << "rende" << "jizhi" << "jieyin" << "guose" << "kurou" << "keji";
         QVariantList has_skills = player->tag["fiveline"].toList();
         foreach(QString str, skills){
             if(has_skills.contains(str))
@@ -461,7 +461,7 @@ public:
                 player->loseSkill(str);
             }
         }
-        if(hp <= 5)
+        if(hp <= 6)
             room->acquireSkill(player, skills.at(hp - 1));
 
         return false;
@@ -477,7 +477,7 @@ void Fiveline::onInstall(ServerPlayer *player) const{
     EquipCard::onInstall(player);
     QVariantList skills;
     QStringList fiveskill;
-    fiveskill << "rende" << "jizhi" << "jieyin" << "guose" << "kurou";
+    fiveskill << "rende" << "jizhi" << "jieyin" << "guose" << "kurou" << "keji";
     foreach(QString str, fiveskill){
         if(player->hasSkill(str))
             skills << str;
@@ -490,7 +490,7 @@ void Fiveline::onUninstall(ServerPlayer *player) const{
     if(player->isDead())
         return;
     QStringList skills;
-    skills << "rende" << "jizhi" << "jieyin" << "guose" << "kurou";
+    skills << "rende" << "jizhi" << "jieyin" << "guose" << "kurou" << "keji";
     QVariantList has_skills = player->tag["fiveline"].toList();
     foreach(QString str, skills){
         if(has_skills.contains(str))
@@ -502,13 +502,54 @@ void Fiveline::onUninstall(ServerPlayer *player) const{
     }
 }
 
+class UFOSkill: public ArmorSkill{
+public:
+    UFOSkill():ArmorSkill("ufo"){
+       events << PhaseChange;
+    }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        if(player->getPhase() != Player::Start)
+            return false;
+        Room *room = player->getRoom();
+        int x = player->getMaxCards() - player->getHandcardNum();
+        if(x < 1){
+            /*QList<ServerPlayer *> targets;
+            targets << player;
+            const EquipCard *equipped = qobject_cast<const EquipCard *>(player->getArmor());
+            equipped->use(room,player->getNextAlive(),targets);*/
+            ServerPlayer *next = player->getNextAlive();
+            if(next->getArmor())
+                room->throwCard(next->getArmor()->getId());
+            room->moveCardTo(player->getArmor(), next, Player::Equip);
+        }else
+            player->drawCards(x);
+        return false;
+    }
+};
+
+UFO::UFO(Suit suit, int number):Armor(suit, number){
+    setObjectName("ufo");
+    skill = new UFOSkill;
+}
+
 KusoCardPackage::KusoCardPackage()
     :Package("kuso_cards")
 {
-    (new Sacrifice(Card::Diamond, 7))->setParent(this);
-    (new ClearShirt(Card::Club, 3))->setParent(this);
-    (new KawaiiDress(Card::Spade, 2))->setParent(this);
-    (new Fiveline(Card::Heart, 5))->setParent(this);
+    QList<Card *> kusos;
+    kusos
+            << new Sacrifice(Card::Diamond, 7)
+            << new ClearShirt(Card::Club, 3)
+            << new KawaiiDress(Card::Spade, 2)
+            << new Fiveline(Card::Heart, 5)
+            << new UFO(Card::Club, 11);
+
+    foreach(Card *kuso, kusos)
+        kuso->setParent(this);
 
     type = CardPack;
 }

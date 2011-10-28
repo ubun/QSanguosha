@@ -61,6 +61,13 @@ public:
     virtual void onUninstall(ServerPlayer *player) const;
 };
 
+class UFO:public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE UFO(Card::Suit suit, int number);
+};
+
 class KusoCardPackage: public Package{
     Q_OBJECT
 
