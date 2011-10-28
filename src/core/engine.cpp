@@ -355,11 +355,19 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
+#ifdef OMEGAERA
+    return "20111105";
+#else
     return "20110912";
+#endif
 }
 
 QString Engine::getVersionName() const{
+#ifdef OMEGAERA
+    return tr("Omegaera III");
+#else
     return tr("MiddleAutumn");
+#endif
 }
 
 QStringList Engine::getExtensions() const{

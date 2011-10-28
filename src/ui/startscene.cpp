@@ -9,7 +9,11 @@
 StartScene::StartScene()
 {
     // game logo
+#ifdef OMEGAERA
+    logo = new Pixmap("image/system/logooe.png");
+#else
     logo = new Pixmap("image/system/logo.png");
+#endif
     logo->shift();
     logo->moveBy(0, -Config.Rect.height()/4);
     addItem(logo);
