@@ -476,7 +476,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "@@ruji";
+        return pattern == "@@ruji!";
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -493,7 +493,6 @@ public:
 class Ruji: public PhaseChangeSkill{
 public:
     Ruji():PhaseChangeSkill("ruji"){
-        frequency = Frequent;
         view_as_skill = new RujiViewAsSkill;
     }
 
@@ -517,10 +516,8 @@ public:
             }
             if(!fadong)
                 return false;
-            room->setPlayerMark(player, "CannotCancel", 1);
-            if(!room->askForUseCard(player, "@@ruji", "@ruji-card"))
+            if(!room->askForUseCard(player, "@@ruji!", "@ruji-card"))
                 room->throwCard(player->getHandcards().last());
-            room->setPlayerMark(player, "CannotCancel", 0);
         }
         return false;
     }

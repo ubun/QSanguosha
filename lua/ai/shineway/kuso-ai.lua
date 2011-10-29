@@ -6,6 +6,20 @@ sgs.ai_skill_invoke["huaxu"] = function(self, data)
 	return self:isEnemy(damage.to)
 end
 
+-- shishi
+sgs.ai_skill_invoke["shishi"] = function(self, data)
+	local damage = data:toDamage()
+	if self.player:getMaxHP() < 4 then
+		return false
+	end
+	if self.player:getVisibleSkillList():length() <= 1 then
+		return true
+	elseif damage.to:getVisibleSkillList():length() > 1 then
+		return true
+	end
+	return false
+end
+
 -- clearShirt
 function SmartAI:useClearShirt(card, use)
 	local next_player = self.player:getNextAlive()

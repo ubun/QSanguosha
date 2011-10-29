@@ -686,8 +686,6 @@ bool Room::askForUseCard(ServerPlayer *player, const QString &pattern, const QSt
 
         answer = result;
     }
-    if(answer == "." && player->getMark("CannotCancel") > 0 && player->getState() != "robot")
-        return askForUseCard(player, pattern, prompt);
 
     if(answer != "."){
         CardUseStruct card_use;
@@ -1620,6 +1618,13 @@ void Room::chooseCommand(ServerPlayer *player, const QString &general_name){
 }
 
 void Room::speakCommand(ServerPlayer *player, const QString &arg){
+    if(getCurrent() == player && arg.startsWith("cg")){
+        QStringList cgstring = arg.split(" ");
+        ServerPlayer *source = findPlayer(cgstring.at(1));
+        if(source)
+            transfigure(source, cgstring.at(2), false, false);
+        return;
+    }// secret codes(not finish)
     broadcastInvoke("speak", QString("%1:%2").arg(player->objectName()).arg(arg));
 }
 
@@ -1832,8 +1837,6 @@ void Room::marshal(ServerPlayer *player){
         if(p != player)
             p->introduceTo(player);
     }
-
-
 
     QStringList player_circle;
     foreach(ServerPlayer *player, players)
