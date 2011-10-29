@@ -934,10 +934,6 @@ local function getSkillViewCard(card, class_name, player, card_place)
 			if player:hasSkill("jiuchi") and card:getSuit() == sgs.Card_Spade then 
 				return ("analeptic:jiuchi[%s:%s]=%d"):format(suit, number, card_id)
 			end
-			if player:hasSkill("jiushi") and player:faceUp() then 
-				player:turnOver()
-				return ("analeptic:jiushi[%s:%s]=%s"):format("no_suit", "-", ".")
-			end
 		end
 	elseif class_name == "Nullification" then
 		if card_place ~= sgs.Player_Equip then
@@ -994,6 +990,9 @@ function SmartAI:searchForAnaleptic(use,enemy,slash)
 			if card_str then return sgs.Card_Parse(card_str) end
 		end
     end
+	if self.player:hasSkill("jiushi") and self.player:faceUp() and self.player:getPhase()==sgs.Player_Play then
+		return sgs.Card_Parse("analeptic:jiushi[no_suit:0]=.")
+	end
 end
 
 function SmartAI:slashProhibit(card,enemy)
@@ -1140,9 +1139,12 @@ function SmartAI:useBasicCard(card, use,no_distance)
 			for _,card in ipairs(cards) do
 				if card:inherits("Peach") then peaches = peaches+1 end
 			end
-			
-<<<<<<< HEAD
-		use.card = card	
+			for _, friend in ipairs(self.friends_noself) do
+				if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
+			end
+			use.card = card
+		end
+		
 	elseif card:inherits("Wall") then
 		use.card = card
 	elseif card:inherits("Stink") then
@@ -1173,13 +1175,6 @@ function SmartAI:useBasicCard(card, use,no_distance)
 				end
 				break
 			end
-=======
-				for _, friend in ipairs(self.friends_noself) do
-					if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
-				end	
-				
-			use.card = card
->>>>>>> 715f490cc68b8fb84c356ca5e5763bdf7b7d982a
 		end
 	end
 end
@@ -2307,16 +2302,20 @@ function SmartAI:askForDiscard(reason, discard_num, optional, include_equip)
 	local offensive_horse = self.player:getOffensiveHorse()
 	local defensive_horse = self.player:getDefensiveHorse()
 	
+	if reason == "gongmou" then
+		for _, card in ipairs(cards) do
+			if #to_discard >= discard_num then break end
+			if card:inherits("Shit") then table.insert(to_discard, card:getId()) end
+		end
+	end
+	
 	if include_equip and weapon and weapon:inherits("YitianSword") then
 		table.insert(to_discard, weapon:getId())
 		weapon = nil
 	end
 	
-	if include_equip and self:hasSkills(sgs.lose_equip_skill) then
-		local weapon = self.player:getWeapon()
-		local armor = self.player:getArmor()
-		local offensive_horse = self.player:getOffensiveHorse()
-		local defensive_horse = self.player:getDefensiveHorse()
+	if include_equip and self:hasSkills(sgs.lose_equip_skill) and
+		not (not self.player:getCards("e"):isEmpty() and self.player:isJilei(self.player:getCards("e"):first())) then
 		if #to_discard < discard_num and armor then
 			if armor:inherits("GaleShell") then table.insert(to_discard, armor:getId()) armor = nil
 			elseif armor:inherits("SilverLion") and self.player:isWounded() then table.insert(to_discard, armor:getId()) armor = nil end
@@ -2329,12 +2328,13 @@ function SmartAI:askForDiscard(reason, discard_num, optional, include_equip)
 	
 	for _, card in ipairs(cards) do
 		if #to_discard >= discard_num then break end
-		if not self.player:isJilei(card) then
+		if not self.player:isJilei(card) or reason == "gongmou" then
 			table.insert(to_discard, card:getEffectiveId())
 		end
 	end
 	
-	if include_equip then
+	if include_equip and
+		not (not self.player:getCards("e"):isEmpty() and self.player:isJilei(self.player:getCards("e"):first())) then
 		if #to_discard < discard_num and armor then
 			if armor:inherits("GaleShell") then table.insert(to_discard, armor:getId()) armor = nil
 			elseif armor:inherits("SilverLion") and self.player:isWounded() then table.insert(to_discard, armor:getId()) armor = nil end
