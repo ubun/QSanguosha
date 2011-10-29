@@ -1,14 +1,14 @@
 -- jianxiong
 sgs.ai_skill_invoke.jianxiong = function(self, data)
 		return not sgs.Shit_HasShit(data:toCard())
-end --奸雄：非屎必然发动
+end
 
 sgs.ai_skill_invoke.jijiang = function(self, data)
 	if self:getCardsNum("Slash")<=0 then
 		return true
 	end
 	return false
-end --激将：无杀发动
+end
 
 sgs.ai_skill_choice.jijiang = function(self , choices)
 	if not self.player:hasLordSkill("jijiang") then
@@ -26,7 +26,7 @@ sgs.ai_skill_choice.jijiang = function(self , choices)
 		if target and self:isEnemy(target) then return "ignore" end
 	elseif self:isFriend(self.room:getLord()) then return "accept" end
 	return "ignore"
-end --响应激将：无杀则无视，自己为主公，伪帝激将敌人无视，不为主公则友方接受敌方无视
+end
 
 sgs.ai_skill_choice.hujia = function(self , choices)
 	if not self.player:hasLordSkill("hujia") then
@@ -43,7 +43,7 @@ sgs.ai_skill_choice.hujia = function(self , choices)
 		if target and self:isEnemy(target) then return "ignore" end
 	elseif self:isFriend(self.room:getLord()) then return "accept" end
 	return "ignore"
-end --响应护驾：同理
+end
 
 -- hujia
 sgs.ai_skill_invoke.hujia = function(self, data)
@@ -57,7 +57,7 @@ sgs.ai_skill_invoke.hujia = function(self, data)
 		end
 	end
 	return true
-end --护驾：友方魏将有八卦发动，自己有闪不发动，除此之外发动
+end
 
 -- tuxi
 sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
@@ -92,17 +92,15 @@ sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
 	local first = self.enemies[first_index]:objectName()
 	local second = self.enemies[second_index]:objectName()
 	return ("@TuxiCard=.->%s+%s"):format(first, second)
-end --突袭卡：敌方1牌有空城技不突，否则加入突袭对象，若满则返回，否则检查友方有无空城技1牌者，若满则突袭，不满则不突袭
+end
 
 -- yiji (frequent)
 sgs.ai_skill_invoke.tiandu = sgs.ai_skill_invoke.jianxiong
 
--- 遗计常用技，天妒：同奸雄
-
 -- ganglie
 sgs.ai_skill_invoke.ganglie = function(self, data)
 	return not self:isFriend(data:toPlayer())
-end -- 刚烈：友方不刚烈
+end
 
 -- fankui
 sgs.ai_skill_invoke.fankui = function(self, data)
@@ -119,13 +117,13 @@ sgs.ai_skill_invoke.fankui = function(self, data)
 	end
 				--self:updateRoyalty(-0.8*sgs.ai_royalty[target:objectName()],self.player:objectName())
 	return true
-end -- 反馈：反馈友方的孙尚香装备/白银狮子（受伤时）（建议血少于等于一半再拆），敌方空城/连营且1牌只反馈装备
+end
 
 -- tieji
 sgs.ai_skill_invoke.tieji = function(self, data)
 	local effect = data:toSlashEffect()
 	return not self:isFriend(effect.to) and (not effect.to:isKongcheng() or effect.to:getArmor())
-end -- 铁骑：友方不铁骑，空城不铁骑，有防具铁骑（not是怎么回事我没看懂）
+end
 
 sgs.ai_skill_use["@@liuli"] = function(self, prompt)
 
@@ -135,7 +133,7 @@ sgs.ai_skill_use["@@liuli"] = function(self, prompt)
 	for _, player in ipairs(others) do
 		if player:hasFlag("slash_source") then
 			source = player
-			break
+			 break
 		end
 	end
 	for _, enemy in ipairs(self.enemies) do
@@ -154,7 +152,7 @@ sgs.ai_skill_use["@@liuli"] = function(self, prompt)
 		end
 	end
 	return "."
-end -- 流离卡：local bullshit是啥？
+end
 
 sgs.ai_skill_invoke["@guicai"]=function(self,prompt,judge)
 	judge = judge or self.player:getTag("Judge"):toJudge()

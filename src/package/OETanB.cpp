@@ -385,6 +385,8 @@ OETanBPackage::OETanBPackage()
     OEjuzu->addSkill(new Tuiyin);
     OEjuzu->addSkill(new Chuxian);
 
+    //General *OEwilliam = new General(this, "william", "tan", 4, true);
+
     skills << new Zhiyin;
 
     addMetaObject<GuayanCard>();

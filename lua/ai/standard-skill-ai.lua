@@ -97,18 +97,18 @@ qixi_skill.getTurnUseCard=function(self,inclusive)
 	end
 	
 	for _,card in ipairs(cards)  do
-		if card:isBlack()  and ((self:getUseValue(card)<sgs.ai_use_value["Dismantlement"]) or inclusive or self:getOverflow()>0) then
+		if card:isBlack()  and ((self:getUseValue(card)<sgs.ai_use_value["Dismantlement"]) or inclusive) then
 		    local shouldUse=true
 		    
 		    if card:inherits("Armor") then
                 if not self.player:getArmor() then shouldUse=false 
-                elseif self:hasEquip(card) and not (card:inherits("SilverLion") and self.player:isWounded()) then shouldUse=false
+                elseif self:hasEquip(card) then shouldUse=false
                 end
             end
             
             if card:inherits("Weapon") then
                 if not self.player:getWeapon() then shouldUse=false
-                elseif self:hasEquip(card) and not has_weapon and not card:inherits("YitianSword") then shouldUse=false
+                elseif self:hasEquip(card) and not has_weapon then shouldUse=false
                 end
             end
 		    
@@ -259,45 +259,6 @@ jieyin_skill.getTurnUseCard=function(self)
 		local card_str = ("@JieyinCard=%d+%d"):format(first, second)
 		assert(card_str)
 		return sgs.Card_Parse(card_str)
-end
-
-local baihe_skill={}
-baihe_skill.name="baihe"
-table.insert(sgs.ai_skills,baihe_skill)
-baihe_skill.getTurnUseCard=function(self)
-        if self.player:getHandcardNum()<2 then return nil end
-        if self.player:hasUsed("baiheCard") then return nil end
-		
-		local cards = self.player:getHandcards()
-		cards=sgs.QList2Table(cards)
-		
-		local first, second
-		self:sortByUseValue(cards,true)
-		for _, card in ipairs(cards) do
-			if card:getTypeId() ~= sgs.Card_Equip then
-				if not first then first  = cards[1]:getEffectiveId()
-				else second = cards[2]:getEffectiveId()
-				end
-			end
-			if second then break end
-		end
-		
-		if not second then return end
-		local card_str = ("@baiheCard=%d+%d"):format(first, second)
-		assert(card_str)
-		return sgs.Card_Parse(card_str)
-end
-
-sgs.ai_skill_use_func["BaiheCard"]=function(card,use,self)
-	self:sort(self.friends, "hp")
-	
-	for _, friend in ipairs(self.friends) do
-		if friend:getGeneral():isFemale() and friend:isWounded() then
-			use.card=card
-			if use.to then use.to:append(friend) end
-			return
-		end
-	end
 end
 
 sgs.ai_skill_use_func["JieyinCard"]=function(card,use,self)
@@ -780,3 +741,4 @@ sgs.ai_skill_use_func["LijianCard"]=function(card,use,self)
 		end
 	end
 end
+
