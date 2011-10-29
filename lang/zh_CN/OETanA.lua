@@ -1,4 +1,4 @@
--- translation for LiXianJiPackage
+-- translation for OETanAPackage
 
 return {
 	["tan"] = "坛",
@@ -9,6 +9,7 @@ return {
 ["cv:ibicdlcod"] = "暂无",
 ["qianshui"] = "潜水",
 [":qianshui"] = "锁定技，【决斗】和红色的【杀】对你无效。",
+["#QianshuiNullify"] = "%from 的锁定技【潜水】被触发，【决斗】、红色【杀】对其无效",
 ["shangfu"] = "上浮",
 [":shangfu"] = "觉醒技，回合开始阶段，若你的装备区有2个或更多的装备，你须减1点体力上限，失去技能【潜水】，并永久获得技能【MOD】（回合开始前和结束后，你须\
 声明并获得场上存活角色的两个技能至你再次声明为止）",
@@ -38,6 +39,7 @@ return {
 ["#zhongpao"] = "%from 的锁定技【重炮】被触发，对 %to 的伤害由 %arg 点上升到 %arg2 点",
 ["guisu"] = "龟速",
 [":guisu"] = "锁定技，你使用【杀】时须弃掉X张牌，否则【杀】不能生效。X为你到目标角色的距离-1.",
+["#Guisu"] = "%from 的锁定技【龟速】被触发，必须额外弃掉 %arg 张牌",
 ["menghua"] = "萌化",
 [":menghua"] = "你可以防止其他角色对你造成的伤害。每回合开始至下一回合开始限一次。",	
 ["#menghuaPrevent"] = "%from 发动了技能【萌化】，防止了 %arg 点伤害",
@@ -60,13 +62,16 @@ return {
 [":shuihun"] = "你可将同花色的X张牌按下列规则使用/打出：红桃当【无中生有】，方片当【万箭齐发】，黑桃当【南蛮入侵】，梅花当【无懈可击】。X为你当前体力值和1中较大数。",
 ["huanshen"] = "幻身",
 [":huanshen"] = "锁定技，属性伤害对你无效，你的手牌上限始终为你的体力上限。",
+["#HuanshenProtect"] = "%to 的锁定技【幻身】被触发，属性伤害对其无效",
 
 ["silversiyeliuyue"] = "白银似夜流月",
 ["designer:silversiyeliuyue"] = "似夜流月",
 ["cv:silversiyeliuyue"] = "暂无",
 ["jiyu"] = "际遇",
 [":jiyu"] = "锁定技，你每造成或受到1点伤害，获得1枚【水】标记。",
-["lywater"] = "水（论坛）",
+["#JiyuDamage"] = "%from 的锁定技【际遇】被触发",
+["#JiyuDamaged"] = "%from 的锁定技【际遇】被触发",
+["@lywater"] = "水（论坛）",
 ["duihuan"] = "兑换",
 [":duihuan"] = "出牌阶段，可弃2枚【水】标记，选择下列两项中的一项执行：1.对任意一名其他角色造成1点伤害。2.摸两张牌。",
 

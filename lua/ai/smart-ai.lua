@@ -940,7 +940,22 @@ local function getSkillViewCard(card, class_name, player, card_place)
 		if card:getSuit() == sgs.Card_Spade and player:getHp() == 1 and player:hasSkill("longhun") then
 			return ("nullification:longhun[%s:%s]=%d"):format(suit, number, card_id)
 		end
- 	end
+		if card:getSuit() == sgs.Card_Club and player:getHp() == 1 and player:hasSkill("shuihun") then
+			return ("nullification:shuihun[%s:%s]=%d"):format(suit, number, card_id)
+		end
+ 	elseif class_name == "Exnihilo" then
+		if card:getSuit() == sgs.Card_Heart and player:getHp() == 1 and player:hasSkill("shuihun") then
+			return ("ex_nihilo:shuihun[%s:%s]=%d"):format(suit, number, card_id)
+		end
+	elseif class_name == "ArcheryAttack" then
+		if card:getSuit() == sgs.Card_Diamond and player:getHp() == 1 and player:hasSkill("shuihun") then
+			return ("archery_attack:shuihun[%s:%s]=%d"):format(suit, number, card_id)
+		end
+	elseif class_name == "SavageAssault" then
+		if card:getSuit() == sgs.Card_Spade and player:getHp() == 1 and player:hasSkill("shuihun") then
+			return ("savage_assault:shuihun[%s:%s]=%d"):format(suit, number, card_id)
+		end
+	end
 end
 
 function SmartAI:searchForAnaleptic(use,enemy,slash)   
@@ -2077,6 +2092,8 @@ function SmartAI:getDynamicUsePriority(card)
 				end
 			elseif use_card:inherits("JieyinCard") and self:getCardsNum("Peach") >= self.player:getLostHp() then
 			    dynamic_value = 7.51
+			elseif use_card:inherits("BaiheCard") and self:getCardsNum("Peach") >= self.player:getLostHp() then
+			    dynamic_value = 7.51	
 			elseif use_card:inherits("JujianCard") then
 				if not self.player:isWounded() then dynamic_value = 0
 				else dynamic_value = 7.5
@@ -2694,6 +2711,7 @@ function SmartAI:askForCard(pattern, prompt, data)
 				if target:hasSkill("pojun") and not self.player:faceUp() then return "." end
 				if target:hasSkill("guagu") and self.player:isLord() then return "." end
 				if (target:hasSkill("jieyin") and (not self.player:isWounded()) and self.player:getGeneral():isMale()) and not self.player:hasSkill("leiji") then return "." end
+				if (target:hasSkill("baihe") and (not self.player:isWounded()) and self.player:getGeneral():isFemale()) and not self.player:hasSkill("leiji") then return "." end
 			else
 				if not target:hasFlag("drank") then
 					if target:hasSkill("mengjin") and self.player:hasSkill("jijiu") then return "." end
@@ -3395,3 +3413,5 @@ dofile "lua/ai/fancheng-ai.lua"
 dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"
+
+dofile "lua/ai/tan-ai.lua"

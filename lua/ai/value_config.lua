@@ -47,6 +47,7 @@ sgs.dynamic_value = {
 		
 		RendeCard = true,
 		JieyinCard = true,
+		BaiheCard = true,
 		QingnangCard = true,
 		JujianCard = true,
 		ZhihengCard = true,

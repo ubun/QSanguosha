@@ -396,6 +396,9 @@ QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
         kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
+#ifdef OMEGAERA
+    kingdoms << "tan";
+#endif
 
     return kingdoms;
 }

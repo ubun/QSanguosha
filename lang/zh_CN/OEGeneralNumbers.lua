@@ -85,7 +85,7 @@ return {
 	["!shenlvbu1"] = "0807",
 	["!shenlvbu2"] = "0808",
 	["!sp_guanyu"] = "0806",
-	["!sp_caiweinji"] = "0809",
+	["!sp_caiweiji"] = "0809",
 	
 	--shangbuqide yijiangchengmings
 	["!caozhi"] = "2201",

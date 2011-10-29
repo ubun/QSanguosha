@@ -33,16 +33,16 @@ public:
                 if(effect.to->getMark("shangfu"))
                     return false;
                 /*上浮的设计成功表明，断肠是可以不变素将的，不过比空城还蛋疼。此法不宜推广*/
-                /*待补*/
-                //Room *room = player->getRoom();
-                /*
+
+                Room *room = player->getRoom();
+
                 LogMessage log;
                 log.type = "#QianshuiNullify";
                 log.from = effect.to;
                 log.to << effect.from;
                 log.arg = effect.card->objectName();
 
-                room->sendLog(log);*/
+                room->sendLog(log);
                 return true;
             }
         }
@@ -331,15 +331,16 @@ public:
 
         if(effect.card->inherits("Slash")){
             Room *room = player->getRoom();
-            /*
+
             room->playSkillEffect(objectName());
 
             LogMessage log;
             log.type = "#Guisu";
             log.from = effect.from;
             log.to << effect.to;
+            log.arg = player->distanceTo(effect.to)-1;
             room->sendLog(log);
-            */
+
             if(player->distanceTo(effect.to) > 1)
                 return !room->askForDiscard(player, "guisu", player->distanceTo(effect.to)-1,true,true);
             else return false;
@@ -592,17 +593,16 @@ public:
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        //Room *room = player->getRoom();
+        Room *room = player->getRoom();
         if(event == Predamaged){
             DamageStruct damage = data.value<DamageStruct>();
             if(damage.nature != DamageStruct::Normal){
-                /*
+
                 LogMessage log;
                 log.type = "#HuanshenProtect";
                 log.to << player;
-                log.from = damage.from;
                 room->sendLog(log);
-                */
+
                 return true;
             }
         }
@@ -622,13 +622,13 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        /*
+
         LogMessage log;
         log.type = event == Damage ? "#JiyuDamage" : "#JiyuDamaged";
         log.from = player;
         log.arg = QString::number(damage.damage);
         player->getRoom()->sendLog(log);
-        */
+
         player->gainMark("@lywater", damage.damage);
         //player->getRoom()->playSkillEffect(objectName());
 

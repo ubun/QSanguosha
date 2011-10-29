@@ -84,6 +84,7 @@ sgs.ai_use_priority = {
 		GuhuoCard = 10,
 		TianyiCard = 4,
 		JieyinCard = 2.5,
+		BaiheCard = 2.6,
 		HuangtianCard = 10,
 		XianzhenCard = 9.2,
 		XianzhenSlashCard = 2.6,

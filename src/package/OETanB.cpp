@@ -180,16 +180,16 @@ public:
             m++;
 
         if(!m) return false;
-        /*
+
         LogMessage log;
         log.type = "#NitaiWake";
         log.from = OEedado;
         room->sendLog(log);
-
+        /*
         room->playSkillEffect("nitai");
 
-        room->broadcastInvoke("animate", "lightbox:$nitai:5000");
-        room->getThread()->delay(5000);*/
+        room->broadcastInvoke("animate", "lightbox:$nitai:5000");*/
+        room->getThread()->delay(5000);
 
         room->setPlayerMark(OEedado, "nitai", 1);
         room->acquireSkill(OEedado, "tiandu");
@@ -321,13 +321,13 @@ public:
 
         room->setPlayerMark(OEjuzu, "chuxian", 1);
         room->loseMaxHp(OEjuzu);
-        /*
+
         LogMessage log;
         log.type = "#ChuxianWake";
         log.from = OEjuzu;
         log.arg = QString::number(OEjuzu->getPile("field").length());
         room->sendLog(log);
-        */
+
         room->acquireSkill(OEjuzu, "zhiyin");
 
         return false;
@@ -352,13 +352,13 @@ public:
                 Room *room = OEjuzu->getRoom();
 
                 ServerPlayer *player = room->askForPlayerChosen(OEjuzu, room->getOtherPlayers(OEjuzu), objectName());
-                /*
+
                 LogMessage log;
-                log.type = "#Fangquan";
-                log.from = liushan;
+                log.type = "#Zhiyin";
+                log.from = OEjuzu;
                 log.to << player;
                 room->sendLog(log);
-                */
+
                 room->setCurrent(player);
                 room->getThread()->trigger(TurnStart, player);
                 room->setCurrent(OEjuzu);

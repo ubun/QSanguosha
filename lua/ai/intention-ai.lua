@@ -197,6 +197,10 @@ sgs.ai_carduse_intention["JieyinCard"]=function(card,from,to,source)
         return sgs.ai_card_intention.general(to,-80)
 end
 
+sgs.ai_carduse_intention["BaiheCard"]=function(card,from,to,source)
+		return sgs.ai_card_intention.general(to,-80)
+end
+
 sgs.ai_carduse_intention["HuangtianCard"]=function(card,from,to,source)
         sgs.ai_lord_tolerance[from:objectName()]=(sgs.ai_lord_tolerance[from:objectName()] or 0)+1
         return sgs.ai_card_intention.general(to,-80)
