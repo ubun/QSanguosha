@@ -546,7 +546,8 @@ public:
             room->askForDiscard(player, objectName(), discardnum);
         else
             player->throwAllHandCards();
-        player->drawCards(1);
+        if(player->isAlive())
+            player->drawCards(1);
         return false;
     }
 };

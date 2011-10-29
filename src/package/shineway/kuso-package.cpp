@@ -517,6 +517,9 @@ public:
             return false;
         Room *room = player->getRoom();
         int x = player->getMaxCards() - player->getHandcardNum();
+        LogMessage log;
+        log.from = player;
+        log.arg = objectName();
         if(x < 1){
             /*QList<ServerPlayer *> targets;
             targets << player;
@@ -526,8 +529,14 @@ public:
             if(next->getArmor())
                 room->throwCard(next->getArmor()->getId());
             room->moveCardTo(player->getArmor(), next, Player::Equip);
-        }else
+            log.type = "#UFOMoving";
+            log.to << next;
+            room->sendLog(log);
+        }else{
+            log.type = "#UFODraw";
+            room->sendLog(log);
             player->drawCards(x);
+        }
         return false;
     }
 };
