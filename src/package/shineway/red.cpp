@@ -1162,6 +1162,7 @@ SusaCard::SusaCard(){
 void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
     foreach(ServerPlayer *target, room->getOtherPlayers(source)){
         if(target->getMark("Tsuku") > 0){
+            source->loseMark("@susa");
             target->setMark("Tsuku", 0);
             room->transfigure(target, "sujiang", false, false);
             room->setPlayerProperty(target, "maxhp", target->getMaxHP() + (target->getMaxHP() + 1) / 2);
@@ -1174,10 +1175,11 @@ void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
 class SusaViewAsSkill:public ZeroCardViewAsSkill{
 public:
     SusaViewAsSkill():ZeroCardViewAsSkill("susa"){
+        frequency = Limited;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->tag.value("Tsuku").toString() != "";
+        return player->getMark("@susa") > 0 && player->tag.value("Tsuku").toString() != "";
     }
 
     virtual const Card *viewAs() const{
@@ -1188,6 +1190,7 @@ public:
 class Susa: public PhaseChangeSkill{
 public:
     Susa():PhaseChangeSkill("susa"){
+        frequency = Limited;
         view_as_skill = new SusaViewAsSkill;
     }
 
@@ -1249,10 +1252,14 @@ RedPackage::RedPackage()
     redsunluban->addSkill(new Goulian);
 
     //itachi
+/*
     General *uchihaitachi = new General(this, "uchihaitachi", "god", 4, true, true);
     uchihaitachi->addSkill(new Tsukuyomi);
     uchihaitachi->addSkill(new Amaterasu);
     uchihaitachi->addSkill(new Susa);
+    uchihaitachi->addSkill(new MarkAssignSkill("@susa", 1));
+    related_skills.insertMulti("Susa", "#@susa");
+*/
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();
