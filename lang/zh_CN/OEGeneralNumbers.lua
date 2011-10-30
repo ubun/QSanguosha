@@ -85,20 +85,20 @@ return {
 	["!shenlvbu1"] = "0807",
 	["!shenlvbu2"] = "0808",
 	["!sp_guanyu"] = "0806",
-	["!sp_caiweiji"] = "0809",
+	["!sp_caiwenji"] = "0809",
 	
 	--shangbuqide yijiangchengmings
 	["!caozhi"] = "2201",
 	["!yujin"] = "2210",
 	["!yjzhangchunhua"] = "2211",-- 保留
 	["!xushu"] = "2209",
-	["!masu"] = "2406",
-	["!fazheng"] = "2403",
-	["!lingtong"] = "2405",
-	["!xusheng"] = "2408",
-	["!wuguotai"] = "2407",
-	["!chengong"] = "2402",
-	["!gaoshun"] = "2404",
+	["!masu"] = "2206",
+	["!fazheng"] = "2203",
+	["!lingtong"] = "2205",
+	["!xusheng"] = "2208",
+	["!wuguotai"] = "2207",
+	["!chengong"] = "2202",
+	["!gaoshun"] = "2204",
 	
 	--yitians
 	["!shencc3v3"] = "3300", -- 保留，见倚天复刻贴

@@ -219,3 +219,4 @@ CONFIG(joystick){
 }
 
 TRANSLATIONS += sanguosha.ts
+TRANSLATIONS += sanguoshaoe.ts

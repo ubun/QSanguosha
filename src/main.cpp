@@ -11,6 +11,8 @@
 #include "banpairdialog.h"
 #include "server.h"
 
+#include "engine.h"
+
 #ifdef AUDIO_SUPPORT
 #ifdef  Q_OS_WIN32
     #include "irrKlang.h"
@@ -39,7 +41,12 @@ int main(int argc, char *argv[])
 
     QTranslator qt_translator, translator;
     qt_translator.load("qt_zh_CN.qm");
+
+#ifdef OMEGAERA
+    translator.load("sanguoshaoe.qm");
+#else
     translator.load("sanguosha.qm");
+#endif
 
     qApp->installTranslator(&qt_translator);
     qApp->installTranslator(&translator);

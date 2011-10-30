@@ -317,18 +317,15 @@ void MainWindow::on_actionAbout_triggered()
     QString signature = tr("Yuriko Omega, after she destoryed Shiro Sanitarium");
     content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
 
-    content.append(tr("This is a mod for QSanguosha, a free and open source online version of"
-                      "Sanguosha, the popular board game in China<br />"
-                      "Author: Moligaloo"
-                      "<center><img src='image/system/shencc.png'> <br /> </center>"
-                      //"This is the open source clone of the popular <b>Sanguosha</b> game,"
-                      //"totally written in C++ Qt GUI framework <br />"
-                      "Email: moligaloo@gmail.com <br/>"
-                      "Modder: Ibicdlcod"
-                      "<center><img src='image/generals/big/ibicdlcod.png'> <br /> </center>"
-                      "This mod is intended to make a Command And Conquer-based board game,"
-                      "but currently I'm working on DIYs for my friends at QSanguosha.com.<br/>"
-                      "Email: dbpr@mail.ustc.edu.cn <br/>"));
+    content.append(tr("This is a mod for QSanguosha, a free and open source onlive version of Sanguosha, the popular board game in China <br />"));
+    content.append(tr("Author: Moligaloo"));
+    content.append("<center><img src='image/system/shencc.png'> <br /> </center>");
+    content.append("Email: moligaloo@gmail.com <br/>");
+    content.append("Modder: Ibicdlcod");
+    content.append("<center><img src='image/generals/big/ibicdlcod.png'> <br /> </center>");
+    content.append(tr("This mod is intended to make a Command And Conquer:Red Alert-based board game, "
+                      "but currently I'm working on DIYs for my friends at QSanguosha.com."));
+    content.append("<br/>Email: dbpr@mail.ustc.edu.cn <br/>");
 
     QString config;
 
@@ -601,23 +598,31 @@ void MainWindow::on_actionAcknowledgement_triggered()
 
     // Cao Cao's pixmap
     QString content =  "<img src='image/system/shencc.png'>";
-    content.append(tr("Moligaloo-Weiwudi's crazy fan (Author)<br/>"));
-    content.append(tr("...very talented and cute, appear now and then in some posts. I also saw his photo--not so handsome"
-                      "just the type as your neighbour big brother. He will insist that caocao is (juxiezuo), will take other's"
-                      "advice to his work, and will share a photo of himself riding tigers as a child. He's interesting. <br/>"
-                      "One day, this cute boy made a software, and was discovered of his high level on coding. You know,"
-                      "QSanguosha is not a stuff that ordinary coder could make, but he did it. So I admire him, I welcome him"
-                      "to be our big brother!<br/>"
-                      "To broadcast QSanguosha, he send for a friend to construct <a href='http://QSanguosha.com/forum.php?fromuid=6863'>this forum</a>."
-                      "To be honest, this forum is quite good. Very pretty, and many games--and a good atmosphere.(chungeyima)<br/>"));
+    content.append(tr("Moligaloo-Weiwudi's crazy fan (Author)"));
+    content.append("<br/>");
+    content.append(tr("...very talented and cute, appear now and then in some posts. I also saw his photo--not so handsome, just the type as your neighbour big brother. He will insist that caocao is (juxiezuo), will take other's advice to his work, and will share a photo of himself riding tigers as a child. He's interesting. "));
+    content.append("<br/>");
+    content.append(tr("One day, this cute boy made a software, and was discovered of his high level on coding. You know, QSanguosha is not a stuff that ordinary coder could make, but he did it. So I admire him, I welcome him to be our big brother!"));;
+    content.append("<br/>");
+    content.append(tr("To broadcast QSanguosha, he send for a friend to construct"));
+    content.append(tr("<a href='http://QSanguosha.com/forum.php?fromuid=6863'>this forum</a>."));
+    content.append(tr("To be honest, this forum is quite good. Very pretty, and many games--and a good atmosphere.(chungeyima)"));
+    content.append("<br/>");
     content.append("<img src='image/system/3101.jpg'>");
     content.append("<img src='image/system/3102.jpg'>");
     content.append("<img src='image/system/3103.jpg'>");
     content.append("<img src='image/system/3104.jpg'>");
-    content.append("<br>Contruibutros:<br/>1-hypercross-Jiecaoa...<br/>");
-    content.append("2-donle-See my pure eye contract?<br/>");
-    content.append("3-ubun-I couldn't **** ubun with hundreds of thinking!<br/>");
-    content.append("4-william-Lazy coder Mickey<br/>");
+    content.append("<br/>");
+    content.append(tr("Contributors:"));
+    content.append("<br/>");
+    content.append(tr("1-hypercross-Jiecaoa..."));
+    content.append("<br/>");
+    content.append(tr("2-donle-See my pure eye contract?"));
+    content.append("<br/>");
+    content.append(tr("3-ubun-I couldn't **** ubun with hundreds of thinking!"));
+    content.append("<br/>");
+    content.append(tr("4-william-Lazy coder Mickey"));
+    content.append("<br/>");
     Window *window = new Window(tr("Acknowledgement"), QSize(1000, 600));
     scene->addItem(window);
 
