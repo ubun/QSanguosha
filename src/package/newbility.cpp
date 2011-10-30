@@ -1054,24 +1054,26 @@ YuluCard::YuluCard(){
 }
 
 void YuluCard::use(Room *, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    int word_id = this->getSubcards().first();
-    if(word_id > -1)
+    foreach(int word_id, this->getSubcards()){
         source->addToPile("word", word_id);
+    }
 }
 
-class Yulu: public OneCardViewAsSkill{
+class Yulu: public ViewAsSkill{
 public:
-    Yulu():OneCardViewAsSkill("yulu"){
+    Yulu():ViewAsSkill("yulu"){
     }
 
-    virtual bool viewFilter(const CardItem *to_select) const{
+    virtual bool viewFilter(const QList<CardItem *> &, const CardItem *to_select) const{
         return !to_select->isEquipped();
     }
 
-    virtual const Card *viewAs(CardItem *card_item) const{
-        YuluCard *card = new YuluCard;
-        card->addSubcard(card_item->getCard()->getId());
-        return card;
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.isEmpty())
+            return NULL;
+        YuluCard *yulu_card = new YuluCard;
+        yulu_card->addSubcards(cards);
+        return yulu_card;
     }
 };
 
