@@ -121,6 +121,24 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class AmaterasuCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE AmaterasuCard();
+
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class SusaCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE SusaCard();
+
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class RedPackage: public Package{
     Q_OBJECT
 

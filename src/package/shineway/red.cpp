@@ -1084,6 +1084,122 @@ public:
     }
 };
 
+// itachi
+class Tsukuyomi: public TriggerSkill{
+public:
+    Tsukuyomi():TriggerSkill("tsukuyomi"){
+        events << Damaged << PhaseChange;
+    }
+
+    static void Losttsuku(Room *room, ServerPlayer *itachi){
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(itachi)){
+            if(tmp->getMark("Tsuku") > 0)
+                tmp->setMark("Tsuku", 0);
+        }
+        room->detachSkillFromPlayer(itachi, itachi->tag.value("Tsuku").toString());
+        itachi->tag["Tsuku"] = "";
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *itachi, QVariant &data) const{
+        Room *room = itachi->getRoom();
+        if(event == PhaseChange){
+            if(itachi->getPhase() == Player::Finish)
+                Losttsuku(room, itachi);
+            return false;
+        }
+        if(room->getCurrent() != itachi && room->askForSkillInvoke(itachi, objectName(), data)){
+            ServerPlayer *target = room->askForPlayerChosen(itachi, room->getOtherPlayers(itachi), objectName());
+            QList<const Skill *> skills = target->getVisibleSkillList();
+            QStringList skill_list;
+            foreach(const Skill *skill, skills){
+                if(skill->parent())
+                    skill_list << skill->objectName();
+            }
+            if(!skill_list.isEmpty()){
+                QString choice = room->askForChoice(itachi, objectName(), skill_list.join("+"));
+                Losttsuku(room, itachi);
+                itachi->tag["Tsuku"] = choice;
+                room->acquireSkill(itachi, choice);
+                target->setMark("Tsuku", 1); //connect to trigger SkillCut
+            }
+        }
+        return false;
+    }
+};
+
+AmaterasuCard::AmaterasuCard(){
+}
+
+void AmaterasuCard::onEffect(const CardEffectStruct &effect) const{
+    effect.from->getRoom()->loseMaxHp(effect.from);
+    effect.from->acquireSkill("wansha");
+    DamageStruct damage;
+    damage.nature = DamageStruct::Fire;
+    damage.from = effect.from;
+    damage.to = effect.to;
+    effect.from->getRoom()->damage(damage);
+    effect.from->getRoom()->detachSkillFromPlayer(effect.from, "wansha");
+}
+
+class Amaterasu:public ZeroCardViewAsSkill{
+public:
+    Amaterasu():ZeroCardViewAsSkill("amaterasu"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->isWounded();
+    }
+
+    virtual const Card *viewAs() const{
+        return new AmaterasuCard;
+    }
+};
+
+SusaCard::SusaCard(){
+    target_fixed = true;
+}
+
+void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    foreach(ServerPlayer *target, room->getOtherPlayers(source)){
+        if(target->getMark("Tsuku") > 0){
+            target->setMark("Tsuku", 0);
+            room->transfigure(target, "sujiang", false, false);
+            room->setPlayerProperty(target, "maxhp", target->getMaxHP() + (target->getMaxHP() + 1) / 2);
+            source->setMark("Susa", 1);
+            break;
+        }
+    }
+}
+
+class SusaViewAsSkill:public ZeroCardViewAsSkill{
+public:
+    SusaViewAsSkill():ZeroCardViewAsSkill("susa"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->tag.value("Tsuku").toString() != "";
+    }
+
+    virtual const Card *viewAs() const{
+        return new SusaCard;
+    }
+};
+
+class Susa: public PhaseChangeSkill{
+public:
+    Susa():PhaseChangeSkill("susa"){
+        view_as_skill = new SusaViewAsSkill;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::NotActive && player->getMark("Susa") > 1){
+            player->setMark("Susa", 0);
+            player->getRoom()->killPlayer(player);
+        }
+        return false;
+    }
+};
+
 RedPackage::RedPackage()
     :Package("red")
 {
@@ -1132,12 +1248,21 @@ RedPackage::RedPackage()
     redsunluban->addSkill(new Jiaochong);
     redsunluban->addSkill(new Goulian);
 
+    //itachi
+    General *uchihaitachi = new General(this, "uchihaitachi", "god", 4, true, true);
+    uchihaitachi->addSkill(new Tsukuyomi);
+    uchihaitachi->addSkill(new Amaterasu);
+    uchihaitachi->addSkill(new Susa);
+
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();
     addMetaObject<BaichuCard>();
     addMetaObject<TongluCard>();
     addMetaObject<XiefangCard>();
     addMetaObject<GoulianCard>();
+
+    addMetaObject<AmaterasuCard>();
+    addMetaObject<SusaCard>();
 }
 
 ADD_PACKAGE(Red)

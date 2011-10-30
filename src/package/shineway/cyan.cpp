@@ -26,7 +26,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "@@rangli";
+        return pattern == "@@rangli!";
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -83,7 +83,7 @@ public:
                 return false;
             ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
             target->gainMark("@pear");
-            if(!room->askForUseCard(target, "@@rangli", "@rangli-ask:" + player->objectName())){
+            if(!room->askForUseCard(target, "@@rangli!", "@rangli-ask:" + player->objectName())){
                 int card_id = room->askForCardChosen(player, target, "h", "rangli");
                 room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
                 card_id = room->askForCardChosen(player, target, "h", "rangli");

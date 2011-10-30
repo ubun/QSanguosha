@@ -977,6 +977,9 @@ public:
             AcquireGenerals(zuoci, 1);
         }
         QVariantList huashens = zuoci->tag["Huashens"].toList();
+        if(huashens.isEmpty())
+            return QString();
+
         QStringList huashen_generals;
         foreach(QVariant huashen, huashens)
             huashen_generals << huashen.toString();
@@ -1065,7 +1068,8 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *zuoci) const{
         QString skill_name = Huashen::SelectSkill(zuoci, false);
-        zuoci->getRoom()->acquireSkill(zuoci, skill_name);
+        if(!skill_name.isEmpty())
+            zuoci->getRoom()->acquireSkill(zuoci, skill_name);
 
         return false;
     }
