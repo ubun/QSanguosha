@@ -1088,7 +1088,7 @@ public:
 class Tsukuyomi: public TriggerSkill{
 public:
     Tsukuyomi():TriggerSkill("tsukuyomi"){
-        events << Damaged << PhaseChange;
+        events << Damaged << PhaseChange << Death;
     }
 
     static void Losttsuku(Room *room, ServerPlayer *itachi){
@@ -1102,6 +1102,10 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *itachi, QVariant &data) const{
         Room *room = itachi->getRoom();
+        if(event == Death){
+            Losttsuku(room, itachi);
+            return false;
+        }
         if(event == PhaseChange){
             if(itachi->getPhase() == Player::Finish)
                 Losttsuku(room, itachi);
@@ -1127,18 +1131,45 @@ public:
     }
 };
 
+class TsukuEffect: public TriggerSkill{
+public:
+    TsukuEffect(): TriggerSkill("#tsuku_eft"){
+        events << CardUsed << CardResponsed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("Tsuku") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *uchiha, QVariant &data) const{
+        Room *room = uchiha->getRoom();
+        CardStar card = NULL;
+        if(event == CardUsed){
+            CardUseStruct use = data.value<CardUseStruct>();
+            card = use.card;
+        }else if(event == CardResponsed)
+            card = data.value<CardStar>();
+        room->throwCard(card);
+        return true;
+    }
+};
+
 AmaterasuCard::AmaterasuCard(){
 }
 
 void AmaterasuCard::onEffect(const CardEffectStruct &effect) const{
     effect.from->getRoom()->loseMaxHp(effect.from);
-    effect.from->acquireSkill("wansha");
+    if(effect.from->hasSkill("wansha"))
+        effect.from->setFlags("isJiaxu");
+    else
+        effect.from->acquireSkill("wansha");
     DamageStruct damage;
     damage.nature = DamageStruct::Fire;
     damage.from = effect.from;
     damage.to = effect.to;
     effect.from->getRoom()->damage(damage);
-    effect.from->getRoom()->detachSkillFromPlayer(effect.from, "wansha");
+    if(!effect.from->hasFlag("isJiaxu"))
+        effect.from->getRoom()->detachSkillFromPlayer(effect.from, "wansha");
 }
 
 class Amaterasu:public ZeroCardViewAsSkill{
@@ -1164,8 +1195,11 @@ void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
         if(target->getMark("Tsuku") > 0){
             source->loseMark("@susa");
             target->setMark("Tsuku", 0);
+            int maxhp = target->getMaxHP() + (target->getMaxHP() + 1) / 2;
             room->transfigure(target, "sujiang", false, false);
-            room->setPlayerProperty(target, "maxhp", target->getMaxHP() + (target->getMaxHP() + 1) / 2);
+            room->setPlayerProperty(target, "maxhp", maxhp);
+            room->broadcastInvoke("animate", "lightbox:$susa:2500");
+            room->getThread()->delay(2500);
             source->setMark("Susa", 1);
             break;
         }
@@ -1179,7 +1213,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("@susa") > 0 && player->tag.value("Tsuku").toString() != "";
+        return player->getMark("@susa") > 0;
     }
 
     virtual const Card *viewAs() const{
@@ -1195,7 +1229,7 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getPhase() == Player::NotActive && player->getMark("Susa") > 1){
+        if(player->getPhase() == Player::NotActive && player->getMark("Susa") > 0){
             player->setMark("Susa", 0);
             player->getRoom()->killPlayer(player);
         }
@@ -1255,6 +1289,8 @@ RedPackage::RedPackage()
 /*
     General *uchihaitachi = new General(this, "uchihaitachi", "god", 4, true, true);
     uchihaitachi->addSkill(new Tsukuyomi);
+    uchihaitachi->addSkill(new TsukuEffect);
+    related_skills.insertMulti("tsukuyomi", "#tsuku_eft");
     uchihaitachi->addSkill(new Amaterasu);
     uchihaitachi->addSkill(new Susa);
     uchihaitachi->addSkill(new MarkAssignSkill("@susa", 1));
