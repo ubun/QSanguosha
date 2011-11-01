@@ -61,6 +61,16 @@ public:
     virtual void onUninstall(ServerPlayer *player) const;
 };
 
+class Emigration:public DelayedTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Emigration(Card::Suit suit, int number);
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void takeEffect(ServerPlayer *target) const;
+};
+
 class UFO:public Armor{
     Q_OBJECT
 

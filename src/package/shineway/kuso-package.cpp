@@ -502,6 +502,32 @@ void Fiveline::onUninstall(ServerPlayer *player) const{
     }
 }
 
+Emigration::Emigration(Suit suit, int number)
+    :DelayedTrick(suit, number)
+{
+    setObjectName("emigration");
+    target_fixed = false;
+
+    judge.pattern = QRegExp("(.*):(spade|club):(.*)");
+    judge.good = false;
+    judge.reason = objectName();
+}
+
+bool Emigration::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if(!targets.isEmpty())
+        return false;
+
+    if(to_select->containsTrick(objectName()))
+        return false;
+
+    return true;
+}
+
+void Emigration::takeEffect(ServerPlayer *target) const{
+    target->skip(Player::Discard);
+}
+
 class UFOSkill: public ArmorSkill{
 public:
     UFOSkill():ArmorSkill("ufo"){
@@ -555,6 +581,8 @@ KusoCardPackage::KusoCardPackage()
             << new ClearShirt(Card::Club, 3)
             << new KawaiiDress(Card::Spade, 2)
             << new Fiveline(Card::Heart, 5)
+            << new Emigration(Card::Spade, 9)
+            << new Emigration(Card::Heart, 13)
             << new UFO(Card::Club, 11);
 
     foreach(Card *kuso, kusos)

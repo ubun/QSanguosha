@@ -61,6 +61,9 @@ return {
 	["fiveline"] = "五道杠",
 	[":fiveline"] = "<br><font color=blue>德杠</font>·体力为1时可以发动【仁德】<br><font color=green>智杠</font>·体力为2时可以发动【集智】<br><font color=gold>体杠</font>·体力为3时可以发动【结姻】<br><font color=red>美杠</font>·体力为4时可以发动【国色】<br><font color=brown>劳杠</font>·体力为5时可以发动【苦肉】",
 
+	["emigration"] = "暗度陈仓",
+	[":emigration"] = "出牌阶段，对任意一名角色使用，将【暗度陈仓】横置于目标角色判定区里，目标角色回合判定阶段进行判定；若判定结果是黑色，则跳过目标角色的弃牌阶段，将【暗度陈仓】弃置",
+
 	["ufo"] = "不明飞行物",
 	[":ufo"] = "锁定技，回合开始阶段，将你的手牌补至上限，若补牌数为0，此装备转移到下家的装备区内",
 	["#UFOMoving"] = "%arg 抛弃了可怜的 %from，投入 %to 的怀抱",

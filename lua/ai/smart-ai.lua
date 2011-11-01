@@ -1047,10 +1047,6 @@ function SmartAI:slashProhibit(card,enemy)
 		if enemy:hasSkill("xiangle") and self:getCardsNum("Slash")+self:getCardsNum("Analpetic")+math.max(self:getCardsNum("Jink")-1,0) < 2 then
 			return true
 		end
-		
-		if enemy:hasSkill("xiangle") and self:getCardsNum("Slash")+self:getCardsNum("Analpetic")+math.max(self:getCardsNum("Jink")-1,0)<2 then
-			return true
-		end
 	end
 
 	return not self:slashIsEffective(card, enemy)

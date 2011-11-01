@@ -322,7 +322,7 @@ public:
         }
         if(player->getMark("begin") == 0 && event == TurnStart){
             player->drawCards(1);
-            const Card *card = room->askForCard(player, ".baichu", "@baichu", data);
+            const Card *card = room->askForCard(player, ".baichu!", "@baichu", data);
             if(card)
                 player->addToPile("ji", card->getId());
             else
@@ -1246,7 +1246,7 @@ RedPackage::RedPackage()
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
     redxunyou->addSkill(new Baichu);
-    patterns[".baichu"] = new BaichuPattern;
+    patterns[".baichu!"] = new BaichuPattern;
 
     General *redhejin = new General(this, "redhejin", "qun", 4);
     redhejin->addSkill(new Tonglu);
