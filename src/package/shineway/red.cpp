@@ -28,7 +28,8 @@ void TongmouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
     QList<ServerPlayer *> gays;
     gays << zhonghui << gay;
     QStringList forbid_skills;
-    forbid_skills << "lianying" << "tuntian" << "shangshi" << "beifa";
+    forbid_skills << "lianying" << "tuntian" << "shangshi" << "beifa"
+            << "weighing" << "liufang";
     foreach(ServerPlayer *tmp, gays){
         if(tmp->hasSkill("tuntian") && tmp == source)
             continue;

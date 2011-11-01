@@ -326,7 +326,7 @@ public:
 class Hunren: public TriggerSkill{
 public:
     Hunren():TriggerSkill("hunren"){
-        events << CardLost << CardFinished;
+        events << CardLost << CardFinished << FinishJudge;
         frequency = Compulsory;
     }
 
@@ -337,8 +337,8 @@ public:
     static QString PuyuanBook(QString weapon){
         QMap<QString, QString> map;
 
-        map["crossbow"] = "rende";
-        map["double_sword"] = "jizhi";
+        map["crossbow"] = "jizhi";
+        map["double_sword"] = "rende";
         map["qinggang_sword"] = "juejing";
         map["guding_blade"] = "yinghun";
         map["ice_sword"] = "tianxiang";
@@ -359,7 +359,21 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         const Card *weapon;
-        if(event == CardLost){
+        if(event == FinishJudge){
+            weapon = player->getWeapon();
+            if(weapon)
+                return false;
+            JudgeStar judge = data.value<JudgeStar>();
+            CardStar card = judge->card;
+            QVariant data_card = QVariant::fromValue(card);
+            if(player->askForSkillInvoke("tiandu", data_card)){
+                player->obtainCard(judge->card);
+                room->playSkillEffect("tiandu");
+                return true;
+            }
+            return false;
+        }
+        else if(event == CardLost){
             CardMoveStar move = data.value<CardMoveStar>();
             if(move->from_place == Player::Equip){
                 weapon = Sanguosha->getCard(move->card_id);
