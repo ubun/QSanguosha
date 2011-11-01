@@ -13,7 +13,6 @@ return {
 	
 --WU#04 谍战英豪
 	["greenkanze"] = "阚泽",
-	["designer:greenkanze"] = "宇文璐",
 	["diezhi"] = "谍智",
 	[":diezhi"] = "当有角色在回合外摸牌时，你可以弃掉一张牌，阻止其摸牌操作",
 	["fengjue"] = "封绝",

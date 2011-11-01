@@ -1134,22 +1134,17 @@ public:
 class TsukuEffect: public TriggerSkill{
 public:
     TsukuEffect(): TriggerSkill("#tsuku_eft"){
-        events << CardUsed << CardResponsed;
+        events << CardUsed;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return target->getMark("Tsuku") > 0;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *uchiha, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *uchiha, QVariant &data) const{
         Room *room = uchiha->getRoom();
-        CardStar card = NULL;
-        if(event == CardUsed){
-            CardUseStruct use = data.value<CardUseStruct>();
-            card = use.card;
-        }else if(event == CardResponsed)
-            card = data.value<CardStar>();
-        room->throwCard(card);
+        CardUseStruct use = data.value<CardUseStruct>();
+        room->throwCard(use.card);
         return true;
     }
 };
@@ -1195,7 +1190,7 @@ void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
         if(target->getMark("Tsuku") > 0){
             source->loseMark("@susa");
             target->setMark("Tsuku", 0);
-            int maxhp = target->getMaxHP() + (target->getMaxHP() + 1) / 2;
+            int maxhp = ceil(target->getMaxHP() / 2 * 3);
             room->transfigure(target, "sujiang", false, false);
             room->setPlayerProperty(target, "maxhp", maxhp);
             room->broadcastInvoke("animate", "lightbox:$susa:2500");
