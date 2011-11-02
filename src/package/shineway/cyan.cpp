@@ -120,7 +120,7 @@ public:
 
             QList<ServerPlayer *> players;
             foreach(ServerPlayer *tmp, room->getAllPlayers()){
-                if(player->inMyAttackRange(tmp) && tmp != damage.to)
+                if(damage.to->inMyAttackRange(tmp) && tmp != damage.to)
                     players << tmp;
             }
             if(players.isEmpty())
