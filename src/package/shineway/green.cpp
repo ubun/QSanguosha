@@ -58,17 +58,36 @@ YuanlvCard::YuanlvCard(){
     once = true;
 }
 
+YuanlvStruct::YuanlvStruct()
+    :kingdom("wei"), generalA("guojia"), generalB("simayi"), skills(NULL)
+{
+}
+
 void YuanlvCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     ServerPlayer *target = targets.first();
     room->loseHp(source);
+    QStringList skills;
     foreach(const SkillClass *skill, target->getVisibleSkillList()){
         QString skill_name = skill->objectName();
         if(skill_name == "spear" || skill_name == "axe")
             continue;
 
-        target->setFlags(skill_name);
+        skills << skill_name;
         room->detachSkillFromPlayer(target, skill_name);
     }
+    YuanlvStruct yuanlv_data;
+    yuanlv_data.kingdom = target->getKingdom();
+    yuanlv_data.generalA = target->getGeneralName();
+    QString to_transfigure = target->getGeneral()->isMale() ? "sujiang" : "sujiangf";
+    //room->transfigure(target, to_transfigure, false, false);
+    room->setPlayerProperty(target, "general", to_transfigure);
+    if(target->getGeneral2()){
+        yuanlv_data.generalB = target->getGeneral2Name();
+        room->setPlayerProperty(target, "general2", to_transfigure);
+    }
+    room->setPlayerProperty(target, "kingdom", yuanlv_data.kingdom);
+    yuanlv_data.skills = skills;
+    target->tag["YuanlvStore"] = QVariant::fromValue(yuanlv_data);
     target->addMark("yuanlv_target");
 }
 
@@ -89,7 +108,7 @@ public:
 
 class YuanlvReset:public TriggerSkill{
 public:
-    YuanlvReset(): TriggerSkill("#yuanlv-clear"){
+    YuanlvReset(): TriggerSkill("#yuanlv_clear"){
         events << PhaseChange;
     }
 
@@ -101,10 +120,22 @@ public:
         if(player->getPhase() != Player::NotActive)
             return false;
 
-        player->removeMark("yuanlv_target");
-        foreach(QString skill_name, player->getFlags().split("+"))
-            player->getRoom()->acquireSkill(player, skill_name);
+        player->setMark("yuanlv_target", 0);
+        Room *room = player->getRoom();
+        YuanlvStruct yuanlv_data = player->tag.value("YuanlvStore").value<YuanlvStruct>();
 
+        //room->transfigure(player, yuanlv_data.generalA, false, false);
+        room->setPlayerProperty(player, "general", yuanlv_data.generalA);
+        if(player->getGeneral2()){
+            room->setPlayerProperty(player, "general2", yuanlv_data.generalB);
+        }
+        room->setPlayerProperty(player, "kingdom", yuanlv_data.kingdom);
+        QStringList skills = yuanlv_data.skills;
+        foreach(QString skill_name, skills){
+            room->acquireSkill(player, skill_name);
+        }
+
+        player->tag["YuanlvStore"] = NULL;
         return false;
     }
 };
@@ -215,7 +246,7 @@ GreenPackage::GreenPackage()
     General *greenjushou = new General(this, "greenjushou", "qun", 3);
     greenjushou->addSkill(new Yuanlv);
     greenjushou->addSkill(new YuanlvReset);
-    related_skills.insertMulti("yuanlv", "#yuanlv-clear");
+    related_skills.insertMulti("yuanlv", "#yuanlv_clear");
     greenjushou->addSkill(new Zhongjian);
     greenjushou->addSkill(new ZhongjianTarget);
     related_skills.insertMulti("zhongjian", "#zhongjian-target");

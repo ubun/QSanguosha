@@ -5,6 +5,16 @@
 #include "card.h"
 #include "standard.h"
 
+struct YuanlvStruct{
+    YuanlvStruct();
+    QString kingdom;
+    QString generalA;
+    QString generalB;
+    QStringList skills;
+};
+
+Q_DECLARE_METATYPE(YuanlvStruct);
+
 class YuanlvCard: public SkillCard{
     Q_OBJECT
 
