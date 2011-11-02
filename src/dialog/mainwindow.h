@@ -83,7 +83,9 @@ private slots:
     void on_actionScript_editor_triggered();
     void on_actionPC_Console_Start_triggered();
     void on_actionCard_editor_triggered();
+#ifdef OMEGAERA
     void on_actionAcknowledgement_triggered();
+#endif
     void on_actionBroadcast_triggered();
     void on_actionAbout_irrKlang_triggered();
     void on_actionScenario_Overview_triggered();

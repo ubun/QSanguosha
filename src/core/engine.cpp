@@ -395,9 +395,10 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
 #ifdef OMEGAERA
-    kingdoms << "tan";
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "tan";
+#else
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
 #endif
 
     return kingdoms;
