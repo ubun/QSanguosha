@@ -99,7 +99,7 @@ end
 
 -- 麻醉枪
 sgs.ai_skill_invoke["tranqgun"] = function(self, data)
-	if not self:isEnemy(data:toPlayer()) return false end
+	if not self:isEnemy(data:toPlayer()) then return false end
 	local cards = self.player:getHandcards()
 	for _, card in sgs.qlist(cards) do
 		if card:getSuit() == sgs.Card_Club then
