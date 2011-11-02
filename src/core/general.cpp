@@ -137,6 +137,8 @@ QString General::getSkillDescription() const{
     foreach(const Skill *skill, getVisibleSkillList()){
         QString skill_name = Sanguosha->translate(skill->objectName());
         QString desc = skill->getDescription();
+        if(skill->objectName() == "longhun" && this->hasSkill("super_juejing"))
+            desc = Sanguosha->translate(":super_longhun");
         desc.replace("\n", "<br/>");
         description.append(QString("<b>%1</b>: %2 <br/> <br/>").arg(skill_name).arg(desc));
     }

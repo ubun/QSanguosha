@@ -292,6 +292,7 @@ class SuperJuejing: public TriggerSkill{
 public:
     SuperJuejing():TriggerSkill("super_juejing"){
         events << GameStart << PhaseChange << HandCardNumChanged;
+        frequency = Compulsory;
     }
 
     virtual int getPriority() const{

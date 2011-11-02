@@ -29,6 +29,8 @@ bool Skill::isLordSkill() const{
 }
 
 QString Skill::getDescription() const{
+    if(objectName() == "longhun" && Self && Self->getMark("SuperMan") == 1)
+        return Sanguosha->translate(":super_longhun");
     return Sanguosha->translate(":" + objectName());
 }
 
