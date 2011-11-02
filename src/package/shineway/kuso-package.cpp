@@ -303,6 +303,8 @@ public:
         if(event == GameStart){
             player->setMark("SuperMan", 1);
             Self->setMark("SuperMan", 1);
+            if(player->getMaxHP() < 1)
+                player->getRoom()->setPlayerProperty(player, "maxhp", 1);
             return false;
         }
         Room *room = player->getRoom();
