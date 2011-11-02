@@ -288,6 +288,80 @@ public:
     }
 };
 
+class SuperJuejing: public TriggerSkill{
+public:
+    SuperJuejing():TriggerSkill("super_juejing"){
+        events << GameStart << PhaseChange << HandCardNumChanged;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == GameStart){
+            player->setMark("SuperMan", 1);
+            Self->setMark("SuperMan", 1);
+            return false;
+        }
+        Room *room = player->getRoom();
+        if(event == PhaseChange){
+            if(player->getPhase() == Player::Draw)
+                return true;
+            return false;
+        }
+
+        int handcard = player->getHandcardNum();
+        LogMessage log;
+        log.type = "#TriggerSkill";
+        log.from = player;
+        log.arg = objectName();
+        room->sendLog(log);
+
+        player->setMark("Exception", 1);
+        if(handcard < 4)
+            player->drawCards(4 - handcard);
+        else
+            room->askForDiscard(player, objectName(), handcard - 4);
+        player->setMark("Exception", 0);
+        return false;
+    }
+};
+
+class Duojian: public PhaseChangeSkill{
+public:
+    Duojian():PhaseChangeSkill("duojian"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *zilong) const{
+        if(zilong->getPhase() == Player::Start){
+            Room *room = zilong->getRoom();
+            const Card *qinggang = NULL;
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                if(!tmp->getJudgingArea().isEmpty()){
+                    foreach(const Card *card, tmp->getJudgingArea()){
+                        if(card->inherits("QinggangSword")){
+                            qinggang = card;
+                            break;
+                        }
+                    }
+                }
+                if(qinggang)
+                    break;
+                if(tmp != zilong && tmp->getWeapon() && tmp->getWeapon()->inherits("QinggangSword")){
+                    qinggang = tmp->getWeapon();
+                    break;
+                }
+            }
+            if(qinggang && zilong->askForSkillInvoke(objectName())){
+                room->throwCard(zilong->getWeapon());
+                room->moveCardTo(qinggang, zilong, Player::Equip);
+            }
+        }
+        return false;
+    }
+};
+
 KusoPackage::KusoPackage()
     :Package("kuso")
 {
@@ -305,6 +379,11 @@ KusoPackage::KusoPackage()
 
     General *tenkei = new General(this, "tenkei", "god", 5, false);
     tenkei->addSkill(new Shishi);
+
+    General *shenzilong = new General(this, "shenzilong", "god", 1, true, true);
+    shenzilong->addSkill(new SuperJuejing);
+    shenzilong->addSkill("longhun");
+    shenzilong->addSkill(new Duojian);
 
     addMetaObject<LiaotingCard>();
 }
