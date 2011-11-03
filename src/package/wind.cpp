@@ -380,20 +380,26 @@ class Kuanggu: public TriggerSkill{
 public:
     Kuanggu():TriggerSkill("kuanggu"){
         frequency = Compulsory;
-        events << Predamage << Damage;
+        events << Damage << DamageDone;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        if(event == Predamage){
-            player->tag["InvokeKuanggu"] = player->distanceTo(damage.to) <= 1;
-        }else if(event == Damage){
-			if(player->hasArmorEffect("chiropter") && !player->isWounded())
-				player->drawCards(2);
+
+        if(event == DamageDone && damage.from && damage.from->hasSkill("kuanggu") && damage.from->isAlive()){
+            ServerPlayer *weiyan = damage.from;
+            weiyan->tag["InvokeKuanggu"] = weiyan->distanceTo(damage.to) <= 1;
+        }else if(event == Damage && player->hasSkill("kuanggu") && player->isAlive()){
             bool invoke = player->tag.value("InvokeKuanggu", false).toBool();
             if(invoke){
                 Room *room = player->getRoom();
 
+				if(player->hasArmorEffect("chiropter") && !player->isWounded())
+					player->drawCards(2);
                 room->playSkillEffect(objectName());
 
                 LogMessage log;
@@ -991,9 +997,6 @@ WindPackage::WindPackage()
 
     weiyan = new General(this, "weiyan", "shu");
     weiyan->addSkill(new Kuanggu);
-    weiyan->addSkill(new KuangguJudge);
-
-    related_skills.insertMulti("kuanggu", "#kuanggu-judge");
 
     zhangjiao = new General(this, "zhangjiao$", "qun", 3);
     zhangjiao->addSkill(new Guidao);
