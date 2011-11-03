@@ -10,6 +10,7 @@ struct YuanlvStruct{
     QString kingdom;
     QString generalA;
     QString generalB;
+    int maxhp;
     QStringList skills;
 };
 
@@ -20,15 +21,6 @@ class YuanlvCard: public SkillCard{
 
 public:
     Q_INVOKABLE YuanlvCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class ZhongjianCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ZhongjianCard();
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };

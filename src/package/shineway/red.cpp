@@ -312,37 +312,36 @@ public:
         return true;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *pp, QVariant &data) const{
-        Room *room = pp->getRoom();
-        ServerPlayer *player = room->findPlayerBySkillName("baichu");
-        if(!player)
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *xunyou = room->findPlayerBySkillName("baichu");
+        if(!xunyou)
             return false;
-        if(event == PhaseChange && pp->getPhase() == Player::Finish){
-            player->addMark("begin");
-            player->setMark("bc_count", 0);
+        if(event == PhaseChange && player->getPhase() == Player::Finish){
+            xunyou->setMark("bc_count", 0);
         }
-        if(player->getMark("begin") == 0 && event == TurnStart){
-            player->drawCards(1);
-            const Card *card = room->askForCard(player, ".baichu!", "@baichu", data);
+        if(event == TurnStart && xunyou->getPile("ji").isEmpty()){
+            xunyou->drawCards(1);
+            const Card *card = room->askForCard(xunyou, ".baichu!", "@baichu", data);
             if(card)
-                player->addToPile("ji", card->getId());
+                xunyou->addToPile("ji", card->getId());
             else
-                player->addToPile("ji", player->getHandcards().last()->getId());
+                xunyou->addToPile("ji", xunyou->getHandcards().last()->getId());
         }
-        if(pp != player)
+        if(player != xunyou)
             return false;
         const Card *card = NULL;
-        if(player->getPhase() != Player::NotActive){
+        if(xunyou->getPhase() != Player::NotActive){
             if(event == CardUsed){
                 CardUseStruct use = data.value<CardUseStruct>();
                 if(use.card->getSubtype() != "skill_card")
                     card = use.card;
             }
-            if(player->getMark("bc_count") < 5 &&
-               card && card->getNumber() < Sanguosha->getCard(player->getPile("ji").first())->getNumber()
-                && room->askForSkillInvoke(player, "baichu", data)){
-                    player->drawCards(1);
-                    player->addMark("bc_count");
+            if(xunyou->getMark("bc_count") < 5 &&
+               card && card->getNumber() < Sanguosha->getCard(xunyou->getPile("ji").first())->getNumber()
+                && room->askForSkillInvoke(xunyou, "baichu", data)){
+                    xunyou->drawCards(1);
+                    xunyou->addMark("bc_count");
                 }
         }
         return false;

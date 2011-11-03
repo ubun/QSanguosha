@@ -116,7 +116,6 @@ public:
             log.from = player;
             log.to << damage.to;
             log.arg = objectName();
-            room->sendLog(log);
 
             QList<ServerPlayer *> players;
             foreach(ServerPlayer *tmp, room->getAllPlayers()){
@@ -124,7 +123,8 @@ public:
                     players << tmp;
             }
             if(players.isEmpty())
-                players << player;
+                return false;
+            room->sendLog(log);
             damage.to = room->askForPlayerChosen(player, players, objectName());
             log.type = "#BaimingRechoose";
             log.to.clear();

@@ -654,6 +654,42 @@ UFO::UFO(Suit suit, int number):Armor(suit, number){
     skill = new UFOSkill;
 }
 
+//http://tieba.baidu.com/p/1267132334
+/*
+Castrate::Castrate(Suit suit, int number)
+    :BasicCard(suit, number) {
+    setObjectName("castrate");
+}
+
+QString Castrate::getSubtype() const{
+    return "attack_card";
+}
+
+void Castrate::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
+
+    if(targets.isEmpty())
+        room->cardEffect(this, source, source);
+    else
+        foreach(ServerPlayer *tmp, targets)
+            room->cardEffect(this, source, tmp);
+}
+
+void Castrate::onEffect(const CardEffectStruct &effect) const{
+    //Room *room = effect.to->getRoom();
+
+    effect.to->getGeneral()->setNeuter();
+}
+
+bool Castrate::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return !targets.isEmpty();
+}
+
+bool Castrate::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return Self->distanceTo(to_select) < 2;
+}
+*/
+
 KusoCardPackage::KusoCardPackage()
     :Package("kuso_cards")
 {
@@ -665,7 +701,8 @@ KusoCardPackage::KusoCardPackage()
             << new Fiveline(Card::Heart, 5)
             << new Emigration(Card::Spade, 9)
             << new Emigration(Card::Heart, 13)
-            << new UFO(Card::Club, 11);
+            << new UFO(Card::Club, 11)
+            /*<< new Castrate(Card::Heart, 2)*/;
 
     foreach(Card *kuso, kusos)
         kuso->setParent(this);

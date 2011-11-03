@@ -59,7 +59,7 @@ YuanlvCard::YuanlvCard(){
 }
 
 YuanlvStruct::YuanlvStruct()
-    :kingdom("wei"), generalA("guojia"), generalB("simayi"), skills(NULL)
+    :kingdom("wei"), generalA("guojia"), generalB("simayi"), maxhp(5), skills(NULL)
 {
 }
 
@@ -78,9 +78,11 @@ void YuanlvCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     YuanlvStruct yuanlv_data;
     yuanlv_data.kingdom = target->getKingdom();
     yuanlv_data.generalA = target->getGeneralName();
+    yuanlv_data.maxhp = target->getMaxHP();
     QString to_transfigure = target->getGeneral()->isMale() ? "sujiang" : "sujiangf";
-    //room->transfigure(target, to_transfigure, false, false);
-    room->setPlayerProperty(target, "general", to_transfigure);
+    //room->setPlayerProperty(target, "general", to_transfigure);
+    room->transfigure(target, to_transfigure, false, false);
+    room->setPlayerProperty(target, "maxhp", yuanlv_data.maxhp);
     if(target->getGeneral2()){
         yuanlv_data.generalB = target->getGeneral2Name();
         room->setPlayerProperty(target, "general2", to_transfigure);
@@ -124,51 +126,46 @@ public:
         Room *room = player->getRoom();
         YuanlvStruct yuanlv_data = player->tag.value("YuanlvStore").value<YuanlvStruct>();
 
-        //room->transfigure(player, yuanlv_data.generalA, false, false);
+        foreach(QString skill_name, yuanlv_data.skills){
+            room->acquireSkill(player, skill_name);
+        }
         room->setPlayerProperty(player, "general", yuanlv_data.generalA);
         if(player->getGeneral2()){
             room->setPlayerProperty(player, "general2", yuanlv_data.generalB);
         }
         room->setPlayerProperty(player, "kingdom", yuanlv_data.kingdom);
-        QStringList skills = yuanlv_data.skills;
-        foreach(QString skill_name, skills){
-            room->acquireSkill(player, skill_name);
-        }
 
         player->tag["YuanlvStore"] = NULL;
         return false;
     }
 };
 
-ZhongjianCard::ZhongjianCard(){
-    once = true;
-}
-
-void ZhongjianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *target = targets.first();
-    target->getMark("zhongjian");
-}
-
-class Zhongjian: public ZeroCardViewAsSkill{
+class Zhongjian: public TriggerSkill{
 public:
-    Zhongjian(): ZeroCardViewAsSkill("zhongjian"){
-
+    Zhongjian(): TriggerSkill("zhongjian"){
+        events << PhaseChange;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("ZhongjianCard");
-    }
-
-    virtual const Card *viewAs() const{
-        return new ZhongjianCard;
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        ServerPlayer *target;
+        Room *room = player->getRoom();
+        if(player->getPhase() == Player::Discard){
+            target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName());
+            target->gainMark("@vy");
+        }
+        else if(player->getPhase() == Player::Start){
+            foreach(target, player->getRoom()->getAllPlayers())
+                if(target->getMark("@vy") > 0)
+                    target->loseAllMarks("@vy");
+        }
+        return false;
     }
 };
 
 class ZhongjianTarget: public TriggerSkill{
 public:
-    ZhongjianTarget(): TriggerSkill("#zhongjian-target"){
-        events << CardUsed << PhaseChange;
-
+    ZhongjianTarget(): TriggerSkill("#zhongjian_target"){
+        events << CardUsed;
         untriggerable_skill << "spear" << "eight_diagram";
     }
 
@@ -177,13 +174,15 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getRoom()->findPlayerBySkillName(objectName()) && target->getMark("zhongjian") > 0;
+        return target->getRoom()->findPlayerBySkillName(objectName()) && target->getMark("@vy") > 0;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(event == CardUsed){
             ServerPlayer *jushou = room->findPlayerBySkillName(objectName());
+            if(!jushou)
+                return false;
             CardUseStruct use = data.value<CardUseStruct>();
             if(use.card->getSkillName().isEmpty() || untriggerSkill(use.card->getSkillName()) || use.from == jushou)
                 return false;
@@ -202,9 +201,6 @@ public:
             else
                 jushou->obtainCard(judge.card);
         }
-        else if(player->getPhase() == Player::NotActive)
-            player->removeMark("zhongjian");
-
         return false;
     }
 
@@ -249,10 +245,9 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("yuanlv", "#yuanlv_clear");
     greenjushou->addSkill(new Zhongjian);
     greenjushou->addSkill(new ZhongjianTarget);
-    related_skills.insertMulti("zhongjian", "#zhongjian-target");
+    related_skills.insertMulti("zhongjian", "#zhongjian_target");
 
     addMetaObject<YuanlvCard>();
-    addMetaObject<ZhongjianCard>();
 }
 
 ADD_PACKAGE(Green)
