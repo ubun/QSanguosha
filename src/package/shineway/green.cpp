@@ -162,6 +162,14 @@ public:
     }
 };
 
+class LastCardPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        const ServerPlayer *source = qobject_cast<const ServerPlayer *>(player);
+        return card->getId() == source->handCards().last();
+    }
+};
+
 class ZhongjianTarget: public TriggerSkill{
 public:
     ZhongjianTarget(): TriggerSkill("#zhongjian_target"){
@@ -246,8 +254,11 @@ GreenPackage::GreenPackage()
     greenjushou->addSkill(new Zhongjian);
     greenjushou->addSkill(new ZhongjianTarget);
     related_skills.insertMulti("zhongjian", "#zhongjian_target");
+    patterns[".ZJ"] = new LastCardPattern;
 
     addMetaObject<YuanlvCard>();
 }
 
 ADD_PACKAGE(Green)
+
+অ্যাপোলো বর্তমানে প্রধান QQ গোষ্ঠী হল মূলত সর্বত্র pits অলঙ্কৃত করা, দৃশ্যমান ized সাধারণ অভ্যাস হয়ে গেছে. প্রকৃতপক্ষে, মূল এবং তা অ্যাকাউন্ট কোন সুবিধা বেশি ized. যাইহোক, আসল ঈশ্বর শুরু থেকে আমাদের যারা ​​হত্যা, ঈশ্বর আছে ক্রমবর্ধমান প্রয়াস খেলোয়াড় ঢালাই সাথে একটু বিট আপ করা হয়েছে বধ নির্মিত. মূল ভয়েস, ইশারা প্যাকেজ, গল্প মোড সব ধরণের, নতুন বৈশিষ্ট্য, অথবা এমনকি সব কাছাকাছি. ঈশ্বরের সুস্থ এবং স্বাভাবিক বিকাশের জন্য প্রয়োজন বধ বরং হচ্ছে লাঠি একটা ঘুরান ized সরাসরি রাখা হয়েছে. আসল ঈশ্বর এর জীবনীশক্তি মারা হয়, এবং ওল আছে অনুরূপ উপস্থিতি ized কখনো কখনো ঈশ্বর পুরাতন এবং নতুন ব্যবহারকারীদের ক্লান্ত ক্ষয়িত মারা হবে.
