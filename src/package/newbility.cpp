@@ -790,9 +790,7 @@ public:
            damage.from == yanpeng && damage.to != yanpeng){
             Room *room = yanpeng->getRoom();
             if(room->askForSkillInvoke(yanpeng, objectName(), data)){
-                if(damage.to->getGeneralName() == "zuoci")
-                    yanpeng->setMark("yanp", damage.damage);
-                else if(damage.to->getGeneralName() == "shenzhugeliang"){
+                if(damage.to->getGeneralName() == "shenzhugeliang"){
                     foreach(int card_id, damage.to->getPile("stars"))
                         yanpeng->addToPile("stars", card_id, false);
                 }
@@ -805,6 +803,7 @@ public:
                         << "@star" /*qixing*/
                         << "@flame" /*yeyan*/
                         << "@wrath" /*baonu*/
+						<< "@quan" /*nongquan*/
                         ;
                 foreach(QString mark, marks){
                     if(damage.to->getMark(mark)){

@@ -376,53 +376,37 @@ public:
     }
 };
 
-class KuangguJudge: public TriggerSkill{
-public:
-    KuangguJudge():TriggerSkill("#kuanggu-judge"){
-        events << DamageDone;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.from && damage.from->hasSkill("kuanggu"))
-            damage.from->tag["InvokeKuanggu"] = damage.from->distanceTo(damage.to) <= 1;
-
-        return false;
-    }
-};
-
 class Kuanggu: public TriggerSkill{
 public:
     Kuanggu():TriggerSkill("kuanggu"){
         frequency = Compulsory;
-        events << Damage;
+        events << Predamage << Damage;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
+        if(event == Predamage){
+            player->tag["InvokeKuanggu"] = player->distanceTo(damage.to) <= 1;
+        }else if(event == Damage){
+			if(player->hasArmorEffect("chiropter") && !player->isWounded())
+				player->drawCards(2);
+            bool invoke = player->tag.value("InvokeKuanggu", false).toBool();
+            if(invoke){
+                Room *room = player->getRoom();
 
-		if(player->hasArmorEffect("chiropter") && !player->isWounded())
-			player->drawCards(2);
-        bool invoke = player->tag.value("InvokeKuanggu", false).toBool();
-        if(invoke){
-            Room *room = player->getRoom();
+                room->playSkillEffect(objectName());
 
-            room->playSkillEffect(objectName());
+                LogMessage log;
+                log.type = "#TriggerSkill";
+                log.from = player;
+                log.arg = objectName();
+                room->sendLog(log);
 
-            LogMessage log;
-            log.type = "#TriggerSkill";
-            log.from = player;
-            log.arg = objectName();
-            room->sendLog(log);
-
-            RecoverStruct recover;
-            recover.who = player;
-            recover.recover = damage.damage;
-            room->recover(player, recover);
+                RecoverStruct recover;
+                recover.who = player;
+                recover.recover = damage.damage;
+                room->recover(player, recover);
+            }
         }
 
         return false;
