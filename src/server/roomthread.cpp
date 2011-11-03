@@ -145,6 +145,12 @@ DrawStruct::DrawStruct()
 
 }
 
+SkillInvokeStruct::SkillInvokeStruct()
+    :skillname(""), invoked(false)
+{
+
+}
+
 RoomThread::RoomThread(Room *room)
     :QThread(room), room(room)
 {

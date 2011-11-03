@@ -426,6 +426,12 @@ bool Room::askForSkillInvoke(ServerPlayer *player, const QString &skill_name, co
         invoked =  result == "yes";
     }
 
+    SkillInvokeStruct skill_data;
+    skill_data.invoked = invoked;
+    skill_data.skillname = skill_name;
+    QVariant skt = QVariant::fromValue(skill_data);
+    thread->trigger(PreSkillInvoke, player, skt);
+
     if(invoked)
         broadcastInvoke("skillInvoked", QString("%1:%2").arg(player->objectName()).arg(skill_name));
 

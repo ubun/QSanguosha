@@ -130,6 +130,13 @@ struct DrawStruct{
     ServerPlayer *git;
 };
 
+struct SkillInvokeStruct{
+    SkillInvokeStruct();
+
+    QString skillname;
+    bool invoked;
+};
+
 enum TriggerEvent{
     GameStart,
     TurnStart,
@@ -177,6 +184,7 @@ enum TriggerEvent{
     CardFinished,
     HandCardNumChanged,
 
+    PreSkillInvoke,
     ChoiceMade,
 
     NumOfEvents,
@@ -202,5 +210,6 @@ Q_DECLARE_METATYPE(JudgeStar);
 Q_DECLARE_METATYPE(DamageStar);
 Q_DECLARE_METATYPE(PindianStar);
 Q_DECLARE_METATYPE(DrawStruct);
+Q_DECLARE_METATYPE(SkillInvokeStruct);
 
 #endif // STRUCTS_H

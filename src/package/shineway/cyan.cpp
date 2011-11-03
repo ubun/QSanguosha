@@ -123,7 +123,7 @@ public:
                     players << tmp;
             }
             if(players.isEmpty())
-                return false;
+                return true;
             room->sendLog(log);
             damage.to = room->askForPlayerChosen(player, players, objectName());
             log.type = "#BaimingRechoose";

@@ -144,12 +144,13 @@ class Zhongjian: public TriggerSkill{
 public:
     Zhongjian(): TriggerSkill("zhongjian"){
         events << PhaseChange;
+        frequency = Frequent;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         ServerPlayer *target;
         Room *room = player->getRoom();
-        if(player->getPhase() == Player::Discard){
+        if(player->getPhase() == Player::Discard && room->askForSkillInvoke(player, objectName(), data)){
             target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName());
             target->gainMark("@vy");
         }
@@ -161,11 +162,19 @@ public:
         return false;
     }
 };
-
+/*
+class LastCardPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        const ServerPlayer *source = qobject_cast<const ServerPlayer *>(player);
+        return card->getId() == source->handCards().last();
+    }
+};
+*/
 class ZhongjianTarget: public TriggerSkill{
 public:
     ZhongjianTarget(): TriggerSkill("#zhongjian_target"){
-        events << CardUsed;
+        events << CardUsed << PreSkillInvoke;
         untriggerable_skill << "spear" << "eight_diagram";
     }
 
@@ -179,28 +188,43 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
+        ServerPlayer *jushou = room->findPlayerBySkillName(objectName());
+        if(!jushou)
+            return false;
+        LogMessage log;
         if(event == CardUsed){
-            ServerPlayer *jushou = room->findPlayerBySkillName(objectName());
-            if(!jushou)
-                return false;
             CardUseStruct use = data.value<CardUseStruct>();
             if(use.card->getSkillName().isEmpty() || untriggerSkill(use.card->getSkillName()) || use.from == jushou)
                 return false;
-
-            if(!room->askForSkillInvoke(jushou, "zhongjian", data))
-                return false;
-
-            JudgeStruct judge;
-            judge.who = jushou;
-            judge.good = true;
-            judge.reason = "zhongjian";
-            room->judge(judge);
-
-            if(judge.card->isRed())
-                player->obtainCard(judge.card);
-            else
-                jushou->obtainCard(judge.card);
+            log.arg2 = use.card->getSkillName();
+            log.type = "#Zj_SkillCard";
         }
+        else if(event == PreSkillInvoke){
+            SkillInvokeStruct ski = data.value<SkillInvokeStruct>();
+            if(!ski.invoked)
+                return false;
+            log.arg2 = ski.skillname;
+            log.type = "#Zj_TriggerSkill";
+        }
+
+        log.from = jushou;
+        log.to << player;
+        log.arg = "zhongjian";
+        room->sendLog(log);
+
+        JudgeStruct judge;
+        judge.who = jushou;
+        judge.good = true;
+        judge.reason = "zhongjian";
+        room->judge(judge);
+
+        if(judge.card->isRed())
+            player->obtainCard(judge.card);
+        else{
+            jushou->obtainCard(judge.card);
+            //room->askForUseCard(jushou, ".ZJ", "@zhongjian");
+        }
+
         return false;
     }
 
@@ -246,6 +270,7 @@ GreenPackage::GreenPackage()
     greenjushou->addSkill(new Zhongjian);
     greenjushou->addSkill(new ZhongjianTarget);
     related_skills.insertMulti("zhongjian", "#zhongjian_target");
+    //patterns[".ZJ"] = new LastCardPattern;
 
     addMetaObject<YuanlvCard>();
 }
