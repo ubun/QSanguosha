@@ -1,3 +1,8 @@
+/*************************************************************************************************************
+ *Now THIS is QSanguosha CS. I'll try to release OMEGASLASH 10 or 11 CSBeta before 2012. Ahahahahahahahahhaha!
+ *Kernel:QSanguosha Author:Moligaloo
+ */
+
 #include <QtGui/QApplication>
 
 #include <QCoreApplication>
@@ -5,6 +10,8 @@
 #include <QDir>
 #include <cstring>
 #include <QDateTime>
+
+#include <QFile>
 
 #include "mainwindow.h"
 #include "settings.h"

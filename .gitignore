@@ -5,6 +5,7 @@ Makefile*
 object_script*
 *.pro.user
 sanguosha.qm
+sanguoshaoe.qm
 config.ini
 swig/sanguosha_wrap.cxx
 records/*
