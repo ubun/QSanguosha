@@ -301,8 +301,7 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(event == GameStart){
-            player->setMark("SuperMan", 1);
-            Self->setMark("SuperMan", 1);
+            player->getRoom()->setPlayerMark(player, "SuperMan", 1);
             if(player->getMaxHP() < 1)
                 player->getRoom()->setPlayerProperty(player, "maxhp", 1);
             return false;
