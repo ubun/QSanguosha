@@ -25,6 +25,15 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class DiezhiCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE DiezhiCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 class GreenPackage: public Package{
     Q_OBJECT
 

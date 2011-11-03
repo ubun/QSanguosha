@@ -232,9 +232,74 @@ private:
     QStringList untriggerable_skill;
 };
 
+DiezhiCard::DiezhiCard(){
+    once = true;
+    target_fixed = true;
+}
+/*
+bool DiezhiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && !to_select->isLord();
+}
+*/
+void DiezhiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    QList<ServerPlayer *> players = room->getOtherPlayers(source);
+    players.removeOne(room->getLord());
+    if(!players.isEmpty()){
+        ServerPlayer *target = room->askForPlayerChosen(source, players, "diezhi");
+        //ServerPlayer *target = targets.first();
+        const QString myrole = source->getRole();
+        source->setRole(target->getRole());
+        target->setRole(myrole);
+    }
+}
+
+class DiezhiViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    DiezhiViewAsSkill(): ZeroCardViewAsSkill("diezhi"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        if(ServerInfo.GameMode == "02_1v1" || room->getMode() == "06_3v3")
+            return false;
+        if(player->getMark("@drig") == 0)
+            return false;
+        return !player->hasUsed("DiezhiCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new DiezhiCard;
+    }
+};
+
 class Diezhi: public TriggerSkill{
 public:
     Diezhi():TriggerSkill("diezhi"){
+        view_as_skill = new DiezhiViewAsSkill;
+        events << Death;
+    }
+
+    virtual int getPriority() const{
+        return -3;
+    }
+
+    virtual bool triggerable(const ServerPlayer *player) const{;
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *kanze = room->findPlayerBySkillName(objectName());
+        if(kanze && kanze->isAlive()){
+            kanze->loseAllMarks("@drig");
+        }
+        return false;
+    }
+};
+
+class Fengjue: public TriggerSkill{
+public:
+    Fengjue():TriggerSkill("fengjue"){
         events << ToDrawNCards;
     }
 
@@ -261,7 +326,6 @@ GreenPackage::GreenPackage()
 {
     General *greenyanpeng = new General(this, "greenyanpeng", "shu");
     greenyanpeng->addSkill(new Yabian);
-    greenyanpeng->addSkill(new Diezhi);
 
     General *greenjushou = new General(this, "greenjushou", "qun", 3);
     greenjushou->addSkill(new Yuanlv);
@@ -272,7 +336,14 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("zhongjian", "#zhongjian_target");
     //patterns[".ZJ"] = new LastCardPattern;
 
+    General *greenkanze = new General(this, "greenkanze", "shu");
+    greenkanze->addSkill(new Diezhi);
+    greenkanze->addSkill(new MarkAssignSkill("@drig", 1));
+    related_skills.insertMulti("diezhi", "#@drig");
+    greenkanze->addSkill(new Fengjue);
+
     addMetaObject<YuanlvCard>();
+    addMetaObject<DiezhiCard>();
 }
 
 ADD_PACKAGE(Green)
