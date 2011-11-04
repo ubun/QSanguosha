@@ -328,6 +328,115 @@ public:
     }
 };
 
+JinguoCard::JinguoCard(){
+    once = true;
+}
+
+void JinguoCard::onEffect(const CardEffectStruct &effect) const{
+    effect.to->gainMark("@jin");
+}
+
+class JinguoViewAsSkill: public OneCardViewAsSkill{
+public:
+    JinguoViewAsSkill():OneCardViewAsSkill("jinguo"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@jinguo";
+    }
+
+    virtual bool viewFilter(const CardItem *) const{
+        return true;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        JinguoCard *card = new JinguoCard;
+        card->addSubcard(card_item->getCard()->getId());
+
+        return card;
+    }
+};
+
+class Jinguo: public PhaseChangeSkill{
+public:
+    Jinguo():PhaseChangeSkill("jinguo"){
+        view_as_skill = new JinguoViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::Start;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *lu) const{
+        Room *room = lu->getRoom();
+        foreach(ServerPlayer *tmp, room->getAllPlayers()){
+            if(tmp->getMark("@jin") > 0)
+                tmp->loseAllMarks("@jin");
+        }
+
+        room->askForUseCard(lu, "@@jinguo", "@jinguo");
+        return false;
+    }
+};
+
+class JinguoEffect: public TriggerSkill{
+public:
+    JinguoEffect():TriggerSkill("#jinguo_eft"){
+        events << CardAsked;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("@jin") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        QString asked = data.toString();
+        if(asked != "jink")
+            return false;
+        Room *room = player->getRoom();
+        const Card *card = room->askForCard(player, "slash", "jinguo-jink");
+        if(!card){
+            room->provide(NULL);
+            return true;
+        }
+        Jink *jink = new Jink(card->getSuit(), card->getNumber());
+        jink->setSkillName("jinguo");
+        jink->addSubcard(card);
+        room->provide(jink);
+        return false;
+    }
+};
+
+class Wuqi:public TriggerSkill{
+public:
+    Wuqi():TriggerSkill("wuqi"){
+        events << FinishJudge;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *yunlu, QVariant &data) const{
+        JudgeStar judge = data.value<JudgeStar>();
+        if(judge->card->isRed() && yunlu->askForSkillInvoke(objectName(), data)){
+            yunlu->drawCards(1);
+            yunlu->getRoom()->askForUseCard(yunlu, "slash", objectName());
+        }
+        return false;
+    }
+};
+
 GreenPackage::GreenPackage()
     :Package("green")
 {
@@ -349,8 +458,15 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("diezhi", "#@drig");
     greenkanze->addSkill(new Fengjue);
 
+    General *greenmayunlu = new General(this, "greenmayunlu", "shu", 3, false);
+    greenmayunlu->addSkill(new Jinguo);
+    greenmayunlu->addSkill(new JinguoEffect);
+    related_skills.insertMulti("jinguo", "#jinguo_eft");
+    greenmayunlu->addSkill(new Wuqi);
+
     addMetaObject<YuanlvCard>();
     addMetaObject<DiezhiCard>();
+    addMetaObject<JinguoCard>();
 }
 
 ADD_PACKAGE(Green)
