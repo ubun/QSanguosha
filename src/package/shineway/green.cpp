@@ -388,7 +388,7 @@ public:
 class JinguoEffect: public TriggerSkill{
 public:
     JinguoEffect():TriggerSkill("#jinguo_eft"){
-        events << CardAsked;
+        events << SlashProceed;
     }
 
     virtual int getPriority() const{
@@ -396,23 +396,25 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("@jin") > 0;
+        return true;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        QString asked = data.toString();
-        if(asked != "jink")
-            return false;
         Room *room = player->getRoom();
-        const Card *card = room->askForCard(player, "slash", "jinguo-jink");
-        if(!card){
-            room->provide(NULL);
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(effect.to->getMark("@jin") > 0){
+            LogMessage log;
+            log.type = "#JinguoEffect";
+            log.from = effect.from;
+            log.to << effect.to;
+            log.arg = "jinguo";
+            room->sendLog(log);
+
+            const Card *jink = room->askForCard(effect.to, "slash", "jinguo-jink:" + effect.from->objectName());
+            room->slashResult(effect, jink);
+
             return true;
         }
-        Jink *jink = new Jink(card->getSuit(), card->getNumber());
-        jink->setSkillName("jinguo");
-        jink->addSubcard(card);
-        room->provide(jink);
         return false;
     }
 };
@@ -427,11 +429,19 @@ public:
         return -1;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *yunlu, QVariant &data) const{
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return !target->hasSkill(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *yunlu = room->findPlayerBySkillName(objectName());
+        if(!yunlu)
+            return false;
         JudgeStar judge = data.value<JudgeStar>();
         if(judge->card->isRed() && yunlu->askForSkillInvoke(objectName(), data)){
             yunlu->drawCards(1);
-            yunlu->getRoom()->askForUseCard(yunlu, "slash", objectName());
+            yunlu->getRoom()->askForUseCard(yunlu, "slash", "@askforslash");
         }
         return false;
     }
