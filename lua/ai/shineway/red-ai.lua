@@ -258,4 +258,3 @@ sgs.ai_skill_choice["goulian"] = function(self, choices)
 	return "a"
 end
 
-dofile "lua/ai/shineway/kuso-ai.lua"

@@ -804,8 +804,7 @@ end
 
 -- yicai,badao,yitian-slash,moon-spear-slash
 sgs.ai_skill_use["slash"] = function(self, prompt)
-	if prompt ~= "@yicai" and prompt ~= "@badao" and
-		prompt ~= "yitian-slash" and prompt ~= "@moon-spear-slash" then return "." end
+	if prompt ~= "@askforslash" prompt ~= "@moon-spear-slash" then return "." end
     local slash = self:getCard("Slash")
 	if not slash then return "." end
 	for _, enemy in ipairs(self.enemies) do
@@ -3349,6 +3348,16 @@ function SmartAI:getCardsNum(class_name, player, flag)
 	return n
 end
 
+function SmartAI:cardProhibit(card, to)
+	if card:inherits("Slash") then return self:slashProhibit(card, to) end
+	if card:getTypeId() == sgs.Card_Trick then 
+		if card:isBlack() and to:hasSkill("weimu") then return true end
+		if card:inherits("Indulgence") or card:inherits("Snatch") and to:hasSkill("qianxun") then return true end
+		if card:inherits("Duel") and to:hasSkill("kongcheng") and to:isKongcheng() then return true end
+	end
+	return false
+end
+
 -- load other ai scripts
 dofile "lua/ai/standard-ai.lua"
 dofile "lua/ai/standard-skill-ai.lua"
@@ -3380,6 +3389,5 @@ dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"
 
-dofile "lua/ai/shineway/red-ai.lua"
-dofile "lua/ai/shineway/cyan-ai.lua"
+dofile "lua/ai/ubunmod-list.lua"
 

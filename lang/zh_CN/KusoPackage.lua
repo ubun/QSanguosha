@@ -42,6 +42,7 @@ return {
 
 	["shenzilong"] = "神子龙",
 	["designer:shenzilong"] = "官方内测第一版",
+	["cv:shenzilong"] = "",
 	["super_juejing"] = "绝境",
 	[":super_juejing"] = "锁定技，摸牌阶段，你不摸牌；你的手牌数永远为4",
 	[":super_longhun"] = "你的牌可按下列规则使用（或打出）：红桃当【桃】，方块当火属性的【杀】，梅花当【闪】，黑桃当【无懈可击】",
