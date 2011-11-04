@@ -174,7 +174,7 @@ public:
 class ZhongjianTarget: public TriggerSkill{
 public:
     ZhongjianTarget(): TriggerSkill("#zhongjian_target"){
-        events << CardUsed << PreSkillInvoke;
+        events << CardUsed << PreSkillInvoke << CardResponsed;
         untriggerable_skill << "spear" << "eight_diagram";
     }
 
@@ -197,6 +197,13 @@ public:
             if(use.card->getSkillName().isEmpty() || untriggerSkill(use.card->getSkillName()) || use.from == jushou)
                 return false;
             log.arg2 = use.card->getSkillName();
+            log.type = "#Zj_SkillCard";
+        }
+        else if(event == CardResponsed){
+            CardStar star = data.value<CardStar>();
+            if(star->getSkillName().isEmpty() || player == jushou)
+                return false;
+            log.arg2 = star->getSkillName();
             log.type = "#Zj_SkillCard";
         }
         else if(event == PreSkillInvoke){
@@ -260,7 +267,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        if(ServerInfo.GameMode == "02_1v1" || room->getMode() == "06_3v3")
+        if(ServerInfo.GameMode == "02_1v1" || ServerInfo.GameMode == "06_3v3")
             return false;
         if(player->getMark("@drig") == 0)
             return false;
@@ -336,7 +343,7 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("zhongjian", "#zhongjian_target");
     //patterns[".ZJ"] = new LastCardPattern;
 
-    General *greenkanze = new General(this, "greenkanze", "shu");
+    General *greenkanze = new General(this, "greenkanze", "wu", 5);
     greenkanze->addSkill(new Diezhi);
     greenkanze->addSkill(new MarkAssignSkill("@drig", 1));
     related_skills.insertMulti("diezhi", "#@drig");

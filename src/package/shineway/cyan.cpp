@@ -269,7 +269,7 @@ public:
                if(handcard < hp)
                    cc->drawCards(hp - handcard);
                else
-                   room->askForDiscard(cc, objectName(), handcard - hp);
+                   room->askForDiscard(cc, objectName(), handcard - qMax(hp, 0));
                cc->setMark("Exception", 0);
            }
         }
