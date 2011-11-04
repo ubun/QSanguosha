@@ -332,6 +332,10 @@ JinguoCard::JinguoCard(){
     once = true;
 }
 
+bool JinguoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty();
+}
+
 void JinguoCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->gainMark("@jin");
 }

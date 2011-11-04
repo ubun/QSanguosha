@@ -379,7 +379,7 @@ void WeidaiCard::use(Room *room, ServerPlayer *sunce, const QList<ServerPlayer *
         const Card *analeptic = room->askForCard(liege, ".S29", "@weidai-analeptic:" + sunce->objectName(), to_help);
         if(analeptic){
             LogMessage log;
-            log.type = "$Weidai";
+            log.type = "$DiscardCard";
             log.from = liege;
             log.card_str = analeptic->getEffectIdString();
             room->sendLog(log);
