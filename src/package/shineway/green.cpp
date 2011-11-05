@@ -155,9 +155,13 @@ public:
             target->gainMark("@vy");
         }
         else if(player->getPhase() == Player::Start){
-            foreach(target, player->getRoom()->getAllPlayers())
-                if(target->getMark("@vy") > 0)
+            foreach(target, player->getRoom()->getAllPlayers()){
+                if(target->getMark("@vy") > 0){
                     target->loseAllMarks("@vy");
+                    target->tag["ZJCount"] = 0;
+                }
+            }
+            player->tag["ZJCount"] = 0;
         }
         return false;
     }
@@ -225,13 +229,14 @@ public:
         judge.reason = "zhongjian";
         room->judge(judge);
 
+        ServerPlayer *target = jushou;
         if(judge.card->isRed())
-            player->obtainCard(judge.card);
-        else{
-            jushou->obtainCard(judge.card);
-            //room->askForUseCard(jushou, ".ZJ", "@zhongjian");
-        }
-
+            target = player;
+        target->obtainCard(judge.card);
+        target->tag["ZJCount"] = target->tag.value("ZJCount", 0).toInt() + 1;
+        if(target->tag.value("ZJCount").toInt() > 3)
+            target->turnOver();
+        //room->askForUseCard(jushou, ".ZJ", "@zhongjian");
         return false;
     }
 
