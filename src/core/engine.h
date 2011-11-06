@@ -14,10 +14,22 @@
 #include <QStringList>
 #include <QMetaObject>
 
-/*this line is for Global Control For OmegaPlan MOD. if the second line is invoked, all features should return to
-  origin QSanguosha. See another in lua/sgs_ex.lua. */
-#define OMEGAERA 1
-//#undef OMEGAERA
+/**************************************************************************************************
+**Notice: THIS VARIABLE IS FOR GLOBAL CONTROL FOR QSANGUOSHA OMEGAERA MOD. IF THIS LINE IS NOT
+**ACTIVE, ALL THING WILL TURN BACKTO ORIGINAL.
+**YOU should #include <engine.h> and #include <QFile> at any file you #ifdef OMEGAERA.
+**************************************************************************************************/
+#define OMEGAERA 1123581321
+
+/**************************************************************************************************
+**Notice: THIS VARIABLE IS FOR OMEGASLASH CREATIVE SUIT. IF THIS LINE IS NOT ACTIVE, ALL THING WILL
+**TURN BACK TO QSANGUOSHA OMEGAERA.
+**You should #include <engine.h> and #include <QFile> at anywhere you #ifdef OSCS. OSCS is not
+**active when OMEGAERA is canceled.
+**************************************************************************************************/
+#ifdef OMEGAERA
+#define OSCS 504161487
+#endif
 
 class AI;
 class Scenario;

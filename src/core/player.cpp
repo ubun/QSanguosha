@@ -5,6 +5,8 @@
 #include "standard.h"
 #include "settings.h"
 
+#include <QFile>
+
 Player::Player(QObject *parent)
     :QObject(parent), owner(false), ready(false), general(NULL), general2(NULL),
     hp(-1), max_hp(-1), state("online"), seat(0), alive(true),

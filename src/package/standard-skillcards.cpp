@@ -6,6 +6,8 @@
 #include "client.h"
 #include "settings.h"
 
+#include <QFile>
+
 ZhihengCard::ZhihengCard(){
     target_fixed = true;
     once = true;

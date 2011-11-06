@@ -14,7 +14,5 @@ doc/*.html
 swig/*.bat
 .DS_Store
 liblua5.1.dylib
-lua/backupai
-extensions/
 extension/
 msgs.txt

@@ -19,6 +19,8 @@
 #include <QBitmap>
 #include <QClipboard>
 
+#include <QFile>
+
 BlackEdgeTextItem::BlackEdgeTextItem()
     :skip(0), color(Qt::white), outline(3)
 {

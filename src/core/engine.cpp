@@ -9,7 +9,6 @@
 #include "banpairdialog.h"
 
 #ifdef AUDIO_SUPPORT
-
 #ifdef  Q_OS_WIN32
     extern irrklang::ISoundEngine *SoundEngine;
 #else

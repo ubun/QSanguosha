@@ -6,6 +6,8 @@
 #include "settings.h"
 #include "recorder.h"
 
+#include <QFile>
+
 ServerPlayer::ServerPlayer(Room *room)
     : Player(room), socket(NULL), room(room),
     ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL), next(NULL)

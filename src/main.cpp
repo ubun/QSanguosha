@@ -1,7 +1,27 @@
-/*************************************************************************************************************
- *Now THIS is QSanguosha CS. I'll try to release OMEGASLASH 10 or 11 CSBeta before 2012. Ahahahahahahahahhaha!
- *Kernel:QSanguosha Author:Moligaloo
- */
+/**************************************************************************************************
+**QSANGUOSHA/QSANGUOSHA OMEGAERA/OMEGASLASH CREATIVESUIT SOURCE CODE BEGIN
+**AUTHOR: MOLIGALOO
+**CONTRIBUTORS: (UNTIL 62.06 OR 2011.11.6)
+**HYPERCROSS (SINCE
+**DONLE (SINCE
+**UBUN (SINCE
+**WILLIAM8915 (SINCE
+**IBICDLCOD (MODDER OF OMEGAERA/OSCS)(SINCE
+**
+**QSANGUOSHA, A FREE ONLINE VERSION OF FAMOUS BOARD GAME SANGUOSHA
+**Copyright (C) 2010,2011 Moligaloo
+**ATTENTION:
+**This program is free software: you can redistribute it and/or modify it under the terms of GNU
+**Public License as published by the Free Software Foundation, either version 3 of the License, or
+**(at your option) any later version.
+**
+**This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+**even the implied warranty of MERCHANTABLITY of FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+**General Public License for more details.
+**
+**You should have received a copy of the GNU General Public License along with the source code.
+**(gpl-3.0.txt at root direction) If not, see <http://www.gnu.org/licenses/>.
+**************************************************************************************************/
 
 #include <QtGui/QApplication>
 

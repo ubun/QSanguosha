@@ -9,6 +9,8 @@
 #include <QSettings>
 #include <QComboBox>
 
+#include <QFile>
+
 namespace Ui {
     class MainWindow;
 }

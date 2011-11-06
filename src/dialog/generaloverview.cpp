@@ -13,6 +13,8 @@
 #include <QCommandLinkButton>
 #include <QClipboard>
 
+#include <QFile>
+
 GeneralOverview::GeneralOverview(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GeneralOverview)
