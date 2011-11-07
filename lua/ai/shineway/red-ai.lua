@@ -113,8 +113,10 @@ sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
 				if self.player:canSlash(enemy) then
 					use.card = card
 				end
-				if use.to then use.to:append(friend) end
-				if use.to then use.to:append(enemy) end
+				if use.to then
+					use.to:append(friend)
+					use.to:append(enemy)
+				end
 				return
 			end
 		end
@@ -135,8 +137,10 @@ sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
 							if use.to then use.to:append(enemy) end
 							return
 						end
-						if use.to then use.to:append(enemy) end
-						if use.to then use.to:append(enemy2) end
+						if use.to then
+							use.to:append(enemy)
+							use.to:append(enemy2)
+						end
 						return
 					else
 						n = 1;
@@ -146,11 +150,13 @@ sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
 			end
 			if n then use.card = card end
 			if enemy == final_enemy then
-				if use.to then use.to:append(enemy) end
+				if use.to and self.player:canSlash(enemy) then use.to:append(enemy) end
 				return
 			end
-			if use.to then use.to:append(enemy) end
-			if use.to then use.to:append(final_enemy) end
+			if use.to then
+				use.to:append(enemy)
+				use.to:append(final_enemy)
+			end
 			return
 		end
 		n = nil

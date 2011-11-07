@@ -166,15 +166,7 @@ public:
         return false;
     }
 };
-/*
-class LastCardPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        const ServerPlayer *source = qobject_cast<const ServerPlayer *>(player);
-        return card->getId() == source->handCards().last();
-    }
-};
-*/
+
 class ZhongjianTarget: public TriggerSkill{
 public:
     ZhongjianTarget(): TriggerSkill("#zhongjian_target"){
@@ -236,7 +228,6 @@ public:
         target->tag["ZJCount"] = target->tag.value("ZJCount", 0).toInt() + 1;
         if(target->tag.value("ZJCount").toInt() > 3)
             target->turnOver();
-        //room->askForUseCard(jushou, ".ZJ", "@zhongjian");
         return false;
     }
 
@@ -469,7 +460,6 @@ GreenPackage::GreenPackage()
     greenjushou->addSkill(new Zhongjian);
     greenjushou->addSkill(new ZhongjianTarget);
     related_skills.insertMulti("zhongjian", "#zhongjian_target");
-    //patterns[".ZJ"] = new LastCardPattern;
 
     General *greenkanze = new General(this, "greenkanze", "wu", 5);
     greenkanze->addSkill(new Diezhi);

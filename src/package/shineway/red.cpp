@@ -906,33 +906,14 @@ public:
     }
 };
 
-class GoulianViewAsSkill: public OneCardViewAsSkill{
-public:
-    GoulianViewAsSkill():OneCardViewAsSkill("goulian"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("GoulianCard");
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped();
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        GoulianCard *goulian_card = new GoulianCard;
-        goulian_card->addSubcard(card_item->getCard()->getId());
-
-        return goulian_card;
-    }
-};
-
 GoulianCard::GoulianCard(){
     once = true;
 }
 
-bool GoulianCard::targetFilter(const QList<const Player *> &, const Player *to_select, const Player *Self) const{
+bool GoulianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
     if(to_select->getMark("@goulian") > 0 || to_select->getMark("goulianA") > 0)
         return false;
     return to_select->getGeneral()->isMale();
@@ -960,6 +941,28 @@ void GoulianCard::onEffect(const CardEffectStruct &effect) const{
         effect.from->gainMark("@goulian");
     }
 }
+
+class GoulianViewAsSkill: public OneCardViewAsSkill{
+public:
+    GoulianViewAsSkill():OneCardViewAsSkill("goulian"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("GoulianCard");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        GoulianCard *goulian_card = new GoulianCard;
+        goulian_card->addSubcard(card_item->getCard()->getId());
+
+        return goulian_card;
+    }
+};
 
 class Goulian: public TriggerSkill{
 public:
