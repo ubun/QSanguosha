@@ -193,18 +193,6 @@ sgs.ai_skill_cardchosen["xiefang"] = function(self, who)
 	end
 end
 
--- yanyun
-sgs.ai_skill_invoke["slash"] = function(self, prompt, data)
-	if prompt ~= "yanyun-slash" then return end
-	local cards = self.player:getHandcards()
-	for _, card in sgs.qlist(cards) do
-		if card:inherits("Slash") then
-			return card:getEffectiveId()
-		end
-	end
-	return "."
-end
-
 -- zhubing
 sgs.ai_skill_invoke["zhubing"] = sgs.ai_skill_invoke["zaiqi"]
 sgs.ai_skill_invoke["super_zaiqi"] = sgs.ai_skill_invoke["zaiqi"]
@@ -219,19 +207,6 @@ end
 sgs.ai_skill_invoke["xujiu"] = function(self, data)
 	local damage = data:toDamage()
 	return self:isEnemy(damage.to)
-end
-sgs.ai_skill_invoke[".black"]=function(self, prompt, data)
-	if prompt ~= "xujiu_ask" then return end
-	local jiu = self.player:getPile("niangA"):length() + self.player:getPile("niangB"):length()
-	if jiu < 3 then
-		local cards = self.player:getHandcards()
-		for _, card in sgs.qlist(cards) do
-			if card:isBlack() then
-				return card:getEffectiveId()
-			end
-		end
-	end
-	return "."
 end
 
 -- goulian

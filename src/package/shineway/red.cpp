@@ -625,7 +625,7 @@ public:
         Room *room = player->getRoom();
         player->setMark("yany", 1);
         if(room->askForSkillInvoke(player, objectName(), data)){
-            const Card *card = room->askForCard(player, "slash", "yanyun-slash");
+            const Card *card = room->askForCard(player, "slash", "@yanyun-slash");
             player->setMark("yany", 0);
             if(card && card->getSkillName() != "xiefang"){
                 if(player->hasFlag("drank"))
@@ -803,7 +803,7 @@ public:
         if(qiong->getPhase() != Player::Start)
             return false;
         Room *room = qiong->getRoom();
-        const Card *card = room->askForCard(qiong, ".black", "xujiu_ask");
+        const Card *card = room->askForCard(qiong, ".black", "@xujiu-ask");
         if(card){
             qiong->addToPile("niangA", card->getId());
         }

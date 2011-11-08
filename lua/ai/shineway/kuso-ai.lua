@@ -9,15 +9,11 @@ end
 -- shishi
 sgs.ai_skill_invoke["shishi"] = function(self, data)
 	local damage = data:toDamage()
+	local target = damage.to
 	if self.player:getMaxHP() < 4 then
 		return false
 	end
-	if self.player:getVisibleSkillList():length() <= 1 then
-		return true
-	elseif damage.to:getVisibleSkillList():length() > 1 then
-		return true
-	end
-	return false
+	return true
 end
 
 -- clearShirt

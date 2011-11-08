@@ -13,7 +13,9 @@ yuanlv_skill.name = "yuanlv"
 table.insert(sgs.ai_skills, yuanlv_skill)
 yuanlv_skill.getTurnUseCard = function(self)
 	if self.player:hasUsed("YuanlvCard") or self.player:isWounded() then return end
-	return sgs.Card_Parse("@YuanlvCard=.")
+	local yuanlv_card = sgs.Card_Parse("@YuanlvCard=.")
+	assert(yuanlv_card)
+	return yuanlv_card
 end
 sgs.ai_skill_use_func["YuanlvCard"] = function(card, use, self)
 	if use.to then use.to:append(self.enemies[1]) end
@@ -27,3 +29,4 @@ end
 sgs.ai_skill_playerchosen["zhongjian"] = function(self, targets)
 	return self.friends_noself[1]
 end
+
