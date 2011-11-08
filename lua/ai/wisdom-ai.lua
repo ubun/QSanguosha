@@ -63,7 +63,7 @@ sgs.ai_skill_playerchosen.beifa = sgs.ai_skill_playerchosen.zero_card_as_slash
 sgs.ai_skill_invoke["bawang"] = function(self, data)
 	local effect = data:toSlashEffect()
 	local max_card = self:getMaxCard()
-	if max_card and max_card:getNumber() > 9 then
+	if max_card and max_card:getNumber() > 10 then
 		return self:isEnemy(effect.to)
 	end
 end
