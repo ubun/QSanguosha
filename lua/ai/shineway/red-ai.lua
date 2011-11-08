@@ -112,12 +112,12 @@ sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
 			for _, enemy in ipairs(self.enemies) do
 				if self.player:canSlash(enemy) then
 					use.card = card
+					if use.to then
+						use.to:append(friend)
+						use.to:append(enemy)
+					end
+					return
 				end
-				if use.to then
-					use.to:append(friend)
-					use.to:append(enemy)
-				end
-				return
 			end
 		end
 	end
@@ -151,6 +151,7 @@ sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
 			if n then use.card = card end
 			if enemy == final_enemy then
 				if use.to and self.player:canSlash(enemy) then use.to:append(enemy) end
+				use.card = card
 				return
 			end
 			if use.to then

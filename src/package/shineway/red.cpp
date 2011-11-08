@@ -525,6 +525,7 @@ void XiefangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
         target = targets.at(1);
 
     if(weapon){
+        room->throwCard(weapon->getId());
         Slash *slash = new Slash(weapon->getSuit(), weapon->getNumber());
         slash->setSkillName("xiefang");
         slash->addSubcard(weapon);
