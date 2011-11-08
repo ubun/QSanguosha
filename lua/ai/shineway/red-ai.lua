@@ -169,16 +169,17 @@ sgs.ai_skill_invoke["xiefang"] = function(self, data)
 	for _, enemy in ipairs(self.enemies) do
 		local weapon = enemy:getWeapon()
 		local armor = enemy:getArmor() or enemy:getDefensiveHorse() or enemy:getOffensiveHorse()
-		if asked == "slash" then
-			return weapon
-		elseif asked == "jink" then
-			return armor
+		if (asked == "slash" and weapon) or (asked == "jink" and armor) then
+			return true
 		end
 	end
+	return false
 end
 sgs.ai_skill_playerchosen["xiefang"] = function(self, targets)
 	for _, player in sgs.qlist(targets) do
-		if self:isEnemy(player) then
+		if self:isEnemy(player) and not self:hasSkills(sgs.lose_equip_skill, player) then
+			return player
+		elseif self:isFriend(player) and self:hasSkills(sgs.lose_equip_skill, player) then
 			return player
 		end
 	end

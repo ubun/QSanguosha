@@ -104,7 +104,7 @@ return {
 	["goulian:b"] = "摸两张牌",
 	["@goulian"] = "媾连",
 	["#GoulianA"] = "%from 选择了回复体力并为 %to 承担下回合之前的一次伤害",
-	["#GoulianB"] = "%from 选择了提前摸牌并允许 %to 下回合额外摸两张牌",
+	["#GoulianB"] = "%from 选择了提前摸牌并允许 %to 下回合额外摸一张牌",
 	["#GoulianAdamage"] = "%from 为 %to 承担了本次的全部伤害",
 	["#GoulianBdraw"] = "%from 的技能【%arg】生效，额外摸了两张牌",
 
