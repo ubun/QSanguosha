@@ -58,6 +58,8 @@ sgs.LoadTranslationTable{
 --♦2,2,3,4,5,5,6,7,8,9,9,10,J,J,Q,Q,K,K,K,A
 --♣2,2,3,3,4,5,6,7,7,8,9,9,10,J,J,J,Q,Q,K
 
+--合509
+
 --Generals
 
 ["YK_StdGeneral"] = "YOKA标准版武将",
@@ -143,6 +145,8 @@ sgs.LoadTranslationTable{
 
 ["UV_General"] = "圣斗士星矢",
 --12黄金 4301~4312
+
+--合400
 
 --Scenarios
 ["MS_Couple"] = "神杀夫妻协战",

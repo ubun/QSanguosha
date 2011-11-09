@@ -1,12 +1,14 @@
 /**************************************************************************************************
-**QSANGUOSHA/QSANGUOSHA OMEGAERA/OMEGASLASH CREATIVESUIT SOURCE CODE BEGIN
-**AUTHOR: MOLIGALOO
-**CONTRIBUTORS: (UNTIL 62.06 OR 2011.11.6)
-**HYPERCROSS (SINCE
-**DONLE (SINCE
-**UBUN (SINCE
-**WILLIAM8915 (SINCE
-**IBICDLCOD (MODDER OF OMEGAERA/OSCS)(SINCE
+**QSANGUOSHA/OMEGASLASH CREATIVESUIT SOURCE CODE BEGIN
+**
+**AUTHOR: MOLIGALOO (SINCE 45.20 AS 2010.6.20) (moligaloo@gmail.com)
+**
+**CONTRIBUTORS: (UNTIL 62.06 AS 2011.11.6)
+**HYPERCROSS (SINCE 55.3 AS 2011.4.3)
+**DONLE (SINCE 56.8 AS 2011.5.8)
+**UBUN (SINCE 57.26 AS 2011.6.26) (ubun@foxmail.com)
+**WILLIAM8915 (SINCE 61.16 AS 2011.10.16)
+**IBICDLCOD (MODDER OF OSCS)(SINCE 60.25 AS 2011.9.25) (micheallsy@gmail.com)
 **
 **QSANGUOSHA, A FREE ONLINE VERSION OF FAMOUS BOARD GAME SANGUOSHA
 **Copyright (C) 2010,2011 Moligaloo
@@ -69,7 +71,7 @@ int main(int argc, char *argv[])
     QTranslator qt_translator, translator;
     qt_translator.load("qt_zh_CN.qm");
 
-#ifdef OMEGAERA
+#ifdef OSCS
     translator.load("sanguoshaoe.qm");
 #else
     translator.load("sanguosha.qm");

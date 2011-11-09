@@ -479,7 +479,7 @@ int Player::getMaxCards() const{
     int shenwei = 0;
     if(hasSkill("shenwei"))
         shenwei = 2;
-#ifdef OMEGAERA
+#ifdef OSCS
     if(hasSkill("huanshen"))
         return max_hp + extra + juejing + xueyi + shenwei;
 #endif

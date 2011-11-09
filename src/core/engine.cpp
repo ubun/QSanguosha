@@ -29,7 +29,7 @@
 Engine *Sanguosha = NULL;
 
 extern "C" {
-#ifdef OMEGAERA
+#ifdef OSCS
     Package *NewOETanA();
     Package *NewOETanB();
 #endif
@@ -71,7 +71,7 @@ extern "C" {
 Engine::Engine()
 {
     Sanguosha = this;
-#ifdef OMEGAERA
+#ifdef OSCS
     addPackage(NewOETanA());
     addPackage(NewOETanB());
 #endif
@@ -85,7 +85,7 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     addPackage(NewWisdom());
-    addPackage(NewTest());
+    addPackage(NewTest());//DO NOT DELETE
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
@@ -361,7 +361,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
-#ifdef OMEGAERA
+#ifdef OSCS
     return "20111105";
 #else
     return "20110912";
@@ -369,8 +369,8 @@ QString Engine::getVersion() const{
 }
 
 QString Engine::getVersionName() const{
-#ifdef OMEGAERA
-    return tr("Omegaera III");
+#ifdef OSCS
+    return tr("OSCS X Beta");
 #else
     return tr("MiddleAutumn");
 #endif
@@ -394,7 +394,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-#ifdef OMEGAERA
+#ifdef OSCS
         kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "tan";
 #else
         kingdoms << "wei" << "shu" << "wu" << "qun" << "god";

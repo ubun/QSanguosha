@@ -399,7 +399,26 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             damage.damage = 1;
             if(effect.drank)
                 damage.damage ++;
-
+/**************************************************************************************************
+0*Notice: Now the two line below is the code intended to prevent YJCM_zhangchunhua DIY. (To see
+**another, press Ctrl+Shift+F and search zhangchunhua in the project)
+**Better NOT deactivate the zhangchunhua_ban lines 'cause it's the best sign of Moligaloo-designed.
+**If you want to DIY zhangchunhua(no matter it's from YJCM or not) or skill Jueqing(no matter it's
+**loseHp related or not), change general and/or skill name (Chinese name is not affected)
+**If you are making your mod, welcome to make your comments of Moligaloo's zhangchunhua-ban below.
+**To see source code for YJCM_zhangchunhua, go to
+**http://home.ustc.edu.cn/~dbpr/zhangchunhua/shadow.lua (hypercross)
+**
+1*Ibicdlcod: Although Moligaloo seems to have enough reason to claim that he bans YJCM_zhangchunhua
+** is for "Real" Sanguosha, Yitianjian in Yitianpackage (well this general is designed by Moligaloo
+**himself, right?) makes an ironic contrast. Obviously Moligaloo is not, and cannot be completely
+**neutral and we have no right to force him to do so. But HE is still a god, NOT because QSanguosha
+** is free of charge, but because it's open-source. More and more qsanguosha-based game will appear
+**--every modder has the FREE CHOICE of THEIR purpose(Is QSanguosha for zhangchunhua-haters? I
+**don't know) and every sanguoshaer has the FREE CHOICE to choose what's best for THEM.
+**HE WHO REPRESENTS MOST SANGUOSHAER'S DEEP DESIRE KEEPS ALIVE. (Well, bad translation?)
+**
+**************************************************************************************************/
             if(effect.to->hasSkill("jueqing") || effect.to->getGeneralName() == "zhangchunhua")
                 damage.damage ++;
 

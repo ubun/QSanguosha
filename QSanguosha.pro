@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-06-13T04:26:52
 # -------------------------------------------------
-TARGET = OmegaSlash #QSanguosha, OmegaEra, OmegaSlash
+TARGET = OmegaSlash #QSanguosha, OmegaSlash
 QT += network sql
 TEMPLATE = app
 CONFIG += warn_on audio joystick qaxcontainer
@@ -191,7 +191,7 @@ INCLUDEPATH += src/ui
 INCLUDEPATH += src/util
 
 win32{
-    RC_FILE += resource/iconoe.rc #for OMEGAERA and OMEGASLASH. When change this, delete debug/icon_res.o
+    RC_FILE += resource/iconoe.rc #for OMEGASLASH. When change this, delete debug/icon_res.o
     LIBS += -L. -llua -lm
 }
 
@@ -219,4 +219,7 @@ CONFIG(joystick){
 }
 
 TRANSLATIONS += sanguosha.ts
-TRANSLATIONS += sanguoshaoe.ts # for OMEGAERA AND OMEGASLASH
+TRANSLATIONS += sanguoshaoe.ts # for OMEGASLASH
+
+OTHER_FILES += \
+    lua/sgs_ex.lua

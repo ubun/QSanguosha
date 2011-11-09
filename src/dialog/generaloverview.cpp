@@ -1,7 +1,7 @@
 #include "generaloverview.h"
 #include "engine.h"
 
-#ifdef OMEGAERA
+#ifdef OSCS
 #include "ui_generaloverviewoe.h"
 #else
 #include "ui_generaloverview.h"
@@ -40,7 +40,7 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         const General *general = generals[i];
 
         QString name, kingdom, gender, max_hp, package;
-#ifdef OMEGAERA
+#ifdef OSCS
         QString number = Sanguosha->translate("!" + general->objectName());
 #endif
 
@@ -51,7 +51,7 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         max_hp = QString::number(general->getMaxHp());
         package = Sanguosha->translate(general->getPackage());
 
-#ifdef OMEGAERA
+#ifdef OSCS
         QTableWidgetItem *number_item = new QTableWidgetItem(number);
         number_item->setTextAlignment(Qt::AlignCenter);
 #endif
@@ -60,7 +60,7 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         name_item->setTextAlignment(Qt::AlignCenter);
         name_item->setData(Qt::UserRole, general->objectName());
 
-#ifndef OMEGAERA
+#ifndef OSCS
         if(general->isLord()){
             name_item->setIcon(lord_icon);
             name_item->setTextAlignment(Qt::AlignCenter);
@@ -82,7 +82,7 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         QTableWidgetItem *package_item = new QTableWidgetItem(package);
         package_item->setTextAlignment(Qt::AlignCenter);
 
-#ifdef OMEGAERA
+#ifdef OSCS
         QColor qkColor;
         if(general->getKingdom() == "wei"){
             qkColor = Qt::darkBlue;
@@ -143,12 +143,12 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         ui->tableWidget->setItem(i, 2, gender_item);
         ui->tableWidget->setItem(i, 3, max_hp_item);
         ui->tableWidget->setItem(i, 4, package_item);
-#ifdef OMEGAERA
+#ifdef OSCS
         ui->tableWidget->setItem(i, 5, number_item);
 #endif
     }
 
-#ifdef OMEGAERA
+#ifdef OSCS
     ui->tableWidget->setColumnWidth(0, 110);
 #else
     ui->tableWidget->setColumnWidth(0, 80);
@@ -156,7 +156,7 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
     ui->tableWidget->setColumnWidth(1, 50);
     ui->tableWidget->setColumnWidth(2, 50);
     ui->tableWidget->setColumnWidth(3, 60);
-#ifdef OMEGAERA
+#ifdef OSCS
     ui->tableWidget->setColumnWidth(4, 70);
     ui->tableWidget->setColumnWidth(5, 50);
 #endif

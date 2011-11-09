@@ -15,21 +15,10 @@
 #include <QMetaObject>
 
 /**************************************************************************************************
-**Notice: THIS VARIABLE IS FOR GLOBAL CONTROL FOR QSANGUOSHA OMEGAERA MOD. IF THIS LINE IS NOT
-**ACTIVE, ALL THING WILL TURN BACKTO ORIGINAL.
-**YOU should #include <engine.h> and #include <QFile> at any file you #ifdef OMEGAERA.
+**Notice: THIS VARIABLE IS FOR OMEGASLASH CREATIVE SUIT.
+**You should #include <engine.h> and #include <QFile> at anywhere you #ifdef OSCS.
 **************************************************************************************************/
-#define OMEGAERA 1123581321
-
-/**************************************************************************************************
-**Notice: THIS VARIABLE IS FOR OMEGASLASH CREATIVE SUIT. IF THIS LINE IS NOT ACTIVE, ALL THING WILL
-**TURN BACK TO QSANGUOSHA OMEGAERA.
-**You should #include <engine.h> and #include <QFile> at anywhere you #ifdef OSCS. OSCS is not
-**active when OMEGAERA is canceled.
-**************************************************************************************************/
-#ifdef OMEGAERA
 #define OSCS 504161487
-#endif
 
 class AI;
 class Scenario;

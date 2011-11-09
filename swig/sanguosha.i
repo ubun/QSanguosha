@@ -4,6 +4,14 @@
 #include "structs.h"
 #include "engine.h"
 #include "client.h"
+#include "general.h"
+#include "player.h"
+#include "serverplayer.h"
+#include "clientplayer.h"
+#include "card.h"
+#include "package.h"
+#include "room.h"
+#include "roomthread.h"
 
 #include <QDir>
 
@@ -236,6 +244,7 @@ public:
 
     void gainMark(const char *mark, int n = 1);
     void loseMark(const char *mark, int n = 1);
+	void loseAllMarks(const char *mark_name);
 
 	void setNext(ServerPlayer *next);
     ServerPlayer *getNext() const;
@@ -598,7 +607,8 @@ public:
         Frequent,
         NotFrequent,
         Compulsory,
-        Limited
+        Limited,
+		Wake
     };
 
     explicit Skill(const char *name, Frequency frequent = NotFrequent);
@@ -687,6 +697,7 @@ public:
     bool cardEffect(const Card *card, ServerPlayer *from, ServerPlayer *to);
     bool cardEffect(const CardEffectStruct &effect);
 	void judge(JudgeStruct &judge_struct);
+    void sendJudgeResult(const JudgeStar judge);
     QList<int> getNCards(int n, bool update_pile_number = true);
     ServerPlayer *getLord() const;
     void doGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only);
@@ -708,6 +719,7 @@ public:
     ServerPlayer *findPlayerBySkillName(const char *skill_name, bool include_dead = false) const;
     void installEquip(ServerPlayer *player, const char *equip_name);
     void transfigure(ServerPlayer *player, const char *new_general, bool full_state, bool invoke_start = true);
+	void swapSeat(ServerPlayer *a, ServerPlayer *b);
     lua_State *getLuaState() const;
 
     const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card) const;

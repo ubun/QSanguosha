@@ -305,7 +305,7 @@ void MainWindow::on_actionEnable_Hotkey_toggled(bool checked)
         Config.setValue("EnableHotKey", checked);
     }
 }
-#ifdef OMEGAERA
+#ifdef OSCS
 void MainWindow::on_actionAbout_triggered()
 {
     // Yuriko's pixmap
@@ -594,7 +594,7 @@ void MainWindow::on_actionBroadcast_triggered()
     BroadcastBox *dialog = new BroadcastBox(server, this);
     dialog->exec();
 }
-#ifdef OMEGAERA
+#ifdef OSCS
 void MainWindow::on_actionAcknowledgement_triggered()
 {
 
@@ -690,7 +690,7 @@ MeleeDialog::MeleeDialog(QWidget *parent)
     layout->addWidget(record_view);
     setLayout(layout);
 
-    setGeneral(Config.value("MeleeGeneral", "zhangliao").toString());
+    setGeneral(Config.value("MeleeGeneral", "sujiang").toString());
 }
 
 QGroupBox *MeleeDialog::createGeneralBox(){

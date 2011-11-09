@@ -697,6 +697,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         Room *room = player->getRoom();
         ServerPlayer *OEsrhrsr = room->findPlayerBySkillName(objectName());
+        if(!OEsrhrsr->isAlive()) return false;
         if(damage.nature != DamageStruct::Normal){
             RecoverStruct recover;
             recover.who = damage.from;
