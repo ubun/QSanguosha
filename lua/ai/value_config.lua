@@ -12,6 +12,9 @@ sgs.dynamic_value = {
 		LijianCard = true,
 		LuanwuCard = true,
 		ShenfenCard = true,
+
+		Poison = true,
+		DiezhiCard = true,
 	},
 	control_usecard = 
 	{
@@ -33,6 +36,19 @@ sgs.dynamic_value = {
 		GanluCard = true,
 		QuhuCard = true,
 		ShenfenCard = true,
+
+		Stink = true,
+		Poison = true,
+		Sacrifice = true,
+		ClearShirt = true,
+
+		WookonCard = true,
+		DiezhiCard = true,
+		BaichuCard = true,
+		Niubi = true,
+
+		YuluCard = true,
+		ViewMyWordsCard = true,
 	},
 	lucky_chance = 
 	{
@@ -50,6 +66,13 @@ sgs.dynamic_value = {
 		QingnangCard = true,
 		JujianCard = true,
 		ZhihengCard = true,
+
+		Wall = true,
+		Sacrifice = true,
+		JuicePeach = true,
+		RollingpinCard = true,
+		WutianCard = true,
+		Niubi = true,
 	},
 }
 

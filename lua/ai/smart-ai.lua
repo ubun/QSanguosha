@@ -1145,17 +1145,49 @@ function SmartAI:useBasicCard(card, use,no_distance)
 			for _,card in ipairs(cards) do
 				if card:inherits("Peach") then peaches = peaches+1 end
 			end
-			
-				for _, friend in ipairs(self.friends_noself) do
-					if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
-				end	
-				
+			for _, friend in ipairs(self.friends_noself) do
+				if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
+			end
 			use.card = card
 		end
+<<<<<<< HEAD
+=======
+		
+	elseif card:inherits("Wall") then
+		use.card = card
+>>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 	elseif card:inherits("Stink") then
 		local next_player = self.player:getNextAlive()
 		if self:isFriend(next_player) then return end
 		use.card = card
+<<<<<<< HEAD
+=======
+	elseif card:inherits("JuicePeach") then
+		self:sort(self.friends_noself, "hp")
+		for _, friend in ipairs(self.friends_noself) do
+			if friend:isWounded() then
+				use.card = card
+				if use.to then
+					use.to:append(friend)
+				end
+				break
+			end
+		end
+	elseif card:inherits("Poison") then
+		local players = self.room:getAllPlayers()
+		players = sgs.QList2Table(players)
+		for _, target in ipairs(players) do
+			if self.player:distanceTo(target) <= 1 and
+				((self:isFriend(target) and target:getMark("poison") > 0) or
+				(self:isEnemy(target) and target:getMark("poison") == 0)) then
+				use.card = card
+				if use.to then
+					use.to:append(target)
+				end
+				break
+			end
+		end
+>>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 	end
 end
 
@@ -1797,6 +1829,10 @@ function SmartAI:useEquipCard(card, use)
 		use.card = card		
 		end
 	elseif card:inherits("Armor") then
+<<<<<<< HEAD
+=======
+		if card:inherits("Niubi") then self:useNiubi(card, use) return end
+>>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 		if card:inherits("ClearShirt") then self:useClearShirt(card, use) return end
 		if card:inherits("GaleShell") then self:useGaleShell(card, use) return end
 		if self.player:hasSkill("bazhen") and not self.player:getArmor() then return end
@@ -3388,5 +3424,10 @@ dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"
 
+<<<<<<< HEAD
 dofile "lua/ai/ubunmod-list.lua"
 
+=======
+dofile "lua/ai/newbility-ai.lua"
+dofile "lua/ai/technology-ai.lua"
+>>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2

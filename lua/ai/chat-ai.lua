@@ -26,6 +26,8 @@ function speakTrigger(card,from,to,event)
 		speak(to,"daxiang")
 	elseif card:inherits("FireAttack") and to:hasSkill("luanji") then
 		speak(to,"yuanshao_fire")
+	elseif card:inherits("Niubi") then
+		speak(from,"niubi")
 	end
 end
 
@@ -180,4 +182,12 @@ sgs.ai_chat.yuanshao_fire=
 sgs.ai_chat.luoyi=
 {
 "不脱光衣服干不过你"
+}
+
+--niubi
+sgs.ai_chat.niubi=
+{
+"牛逼了！",
+"赐予我力量吧！哇哈哈哈~~~",
+"这是什么东西……#$%^&*"
 }

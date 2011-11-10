@@ -385,6 +385,8 @@ public:
     }
 
     virtual bool match(const Player *player, const Card *card) const{
+        if(name == "peach")
+            return card->inherits("Peach");
         return ! player->hasEquip(card) && card->objectName() == name;
     }
 
@@ -414,6 +416,7 @@ StandardPackage::StandardPackage()
     patterns["slash"] = new SlashPattern;
     patterns["jink"] = new NamePattern("jink");
     patterns["peach"] = new NamePattern("peach");
+    patterns["wall"] = new NamePattern("wall");
     patterns["nullification"] = new NamePattern("nullification");
     patterns["peach+analeptic"] = new PAPattern;
 }

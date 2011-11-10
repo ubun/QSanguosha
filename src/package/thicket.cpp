@@ -55,7 +55,9 @@ FangzhuCard::FangzhuCard(){
 void FangzhuCard::onEffect(const CardEffectStruct &effect) const{
     int x = effect.from->getLostHp();
 
-    effect.to->drawCards(x);
+    if(!effect.from->hasArmorEffect("hydrogen"))
+        effect.to->drawCards(x);
+    else effect.from->drawCards(x);
 
     Room *room = effect.to->getRoom();
 
@@ -234,6 +236,11 @@ public:
                 if(success)
                     room->playSkillEffect(objectName(), 2);
                 else{
+                    if(zhurong->hasArmorEffect("fuckav") && room->askForSkillInvoke(zhurong, "fuckav")){
+                        damage.to->turnOver();
+                        room->playSkillEffect(objectName(), 2);
+                        return false;
+                    }
                     room->playSkillEffect(objectName(), 3);
                     return false;
                 }
@@ -262,12 +269,14 @@ public:
         if(menghuo->getPhase() == Player::Draw && menghuo->isWounded()){
             Room *room = menghuo->getRoom();
             if(room->askForSkillInvoke(menghuo, objectName())){
-                int x = menghuo->getLostHp(), i;
+                int x = menghuo->hasArmorEffect("snapshot") ?
+                        menghuo->getMaxHP() :
+                        menghuo->getLostHp();
 
                 room->playSkillEffect(objectName(), 1);
                 bool has_heart = false;
 
-                for(i=0; i<x; i++){
+                for(int i=0; i<x; i++){
                     int card_id = room->drawCard();
                     room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
 
@@ -310,7 +319,11 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
-        if(use.card->inherits("SavageAssault")){
+        bool wanjian = false;
+        if(use.card->inherits("ArcheryAttack") &&
+           player->getRoom()->findPlayer("zhurong")->hasArmorEffect("fuckav"))
+            wanjian = true;
+        if(use.card->inherits("SavageAssault") || wanjian){
             Room *room = player->getRoom();
             if(room->getCardPlace(use.card->getEffectiveId()) == Player::DiscardedPile){
                 // finding zhurong;
@@ -348,15 +361,16 @@ void YinghunCard::onEffect(const CardEffectStruct &effect) const{
     }else{
         QString choice = room->askForChoice(effect.from, "yinghun", "d1tx+dxt1");
         if(choice == "d1tx"){
-            room->playSkillEffect("yinghun", 2);
-
-            effect.to->drawCards(1);
+			room->playSkillEffect("yinghun", 2);
+            if(!effect.from->hasArmorEffect("ghostcar"))
+                effect.to->drawCards(1);
             x = qMin(x, effect.to->getCardCount(true));
             room->askForDiscard(effect.to, "yinghun", x, false, true);
             good = false;
         }else{
-            room->playSkillEffect("yinghun", 1);
-
+			room->playSkillEffect("yinghun", 1);
+            if(effect.from->hasArmorEffect("ghostcar"))
+                x = x + 1;
             effect.to->drawCards(x);
             room->askForDiscard(effect.to, "yinghun", 1, false, true);
             good = true;
@@ -423,8 +437,13 @@ bool HaoshiCard::targetFilter(const QList<const Player *> &targets, const Player
     return to_select->getHandcardNum() == Self->getMark("haoshi");
 }
 
-void HaoshiCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+void HaoshiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     ServerPlayer *beggar = targets.first();
+
+    if(source->hasArmorEffect("snake") && room->askForSkillInvoke(source, "snake")){
+        source->setFlags("she");
+        beggar = room->askForPlayerChosen(source,room->getAlivePlayers(),"snake_reselect");
+    }
 
     room->moveCardTo(this, beggar, Player::Hand, false);
     room->setEmotion(beggar, "draw-card");
@@ -568,6 +587,8 @@ void DimengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     }
 
     int diff = qAbs(n1 - n2);
+    if(source->hasFlag("she"))
+        diff = diff + 1;
     if(diff != 0){
         room->askForDiscard(source, "dimeng", diff, false, true);
     }
@@ -622,7 +643,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("@chaos") >= 1;
+        return player->getMark("@chaos") > 0 || player->hasArmorEffect("voodoo");
     }
 };
 
@@ -631,7 +652,9 @@ LuanwuCard::LuanwuCard(){
 }
 
 void LuanwuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    source->loseMark("@chaos");
+    if(source->hasArmorEffect("voodoo"))
+        room->throwCard(source->getArmor()->getId());
+    else source->loseMark("@chaos");
     room->broadcastInvoke("animate", "lightbox:$luanwu");
 
     QList<ServerPlayer *> players = room->getOtherPlayers(source);
@@ -797,10 +820,14 @@ public:
                     break;
                 }
             }
+            if(dongzhuo->hasArmorEffect("tombstone"))
+                trigger_this = true;
         }
 
         if(trigger_this){
-            QString result = room->askForChoice(dongzhuo, "benghuai", "hp+max_hp");
+            QString result = dongzhuo->hasArmorEffect("tombstone") ?
+                             "hp" :
+                             room->askForChoice(dongzhuo, "benghuai", "hp+max_hp");
 
             room->playSkillEffect(objectName());
             room->setEmotion(dongzhuo, "bad");

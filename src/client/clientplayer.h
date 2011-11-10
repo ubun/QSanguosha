@@ -40,6 +40,7 @@ private:
 signals:
     void pile_changed(const QString &name);
     void drank_changed();
+    void poison_changed();
     void action_taken();
 };
 

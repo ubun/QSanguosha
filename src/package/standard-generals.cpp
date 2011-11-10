@@ -156,10 +156,12 @@ public:
 
         room->playSkillEffect(objectName());
 
+        int n = !guojia->hasArmorEffect("linctus")? 2 : 3;
+
         int x = damage.damage, i;
         for(i=0; i<x; i++){
-            guojia->drawCards(2);
-            QList<int> yiji_cards = guojia->handCards().mid(guojia->getHandcardNum() - 2);
+            guojia->drawCards(n);
+            QList<int> yiji_cards = guojia->handCards().mid(guojia->getHandcardNum() - n);
 
             while(room->askForYiji(guojia, yiji_cards))
                 ; // empty loop
@@ -181,15 +183,8 @@ public:
 
         if(from && from->isAlive() && room->askForSkillInvoke(xiahou, "ganglie", source)){
             room->playSkillEffect(objectName());
-
-            JudgeStruct judge;
-            judge.pattern = QRegExp("(.*):(heart):(.*)");
-            judge.good = false;
-            judge.reason = objectName();
-            judge.who = xiahou;
-
-            room->judge(judge);
-            if(judge.isGood()){
+            if(xiahou->hasArmorEffect("lubricatingoil")){
+                lubri:
                 if(!room->askForDiscard(from, objectName(), 2, true)){
                     DamageStruct damage;
                     damage.from = xiahou;
@@ -198,6 +193,17 @@ public:
                     room->setEmotion(xiahou, "good");
                     room->damage(damage);
                 }
+                return;
+            }
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(heart):(.*)");
+            judge.good = false;
+            judge.reason = objectName();
+            judge.who = xiahou;
+
+            room->judge(judge);
+            if(judge.isGood()){
+                goto lubri;
             }else
                 room->setEmotion(xiahou, "bad");
         }
@@ -215,7 +221,17 @@ public:
         Room *room = simayi->getRoom();
         QVariant data = QVariant::fromValue(from);
         if(from && !from->isNude() && room->askForSkillInvoke(simayi, "fankui", data)){
-            int card_id = room->askForCardChosen(simayi, from, "he", "fankui");
+            int card_id;
+            if(simayi->hasArmorEffect("corrfluid")){
+                ServerPlayer *plus = room->askForPlayerChosen(simayi, room->getAlivePlayers(), "corrfluid-ask");
+                card_id = room->askForCardChosen(simayi, plus, "hej", "fankui");
+                if(room->getCardPlace(card_id) == Player::Hand)
+                    room->moveCardTo(Sanguosha->getCard(card_id), simayi, Player::Hand, false);
+                else
+                    room->obtainCard(simayi, card_id);
+                room->playSkillEffect(objectName());
+            }
+            card_id = room->askForCardChosen(simayi, from, "he", "fankui");
             if(room->getCardPlace(card_id) == Player::Hand)
                 room->moveCardTo(Sanguosha->getCard(card_id), simayi, Player::Hand, false);
             else
@@ -239,7 +255,9 @@ public:
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped();
+        if(!Self->hasArmorEffect("corrfluid"))
+            return !to_select->isEquipped();
+        return true;
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
@@ -341,6 +359,8 @@ public:
             room->playSkillEffect(objectName());
 
             xuchu->setFlags(objectName());
+            if(xuchu->hasArmorEffect("warmbaby"))
+                return n;
             return n - 1;
         }else
             return n;
@@ -358,6 +378,7 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *zhenji, QVariant &data) const{
         if(event == PhaseChange && zhenji->getPhase() == Player::Start){
             Room *room = zhenji->getRoom();
+            int num=1;
             while(zhenji->askForSkillInvoke("luoshen")){
                 room->playSkillEffect(objectName());
 
@@ -368,8 +389,13 @@ public:
                 judge.who = zhenji;
 
                 room->judge(judge);
-                if(judge.isBad())
+                if(judge.isBad()){
+                    if(zhenji->hasArmorEffect("sophie") && num>0){
+                        num--;
+                        continue;
+                    }
                     break;
+                }
             }
 
         }else if(event == FinishJudge){
@@ -527,7 +553,7 @@ public:
     virtual bool viewFilter(const CardItem *to_select) const{
         const Card *card = to_select->getFilteredCard();
 
-        if(!card->isRed())
+        if(!Self->hasArmorEffect("redsunglasses") && !card->isRed())
             return false;
 
         if(card == Self->getWeapon() && card->objectName() == "crossbow")
@@ -610,7 +636,10 @@ public:
         Room *room = machao->getRoom();
         if(effect.from->askForSkillInvoke("tieji", QVariant::fromValue(effect))){
             room->playSkillEffect(objectName());
-
+            if(effect.from->hasArmorEffect("harley")){
+                room->slashResult(effect, NULL);
+                return true;
+            }
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
             judge.good = true;
@@ -642,6 +671,8 @@ public:
             room->playSkillEffect(objectName());
 
             int n = qMin(5, room->alivePlayerCount());
+            if(zhuge->hasArmorEffect("telescope"))
+                n++;
             room->doGuanxing(zhuge, room->getNCards(n, false), false);
         }
 
@@ -860,6 +891,11 @@ public:
         if(lumeng->getPhase() == Player::Start){
             lumeng->setFlags("-keji_use_slash");
         }else if(lumeng->getPhase() == Player::Discard){
+            if(lumeng->hasArmorEffect("towel") && lumeng->askForSkillInvoke("keji")){
+                lumeng->getRoom()->playSkillEffect("keji");
+                lumeng->skip(Player::Discard);
+                return true;
+            }
             if(!lumeng->hasFlag("keji_use_slash") &&
                lumeng->getSlashCount() == 0 &&
                lumeng->askForSkillInvoke("keji"))
@@ -987,15 +1023,23 @@ public:
         Room *room = daqiao->getRoom();
 
         CardEffectStruct effect = data.value<CardEffectStruct>();
-        if(effect.card->inherits("Slash") && !daqiao->isNude() && room->alivePlayerCount() > 2){
-            QList<ServerPlayer *> players = room->getOtherPlayers(daqiao);
-            players.removeOne(effect.from);
 
+        if(effect.card->inherits("Slash") && !daqiao->isNude()){
+            QList<ServerPlayer *> players;
             bool can_invoke = false;
-            foreach(ServerPlayer *player, players){
-                if(daqiao->inMyAttackRange(player)){
-                    can_invoke = true;
-                    break;
+            if(daqiao->hasArmorEffect("underwear") && room->alivePlayerCount() > 1){
+                players = room->getOtherPlayers(daqiao);
+                can_invoke = true;
+            }
+            else if(!daqiao->hasArmorEffect("underwear") && room->alivePlayerCount() > 2){
+                players = room->getOtherPlayers(daqiao);
+                players.removeOne(effect.from);
+
+                foreach(ServerPlayer *player, players){
+                  if(daqiao->inMyAttackRange(player)){
+                      can_invoke = true;
+                      break;
+                  }
                 }
             }
 

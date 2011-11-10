@@ -13,8 +13,12 @@ ZhihengCard::ZhihengCard(){
 
 void ZhihengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
     room->throwCard(this);
-    if(source->isAlive())
-        room->drawCards(source, subcards.length());
+    if(source->isAlive()){
+        if(source->hasArmorEffect("brainplatinum"))
+            room->drawCards(source, subcards.length()+1);
+        else
+            room->drawCards(source, subcards.length());
+    }
 }
 
 
@@ -89,7 +93,8 @@ TuxiCard::TuxiCard(){
 }
 
 bool TuxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(targets.length() >= 2)
+    int num = Self->hasArmorEffect("flashlight")?3:2;
+    if(targets.length() >= num)
         return false;
 
     if(to_select == Self)
@@ -127,17 +132,32 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     log.arg = Card::Suit2String(suit);
     room->sendLog(log);
 
-    room->getThread()->delay();
-    target->obtainCard(card);
-    room->showCard(target, card_id);
+    if(zhouyu->hasArmorEffect("cologne")){
+        card = room->askForCardShow(zhouyu,target,objectName());
+        room->getThread()->delay();
+        if(card->getSuit() != suit){
+            DamageStruct damage;
+            damage.card = NULL;
+            damage.from = zhouyu;
+            damage.to = target;
+            room->damage(damage);
+        }
+        if(target->isAlive()){
+            target->obtainCard(card);
+        }
+    }
+    else {
+        room->getThread()->delay();
+        target->obtainCard(card);
+        room->showCard(target, card_id);
+        if(card->getSuit() != suit){
+            DamageStruct damage;
+            damage.card = NULL;
+            damage.from = zhouyu;
+            damage.to = target;
 
-    if(card->getSuit() != suit){
-        DamageStruct damage;
-        damage.card = NULL;
-        damage.from = zhouyu;
-        damage.to = target;
-
-        room->damage(damage);
+            room->damage(damage);
+        }
     }
 }
 
@@ -146,6 +166,12 @@ KurouCard::KurouCard(){
 }
 
 void KurouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    if(source->hasArmorEffect("whip") && room->askForChoice(source,"whip","yes+no")=="yes"){
+        room->loseHp(source,2);
+        if(source->isAlive())
+            room->drawCards(source,5);
+        return;
+    }
     room->loseHp(source);
     if(source->isAlive())
         room->drawCards(source, 2);
@@ -156,7 +182,7 @@ LijianCard::LijianCard(){
 }
 
 bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!to_select->getGeneral()->isMale())
+    if(!Self->hasArmorEffect("yaiba") && !to_select->getGeneral()->isMale())
         return false;
 
     if(targets.isEmpty() && to_select->hasSkill("kongcheng") && to_select->isKongcheng()){
@@ -237,14 +263,14 @@ bool LiuliCard::targetFilter(const QList<const Player *> &targets, const Player 
     if(!targets.isEmpty())
         return false;
 
-    if(to_select->hasFlag("slash_source"))
+    if(!Self->hasArmorEffect("underwear") && to_select->hasFlag("slash_source"))
         return false;
 
-    if(!Self->canSlash(to_select))
+    if(!Self->hasArmorEffect("underwear") && !Self->canSlash(to_select))
         return false;
 
     int card_id = subcards.first();
-    if(Self->getWeapon() && Self->getWeapon()->getId() == card_id)
+    if(!Self->hasArmorEffect("underwear") && Self->getWeapon() && Self->getWeapon()->getId() == card_id)
         return Self->distanceTo(to_select) <= 1;
     else
         return true;

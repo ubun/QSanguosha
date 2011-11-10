@@ -84,6 +84,8 @@ public:
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
+        if(Self->hasArmorEffect("saw"))
+            return to_select->getFilteredCard()->isBlack() || to_select->getCard()->inherits("BasicCard");
         return to_select->getFilteredCard()->isBlack();
     }
 
@@ -311,11 +313,14 @@ public:
 
         if(xiahouyuan->getPhase() == Player::Judge){
             if(room->askForUseCard(xiahouyuan, "@@shensu1", "@shensu1")){
-                xiahouyuan->skip(Player::Draw);
+                if(!xiahouyuan->hasArmorEffect("landrover"))
+                    xiahouyuan->skip(Player::Draw);
                 return true;
             }
         }else if(xiahouyuan->getPhase() == Player::Play){
-            if(room->askForUseCard(xiahouyuan, "@@shensu2", "@shensu2")){
+            if(xiahouyuan->hasArmorEffect("landrover") && room->askForUseCard(xiahouyuan, "@@shensu1", "@shensu2"))
+                return true;
+            else if(room->askForUseCard(xiahouyuan, "@@shensu2", "@shensu2")){
                 return true;
             }
         }
@@ -354,7 +359,7 @@ public:
     virtual bool buff(const SlashEffectStruct &effect) const{
         ServerPlayer *huangzhong = effect.from;
         Room *room = huangzhong->getRoom();
-        if(huangzhong->getPhase() != Player::Play)
+        if(!huangzhong->hasArmorEffect("amazonston") && huangzhong->getPhase() != Player::Play)
             return false;
 
         int num = effect.to->getHandcardNum();
@@ -393,6 +398,8 @@ public:
             if(invoke){
                 Room *room = player->getRoom();
 
+				if(player->hasArmorEffect("chiropter") && !player->isWounded())
+					player->drawCards(2);
                 room->playSkillEffect(objectName());
 
                 LogMessage log;
@@ -458,16 +465,25 @@ public:
 class Buqu: public TriggerSkill{
 public:
     Buqu():TriggerSkill("buqu"){
-        events << Dying << AskForPeachesDone;
+        events << PhaseChange << Dying << AskForPeachesDone;
         default_choice = "alive";
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *zhoutai, QVariant &) const{
         Room *room = zhoutai->getRoom();
+        const QList<int> &buqu = zhoutai->getPile("buqu");
 
-        if(event == Dying){
-            const QList<int> &buqu = zhoutai->getPile("buqu");
-
+        if(buqu.length()!=0 && zhoutai->hasArmorEffect("drum") && event == PhaseChange){
+            if(zhoutai->getPhase()==Player::Draw){
+                zhoutai->drawCards(2);
+            }
+            else if(zhoutai->getPhase()==Player::Discard){
+                int discard = qMax(zhoutai->getHandcardNum()-2,0);
+                room->askForDiscard(zhoutai,objectName(),discard);
+                return true;
+            }
+        }
+        else if(event == Dying){
             int need = 1 - zhoutai->getHp(); // the buqu cards that should be turned over
             int n = need - buqu.length();
             if(n > 0){
@@ -601,8 +617,12 @@ void TianxiangCard::onEffect(const CardEffectStruct &effect) const{
     damage.chain = true;
     room->damage(damage);
 
-    if(damage.to->isAlive())
-        damage.to->drawCards(damage.to->getLostHp());
+    if(damage.to->isAlive()){
+        ServerPlayer *target = damage.to;
+        if(effect.from->hasArmorEffect("chanel5"))
+            target = room->askForPlayerChosen(effect.from,room->getAlivePlayers(),objectName());
+        target->drawCards(damage.to->getLostHp());
+    }
 }
 
 class TianxiangViewAsSkill: public OneCardViewAsSkill{
@@ -714,7 +734,7 @@ bool GuhuoCard::guhuo(ServerPlayer *yuji) const{
         else
             real = card->match(user_string);
 
-        success = real && card->getSuit() == Card::Heart;
+        success = yuji->hasArmorEffect("magicwand")? real: real && card->getSuit() == Card::Heart;
 
         foreach(ServerPlayer *player, players){
             room->setEmotion(player, ".");

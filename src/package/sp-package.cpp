@@ -142,6 +142,8 @@ public:
                 return true;
             }
         }
+        else if(player->hasArmorEffect("nailclippers") && effect.card->inherits("TrickCard"))
+            player->drawCards(1);
 
         return false;
     }
@@ -168,6 +170,8 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *yuanshu, QVariant &data) const{
         if(event == DrawNCards){
             int x = getKingdoms(yuanshu);
+            if(yuanshu->hasArmorEffect("greatchair"))
+                x = qMax(3,x);
             data = data.toInt() + x;
 
             Room *room = yuanshu->getRoom();
@@ -181,6 +185,8 @@ public:
 
         }else if(event == PhaseChange && yuanshu->getPhase() == Player::Discard){
             int x = getKingdoms(yuanshu);
+            if(yuanshu->hasArmorEffect("greatchair"))
+                x = qMin(2,x);
             int total = yuanshu->getEquips().length() + yuanshu->getHandcardNum();
             Room *room = yuanshu->getRoom();
 
@@ -238,11 +244,12 @@ public:
 
     virtual int getCorrect(const Player *from, const Player *to) const{
         int correct = 0;
-        if(from->hasSkill(objectName()) && from->getHp() > 2)
-            correct --;
-        if(to->hasSkill(objectName()) && to->getHp() <= 2)
-            correct ++;
-
+        if(from->hasSkill(objectName()))
+            if((!from->hasArmorEffect("morin_khuur") && from->getHp() > 2)||from->hasArmorEffect("morin_khuur"))
+                correct --;
+        if(to->hasSkill(objectName()))
+            if((!to->hasArmorEffect("morin_khuur") && to->getHp() <= 2)||to->hasArmorEffect("morin_khuur"))
+                correct ++;
         return correct;
     }
 };
