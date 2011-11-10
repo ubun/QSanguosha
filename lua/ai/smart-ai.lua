@@ -870,6 +870,7 @@ end
 local function prohibitUseDirectly(card, player)
 	if player:hasSkill("jiejiu") then return card:inherits("Analeptic") 
 	elseif player:hasSkill("wushen") then return card:getSuit() == sgs.Card_Heart
+	elseif player:hasSkill("ganran") then return card:getTypeId() == sgs.Card_Equip
 	end
 end
 
@@ -2085,7 +2086,7 @@ function SmartAI:getDynamicUsePriority(card)
 			elseif use_card:inherits("RendeCard") and self.player:usedTimes("RendeCard") < 2 then
 				if not self.player:isWounded() then dynamic_value = 6.57 
 				elseif self:isWeak() then dynamic_value = 7.9
-				else dynamic_value = 7.5
+				else dynamic_value = 7.86
 				end
 			elseif use_card:inherits("JieyinCard") and self:getCardsNum("Peach") >= self.player:getLostHp() then
 			    dynamic_value = 7.51
@@ -2612,6 +2613,17 @@ function SmartAI:askForCard(pattern, prompt, data)
 		elseif not self:isFriend(who) then return "."
 		end
 		return self:getCardId("Slash") or "."
+	elseif parsedPrompt[1] == "@weidai-analeptic" then
+		local who = data:toPlayer()
+		if self:isEnemy(who) then return "." end
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		for _, fcard in ipairs(cards) do
+			if fcard:getSuit() == sgs.Card_Spade and fcard:getNumber() > 1 and fcard:getNumber() < 10 then
+				return fcard:getEffectiveId()
+			end
+		end
+		return "."
 	end
 
 	if parsedPrompt[1] == "double-sword-card" then 
@@ -2886,40 +2898,14 @@ end
 
 function SmartAI:fillSkillCards(cards)
     for _,skill in ipairs(sgs.ai_skills) do
-        if self:hasSkill(skill) then            
-            if skill.name == "wushen" then 
-                for i = #cards,1,-1 do 
-                    
-                    if cards[i]:getSuitString() == "heart" then
-                        self:log("cant use "..cards[i]:className()..i)
-                        table.remove(cards,i)
-                    end
-                end
-            end
-            
-			if skill.name == "ganran" then 				
-				 for i = #cards,1,-1 do 
-                    
-                    if cards[i]:inherits("EquipCard") then
-                        self:log("cant use "..cards[i]:className()..i)
-                        table.remove(cards,i)
-                    end
-                end
-			end	
-			
-			if skill.name == "jiejiu" then 				
-				 for i = #cards,1,-1 do 
-                    
-                    if cards[i]:inherits("Analeptic") then
-                        self:log("cant use "..cards[i]:className()..i)
-                        table.remove(cards,i)
-                    end
-                end
-			end	
-			
-            local card = skill.getTurnUseCard(self)
-            if #cards == 0 then card = skill.getTurnUseCard(self,true) end
-            if card then table.insert(cards,card) end            
+        if self:hasSkill(skill) then       
+			for _, card in ipairs(cards) do
+				if prohibitUseDirectly(card, self.player) then table.remove(cards, card) end
+			end
+
+            local skill_card = skill.getTurnUseCard(self)
+            if #cards == 0 then skill_card = skill.getTurnUseCard(self,true) end
+            if skill_card then table.insert(cards, skill_card) end            
         end
     end
 end
@@ -3255,14 +3241,8 @@ end
 
 function SmartAI:getCard(class_name, player)
 	player = player or self.player
-    local cards = player:getHandcards()
-    cards = sgs.QList2Table(cards)
-    self:sortByUsePriority(cards)
-    
-    for _, card in ipairs(cards) do
-        if card:inherits(class_name) then return card end
-    end
-    return nil
+	local card_id = self:getCardId(class_name, player)
+	if card_id then return sgs.Card_Parse(card_id) end
 end
 
 function getCards(class_name, player, room, flag)

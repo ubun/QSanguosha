@@ -10,9 +10,14 @@
 IndicatorItem::IndicatorItem(const QPointF &start, const QPointF &real_finish, Player *player)
     :start(start), finish(start), real_finish(real_finish)
 {
-    setGraphicsEffect(new QGraphicsBlurEffect);
+    QGraphicsDropShadowEffect *halo = new QGraphicsDropShadowEffect();
+    halo->setOffset(0,0);
+    halo->setBlurRadius(5);
+    halo->setColor(Qt::white);
+
+    setGraphicsEffect(halo);
     color = Sanguosha->getKingdomColor(player->getKingdom());
-    width = player->isLord() ? 12 : 8;
+    width = player->isLord() ? 3 : 2;
 }
 
 void IndicatorItem::doAnimation(){
@@ -20,7 +25,10 @@ void IndicatorItem::doAnimation(){
 
     QPropertyAnimation *animation = new QPropertyAnimation(this, "finish");
     animation->setEndValue(real_finish);
+    animation->setEasingCurve(QEasingCurve::OutCubic);
+    animation->setDuration(500);
 
+<<<<<<< HEAD
     //QPauseAnimation *pause = new QPauseAnimation(800);
     QPropertyAnimation *kieru = new QPropertyAnimation(this, "opacity");
     kieru->setStartValue(1.0);
@@ -30,6 +38,15 @@ void IndicatorItem::doAnimation(){
 
     group->addAnimation(animation);
     group->addAnimation(kieru);
+=======
+    QPropertyAnimation *pause = new QPropertyAnimation(this,"opacity");
+    pause->setEndValue(0);
+    pause->setEasingCurve(QEasingCurve::InQuart);
+
+    group->addAnimation(animation);
+    group->addAnimation(pause);
+
+>>>>>>> 6dc76a4b637302578e6d2db6f96efe7b5782950e
     group->start(QAbstractAnimation::DeleteWhenStopped);
 
     connect(group, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -47,6 +64,18 @@ void IndicatorItem::setFinish(const QPointF &finish){
 void IndicatorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
     QPen pen(color);
     pen.setWidthF(width);
+
+    int baseX = qMin(start.x(),finish.x());
+    int baseY = qMin(start.y(),finish.y());
+
+    QLinearGradient linearGrad(start - QPoint(baseX,baseY),
+                               finish - QPoint(baseX,baseY));
+    linearGrad.setColorAt(0, color.darker());
+    linearGrad.setColorAt(1, Qt::white);
+
+
+    QBrush brush(linearGrad);
+    pen.setBrush(brush);
 
     painter->setPen(pen);
     painter->drawLine(mapFromScene(start), mapFromScene(finish));
