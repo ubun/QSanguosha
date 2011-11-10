@@ -45,6 +45,3 @@ io.write("FORMS += ");
 for _, form in ipairs(forms) do
     io.write(format:format(form))
 end
-
-
-

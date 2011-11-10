@@ -8,8 +8,9 @@
 #include "lua.hpp"
 #include "banpairdialog.h"
 
-#ifdef AUDIO_SUPPORT
+#include "OSCS.h"
 
+#ifdef AUDIO_SUPPORT
 #ifdef  Q_OS_WIN32
     extern irrklang::ISoundEngine *SoundEngine;
 #else
@@ -30,6 +31,10 @@
 Engine *Sanguosha = NULL;
 
 extern "C" {
+#ifdef OSCS
+    Package *NewOETanA();
+    Package *NewOETanB();
+#endif
     Package *NewStandard();
     Package *NewWind();
     Package *NewFire();
@@ -72,7 +77,10 @@ extern "C" {
 Engine::Engine()
 {
     Sanguosha = this;
-
+#ifdef OSCS
+    addPackage(NewOETanA());
+    addPackage(NewOETanB());
+#endif
     addPackage(NewStandard());
     addPackage(NewWind());
     addPackage(NewFire());
@@ -83,10 +91,14 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     addPackage(NewWisdom());
+<<<<<<< HEAD
     addPackage(NewGoldSeintoViVA());
     //addPackage(NewGoldSeinto());
     //addPackage(NewBronzeSeinto());
     addPackage(NewTest());
+=======
+    addPackage(NewTest());//DO NOT DELETE
+>>>>>>> 9ab77896fb50042d20dce8acbe05b79e27080c58
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
@@ -371,11 +383,23 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
+<<<<<<< HEAD
     return "20111013";
+=======
+#ifdef OSCS
+    return "20111105";
+#else
+    return "20110912";
+#endif
+>>>>>>> 9ab77896fb50042d20dce8acbe05b79e27080c58
 }
 
 QString Engine::getVersionName() const{
+#ifdef OSCS
+    return tr("OSCS X Beta");
+#else
     return tr("MiddleAutumn");
+#endif
 }
 
 QStringList Engine::getExtensions() const{
@@ -396,7 +420,15 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
+<<<<<<< HEAD
         kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "gold";
+=======
+#ifdef OSCS
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "tan";
+#else
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
+#endif
+>>>>>>> 9ab77896fb50042d20dce8acbe05b79e27080c58
 
     return kingdoms;
 }

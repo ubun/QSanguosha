@@ -1,3 +1,4 @@
+#include "engine.h"
 #include "mainwindow.h"
 #include "startscene.h"
 #include "roomscene.h"
@@ -25,6 +26,9 @@
 #include <QSystemTrayIcon>
 #include <QInputDialog>
 #include <QLabel>
+
+#include "OSCS.h"
+#include <QFile>
 
 class FitView : public QGraphicsView
 {
@@ -302,7 +306,63 @@ void MainWindow::on_actionEnable_Hotkey_toggled(bool checked)
         Config.setValue("EnableHotKey", checked);
     }
 }
+#ifdef OSCS
+void MainWindow::on_actionAbout_triggered()
+{
+    // Yuriko's pixmap
+    QString content =  "<center><img src='image/system/yuriko.jpg'> <br /> </center>";
 
+    // Yuriko's words
+    QString poem = tr("Standing here...looking at this city...my mind, tell me what should I do now?");
+    content.append(QString("<p align='right'><i>%1</i></p>").arg(poem));
+
+    // Yuriko's signature
+    QString signature = tr("Yuriko Omega, after she destoryed Shiro Sanitarium");
+    content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
+
+    content.append(tr("This is a mod for QSanguosha, a free and open source onlive version of Sanguosha, the popular board game in China <br />"));
+    content.append(tr("Author: Moligaloo"));
+    content.append("<center><img src='image/system/shencc.png'> <br /> </center>");
+    content.append("Email: moligaloo@gmail.com <br/>");
+    content.append("Modder: Ibicdlcod");
+    content.append("<center><img src='image/generals/big/ibicdlcod.png'> <br /> </center>");
+    content.append(tr("This mod is intended to make a Command And Conquer:Red Alert-based board game, "
+                      "but currently I'm working on DIYs for my friends at QSanguosha.com."));
+    content.append("<br/>Email: dbpr@mail.ustc.edu.cn <br/>");
+
+    QString config;
+
+#ifdef QT_NO_DEBUG
+    config = "release";
+#else
+    config = "debug";
+#endif
+
+    content.append(tr("Current version: %1 %2 (%3)<br/>")
+                   .arg(Sanguosha->getVersion())
+                   .arg(config)
+                   .arg(Sanguosha->getVersionName()));
+
+    const char *date = __DATE__;
+    const char *time = __TIME__;
+    content.append(tr("Compilation time: %1 %2 <br/>").arg(date).arg(time));
+
+    QString project_url = "http://github.com/ibicdlcod/QSanguosha";
+    content.append(tr("Project home: <a href='%1'>%1</a> <br/>").arg(project_url));
+
+    QString forum_url = "http://qsanguosha.com/forum.php?fromuid=6863";
+    content.append(tr("Forum: <a href='%1'>%1</a> <br/>").arg(forum_url));
+
+    Window *window = new Window(tr("About QSanguosha"), QSize(800, 700));
+    scene->addItem(window);
+
+    window->addContent(content);
+    window->addCloseButton(tr("OK"));
+    window->shift();
+
+    window->appear();
+}
+#else
 void MainWindow::on_actionAbout_triggered()
 {
     // Cao Cao's pixmap
@@ -352,7 +412,7 @@ void MainWindow::on_actionAbout_triggered()
 
     window->appear();
 }
-
+#endif
 void MainWindow::changeBackground(){
     if(scene){
         QPixmap pixmap(Config.BackgroundBrush);
@@ -535,13 +595,47 @@ void MainWindow::on_actionBroadcast_triggered()
     BroadcastBox *dialog = new BroadcastBox(server, this);
     dialog->exec();
 }
-
-
+#ifdef OSCS
 void MainWindow::on_actionAcknowledgement_triggered()
 {
 
-}
+    // Cao Cao's pixmap
+    QString content =  "<img src='image/system/shencc.png'>";
+    content.append(tr("Moligaloo-Weiwudi's crazy fan (Author)"));
+    content.append("<br/>");
+    content.append(tr("...very talented and cute, appear now and then in some posts. I also saw his photo--not so handsome, just the type as your neighbour big brother. He will insist that caocao is (juxiezuo), will take other's advice to his work, and will share a photo of himself riding tigers as a child. He's interesting. "));
+    content.append("<br/>");
+    content.append(tr("One day, this cute boy made a software, and was discovered of his high level on coding. You know, QSanguosha is not a stuff that ordinary coder could make, but he did it. So I admire him, I welcome him to be our big brother!"));;
+    content.append("<br/>");
+    content.append(tr("To broadcast QSanguosha, he send for a friend to construct"));
+    content.append(tr("<a href='http://QSanguosha.com/forum.php?fromuid=6863'>this forum</a>."));
+    content.append(tr("To be honest, this forum is quite good. Very pretty, and many games--and a good atmosphere.(chungeyima)"));
+    content.append("<br/>");
+    content.append("<img src='image/system/3101.jpg'>");
+    content.append("<img src='image/system/3102.jpg'>");
+    content.append("<img src='image/system/3103.jpg'>");
+    content.append("<img src='image/system/3104.jpg'>");
+    content.append("<br/>");
+    content.append(tr("Contributors:"));
+    content.append("<br/>");
+    content.append(tr("1-hypercross-Jiecaoa..."));
+    content.append("<br/>");
+    content.append(tr("2-donle-See my pure eye contract?"));
+    content.append("<br/>");
+    content.append(tr("3-ubun-I couldn't **** ubun with hundreds of thinking!"));
+    content.append("<br/>");
+    content.append(tr("4-william-Lazy coder Mickey"));
+    content.append("<br/>");
+    Window *window = new Window(tr("Acknowledgement"), QSize(1000, 600));
+    scene->addItem(window);
 
+    window->addContent(content);
+    window->addCloseButton(tr("OK"));
+    window->shift();
+
+    window->appear();
+}
+#endif
 void MainWindow::on_actionPC_Console_Start_triggered()
 {
     ServerDialog *dialog = new ServerDialog(this);
@@ -597,7 +691,7 @@ MeleeDialog::MeleeDialog(QWidget *parent)
     layout->addWidget(record_view);
     setLayout(layout);
 
-    setGeneral(Config.value("MeleeGeneral", "zhangliao").toString());
+    setGeneral(Config.value("MeleeGeneral", "sujiang").toString());
 }
 
 QGroupBox *MeleeDialog::createGeneralBox(){

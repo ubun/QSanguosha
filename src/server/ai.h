@@ -16,6 +16,10 @@ typedef int LuaFunction;
 #include <QString>
 #include <QObject>
 
+/**************************************************************************************************
+**Notice: All class defined below is related to ai.i
+**************************************************************************************************/
+
 class AI: public QObject{
     Q_OBJECT
     Q_ENUMS(Relation);

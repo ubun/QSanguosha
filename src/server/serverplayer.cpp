@@ -6,6 +6,9 @@
 #include "settings.h"
 #include "recorder.h"
 
+#include "OSCS.h"
+#include <QFile>
+
 ServerPlayer::ServerPlayer(Room *room)
     : Player(room), socket(NULL), room(room),
     ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL), next(NULL)
@@ -410,7 +413,22 @@ bool ServerPlayer::hasNullification() const{
         }
 
         return count >= n;
-    }else{
+    }
+#ifdef OSCS
+    else if(hasSkill("shuihun")){
+        int n = qMax(1, getHp());
+        int count = 0;
+        foreach(const Card *card, handcards + getEquips()){
+            if(card->objectName() == "nullification")
+                return true;
+
+            if(card->getSuit() == Card::Club)
+                count ++;
+        }
+        return count >= n;
+    }
+#endif
+    else{
         foreach(const Card *card, handcards){
             if(card->objectName() == "nullification")
                 return true;

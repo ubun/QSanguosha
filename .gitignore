@@ -5,6 +5,7 @@ Makefile*
 object_script*
 *.pro.user
 sanguosha.qm
+sanguoshaoe.qm
 config.ini
 swig/sanguosha_wrap.cxx
 records/*
@@ -13,3 +14,5 @@ doc/*.html
 swig/*.bat
 .DS_Store
 liblua5.1.dylib
+extension/
+msgs.txt

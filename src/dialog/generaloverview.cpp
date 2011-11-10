@@ -1,12 +1,21 @@
 #include "generaloverview.h"
-#include "ui_generaloverview.h"
 #include "engine.h"
+
+#include "OSCS.h"
+#include <QFile>
+
+#ifdef OSCS
+#include "ui_generaloverviewoe.h"
+#else
+#include "ui_generaloverview.h"
+#endif
 
 #include <QMessageBox>
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QCommandLinkButton>
 #include <QClipboard>
+
 
 GeneralOverview::GeneralOverview(QWidget *parent) :
     QDialog(parent),
@@ -33,6 +42,9 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         const General *general = generals[i];
 
         QString name, kingdom, gender, max_hp, package;
+#ifdef OSCS
+        QString number = Sanguosha->translate("!" + general->objectName());
+#endif
 
         name = Sanguosha->translate(general->objectName());
 
@@ -41,9 +53,16 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         max_hp = QString::number(general->getMaxHp());
         package = Sanguosha->translate(general->getPackage());
 
+#ifdef OSCS
+        QTableWidgetItem *number_item = new QTableWidgetItem(number);
+        number_item->setTextAlignment(Qt::AlignCenter);
+#endif
+
         QTableWidgetItem *name_item = new QTableWidgetItem(name);
         name_item->setTextAlignment(Qt::AlignCenter);
         name_item->setData(Qt::UserRole, general->objectName());
+
+#ifndef OSCS
         if(general->isLord()){
             name_item->setIcon(lord_icon);
             name_item->setTextAlignment(Qt::AlignCenter);
@@ -51,6 +70,7 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
 
         if(general->isHidden())
             name_item->setBackgroundColor(Qt::gray);
+#endif
 
         QTableWidgetItem *kingdom_item = new QTableWidgetItem(kingdom);
         kingdom_item->setTextAlignment(Qt::AlignCenter);
@@ -64,17 +84,84 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         QTableWidgetItem *package_item = new QTableWidgetItem(package);
         package_item->setTextAlignment(Qt::AlignCenter);
 
+#ifdef OSCS
+        QColor qkColor;
+        if(general->getKingdom() == "wei"){
+            qkColor = Qt::darkBlue;
+        }else if(general->getKingdom() == "shu"){
+            qkColor = Qt::darkRed;
+        }else if(general->getKingdom() == "wu"){
+            qkColor = Qt::darkGreen;
+        }else if(general->getKingdom() == "qun"){
+            qkColor = Qt::darkGray;
+        }else if(general->getKingdom() == "god"){
+            qkColor = Qt::darkYellow;
+        }else{
+            qkColor = Qt::cyan;
+        }
+
+        name_item->setBackgroundColor(qkColor);
+        kingdom_item->setBackgroundColor(qkColor);
+        gender_item->setBackgroundColor(qkColor);
+        max_hp_item->setBackgroundColor(qkColor);
+        package_item->setBackgroundColor(qkColor);
+        number_item->setBackgroundColor(qkColor);
+
+        QColor qColort = Qt::white;
+        if(general->getKingdom() == "tan") qColort = Qt::black;
+        name_item->setTextColor(qColort);
+        kingdom_item->setTextColor(qColort);
+        gender_item->setTextColor(qColort);
+        max_hp_item->setTextColor(qColort);
+        package_item->setTextColor(qColort);
+        number_item->setTextColor(qColort);
+
+        if(general->objectName() == "xushu"){//xushu
+            gender_item->setBackgroundColor(Qt::darkBlue);
+            max_hp_item->setBackgroundColor(Qt::darkBlue);
+            package_item->setBackgroundColor(Qt::darkBlue);
+        }
+
+        if(general->isFemale()){
+            name_item->setBackgroundColor(Qt::magenta);
+            name_item->setTextColor(Qt::white);
+        }
+
+        if(general->isLord()){
+            name_item->setIcon(lord_icon);
+            name_item->setTextAlignment(Qt::AlignCenter);
+            name_item->setBackgroundColor(Qt::yellow);
+            name_item->setTextColor(Qt::black);
+        }
+
+        if(general->isHidden()){
+            name_item->setBackgroundColor(Qt::black);
+            name_item->setTextColor(Qt::white);
+        }
+#endif
+
         ui->tableWidget->setItem(i, 0, name_item);
         ui->tableWidget->setItem(i, 1, kingdom_item);
         ui->tableWidget->setItem(i, 2, gender_item);
         ui->tableWidget->setItem(i, 3, max_hp_item);
         ui->tableWidget->setItem(i, 4, package_item);
+#ifdef OSCS
+        ui->tableWidget->setItem(i, 5, number_item);
+#endif
     }
 
+#ifdef OSCS
+    ui->tableWidget->setColumnWidth(0, 110);
+#else
     ui->tableWidget->setColumnWidth(0, 80);
+#endif
     ui->tableWidget->setColumnWidth(1, 50);
     ui->tableWidget->setColumnWidth(2, 50);
     ui->tableWidget->setColumnWidth(3, 60);
+#ifdef OSCS
+    ui->tableWidget->setColumnWidth(4, 70);
+    ui->tableWidget->setColumnWidth(5, 50);
+#endif
 
     ui->tableWidget->setCurrentItem(ui->tableWidget->item(0,0));
 }

@@ -6,6 +6,9 @@
 
 #include <QSize>
 
+#include "OSCS.h"
+#include <QFile>
+
 General::General(Package *package, const QString &name, const QString &kingdom, int max_hp, bool male, bool hidden)
     :QObject(package), kingdom(kingdom), max_hp(max_hp), gender(male ? Male : Female), hidden(hidden)
 {
@@ -61,8 +64,12 @@ QString General::getPixmapPath(const QString &category) const{
     QString suffix = "png";
     if(category == "card")
         suffix = "jpg";
-
+    QString pack = this->getPackage();
+#ifdef OSCSS /*Not Active yet*/
+    return QString("extensions/%1/images/%2/%3.%4").arg(pack).arg(category).arg(objectName()).arg(suffix);
+#else
     return QString("image/generals/%1/%2.%3").arg(category).arg(objectName()).arg(suffix);
+#endif
 }
 
 void General::addSkill(Skill *skill){

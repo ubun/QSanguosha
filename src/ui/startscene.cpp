@@ -6,10 +6,17 @@
 #include <QNetworkInterface>
 #include <QGraphicsDropShadowEffect>
 
+#include "OSCS.h"
+#include <QFile>
+
 StartScene::StartScene()
 {
     // game logo
+#ifdef OSCS
+    logo = new Pixmap("image/system/logoCS.png");
+#else
     logo = new Pixmap("image/system/logo.png");
+#endif
     logo->shift();
     logo->moveBy(0, -Config.Rect.height()/4);
     addItem(logo);
