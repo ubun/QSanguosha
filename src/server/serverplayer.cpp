@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "recorder.h"
 
+#include "OSCS.h"
 #include <QFile>
 
 ServerPlayer::ServerPlayer(Room *room)

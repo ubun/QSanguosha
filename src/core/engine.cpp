@@ -8,6 +8,8 @@
 #include "lua.hpp"
 #include "banpairdialog.h"
 
+#include "OSCS.h"
+
 #ifdef AUDIO_SUPPORT
 #ifdef  Q_OS_WIN32
     extern irrklang::ISoundEngine *SoundEngine;

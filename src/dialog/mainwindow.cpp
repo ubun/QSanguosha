@@ -27,6 +27,7 @@
 #include <QInputDialog>
 #include <QLabel>
 
+#include "OSCS.h"
 #include <QFile>
 
 class FitView : public QGraphicsView

@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QComboBox>
 
+#include "OSCS.h"
 #include <QFile>
 
 namespace Ui {

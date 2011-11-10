@@ -164,7 +164,6 @@ public:
             while(room->askForYiji(guojia, yiji_cards))
                 ; // empty loop
         }
-
     }
 };
 

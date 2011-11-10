@@ -2,73 +2,6 @@ module("extensions.YKStdGeneral", package.seeall)
 
 extension = sgs.Package("YKStdGeneral")
 
---0101 liubei unf
-Rende_Card = sgs.CreateSkillCard{
-	name = "Rende_card",
-	will_throw = false,
-	
-	on_use = function(self, room, source, targets)
-		local target = nil
-		if(targets:isEmpty()) then--[[
-			table.foreach(room:getAlivePlayers(),
-				function(player, v)
-					if(player ~= source) then
-						target = player
-					break
-					end
-				end
-			)]]
-		else
-			target = targets:first()
-
-			room:moveCardTo(this, target, sgs.Player_Hand, false)
-
-			local old_value = source:getMark("rende");
-			local new_value = old_value + subcards:length();
-			room:setPlayerMark(source, "rende", new_value);
-
-			if(old_value < 2 and new_value >= 2) then
-				local recover = sgs.RecoverStruct()
-				recover.card = this;
-				recover.who = source;
-				room:recover(source, recover);
-			end
-		end
-	end,
-}
-
---0102 Guanyu unf
-Wusheng = sgs.CreateViewAsSkill{
-	name = "wusheng",
-	n = 0,
-	
-	enabled_at_play=function()
-		return sgs.Self:canSlashWithoutCrossbow()
-	end,
-	
-	enabled_at_response=function()
-		return sgs.Self:getPattern() == "slash"
-	end,
-	
-	view_filter=function(self, selected, to_select)
-		local card = to_select:getFilteredCard()
-		if(not card:isRed()) then return false end
-		
-		if(card == Self:getWeapon() and card:objectName() == "crossbow") then
-			return Self:canSlashWithoutCrossbow()
-		else
-			return true
-		end
-	end,
-	
-	view_as=function(self, card)
-		local filtered=sgs.Sanguosha:cloneCard("slash", card:getSuit(), card:getNumber())
-		filtered:addSubcard(card)
-		filtered:setSkillName(self:objectName())
-		return filtered
-	end
-}
-
 --0201 Caocao 
 --jianxiong by hypercross
 luajianxiong=sgs.CreateTriggerSkill{
@@ -150,6 +83,7 @@ luafankui = sgs.CreateTriggerSkill{
 
 }
 
+--guicai unf
 --[[
 luaguicai_card = sgs.CreateSkillCard{
 	target_fixed = true,
@@ -261,26 +195,26 @@ luaganglie = sgs.CreateTriggerSkill{
 luatuxi_card = sgs.CreateSkillCard{
 
 	name = "luatuxi_card",
+	
+	target_fixed=false,
+	
+	will_throw=false,
+
 		
 	filter = function(self,targets,to_select)
 		
-		if (not to_select:getGeneral():isMale()) or #targets>1 then return false 
-		elseif to_select:hasSkill("kongcheng") and to_select:isKongcheng() and #targets==0 then return false
-		else return true end--[[
-		if(#targets > 1) then
-			return false
-		end
+		if(#targets > 1) then return false end
 		
 		if(to_select == self) then return false end
 		
-		return not to_select:isKongcheng()]]
+		return not to_select:isKongcheng()
 	end,
 		
 	on_effect=function(self,effect)
 		local from=effect.from
 		local to  =effect.to
 		local room=to:getRoom()
-		local card_id= room:askForCardChosen(from, to, "h", "tuxi")
+		local card_id= room:askForCardChosen(from, to, "h", "luatuxi_main")
 		local card   = sgs.Sanguosha:getCard(card_id)
 		room:moveCardTo(card, from, sgs.Player_Hand, false)
 		
@@ -290,32 +224,29 @@ luatuxi_card = sgs.CreateSkillCard{
 }
 
 luatuxi_viewas = sgs.CreateViewAsSkill{
+
+	name="luatuxi_viewas",
+	
 	n = 0,
-	
-	name="luatuxi",
-	
-	view_as=function(self, card)
-		local view_as_card = luatuxi_card:clone()
-		
-		view_as_card:setSkillName(self:objectName())
-		
-		return view_as_card
+
+	view_as=function()
+		return luatuxi_card:clone()		
 	end,
 	
 	enabled_at_play=function()
 		return false
 	end,
 	
-	enabled_at_response=function()
-		return sgs.Self:getPattern()=="@@luatuxi"
+	enabled_at_response=function(player,pattern)
+		return pattern=="@@luatuxi_main"
 	end
 }
 
-luatuxi = sgs.CreateTriggerSkill{
+luatuxi_main = sgs.CreateTriggerSkill{
 
-	name = "luatuxi",
+	name = "luatuxi_main",
 	
-	view_as = luatuxi_viewas,
+	view_as_skill = luatuxi_viewas,
 	
 	events = {sgs.PhaseChange},
 	
@@ -330,15 +261,182 @@ luatuxi = sgs.CreateTriggerSkill{
 					break
 				end
 			end
-			room:askForSkillInvoke(player, "luatuxi")
-			if(can_invoke and room:askForUseCard(player, "@@luatuxi", "@luatuxi_card")) then return true end
+			if(not room:askForSkillInvoke(player, "luatuxi_main")) then return false end
+			if(can_invoke and room:askForUseCard(player, "@@luatuxi_main", "@luatuxi_card")) then return true end
 		return false
 		end
-		
 	end
 }
---Guanyu = sgs.General(extension, "guanyu", "shu", 4)
---Guanyu:addSkill(Wusheng)
+
+--0205 Xuchu
+--luoyi by ibicdlcod
+lualuoyi_buff = sgs.CreateTriggerSkill{
+	
+	name="#lualuoyi",
+	
+	events={sgs.Predamage},
+	
+	on_trigger=function(self,event,player,data)
+		if(player:hasFlag("lualuoyi") and player:isAlive()) then
+			local damage = data:toDamage()
+			local room = player:getRoom()
+			local reason = damage.card
+			if(not reason) then return false end
+			if(reason:inherits("Slash") or reason:inherits("Duel")) then
+				--[[
+				local log=sgs.LogMessage()
+				log.type = "#luaLuoyiBuff"
+				log.from = player
+				log.to = damage.to
+				log.arg = damage.damage
+				log.arg2 = damage.damage+1
+				room:sendLog(log)				
+				
+				room:askForSkillInvoke(player,"#lualuoyi")]]
+				
+				damage.damage = damage.damage+1
+				data:setValue(damage)
+				return false
+			end
+		else return false
+		end
+	end
+}
+
+lualuoyi = sgs.CreateTriggerSkill{
+	name = "lualuoyi",
+	
+	events={sgs.DrawNCards},
+	
+	on_trigger=function(self,event,player,data)
+		local room = player:getRoom()
+		local x = data:toInt()
+		if(room:askForSkillInvoke(player, "lualuoyi")) then
+			room:playSkillEffect("lualuoyi")
+			
+			player:setFlags("lualuoyi")
+			data:setValue(x-1)
+		end
+	end
+}
+
+--0206 Guojia
+--tiandu by ibicdlcod
+
+luatiandu = sgs.CreateTriggerSkill{
+	name = "luatiandu",
+	
+	frequency = sgs.Skill_Frequent,
+	
+	events = {sgs.FinishJudge},
+	
+	on_trigger=function(self,event,player,data)
+		local room = player:getRoom()
+		local judge = data:toJudge()
+		local card = judge.card
+		data_card = sgs.QVariant(0)
+		data_card:setValue(card)
+		if(player:askForSkillInvoke("luatiandu", data_card)) then
+			player:obtainCard(judge.card)
+			room:playSkillEffect("luatiandu")
+			return true
+		end
+		return false
+	end
+}
+
+--yiji by ibicdlcod(unf)
+luayiji = sgs.CreateTriggerSkill{
+	name = "luayiji",
+	
+	frequency = sgs.Skill_Frequent,
+	
+	events = {sgs.Damaged},
+	
+	on_trigger=function(self,event,player,data)
+		local room = player:getRoom()
+		local damage = data:toDamage()
+		local x = damage.damage
+		local i = 0
+		if(not room:askForSkillInvoke(player, "luayiji")) then return false end
+		room:playSkillEffect("luayiji")
+		repeat
+			player:drawCards(2)--[[
+			local good = room:askForPlayerChosen(player, room:getOtherPlayers(player), "luayiji")
+			if(good) then
+				local cards = sgs.qlist(player:handCards())
+				good:obtainCard(cards.last())
+			end]]
+		until i == x - 1
+	end
+}
+
+--0207 Zhenji
+--qingguo by ibicdlcod(unf)
+luaqingguo = sgs.CreateViewAsSkill{
+	name = "luaqingguo",
+	
+	n = 1,
+	
+	view_filter = function(self, selected, to_select)
+		return to_select:isBlack() and not to_select:isEquipped()
+	end,
+	
+	view_as = function(self, cards)
+		if #cards == 1 then
+			local card = cards[1]
+			local new_card =sgs.Sanguosha:cloneCard("jink", card:getSuit(), card:getNumber())
+			new_card:addSubcard(card:getId())
+			new_card:setSkillName(self:objectName())
+			return new_card
+		end
+	end,
+	
+	enabled_at_play = function()
+		return false
+	end,
+	
+	enabled_at_response = function(player, pattern)
+		return true --pattern == "jink"
+	end
+}
+
+--luoshen by ibicdlcod
+lualuoshen = sgs.CreateTriggerSkill{
+	name = "lualuoshen",
+	
+	frequency = sgs.Skill_Frequent,
+	
+	events = {sgs.PhaseChange,sgs.FinishJudge},
+	
+	on_trigger=function(self,event,player,data)
+		if(event == sgs.PhaseChange and player:getPhase() == sgs.Player_Start) then
+			local room = player:getRoom()
+			while(player:askForSkillInvoke("lualuoshen")) do
+				room:playSkillEffect("lualuoshen")
+				
+				    local judge=sgs.JudgeStruct()
+                    judge.pattern=sgs.QRegExp("(.*):(spade|club):(.*)")
+                    judge.good=true
+                    judge.reason="lualuoshen"
+                    judge.who=player
+                    room:judge(judge)
+				if(judge:isBad()) then
+					break
+				end
+			end
+		else if(event == sgs.FinishJudge) then
+			judge = data:toJudge()
+			if(judge.reason == "lualuoshen") then
+				if(judge.card:isBlack()) then
+					player:obtainCard(judge.card)
+					return true
+				end
+			end
+		end
+		end
+	end
+}
 
 --0201
 luacaocao = sgs.General(extension, "luacaocao$", "wei", 4)
@@ -356,8 +454,22 @@ luaxiahoudun:addSkill(luaganglie)
 
 --0204
 luazhangliao = sgs.General(extension, "luazhangliao", "wei", 4)
-luazhangliao:addSkill(luatuxi)
+luazhangliao:addSkill(luatuxi_main)
 
+--0205
+luaxuchu = sgs.General(extension, "luaxuchu", "wei", 4)
+luaxuchu:addSkill(lualuoyi_buff)
+luaxuchu:addSkill(lualuoyi)
+
+--0206
+luaguojia = sgs.General(extension, "luaguojia", "wei", 3)
+luaguojia:addSkill(luatiandu)
+luaguojia:addSkill(luayiji)
+
+--0207
+luazhenji = sgs.General(extension, "luazhenji", "wei", 3, false)
+luazhenji:addSkill(luaqingguo)
+luazhenji:addSkill(lualuoshen)
 
 sgs.LoadTranslationTable{
 	["YKStdGeneral"] = "YOKA标准武将",

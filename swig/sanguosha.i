@@ -603,6 +603,8 @@ class DummyCard: public Card{
 class Package: public QObject{
 public:
     Package(const char *name);
+	
+    QMultiMap<QString, QString> related_skills;
 };
 
 class Engine: public QObject
@@ -665,6 +667,7 @@ public:
 
     const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card) const;
     int correctDistance(const Player *from, const Player *to) const;
+	
 };
 
 extern Engine *Sanguosha;

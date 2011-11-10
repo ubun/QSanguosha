@@ -170,7 +170,8 @@ HEADERS += src/client/aux-skills.h \
 	src/util/recorder.h \
 	src/util/socket.h \
     src/package/OETanA.h \
-    src/package/OETanB.h
+    src/package/OETanB.h \
+    OSCS.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
@@ -222,4 +223,49 @@ TRANSLATIONS += sanguosha.ts
 TRANSLATIONS += sanguoshaoe.ts # for OMEGASLASH
 
 OTHER_FILES += \
-    lua/sgs_ex.lua
+    lua/sgs_ex.lua \
+    lua/ai/yjcm-skill-ai.lua \
+    lua/ai/yjcm-ai.lua \
+    lua/ai/yitian-ai.lua \
+    lua/ai/wisdom-ai.lua \
+    lua/ai/wind-ai.lua \
+    lua/ai/value_config.lua \
+    lua/ai/thicket-skill-ai.lua \
+    lua/ai/thicket-ai.lua \
+    lua/ai/state-ai.lua \
+    lua/ai/standard-skill-ai.lua \
+    lua/ai/standard-ai.lua \
+    lua/ai/sp-ai.lua \
+    lua/ai/smart-ai.lua \
+    lua/ai/sequence-ai.lua \
+    lua/ai/playrule-ai.lua \
+    lua/ai/nostalgia-ai.lua \
+    lua/ai/new-ai.lua \
+    lua/ai/mountain-ai.lua \
+    lua/ai/joy-ai.lua \
+    lua/ai/intention-filter.lua \
+    lua/ai/intention-ai.lua \
+    lua/ai/hulaoguan-ai.lua \
+    lua/ai/guanxing-ai.lua \
+    lua/ai/god-ai.lua \
+    lua/ai/general_config.lua \
+    lua/ai/fire-skill-ai.lua \
+    lua/ai/fire-ai.lua \
+    lua/ai/fancheng-ai.lua \
+    lua/ai/choice-ai.lua \
+    lua/ai/chat-ai.lua \
+    lua/lib/sqlite3.lua \
+    lua/lib/socket.lua \
+    lua/lib/mime.lua \
+    lua/lib/middleclass.lua \
+    lua/lib/ltn12.lua \
+    lua/lib/libluasqlite3-loader.lua \
+    lua/lib/expand.lua \
+    lua/lib/socket/url.lua \
+    lua/lib/socket/tp.lua \
+    lua/lib/socket/smtp.lua \
+    lua/lib/socket/http.lua \
+    lua/lib/socket/ftp.lua \
+    lua/tools/send-result.lua \
+    lua/tools/group.lua \
+    lua/tools/genpro.lua

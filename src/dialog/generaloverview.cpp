@@ -1,6 +1,9 @@
 #include "generaloverview.h"
 #include "engine.h"
 
+#include "OSCS.h"
+#include <QFile>
+
 #ifdef OSCS
 #include "ui_generaloverviewoe.h"
 #else
@@ -13,7 +16,6 @@
 #include <QCommandLinkButton>
 #include <QClipboard>
 
-#include <QFile>
 
 GeneralOverview::GeneralOverview(QWidget *parent) :
     QDialog(parent),

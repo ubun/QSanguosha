@@ -14,12 +14,6 @@
 #include <QStringList>
 #include <QMetaObject>
 
-/**************************************************************************************************
-**Notice: THIS VARIABLE IS FOR OMEGASLASH CREATIVE SUIT.
-**You should #include <engine.h> and #include <QFile> at anywhere you #ifdef OSCS.
-**************************************************************************************************/
-#define OSCS 504161487
-
 class AI;
 class Scenario;
 class ChallengeModeSet;

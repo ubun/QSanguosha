@@ -6,6 +6,7 @@
 #include "client.h"
 #include "settings.h"
 
+#include "OSCS.h"
 #include <QFile>
 
 ZhihengCard::ZhihengCard(){
