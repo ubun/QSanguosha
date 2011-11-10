@@ -88,10 +88,7 @@ void JiemingCard::onEffect(const CardEffectStruct &effect) const{
     if(x <= 0)
         return;
 
-    if(!effect.from->hasArmorEffect("flack"))
-        effect.to->drawCards(x);
-    else
-        effect.to->drawCards(effect.to->getMaxHP());
+    effect.to->drawCards(x);
 }
 
 class JiemingViewAsSkill: public ZeroCardViewAsSkill{
@@ -190,8 +187,7 @@ public:
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        return selected.isEmpty() && (to_select->getCard()->inherits("Weapon")
-                ||(Self->hasArmorEffect("sansyouuo") && !to_select->isEquipped())) ;
+        return selected.isEmpty() && to_select->getCard()->inherits("Weapon");
     }
 
     virtual const Card *viewAs(const QList<CardItem *> &cards) const{
@@ -253,15 +249,6 @@ public:
         else if(value == 2)
             return to_select->getFilteredCard()->isRed();
 
-        else if(value == 3)
-            return to_select->getFilteredCard()->getSuit() != Card::Heart;
-        else if(value == 4)
-            return to_select->getFilteredCard()->getSuit() != Card::Diamond;
-        else if(value == 5)
-            return to_select->getFilteredCard()->getSuit() != Card::Spade;
-        else if(value == 6)
-            return to_select->getFilteredCard()->getSuit() != Card::Club;
-
         return false;
     }
 
@@ -300,21 +287,7 @@ public:
 
                     room->judge(judge);
 
-                    if(shuangxiong->hasArmorEffect("tanbi")){
-                        switch(judge.card->getSuit()){
-                        case Card::Heart:
-                            room->setPlayerMark(shuangxiong, "shuangxiong", 3); break;
-                        case Card::Diamond:
-                            room->setPlayerMark(shuangxiong, "shuangxiong", 4); break;
-                        case Card::Spade:
-                            room->setPlayerMark(shuangxiong, "shuangxiong", 5); break;
-                        case Card::Club:
-                            room->setPlayerMark(shuangxiong, "shuangxiong", 6); break;
-                        default: break;
-                        }
-                    }
-                    else
-                        room->setPlayerMark(shuangxiong, "shuangxiong", judge.card->isRed() ? 1 : 2);
+                    room->setPlayerMark(shuangxiong, "shuangxiong", judge.card->isRed() ? 1 : 2);
                     shuangxiong->setFlags("-shuangxiong");
 
                     return true;
@@ -350,8 +323,6 @@ public:
                 room->playSkillEffect(objectName());
                 int to_throw = room->askForCardChosen(pangde, effect.to, "he", objectName());
                 room->throwCard(to_throw);
-                if(pangde->hasArmorEffect("coffinlid"))
-                    pangde->obtainCard(Sanguosha->getCard(to_throw));
             }
         }
 
@@ -398,11 +369,7 @@ public:
             room->broadcastInvoke("animate", "lightbox:$niepan");
             room->playSkillEffect(objectName());
 
-            const Card *armor = NULL;
-            if(!pangtong->hasArmorEffect("reijyutsu"))
-                pangtong->loseMark("@nirvana");
-            else
-                armor = pangtong->getArmor();
+            pangtong->loseMark("@nirvana");
 
             room->setPlayerProperty(pangtong, "hp", qMin(3, pangtong->getMaxHP()));
             pangtong->throwAllCards();
@@ -412,10 +379,8 @@ public:
                 if(dying_data.damage == NULL || dying_data.damage->nature == DamageStruct::Normal)
                     room->setPlayerProperty(pangtong, "chained", false);
             }
-			if(!pangtong->faceUp())
+            if(!pangtong->faceUp())
                 pangtong->turnOver();
-            if(pangtong->getMark("@nirvana") > 0 && armor)
-                room->moveCardTo(armor, pangtong, Player::Equip);
         }
 
         return false;

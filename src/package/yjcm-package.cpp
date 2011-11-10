@@ -150,16 +150,13 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(event == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
-            if(use.card->getSkillName() == "jiushi"){
+            if(use.card->getSkillName() == "jiushi")
                 player->turnOver();
-                if(player->hasArmorEffect("ch3oh"))
-                    player->getRoom()->loseHp(player);
-            }
         }else if(event == Predamaged){
             player->tag["PredamagedFace"] = player->faceUp();
         }else if(event == Damaged){
             bool faceup = player->tag.value("PredamagedFace").toBool();
-            if(!player->hasArmorEffect("ch3oh") && !faceup && player->askForSkillInvoke("jiushi", data)){
+            if(!faceup && player->askForSkillInvoke("jiushi", data)){
                 player->getRoom()->playSkillEffect("jiushi", 3);
                 player->turnOver();
             }
@@ -186,10 +183,8 @@ public:
         if(effect.to == effect.from)
             return false;
 
-        if(effect.card->getTypeId() == Card::Trick || effect.card->inherits("Slash")){
+        if(effect.card->getTypeId() == Card::Trick){
             Room *room = player->getRoom();
-            if(!effect.from->hasArmorEffect("torture") && effect.card->inherits("Slash"))
-                return false;
 
             if((effect.from && effect.from->hasSkill(objectName()))){
                 LogMessage log;
@@ -205,7 +200,7 @@ public:
                 return true;
             }
 
-            if(effect.to->hasSkill(objectName()) && effect.from && !effect.to->hasArmorEffect("torture") && !effect.card->inherits("Slash")){
+            if(effect.to->hasSkill(objectName()) && effect.from){
                 LogMessage log;
                 log.type = "#WuyanGood";
                 log.from = effect.to;
@@ -305,7 +300,7 @@ public:
 
         if(event == HpRecover){
             RecoverStruct recover = data.value<RecoverStruct>();
-            if(!player->hasArmorEffect("mushroom") && recover.who && recover.who != player){
+            if(recover.who && recover.who != player){
                 recover.who->drawCards(recover.recover);
 
                 LogMessage log;
@@ -319,15 +314,12 @@ public:
                 room->playSkillEffect(objectName(), qrand() % 2 + 1);
 
             }
-            else if(player->hasArmorEffect("mushroom") && recover.who && recover.who != player)
-                room->loseHp(recover.who,recover.recover);
-
         }else if(event == Damaged){
             DamageStruct damage = data.value<DamageStruct>();
             ServerPlayer *source = damage.from;
             if(source && source != player){
-                if(!player->hasArmorEffect("mushroom")){
-				room->playSkillEffect(objectName(), qrand() % 2 + 3);
+                room->playSkillEffect(objectName(), qrand() % 2 + 3);
+
                 const Card *card = room->askForCard(source, ".enyuan", "@enyuan");
                 if(card){
                     room->showCard(source, card->getEffectiveId());
@@ -335,8 +327,6 @@ public:
                 }else{
                     room->loseHp(source);
                 }
-            }
-                else source->drawCards(2 * damage.damage);
             }
         }
 
@@ -393,7 +383,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasArmorEffect("teardan") && target->hasSkill(objectName());
+        return target->hasSkill(objectName());
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
@@ -441,8 +431,9 @@ public:
             lingtong->tag.remove("InvokeXuanfeng");
             Room *room = lingtong->getRoom();
 
-            QString choice = lingtong->hasArmorEffect("rotate")? room->askForChoice(lingtong, objectName(), "slash+nothing") : room->askForChoice(lingtong, objectName(), "slash+damage+nothing");
-			room->playSkillEffect(objectName());
+            QString choice = room->askForChoice(lingtong, objectName(), "slash+damage+nothing");
+
+
             if(choice == "slash"){
                 QList<ServerPlayer *> targets;
                 foreach(ServerPlayer *target, room->getAlivePlayers()){
@@ -500,9 +491,7 @@ public:
 
             int x = qMin(5, damage.to->getHp());
             damage.to->drawCards(x);
-            if(player->hasArmorEffect("nanafist"))
-                damage.from->turnOver();
-            else damage.to->turnOver();
+            damage.to->turnOver();
         }
 
         return false;
@@ -550,8 +539,6 @@ void XianzhenSlashCard::onUse(Room *room, const CardUseStruct &card_use) const{
         use.card = slash;
         use.from = card_use.from;
         use.to << target;
-        if(card_use.from->hasArmorEffect("lrzt9hh") && !room->askForDiscard(card_use.from,objectName(),1,true))
-            room->loseHp(card_use.from);
         room->useCard(use);
     }
 }
@@ -654,8 +641,6 @@ MingceCard::MingceCard(){
 
 void MingceCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->obtainCard(this);
-    if(effect.from->hasArmorEffect("totocar"))
-        return;
 
     Room *room = effect.to->getRoom();
     QString choice = room->askForChoice(effect.to, "mingce", "use+draw");
@@ -745,10 +730,7 @@ public:
                 return false;
 
             CardEffectStruct effect = data.value<CardEffectStruct>();
-            bool result = effect.to->hasArmorEffect("totocar")? 
-						effect.card->inherits("Slash") :
-						(effect.card->inherits("Slash") || effect.card->getTypeId() == Card::Trick);
-            if(result){
+            if(effect.card->inherits("Slash") || effect.card->getTypeId() == Card::Trick){
                 LogMessage log;
                 log.type = "#ZhichiAvoid";
                 log.from = player;
@@ -843,11 +825,8 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *wuguotai = room->findPlayerBySkillName(objectName());
-        if(!wuguotai) return false;
-        if(wuguotai->hasArmorEffect("aofrog") && wuguotai->getPhase() == Player::NotActive)
-            return false;
 
-        if(wuguotai->askForSkillInvoke(objectName(), data)){
+        if(wuguotai && wuguotai->askForSkillInvoke(objectName(), data)){
             const Card *card = NULL;
             if(player == wuguotai)
                 card = room->askForCardShow(player, wuguotai, objectName());
@@ -879,8 +858,7 @@ XinzhanCard::XinzhanCard(){
 }
 
 void XinzhanCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    int n = source->hasArmorEffect("teardan")? 2: 3;
-    QList<int> cards = room->getNCards(n), left;
+    QList<int> cards = room->getNCards(3), left;
     left = cards;
 
     QList<int> hearts;
@@ -930,58 +908,6 @@ public:
     }
 };
 
-class Qiecai: public TriggerSkill{
-public:
-    Qiecai():TriggerSkill("qiecai"){
-        events << Predamage;
-        frequency = Compulsory;
-    }
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        int ex_damage = player->getMark("@struggle");
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.to->getGeneral()->getPackage() != "mountain")
-            return false;
-        if((damage.card->inherits("Slash") || damage.card->inherits("Duel")) &&
-            player->hasFlag("luoyi"))
-            ex_damage++;
-        LogMessage log;
-        log.type = "#Qiecai";
-        log.from = player;
-        log.to << damage.to;
-        log.arg = QString::number(damage.damage+ex_damage);
-        player->getRoom()->sendLog(log);
-        player->getRoom()->playSkillEffect(objectName());
-        player->getRoom()->loseHp(damage.to, damage.damage+ex_damage);
-        return true;
-    }
-};
-
-class Shangshi: public TriggerSkill{
-public:
-    Shangshi():TriggerSkill("shangshi"){
-        events << HpLost << Damaged << CardLost << PhaseChange << HpRecover;
-        frequency = Frequent;
-    }
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(event == CardLost && player->hasArmorEffect("coptis")){
-            if(player->isKongcheng()){
-                CardMoveStar move = data.value<CardMoveStar>();
-                if(move->from_place == Player::Hand){
-                    Room *room = player->getRoom();
-                    if(room->askForSkillInvoke(player, "lianying"))
-                        player->drawCards(1);
-                }
-            }
-        }
-        else if(!player->hasArmorEffect("coptis") && player->getPhase() != Player::Discard && player->getLostHp()>player->getHandcardNum()
-            && player->getRoom()->askForSkillInvoke(player, objectName())){
-            player->getRoom()->playSkillEffect(objectName());
-            player->drawCards(player->getLostHp()-player->getHandcardNum());
-        }
-        return false;
-    }
-};
-
 YJCMPackage::YJCMPackage():Package("YJCM"){
     General *caozhi = new General(this, "caozhi", "wei", 3);
     caozhi->addSkill(new Luoying);
@@ -1027,10 +953,6 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
     General *gaoshun = new General(this, "gaoshun", "qun");
     gaoshun->addSkill(new Xianzhen);
     gaoshun->addSkill(new Jiejiu);
-
-    General *chunhua = new General(this, "chunhua", "jon", 4, false);
-    chunhua->addSkill(new Shangshi);
-    chunhua->addSkill(new Qiecai);
 
     addMetaObject<JujianCard>();
     addMetaObject<MingceCard>();

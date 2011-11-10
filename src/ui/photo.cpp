@@ -194,13 +194,6 @@ void Photo::setDrankState(){
         avatar_area->setBrush(Qt::NoBrush);
 }
 
-void Photo::setPoisonState(){
-    if(player->getMark("poison") > 0)
-        avatar_area->setBrush(QColor(0x00, 0xFF, 0x00, 255 * 0.3));
-    else
-        avatar_area->setBrush(Qt::NoBrush);
-}
-
 void Photo::setActionState(){
     if(action_item == NULL){
         action_item = new QGraphicsPixmapItem(this);
@@ -240,7 +233,6 @@ void Photo::setPlayer(const ClientPlayer *player)
         connect(player, SIGNAL(state_changed()), this, SLOT(refresh()));
         connect(player, SIGNAL(phase_changed()), this, SLOT(updatePhase()));
         connect(player, SIGNAL(drank_changed()), this, SLOT(setDrankState()));
-        connect(player, SIGNAL(poison_changed()), this, SLOT(setPoisonState()));
         connect(player, SIGNAL(action_taken()), this, SLOT(setActionState()));
         connect(player, SIGNAL(pile_changed(QString)), this, SLOT(updatePile(QString)));
 

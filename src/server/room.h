@@ -38,7 +38,6 @@ public:
     void setCurrent(ServerPlayer *current);
     int alivePlayerCount() const;
     QList<ServerPlayer *> getOtherPlayers(ServerPlayer *except) const;
-    QList<ServerPlayer *> getPlayers() const;
     QList<ServerPlayer *> getAllPlayers() const;
     QList<ServerPlayer *> getAlivePlayers() const;
     void output(const QString &message);
@@ -164,8 +163,6 @@ public:
     void broadcastProperty(ServerPlayer *player, const char *property_name, const QString &value = QString());
     void broadcastInvoke(const char *method, const QString &arg = ".", ServerPlayer *except = NULL);
     void startTest(const QString &to_test);
-    void niubiMoveout(const QString result);
-    QString getNiubiOwner(QString armor, int option = 1);
 
 protected:
     virtual void run();

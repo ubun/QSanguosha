@@ -21,8 +21,7 @@ void Slash::setNature(DamageStruct::Nature nature){
 }
 
 bool Slash::IsAvailable(const Player *player){
-    if((player->hasFlag("tianyi_failed") && !player->hasArmorEffect("apple"))
-        || player->hasFlag("xianzhen_failed"))
+    if(player->hasFlag("tianyi_failed") || player->hasFlag("xianzhen_failed"))
         return false;
 
     return player->hasWeapon("crossbow") || player->canSlashWithoutCrossbow();
@@ -128,17 +127,6 @@ void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
     else
         foreach(ServerPlayer *tmp, targets)
             room->cardEffect(this, source, tmp);
-
-    if(getSuit() == Card::Spade){
-        room->setPlayerMark(source, "poison",1);
-        room->setEmotion(source, "bad");
-        LogMessage log;
-        log.type = "#Poison_in";
-        log.from = source;
-        room->sendLog(log);
-
-        room->acquireSkill(source, "poson", false);
-    }
 }
 
 void Peach::onEffect(const CardEffectStruct &effect) const{
@@ -798,8 +786,6 @@ void Snatch::onEffect(const CardEffectStruct &effect) const{
 
     if(room->getCardPlace(card_id) == Player::Hand)
         room->moveCardTo(Sanguosha->getCard(card_id), effect.from, Player::Hand, false);
-    else if(Sanguosha->getCard(card_id)->inherits("Niubi") && effect.from->getState() == "robot")
-        room->throwCard(card_id);
     else
         room->obtainCard(effect.from, card_id);
 }
@@ -835,12 +821,6 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
     log.from = effect.to;
     log.card_str = QString::number(card_id);
     room->sendLog(log);
-
-    if(effect.from->hasArmorEffect("urban") && effect.from->hasSkill("qixi") && effect.card->getSuit() == Card::Club){
-        bool result = effect.from->getState() != "robot" ? room->askForSkillInvoke(effect.from, "urban") : true;
-        if(result)
-            room->obtainCard(effect.from, card_id);
-    }
 }
 
 Indulgence::Indulgence(Suit suit, int number)
@@ -869,8 +849,6 @@ bool Indulgence::targetFilter(const QList<const Player *> &targets, const Player
 }
 
 void Indulgence::takeEffect(ServerPlayer *target) const{
-    if(target->hasArmorEffect("stimulant") && target->hasSkill("jianxiong"))
-        return;
     target->skip(Player::Play);
 }
 

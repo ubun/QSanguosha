@@ -41,17 +41,10 @@ sgs.ai_use_value =
 		GreatYeyanCard = 8,
 		MediumYeyanCard = 5.6,
 		
-<<<<<<< HEAD
 		BaichuCard = 9.1,
 		XiefangCard = 9.3,
 		TongmouCard = 9.2,
 		XianhaiCard = 5,
-=======
-		DiezhiCard = 10,
-		BaichuCard = 9.1,
-		WookonCard = 7,
-		RollingpinCard = 2.5,
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 --normal cards
 		ExNihilo=10,
 
@@ -70,6 +63,7 @@ sgs.ai_use_value =
 
 		FireAttack=4.8,
 
+
 		FireSlash = 4.4,
 		ThunderSlash = 4.5,
 		Slash = 4.6,
@@ -85,13 +79,6 @@ sgs.ai_use_value =
 		Analeptic = 5.98,
 		Jink=8.9,
 		
-<<<<<<< HEAD
-=======
-		Stink = 5,
-		Wall = 9.9,
-		Poison = 4,
-		Sacrifice = 3.5,
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 		Shit=-10,
 
 		Sacrifice = 3.5,
@@ -121,21 +108,13 @@ sgs.ai_use_priority = {
 		MediumYeyanCard = 6,
 		SmallYeyanCard = 2.3,
 		JilveCard = 0.4,
-<<<<<<< HEAD
 		
 		BaichuCard = 2,
 		XiefangCard = 10,
 		TongmouCard = 0.5,
 		XianhaiCard = 3,
 --
-=======
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 
-		DiezhiCard = 10,
-		BaichuCard = 2,
-		WookonCard = 5.7,
-		RollingpinCard = 2.8,
---
 
 		Peach = 4.1,
 
@@ -188,11 +167,7 @@ sgs.ai_use_priority = {
 		DefensiveHorse = 0,
 
 		ClearShirt = 0.5,
-<<<<<<< HEAD
 
-=======
-		Niubi = 1,
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 		--god_salvation
 		--deluge
 		--supply_shortage
@@ -266,7 +241,6 @@ sgs.ai_chaofeng = {
 		shencaocao = -6,
 		shenguanyu = -6,
 		
-<<<<<<< HEAD
 -- red
 		redzhonghui = 7,
 		redxunyou = 2,
@@ -290,17 +264,5 @@ sgs.ai_chaofeng = {
 		tianyin = -4,
 		miheng = 3,
 		tensb = -3,
-=======
--- niubi
-		kanze = 0,
-		shixie = -1,
-		yanpeng = 4,
-		kongrong = 5,
-		miheng = 3,
-		xunyou = 2,
-		ganmi = 4,
-		tensb = -3,
-		yanbh = 1,
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 }
 

@@ -213,7 +213,6 @@ public:
 
         }else if(choice == "obtain"){
             QStringList lords = Sanguosha->getLords();
-            lords << "shixie";
             QList<ServerPlayer *> players = room->getOtherPlayers(shencc);
             foreach(ServerPlayer *player, players){
                 lords.removeOne(player->getGeneralName());

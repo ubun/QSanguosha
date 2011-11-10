@@ -52,17 +52,11 @@ SOURCES += src/main.cpp \
 	src/package/wind.cpp \
 	src/package/wisdompackage.cpp \
 	src/package/yitianpackage.cpp \
-<<<<<<< HEAD
 	src/package/yjcm-package.cpp \
 	src/package/shineway/kuso-package.cpp \
 	src/package/shineway/red.cpp \
 	src/package/shineway/cyan.cpp \
 	src/package/shineway/green.cpp \
-=======
-	src/package/yjcm-package.cpp \	
-	src/package/newbility.cpp \
-	src/package/technology.cpp \
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/challengemode.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -141,15 +135,10 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
-<<<<<<< HEAD
 	src/package/shineway/kuso-package.h \
 	src/package/shineway/red.h \ 
 	src/package/shineway/cyan.h \ 
 	src/package/shineway/green.h \
-=======
-	src/package/newbility.h \
-	src/package/technology.h \
->>>>>>> 4111fa460cef156d683a13a345f1cfa7ce6176a2
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/challengemode.h \
 	src/scenario/couple-scenario.h \
