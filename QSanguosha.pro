@@ -53,6 +53,7 @@ SOURCES += src/main.cpp \
 	src/package/wisdompackage.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \
+        src/package/ghost.cpp
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/challengemode.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -88,7 +89,6 @@ SOURCES += src/main.cpp \
 	src/util/nativesocket.cpp \
 	src/util/recorder.cpp \
 	swig/sanguosha_wrap.cxx \
-    src/package/ghost.cpp
 
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -132,6 +132,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
+        src/package/ghost.h
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/challengemode.h \
 	src/scenario/couple-scenario.h \
@@ -168,7 +169,6 @@ HEADERS += src/client/aux-skills.h \
 	src/util/nativesocket.h \
 	src/util/recorder.h \
 	src/util/socket.h \
-    src/package/ghost.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
