@@ -87,7 +87,8 @@ SOURCES += src/main.cpp \
 	src/util/detector.cpp \
 	src/util/nativesocket.cpp \
 	src/util/recorder.cpp \
-	swig/sanguosha_wrap.cxx
+	swig/sanguosha_wrap.cxx \
+    src/package/ghost.cpp
 
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -166,7 +167,8 @@ HEADERS += src/client/aux-skills.h \
 	src/util/detector.h \
 	src/util/nativesocket.h \
 	src/util/recorder.h \
-	src/util/socket.h
+	src/util/socket.h \
+    src/package/ghost.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
