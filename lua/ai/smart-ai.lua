@@ -3241,8 +3241,14 @@ end
 
 function SmartAI:getCard(class_name, player)
 	player = player or self.player
-	local card_id = self:getCardId(class_name, player)
-	if card_id then return sgs.Card_Parse(card_id) end
+    local cards = player:getHandcards()
+    cards = sgs.QList2Table(cards)
+    self:sortByUsePriority(cards)
+    
+    for _, card in ipairs(cards) do
+        if card:inherits(class_name) then return card end
+    end
+    return nil
 end
 
 function getCards(class_name, player, room, flag)
