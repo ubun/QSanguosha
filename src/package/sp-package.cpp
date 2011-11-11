@@ -216,7 +216,13 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->hasLordSkill("jijiang") && Slash::IsAvailable(player);
+        if(player->hasLordSkill("jijiang"))
+            return Slash::IsAvailable(player);
+        else{
+            return player->hasLordSkill("weidai") &&
+                   !player->hasUsed("Analeptic") &&
+                   !player->hasUsed("WeidaiCard");
+        }
     }
 
     virtual const Card *viewAs() const{
@@ -394,11 +400,6 @@ SPPackage::SPPackage()
     General *sp_caiwenji = new General(this, "sp_caiwenji", "wei", 3, false, true);
     sp_caiwenji->addSkill("beige");
     sp_caiwenji->addSkill("duanchang");
-
-    General *sp_machao = new General(this, "sp_machao", "qun", 4, true, true);
-    sp_machao->addSkill("mashu");
-    sp_machao->addSkill("tieji");
-
 }
 
 ADD_PACKAGE(SP);
