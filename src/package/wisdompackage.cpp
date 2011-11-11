@@ -215,7 +215,7 @@ public:
             use.from = jiangwei;
             use.to << target;
 
-            room->useCard(use);
+            room->useCard(use, false);
         }
         return false;
     }
