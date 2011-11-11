@@ -175,7 +175,7 @@ public:
             if(!room->askForSkillInvoke(jiangwei, objectName(), data))
                 return false;
             room->throwCard(card);
-            room->askForUseCard(jiangwei, "slash", "@askforslash");
+            room->askForUseCard(jiangwei, "slash", "@yicai");
         }
         return false;
     }
@@ -376,7 +376,9 @@ void WeidaiCard::use(Room *room, ServerPlayer *sunce, const QList<ServerPlayer *
         if(sunce->getHp() > 0 && sunce->hasUsed("Analeptic"))
             return;
         QVariant to_help = QVariant::fromValue((PlayerStar)sunce);
-        const Card *analeptic = room->askForCard(liege, ".S29", "@weidai-analeptic:" + sunce->objectName(), to_help);
+        if(!liege->askForSkillInvoke("weidai", to_help))
+            return;
+        const Card *analeptic = room->askForCard(liege, ".S29", "@weidai-analeptic:" + sunce->objectName());
         if(analeptic){
             LogMessage log;
             log.type = "$Weidai";
@@ -586,7 +588,7 @@ public:
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if(effect.card->inherits("Slash") && effect.card->isBlack()){
             if(room->askForSkillInvoke(hua, objectName(), data)){
-                room->askForUseCard(hua, "slash", "@askforslash");
+                room->askForUseCard(hua, "slash", "@badao");
             }
         }
         return false;

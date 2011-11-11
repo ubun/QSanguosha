@@ -105,6 +105,11 @@ void ServerPlayer::clearPrivatePiles(){
 }
 
 void ServerPlayer::bury(){
+    QList<const Skill *> skills = getVisibleSkillList();
+    foreach(const Skill *skill, skills){
+        if(skill->parent())
+            room->detachSkillFromPlayer(this, skill->objectName());
+    }
     throwAllCards();
     throwAllMarks();
     clearPrivatePiles();
@@ -483,6 +488,24 @@ void ServerPlayer::play(){
     }
 
     phases = all_phases;
+    while(!phases.isEmpty()){
+        Phase phase = phases.takeFirst();
+        setPhase(phase);
+        room->broadcastProperty(this, "phase");
+        room->getThread()->trigger(PhaseChange, this);
+
+        if(isDead() && phase != NotActive){
+            phases.clear();
+            phases << NotActive;
+        }
+    }
+}
+
+void ServerPlayer::play(QList<Player::Phase> &set_phases){
+    if(!set_phases.contains(NotActive))
+        set_phases << NotActive;
+
+    phases = set_phases;
     while(!phases.isEmpty()){
         Phase phase = phases.takeFirst();
         setPhase(phase);

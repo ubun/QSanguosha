@@ -66,9 +66,10 @@ void Analeptic::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
 
     // do animation
-    QString who = effect.to->objectName();
-    QString animation_str = QString("analeptic:%1:%2").arg(who).arg(who);
-    room->broadcastInvoke("animate", animation_str);
+    room->setAnimate("analeptic", effect.to);
+    //QString who = effect.to->objectName();
+    //QString animation_str = QString("analeptic:%1:%2").arg(who).arg(who);
+    //room->broadcastInvoke("animate", animation_str);
 
     if(effect.to->hasFlag("dying")){
         // recover hp

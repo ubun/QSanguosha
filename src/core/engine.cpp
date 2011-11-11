@@ -42,6 +42,10 @@ extern "C" {
     Package *NewWisdom();
     Package *NewTest();
 
+    Package *NewGoldSeintoViVA();
+    //Package *NewGoldSeinto();
+    //Package *NewBronzeSeinto();
+
     Package *NewStandardCard();
     Package *NewStandardExCard();
     Package *NewManeuvering();
@@ -79,6 +83,9 @@ Engine::Engine()
     addPackage(NewYJCM());
     addPackage(NewYitian());
     addPackage(NewWisdom());
+    addPackage(NewGoldSeintoViVA());
+    //addPackage(NewGoldSeinto());
+    //addPackage(NewBronzeSeinto());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
@@ -261,6 +268,7 @@ void Engine::addPackage(Package *package){
 
     patterns.unite(package->getPatterns());
     related_skills.unite(package->getRelatedSkills());
+    related_skills_attached.unite(package->getRelatedSkillsAttached());
 }
 
 void Engine::addBanPackage(const QString &package_name){
@@ -296,6 +304,14 @@ const CardPattern *Engine::getPattern(const QString &name) const{
 QList<const Skill *> Engine::getRelatedSkills(const QString &skill_name) const{
     QList<const Skill *> skills;
     foreach(QString name, related_skills.values(skill_name))
+        skills << getSkill(name);
+
+    return skills;
+}
+
+QList<const Skill *> Engine::getRelatedSkillsAttached(const QString &skill_name) const{
+    QList<const Skill *> skills;
+    foreach(QString name, related_skills_attached.values(skill_name))
         skills << getSkill(name);
 
     return skills;
@@ -355,7 +371,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
-    return "20110912";
+    return "20111013";
 }
 
 QString Engine::getVersionName() const{
@@ -380,7 +396,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
+        kingdoms << "wei" << "shu" << "wu" << "qun" << "god" << "gold";
 
     return kingdoms;
 }
@@ -393,6 +409,7 @@ QColor Engine::getKingdomColor(const QString &kingdom) const{
         color_map["wu"] = QColor(0x4D, 0xB8, 0x73);
         color_map["qun"] = QColor(0x8A, 0x80, 0x7A);
         color_map["god"] = QColor(0x96, 0x94, 0x3D);
+        color_map["gold"] = QColor(0x49, 0x46, 0x5D);
     }
 
     return color_map.value(kingdom);
