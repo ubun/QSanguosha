@@ -729,6 +729,49 @@ public:
     }
 };
 
+class Jiaozei: public TriggerSkill{
+public:
+    Jiaozei():TriggerSkill("jiaozei"){
+        events << SlashMissed;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(!effect.to->isKongcheng() && !player->isKongcheng() && player->askForSkillInvoke(objectName(), data)){
+            Room *room = player->getRoom();
+            const Card *from_card = NULL;
+            if(player->hasLordSkill("zhaobing") && player->askForSkillInvoke("zhaobing", data)){
+                foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                    if(tmp->getKingdom() != "qun")
+                        continue;
+                    from_card = room->askForCard(tmp, ".", "@zhaobing-pindian:" + player->objectName());
+                    if(from_card){
+                        LogMessage log;
+                        log.type = "$Zhaobing";
+                        log.from = tmp;
+                        log.to << player;
+                        log.card_str = from_card->getEffectIdString();
+                        room->sendLog(log);
+                        break;
+                    }
+                }
+            }
+            if(player->pindian(effect.to, objectName(), from_card)){
+                LogMessage log;
+                log.type = "#Jiaozei";
+                log.from = player;
+                log.to << effect.to;
+                log.arg = objectName();
+                room->sendLog(log);
+
+                room->slashResult(effect, NULL);
+            }
+        }
+
+        return false;
+    }
+};
+
 CyanPackage::CyanPackage()
     :Package("cyan")
 {
@@ -753,7 +796,7 @@ CyanPackage::CyanPackage()
     cyanlidian->addSkill(new Ruji);
     cyanlidian->addSkill(new Caishi);
 
-    General *cyanzhangxiu = new General(this, "cyanzhangxiu$", "qun");
+    General *cyanzhangxiu = new General(this, "cyanzhangxiu$", "qun", 4, true, true);
     cyanzhangxiu->addSkill(new Baiming);
     cyanzhangxiu->addSkill(new Junling);
 
@@ -764,6 +807,10 @@ CyanPackage::CyanPackage()
     General *cyanfanqiangzhangda = new General(this, "cyanfanqiangzhangda", "shu");
     cyanfanqiangzhangda->addSkill(new Qianpan);
     cyanfanqiangzhangda->addSkill(new Anshi);
+
+    General *cyanmateng = new General(this, "cyanmateng$", "qun");
+    cyanmateng->addSkill(new Jiaozei);
+    cyanmateng->addSkill(new Skill("zhaobing$"));
 
     addMetaObject<PearCard>();
     addMetaObject<ZhongshuCard>();

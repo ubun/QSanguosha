@@ -53,7 +53,7 @@ return {
 	["ruji_fail"] = "儒计失败",
 	["#RujiSucc"] = "%from 将 %to 的全部手牌示众",
 
---QUN#04 北地枪王
+--EX#T2 北地枪王
 --http://blog.sina.com.cn/s/blog_7d07da460100y0x3.html
 	["cyanzhangxiu"] = "张绣",
 	["designer:cyanzhangxiu"] = "浦原秀一",
@@ -101,6 +101,17 @@ return {
 	[":anshi"] = "出牌阶段，若有其他角色处于濒死状态，你可以暂时获得技能“完杀”，若如此做，回合结束时你失去“完杀”和当前的所有体力",
 	["#AnshiSuicide"] = "%from 受到技能【%arg】的影响，失去了<b>【<font color=black>完杀</font>】</b>技能",
 
+--QUN#04 伏波之后
+	["cyanmateng"] = "马腾",
+	["designer:cyanmateng"] = "曉ャ絕對",
+	["jiaozei"] = "剿贼",
+	[":jiaozei"] = "当你使用的【杀】被【闪】抵消时，你可与目标角色拼点，若你赢，该【杀】依旧造成伤害",
+	["#Jiaozei"] = "%from 发动了技能【%arg】，对 %to 强制造成伤害",
+	["zhaobing"] = "招兵",
+	[":zhaobing"] = "主公技，其他群雄角色可以替你出拼点牌",
+	["$Zhaobing"] = "%from 响应了 %to 的【招兵】，提供了 %card 为 %to 的拼点牌",
+	["@zhaobing-pindian"] = "%src 发动了主公技【招兵】，你可以为其提供一张牌用于拼点",
+
 	["cv:cyankongrong"] = "",
 	["cv:cyanzhangxiu"] = "",
 	["cv:cyanyufan"] = "",
@@ -109,4 +120,5 @@ return {
 	["cv:cyancaochong"] = "",
 	["cv:cyanliaohua"] = "",
 	["cv:cyanfanqiangzhangda"] = "",
+	["cv:cyanmateng"] = "",
 }
