@@ -1,12 +1,3 @@
-==========
-Open Source Sanguosha MOD
-==========
-Features(10.28)
-----------
-
-
-Moligaloo's original QSanguosha Introduction:
-==========
 Open Source Sanguosha
 ==========
 

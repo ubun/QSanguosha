@@ -5,9 +5,6 @@
 #include "standard.h"
 #include "settings.h"
 
-#include <OSCS.h>
-#include <QFile>
-
 Player::Player(QObject *parent)
     :QObject(parent), owner(false), ready(false), general(NULL), general2(NULL),
     hp(-1), max_hp(-1), state("online"), seat(0), alive(true),
@@ -480,10 +477,6 @@ int Player::getMaxCards() const{
     int shenwei = 0;
     if(hasSkill("shenwei"))
         shenwei = 2;
-#ifdef OSCS
-    if(hasSkill("huanshen"))
-        return max_hp + extra + juejing + xueyi + shenwei;
-#endif
 
     return qMax(hp,0) + extra + juejing + xueyi + shenwei;
 }

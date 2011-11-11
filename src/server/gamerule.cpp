@@ -341,6 +341,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                     if(chained_player->isChained()){
                         room->getThread()->delay();
                         room->setPlayerProperty(chained_player, "chained", false);
+                        if(damage.from && damage.from->hasSkill("kuanggu"))
+                            damage.from->tag["InvokeKuanggu"] = damage.from->distanceTo(chained_player) < 2;
 
                         LogMessage log;
                         log.type = "#IronChainDamage";
@@ -399,26 +401,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             damage.damage = 1;
             if(effect.drank)
                 damage.damage ++;
-/**************************************************************************************************
-0*Notice: Now the two line below is the code intended to prevent YJCM_zhangchunhua DIY. (To see
-**another, press Ctrl+Shift+F and search zhangchunhua in the project)
-**Better NOT deactivate the zhangchunhua_ban lines 'cause it's the best sign of Moligaloo-designed.
-**If you want to DIY zhangchunhua(no matter it's from YJCM or not) or skill Jueqing(no matter it's
-**loseHp related or not), change general and/or skill name (Chinese name is not affected)
-**If you are making your mod, welcome to make your comments of Moligaloo's zhangchunhua-ban below.
-**To see source code for YJCM_zhangchunhua, go to
-**http://home.ustc.edu.cn/~dbpr/zhangchunhua/shadow.lua (hypercross)
-**
-1*Ibicdlcod: Although Moligaloo seems to have enough reason to claim that he bans YJCM_zhangchunhua
-** is for "Real" Sanguosha, Yitianjian in Yitianpackage (well this general is designed by Moligaloo
-**himself, right?) makes an ironic contrast. Obviously Moligaloo is not, and cannot be completely
-**neutral and we have no right to force him to do so. But HE is still a god, NOT because QSanguosha
-** is free of charge, but because it's open-source. More and more qsanguosha-based game will appear
-**--every modder has the FREE CHOICE of THEIR purpose(Is QSanguosha for zhangchunhua-haters? I
-**don't know) and every sanguoshaer has the FREE CHOICE to choose what's best for THEM.
-**HE WHO REPRESENTS MOST SANGUOSHAER'S DEEP DESIRE KEEPS ALIVE. (Well, bad translation?)
-**
-**************************************************************************************************/
+
             if(effect.to->hasSkill("jueqing") || effect.to->getGeneralName() == "zhangchunhua")
                 damage.damage ++;
 
@@ -444,8 +427,17 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(room->getMode() == "02_1v1"){
                 QStringList list = player->tag["1v1Arrange"].toStringList();
 
-                if(!list.isEmpty())
+                if(!list.isEmpty()){
+                    player->tag["1v1ChangeGeneral"] = list.takeFirst();
+                    player->tag["1v1Arrange"] = list;
+
+                    DamageStar damage = data.value<DamageStar>();
+
+                    if(damage == NULL)
+                        changeGeneral1v1(player);
+
                     return false;
+                }
             }
 
             QString winner = getWinner(player);
@@ -471,21 +463,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
             setGameProcess(room);
 
-            if(room->getMode() == "02_1v1"){
-                QStringList list = player->tag["1v1Arrange"].toStringList();
-
-                if(!list.isEmpty()){
-                    player->tag["1v1ChangeGeneral"] = list.takeFirst();
-                    player->tag["1v1Arrange"] = list;
-
-                    DamageStar damage = data.value<DamageStar>();
-
-                    if(damage == NULL){
-                        changeGeneral1v1(player);
-                        return false;
-                    }
-                }
-            }
 
             break;
         }

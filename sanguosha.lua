@@ -29,8 +29,6 @@ function load_extensions(just_require)
 	
 	for _, script in ipairs(scripts) do	
 		if script:match(".+%.lua$") then
-			--if script:match("OSCS.lua") then
-				--return end
 			local name = script:sub(script:find("%w+"))
 			local module_name = "extensions." .. name
 			local loaded = require(module_name)

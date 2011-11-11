@@ -572,24 +572,19 @@ void DimengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
         room->askForDiscard(source, "dimeng", diff, false, true);
     }
 
-    //DummyCard *card1 = a->wholeHandCards();
+    DummyCard *card1 = a->wholeHandCards();
     DummyCard *card2 = b->wholeHandCards();
-    QList<int> card3 = a->handCards();
 
-    foreach(int card_id, card3){
-        const Card *card = Sanguosha->getCard(card_id);
-        room->moveCardTo(card, NULL, Player::DrawPile, false);
-        //b->addToPile("DimengPile", card_id, false);
+    if(card1){
+        room->moveCardTo(card1, b, Player::Hand, false);
+        delete card1;
     }
+
     room->getThread()->delay();
+
     if(card2){
         room->moveCardTo(card2, a, Player::Hand, false);
         delete card2;
-    }
-    room->getThread()->delay();
-    foreach(int card_id, card3){
-        const Card *card = Sanguosha->getCard(card_id);
-        room->moveCardTo(card, b, Player::Hand, false);
     }
 
     LogMessage log;

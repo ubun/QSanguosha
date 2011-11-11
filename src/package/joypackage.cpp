@@ -1,9 +1,6 @@
 #include "joypackage.h"
 #include "engine.h"
 
-/**************************************************************************************************
-**Notice: class Shit is related to ai.i
-***************************************************************************************************/
 Shit::Shit(Suit suit, int number):BasicCard(suit, number){
     setObjectName("shit");
 

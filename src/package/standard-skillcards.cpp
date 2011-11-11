@@ -6,9 +6,6 @@
 #include "client.h"
 #include "settings.h"
 
-#include "OSCS.h"
-#include <QFile>
-
 ZhihengCard::ZhihengCard(){
     target_fixed = true;
     once = true;
@@ -131,12 +128,9 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     room->sendLog(log);
 
     room->getThread()->delay();
-#ifdef OSCS
-    room->showCard(zhouyu, card_id);
-#else
     target->obtainCard(card);
     room->showCard(target, card_id);
-#endif
+
     if(card->getSuit() != suit){
         DamageStruct damage;
         damage.card = NULL;
@@ -145,11 +139,6 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
 
         room->damage(damage);
     }
-#ifdef OSCS
-    if(target->isAlive()){
-        target->obtainCard(card);
-    }
-#endif
 }
 
 KurouCard::KurouCard(){

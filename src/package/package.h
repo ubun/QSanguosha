@@ -10,9 +10,6 @@ class Player;
 #include <QStringList>
 #include <QMap>
 
-#include <QFile>
-#include "OSCS.h"
-
 class CardPattern{
 public:
     virtual bool match(const Player *player, const Card *card) const = 0;
@@ -72,15 +69,8 @@ protected:
     QList<const QMetaObject *> metaobjects;
     QList<const Skill *> skills;
     QMap<QString, const CardPattern *> patterns;
-#ifdef OSCS
-public:
     QMultiMap<QString, QString> related_skills;
-<<<<<<< HEAD
     QMultiMap<QString, QString> related_skills_attached;
-=======
-protected:
-#endif
->>>>>>> 9ab77896fb50042d20dce8acbe05b79e27080c58
     Type type;
 };
 

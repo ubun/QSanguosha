@@ -205,9 +205,6 @@ private:
     void prepareForStart();
     void assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign);
     void chooseGenerals();
-/**************************************************************************************************
-**Notice: Room::cloneAI is related to ai.i
-**************************************************************************************************/
     AI *cloneAI(ServerPlayer *player);
     void broadcast(const QString &message, ServerPlayer *except = NULL);
     void initCallbacks();
