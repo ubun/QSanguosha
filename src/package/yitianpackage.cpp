@@ -17,7 +17,7 @@ public:
            return false;
 
         if(player->askForSkillInvoke("yitian_sword"))
-            player->getRoom()->askForUseCard(player, "slash", "yitian-slash");
+            player->getRoom()->askForUseCard(player, "slash", "@askforslash");
 
         return false;
     }
@@ -1875,7 +1875,6 @@ YitianPackage::YitianPackage()
     related_skills.insertMulti("lianli", "#lianli-slash");
     related_skills.insertMulti("lianli", "#lianli-jink");
     related_skills.insertMulti("lianli", "#lianli-clear");
-    related_skills_attached.insertMulti("lianli", "lianli-slash");
 
     General *caizhaoji = new General(this, "caizhaoji", "qun", 3, false);
     caizhaoji->addSkill(new Guihan);
@@ -1916,7 +1915,6 @@ YitianPackage::YitianPackage()
     General *zhanggongqi = new General(this, "zhanggongqi", "qun", 3);
     zhanggongqi->addSkill(new Yishe);
     zhanggongqi->addSkill(new Xiliang);
-    related_skills_attached.insertMulti("yishe", "yisheask");
 
     General *yitianjian = new General(this, "yitianjian", "wei");
     yitianjian->addSkill(new Skill("zhengfeng", Skill::Compulsory));

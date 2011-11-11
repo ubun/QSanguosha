@@ -619,7 +619,7 @@ void RoomScene::arrangeSeats(const QList<const ClientPlayer*> &seats){
 
         QPropertyAnimation *translation = new QPropertyAnimation(photo, "pos");
         translation->setEndValue(positions.at(i));
-        translation->setEasingCurve(QEasingCurve::OutCubic);
+        translation->setEasingCurve(QEasingCurve::OutBounce);
 
         group->addAnimation(translation);
 
@@ -1218,10 +1218,6 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
         case Skill::Frequent:{
                 QCheckBox *checkbox = new QCheckBox();
                 checkbox->setObjectName(skill->objectName());
-                //
-                checkbox->setChecked(false);
-                connect(checkbox, SIGNAL(stateChanged(int)), ClientInstance, SLOT(updateFrequentFlags(int)));
-                //
                 checkbox->setChecked(true);
 
                 button = checkbox;
@@ -1386,10 +1382,8 @@ void RoomScene::enableTargets(const Card *card){
     if(card == NULL){
         bool inactive = ClientInstance->getStatus() == Client::NotActive;
         foreach(QGraphicsItem *item, item2player.keys()){
-
-            //item->setOpacity(0.7);
             if(!inactive)
-				AnimatedGraphicsItem::FadeItemTo(item,0.7);
+                item->setOpacity(0.7);
 
             item->setFlag(QGraphicsItem::ItemIsSelectable, false);
         }
@@ -1400,8 +1394,7 @@ void RoomScene::enableTargets(const Card *card){
 
     if(card->targetFixed() || ClientInstance->noTargetResponsing()){
         foreach(QGraphicsItem *item, item2player.keys()){
-            //item->setOpacity(1.0);
-            AnimatedGraphicsItem::FadeItemTo(item,1.0);
+            item->setOpacity(1.0);
             item->setFlag(QGraphicsItem::ItemIsSelectable, false);
         }
 
@@ -1422,7 +1415,7 @@ void RoomScene::updateTargetsEnablity(const Card *card){
     while(itor.hasNext()){
         itor.next();
 
-        AnimatedGraphicsItem *item = qgraphicsitem_cast <AnimatedGraphicsItem *> (itor.key());
+        QGraphicsItem *item = itor.key();
         const ClientPlayer *player = itor.value();
 
         if(item->isSelected())
@@ -1431,8 +1424,7 @@ void RoomScene::updateTargetsEnablity(const Card *card){
         bool enabled = !Sanguosha->isProhibited(Self, player, card)
                        && card->targetFilter(selected_targets, player, Self);
 
-        item->fadeTo(enabled ? 1.0 : 0.7);
-        //item->setOpacity(enabled ? 1.0 : 0.7);
+        item->setOpacity(enabled ? 1.0 : 0.7);
         item->setFlag(QGraphicsItem::ItemIsSelectable, enabled);
     }
 }
@@ -1803,8 +1795,7 @@ void RoomScene::updateStatus(Client::Status status){
                 dashboard->stopPending();
 
             foreach(Photo *photo, photos){
-                AnimatedGraphicsItem::FadeItemTo(photo,
-                    photo->getPlayer()->isAlive() ? 1.0 : 0.7);
+                photo->setOpacity(photo->getPlayer()->isAlive() ? 1.0 : 0.7);
             }
 
             break;
@@ -2554,8 +2545,7 @@ void RoomScene::killPlayer(const QString &who){
         Photo *photo = name2photo[who];
         photo->killPlayer();
         photo->setFrame(Photo::NoFrame);
-        //photo->setOpacity(0.7);
-        AnimatedGraphicsItem::FadeItemTo(photo,0.7);
+        photo->setOpacity(0.7);
         photo->update();
         item2player.remove(photo);
 
@@ -3567,16 +3557,3 @@ void RoomScene::finishArrange(){
 }
 
 
-void AnimatedGraphicsItem::fadeTo(qreal op,int duration)
-{
-    QPropertyAnimation *fade=new QPropertyAnimation(this,"opacity");
-    fade->setDuration(duration);
-    fade->setEndValue(op);
-
-    fade->start(QAbstractAnimation::DeleteWhenStopped);
-}
-void AnimatedGraphicsItem::FadeItemTo(QGraphicsItem *item, qreal op, int duration)
-{
-    AnimatedGraphicsItem *aItem=qgraphicsitem_cast<AnimatedGraphicsItem *>(item);
-    aItem->fadeTo(op,duration);
-}

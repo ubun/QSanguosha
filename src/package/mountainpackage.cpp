@@ -1139,7 +1139,6 @@ MountainPackage::MountainPackage()
     sunce->addSkill(new SunceZhiba);
 
     related_skills.insertMulti("hunzi", "yinghun");
-    related_skills_attached.insertMulti("$sunce_zhiba","zhiba_pindian");
 
     General *erzhang = new General(this, "erzhang", "wu", 3);
     erzhang->addSkill(new Zhijian);
