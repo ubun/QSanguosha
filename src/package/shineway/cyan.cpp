@@ -405,6 +405,43 @@ public:
     }
 };
 
+class HunrenNotActive: public TriggerSkill{
+public:
+    HunrenNotActive():TriggerSkill("#hunren_nat"){
+        events << CardFinished;
+    }
+
+    virtual int getPriority() const{
+        return -2;
+    }
+
+    virtual bool triggerable(const ServerPlayer *) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *puyuan = room->findPlayerBySkillName("hunren");
+        if(!puyuan)
+            return false;
+        CardUseStruct card_use = data.value<CardUseStruct>();
+        if(card_use.to.contains(puyuan) && card_use.card->getId() < 0 &&
+           (card_use.card->getSkillName() == "zhijian" ||
+            card_use.card->getSkillName() == "ganlu")){
+            const Card *weapon = puyuan->getWeapon();
+            if(weapon){
+                LogMessage log;
+                log.type = "#TriggerSkill";
+                log.from = puyuan;
+                log.arg = "hunren";
+                room->sendLog(log);
+                room->acquireSkill(puyuan, Hunren::PuyuanBook(weapon->objectName()));
+            }
+        }
+        return false;
+    }
+};
+
 class Cuihuo: public TriggerSkill{
 public:
     Cuihuo():TriggerSkill("cuihuo"){
@@ -802,6 +839,8 @@ CyanPackage::CyanPackage()
 
     General *cyanpuyuan = new General(this, "cyanpuyuan", "shu");
     cyanpuyuan->addSkill(new Hunren);
+    cyanpuyuan->addSkill(new HunrenNotActive);
+    related_skills.insertMulti("hunren", "#hunren_nat");
     cyanpuyuan->addSkill(new Cuihuo);
 
     General *cyanfanqiangzhangda = new General(this, "cyanfanqiangzhangda", "shu");
