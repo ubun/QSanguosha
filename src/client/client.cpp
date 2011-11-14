@@ -67,6 +67,8 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["jilei"] = &Client::jilei;
     callbacks["pile"] = &Client::pile;
 
+    callbacks["updateStateItem"] = &Client::updateStateItem;
+
     callbacks["playSkillEffect"] = &Client::playSkillEffect;
     callbacks["playCardEffect"] = &Client::playCardEffect;
     callbacks["playAudio"] = &Client::playAudio;
@@ -530,15 +532,7 @@ void Client::setStatus(Status status){
 Client::Status Client::getStatus() const{
     return status;
 }
-//
-void Client::updateFrequentFlags(int state){
-    QString flag = sender()->objectName();
-    if(state == Qt::Checked)
-        frequent_flags.insert(flag);
-    else
-        frequent_flags.remove(flag);
-}
-//
+
 void Client::jilei(const QString &jilei_str){
     Self->jilei(jilei_str);
 }
@@ -629,9 +623,9 @@ void Client::askForCardOrUseCard(const QString &request_str){
     else
         refusable = true;
 
-    if(card_pattern.startsWith(QChar('@'))){
-        QString skill_name = card_pattern;
-        skill_name.remove(QChar('@'));
+    QRegExp rx("^@@?(\\w+)(-card)?$");
+    if(rx.exactMatch(card_pattern)){
+        QString skill_name = rx.capturedTexts().at(1);
         const Skill *skill = Sanguosha->getSkill(skill_name);
         if(skill){
             QString text = prompt_doc->toHtml();
@@ -661,55 +655,21 @@ void Client::askForSkillInvoke(const QString &invoke_str){
         data = texts.last();
     }else
         skill_name = invoke_str;
-    //
-    bool auto_invoke = frequent_flags.contains(skill_name);
-    if(auto_invoke){
-        invokeSkill(QDialog::Accepted);
-        return;
-    }
-    QDialog *dialog = new QDialog;
-    dialog->setWindowTitle(Sanguosha->translate(skill_name));
-    //
     skill_to_invoke = skill_name;
-	
+
     QString text;
     if(data.isNull())
         text = tr("Do you want to invoke skill [%1] ?").arg(Sanguosha->translate(skill_name));
     else
         text = Sanguosha->translate(invoke_str);
-    //
-    QLabel *label = new QLabel(text);
-    QCommandLinkButton *ok_button = new QCommandLinkButton(tr("OK"));
-    QString key = QString("%1:yes").arg(skill_name);
-    QString description = Sanguosha->translate(key);
-    if(key != description)
-        ok_button->setToolTip(description);
-    QCommandLinkButton *cancel_button = new QCommandLinkButton(tr("Cancel"));
-    QHBoxLayout *hlayout = new QHBoxLayout;
-    hlayout->addStretch();
-    hlayout->addWidget(ok_button);
-    hlayout->addWidget(cancel_button);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(label);
-    layout->addLayout(hlayout);
-    dialog->setLayout(layout);
-    ask_dialog = dialog;
-    connect(ok_button, SIGNAL(clicked()), dialog, SLOT(accept()));
-    connect(cancel_button, SIGNAL(clicked()), dialog, SLOT(reject()));
-    connect(dialog, SIGNAL(finished(int)), this, SLOT(invokeSkill(int)));
-    //
-/*
+
     const Skill *skill = Sanguosha->getSkill(skill_name);
     if(skill){
         text.append(tr("<br/><br/> <b>Notice</b>: %1<br/>").arg(skill->getDescription()));
     }
-*/
-    Sanguosha->playAudio("pop-up");
-    setStatus(ExecDialog);
-/*
+
     prompt_doc->setHtml(text);
     setStatus(AskForSkillInvoke);
-*/
 }
 
 void Client::selectChoice(){
@@ -921,16 +881,7 @@ void Client::addHistory(const QString &add_str){
 int Client::alivePlayerCount() const{
     return alive_count;
 }
-//
-void Client::invokeSkill(int result){
-    bool invoke = result == QDialog::Accepted;
-    if(invoke)
-        request("invokeSkill yes");
-    else
-        request("invokeSkill no");
-    setStatus(NotActive);
-}
-//
+
 void Client::responseCard(const Card *card){
     if(card)
         request(QString("responseCard %1").arg(card->toString()));
@@ -1822,4 +1773,9 @@ void Client::selectOrder(){
     request("selectOrder " + order);
 
     setStatus(NotActive);
+}
+
+void Client::updateStateItem(const QString &state_str)
+{
+    emit role_state_changed(state_str);
 }

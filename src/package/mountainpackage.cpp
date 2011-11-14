@@ -226,6 +226,12 @@ public:
         if(damage && damage->from){
             Room *room = player->getRoom();
 
+            LogMessage log;
+            log.type = "#DuanchangLoseSkills";
+            log.from = player;
+            log.to << damage->from;
+            room->sendLog(log);
+
             QList<const Skill *> skills = damage->from->getVisibleSkillList();
             foreach(const Skill *skill, skills){
                 if(skill->parent())
@@ -1139,7 +1145,6 @@ MountainPackage::MountainPackage()
     sunce->addSkill(new SunceZhiba);
 
     related_skills.insertMulti("hunzi", "yinghun");
-    related_skills_attached.insertMulti("$sunce_zhiba","zhiba_pindian");
 
     General *erzhang = new General(this, "erzhang", "wu", 3);
     erzhang->addSkill(new Zhijian);

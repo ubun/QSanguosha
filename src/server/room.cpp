@@ -184,6 +184,33 @@ void Room::revivePlayer(ServerPlayer *player){
     broadcastInvoke("revivePlayer", player->objectName());
 }
 
+QString Room::getRoleStateString()
+{
+    int lords=0,rebels=0,loyals=0,renes=0;
+    foreach(ServerPlayer * player,getAlivePlayers())
+    {
+        switch(player->getRoleEnum())
+        {
+        case Player::Lord:
+            lords++;break;
+            case Player::Renegade:
+            renes++;break;
+            case Player::Rebel:
+            rebels++;break;
+            case Player::Loyalist:
+            loyals++;break;
+        default:
+            break;
+        }
+    }
+    QString op="";
+    for(int i=0;i<lords;i++)op+="Z";
+    for(int i=0;i<loyals;i++)op+="C";
+    for(int i=0;i<rebels;i++)op+="F";
+    for(int i=0;i<renes;i++)op+="N";
+    return op;
+}
+
 void Room::killPlayer(ServerPlayer *victim, DamageStruct *reason){
     ServerPlayer *killer = reason ? reason->from : NULL;
     if(Config.ContestMode && killer){
@@ -195,6 +222,7 @@ void Room::killPlayer(ServerPlayer *victim, DamageStruct *reason){
 
     broadcastProperty(victim, "role");
     broadcastInvoke("killPlayer", victim->objectName());
+
 
     int index = alive_players.indexOf(victim);
     int i;
@@ -210,6 +238,8 @@ void Room::killPlayer(ServerPlayer *victim, DamageStruct *reason){
     log.to << victim;
     log.arg = victim->getRole();
     log.from = killer;
+
+    broadcastInvoke("updateStateItem", getRoleStateString());
 
     if(killer){
         if(killer == victim)
@@ -383,9 +413,6 @@ void Room::detachSkillFromPlayer(ServerPlayer *player, const QString &skill_name
     if(skill && skill->isVisible()){
         foreach(const Skill *skill, Sanguosha->getRelatedSkills(skill_name))
             detachSkillFromPlayer(player, skill->objectName());
-        foreach(const Skill *skill, Sanguosha->getRelatedSkillsAttached(skill_name))
-            foreach(ServerPlayer *player, alive_players)
-                detachSkillFromPlayer(player,skill->objectName());
     }
 }
 
@@ -602,7 +629,7 @@ int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QStrin
     return card_id;
 }
 
-const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data, bool will_throw){
+const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data){
     const Card *card = NULL;
 
     QVariant asked = pattern;
@@ -644,9 +671,8 @@ const Card *Room::askForCard(ServerPlayer *player, const QString &pattern, const
         if(card->getTypeId() != Card::Skill){
             const CardPattern *card_pattern = Sanguosha->getPattern(pattern);
             if(card_pattern == NULL || card_pattern->willThrow())
-                if(will_throw)
-                    throwCard(card);
-        }else if(card->willThrow() && will_throw)
+                throwCard(card);
+        }else if(card->willThrow())
             throwCard(card);
 
         QVariant decisionData = QVariant::fromValue("cardResponsed:"+pattern+":"+prompt+":_"+card->toString()+"_");

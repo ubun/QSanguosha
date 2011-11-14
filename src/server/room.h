@@ -98,6 +98,7 @@ public:
     ServerPlayer *getFront(ServerPlayer *a, ServerPlayer *b) const;
     void signup(ServerPlayer *player, const QString &screen_name, const QString &avatar, bool is_robot);
     ServerPlayer *getOwner() const;
+    QString getRoleStateString();
 
     void reconnect(ServerPlayer *player, ClientSocket *socket);
     void marshal(ServerPlayer *player);
@@ -140,7 +141,7 @@ public:
     bool askForNullification(const TrickCard *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     bool isCanceled(const CardEffectStruct &effect);
     int askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QString &flags, const QString &reason);
-    const Card *askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data = QVariant(), bool will_throw = true);
+    const Card *askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data = QVariant());
     bool askForUseCard(ServerPlayer *player, const QString &pattern, const QString &prompt);
     int askForAG(ServerPlayer *player, const QList<int> &card_ids, bool refusable, const QString &reason);
     const Card *askForCardShow(ServerPlayer *player, ServerPlayer *requestor, const QString &reason);

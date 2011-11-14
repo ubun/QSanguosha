@@ -105,11 +105,6 @@ void ServerPlayer::clearPrivatePiles(){
 }
 
 void ServerPlayer::bury(){
-    QList<const Skill *> skills = getVisibleSkillList();
-    foreach(const Skill *skill, skills){
-        if(skill->parent())
-            room->detachSkillFromPlayer(this, skill->objectName());
-    }
     throwAllCards();
     throwAllMarks();
     clearPrivatePiles();

@@ -113,6 +113,7 @@ public:
     void setFixedDistance(const QString &set_str);
     void pile(const QString &pile_str);
     void transfigure(const QString &transfigure_tr);
+    void updateStateItem(const QString &state_str);
 
     void moveCard(const QString &move_str);
     void moveNCards(const QString &move_str);
@@ -169,7 +170,6 @@ public slots:
     void signup();
     void chooseItem(const QString &_name);
     void selectChoice();
-    void updateFrequentFlags(int state); //
     void chooseCard(int card_id = -2);
     void choosePlayer(const Player *player);
     void trust();
@@ -183,7 +183,6 @@ public slots:
 private:
     ClientSocket *socket;
     Status status;
-    QSet<QString> frequent_flags; //
     int alive_count;
     QHash<QString, Callback> callbacks;
     QList<const ClientPlayer*> players;
@@ -210,7 +209,6 @@ private slots:
     void chooseSuit();
     void chooseKingdom();
     void clearTurnTag();
-    void invokeSkill(int result);  //
     void selectOrder();
     void selectRole();
 
@@ -264,6 +262,8 @@ signals:
     void arrange_started();
     void general_recovered(int index, const QString &name);
     void general_revealed(bool self, const QString &general);
+
+    void role_state_changed(const QString & state_str);
 
     void assign_asked();
 };
