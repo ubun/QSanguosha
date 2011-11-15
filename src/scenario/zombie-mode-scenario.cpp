@@ -33,6 +33,7 @@ public:
 
         QString gender = player->getGeneral()->isMale() ? "male" : "female";
         room->broadcastInvoke("playAudio", QString("zombify-%1").arg(gender));
+        room->broadcastInvoke("updateStateItem", room->getRoleStateString());
 
         player->tag.remove("zombie");
     }
@@ -265,7 +266,7 @@ public:
             log.arg2 = QString::number(damage.damage + 1);
             zombie->getRoom()->sendLog(log);
 
-            zombie->getRoom()->loseHp(zombie);
+            if(zombie->getHp()>1)zombie->getRoom()->loseHp(zombie);
 
             damage.damage ++;
             data = QVariant::fromValue(damage);
