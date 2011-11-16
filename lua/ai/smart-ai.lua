@@ -809,7 +809,7 @@ sgs.ai_skill_use["slash"] = function(self, prompt)
 	if not slash then return "." end
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:canSlash(enemy, true) and not self:slashProhibit(slash, enemy) and self:slashIsEffective(slash, enemy) then
-			return ("%d->%s"):format(slash:getId(), enemy:objectName())
+			return ("%s->%s"):format(slash:toString(), enemy:objectName())
 		end
 	end
 	return "."
@@ -2899,8 +2899,8 @@ end
 function SmartAI:fillSkillCards(cards)
     for _,skill in ipairs(sgs.ai_skills) do
         if self:hasSkill(skill) then       
-			for _, card in ipairs(cards) do
-				if prohibitUseDirectly(card, self.player) then table.remove(cards, card) end
+			for index, card in ipairs(cards) do
+				if prohibitUseDirectly(card, self.player) then table.remove(cards, index) end
 			end
 
             local skill_card = skill.getTurnUseCard(self)
