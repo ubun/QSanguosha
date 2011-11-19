@@ -8,43 +8,7 @@
         <source>Ban pair table</source>
         <translation>双将禁配表</translation>
     </message>
-    <message>
-        <location filename="src/dialog/banpairdialog.cpp" line="89"/>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <location filename="src/dialog/banpairdialog.cpp" line="90"/>
-        <source>Remove</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <location filename="src/dialog/banpairdialog.cpp" line="91"/>
-        <source>Save</source>
-        <translation>保存</translation>
-    </message>
-</context>
-<context>
-    <name>BroadcastBox</name>
-    <message>
-        <location filename="src/dialog/mainwindow.cpp" line="501"/>
-        <source>Broadcast</source>
-        <translation>广播</translation>
-    </message>
-    <message>
-        <location filename="src/dialog/mainwindow.cpp" line="504"/>
-        <source>Please input the message to broadcast</source>
-        <translation>请输入要广播的信息</translation>
-    </message>
-    <message>
-        <location filename="src/dialog/mainwindow.cpp" line="511"/>
-        <source>OK</source>
-        <translation>确定</translation>
-    </message>
-</context>
-<context>
-    <name>Card</name>
-    <message>
+    
         <location filename="src/core/card.cpp" line="208"/>
         <source>NoSuit</source>
         <translation>无色</translation>
