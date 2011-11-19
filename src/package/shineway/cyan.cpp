@@ -289,7 +289,8 @@ public:
         QVariant data = QVariant::fromValue(damage);
         if(room->askForSkillInvoke(cc, objectName(), data)){
             cc->turnOver();
-            damage.from->setMark("kuanhou", 1);
+            if(damage.from)
+                damage.from->setMark("kuanhou", 1);
         }
     }
 };
