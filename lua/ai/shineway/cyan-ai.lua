@@ -27,3 +27,48 @@ sgs.ai_skill_playerchosen["rangli"] = function(self, targets)
 	return targets[1]
 end
 
+-- kuanhou
+sgs.ai_skill_invoke["kuanhou"] = true
+sgs.ai_skill_playerchosen["kuanhou"] = function(self, targets)
+	targets = sgs.QList2Table(targets)
+	for _, target in ipairs(targets) do
+		if self:isFriend(target) and target:containsTrick("indulgence") and target:getHandcardNum() > 2 then
+			return target
+		end
+	end
+	for _, target in ipairs(targets) do
+		if self:isFriend(target) and target:getHandcardNum() > 2 then return target end
+	end
+	for _, target in ipairs(targets) do
+		if self:isFriend(target) then return target	end
+	end
+	return targets[1]
+end
+
+-- guolie
+sgs.ai_skill_invoke["guolie"] = function(self, data)
+	local damage = data:toDamage()
+	if self:isFriend(damage.to) then 
+		if damage.from:getHandcardNum() - damage.to:getHandcardNum() > 1 then
+			return true
+		end
+	else
+		if damage.to:getHandcardNum() - damage.from:getHandcardNum() > 1 then
+			return true
+		end
+	end
+end
+
+-- ruji
+sgs.ai_skill_invoke["ruji"] = true
+sgs.ai_skill_use["@@ruji!"] = function(self, prompt)
+	local max_card = self:getMaxCard()
+	if not max_card or max_card:getNumber() < 11 then return end
+	self:sort(self.enemies, "threat")
+	for _, enemy in ipairs(self.enemies) do
+		if not enemy:isKongcheng() then
+			return "@RujiCard="..max_card:getEffectiveId().."->"..enemy:objectName()
+		end
+	end
+end
+

@@ -255,7 +255,7 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *cc, QVariant &) const{
         Room *room = cc->getRoom();
-        if(room->getCurrent() && room->getCurrent() != cc){
+        if(room->getCurrent() && room->getCurrent() != cc && !cc->hasFlag("Kuanh")){
            int handcard = cc->getHandcardNum();
            int hp = cc->getHp();
            if(handcard != hp){
@@ -288,7 +288,6 @@ public:
             return;
         QVariant data = QVariant::fromValue(damage);
         if(room->askForSkillInvoke(cc, objectName(), data)){
-            cc->turnOver();
             damage.from->setMark("kuanhou", 1);
         }
     }
@@ -317,7 +316,9 @@ public:
             player->setMark("kuanhou", 0);
             QList<Player::Phase> phases;
             phases << Player::Play;
+            room->setPlayerFlag(target, "Kuanh");
             target->play(phases);
+            room->setPlayerFlag(target, "-Kuanh");
         }
         return false;
     }
