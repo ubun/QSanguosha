@@ -1195,7 +1195,7 @@ SusaCard::SusaCard(){
 
 void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
     foreach(ServerPlayer *target, room->getOtherPlayers(source)){
-        if(target->getMark("Tsuku") > 0){
+        if(target && target->getMark("Tsuku") > 0){
             source->loseMark("@susa");
             target->setMark("Tsuku", 0);
             int maxhp = ceil(target->getMaxHP() / 2 * 3);
@@ -1289,7 +1289,7 @@ RedPackage::RedPackage()
     redsunluban->addSkill(new Goulian);
 
     //itachi
-/*
+
     General *uchihaitachi = new General(this, "uchihaitachi", "god", 4, true, true);
     uchihaitachi->addSkill(new Tsukuyomi);
     uchihaitachi->addSkill(new TsukuEffect);
@@ -1298,7 +1298,6 @@ RedPackage::RedPackage()
     uchihaitachi->addSkill(new Susa);
     uchihaitachi->addSkill(new MarkAssignSkill("@susa", 1));
     related_skills.insertMulti("Susa", "#@susa");
-*/
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();

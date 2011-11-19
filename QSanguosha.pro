@@ -53,6 +53,7 @@ SOURCES += src/main.cpp \
 	src/package/wisdompackage.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \
+	src/package/shineway/technology.cpp \
 	src/package/shineway/kuso-package.cpp \
 	src/package/shineway/red.cpp \
 	src/package/shineway/cyan.cpp \
@@ -135,6 +136,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
+	src/package/shineway/technology.h \
 	src/package/shineway/kuso-package.h \
 	src/package/shineway/red.h \ 
 	src/package/shineway/cyan.h \ 
