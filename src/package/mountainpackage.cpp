@@ -255,8 +255,6 @@ public:
             room->setPlayerProperty(damage->from, "kingdom", kingdom);
 
             room->resetAI(damage->from);
-
-
         }
 
         return false;
