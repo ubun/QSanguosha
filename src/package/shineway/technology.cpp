@@ -16,7 +16,7 @@ public:
         if(event == TurnStart){
             lu->tag["bo"] = 0;
             lu->setMark("tuiyan", 0);
-            lu->setMark("tuiyanfalse", 0);
+            lu->getRoom()->setPlayerFlag(lu, "-Tuiyan_failed");
             return false;
         }
         Room *room = lu->getRoom();
@@ -29,11 +29,11 @@ public:
             if(use.card->getSubtype() == "skill_card"
                || use.card->getSubcards().length() > 1
                || use.card->getNumber() == 0)
-                return false;
+                return false; //if the card is not a real card
             usecard = Sanguosha->getCard(use.card->getSubcards().first());
         }
-        int precardnum = lu->tag.value("bo").toInt();
-        if(lu->getMark("tuiyanfalse") == 0 && usecard->getNumber() > precardnum){
+        int precardnum = lu->tag.value("bo").toInt(); //the cardnumber store of tuiyan
+        if(!lu->hasFlag("Tuiyan_failed") && usecard->getNumber() > precardnum){
             if(lu->askForSkillInvoke(objectName(), data)){
                 ServerPlayer *target = room->askForPlayerChosen(lu, room->getAlivePlayers(), objectName());
                 use.to.clear();
@@ -49,10 +49,10 @@ public:
                 log.card_str = QString::number(usecard->getId());
                 room->sendLog(log);
             }
-            lu->addMark("tuiyan");
+            lu->addMark("tuiyan"); //the count of tuiyan
         }
         else
-            lu->setMark("tuiyanfalse", 1);
+            room->setPlayerFlag(lu, "Tuiyan_failed");
 
         lu->tag["bo"] = usecard->getNumber();
         data = QVariant::fromValue(use);
@@ -73,15 +73,15 @@ public:
     virtual bool triggerable(const ServerPlayer *target) const{
         return PhaseChangeSkill::triggerable(target)
                 && target->getPhase() == Player::NotActive
-                && target->getMark("tuiyanfalse") == 0;
+                && !target->hasFlag("Tuiyan_failed");
     }
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
         Room *room = target->getRoom();
-        target->setMark("mingfa", 0);
+        room->setPlayerFlag(target, "-mingfa");
         if(target->getMark("tuiyan") >= 3 && target->askForSkillInvoke(objectName())){
             target->setMark("tuiyan", 0);
-            target->setMark("mingfa", 1);
+            room->setPlayerFlag(target, "mingfa");
             room->getThread()->trigger(TurnStart, target);
         }
         return false;
@@ -96,12 +96,13 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("mingfa") > 0;
+        return target->hasFlag("mingfa");
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *lu, QVariant &data) const{
         Room *room = lu->getRoom();
         int card_id = room->drawCard();
+        room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
 
         LogMessage log;
         log.type = "$Mingfa";
