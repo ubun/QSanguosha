@@ -804,6 +804,7 @@ public:
                 room->sendLog(log);
 
                 room->slashResult(effect, NULL);
+                return true;
             }
         }
 
