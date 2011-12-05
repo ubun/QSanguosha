@@ -928,22 +928,6 @@ bool RunawayMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &da
             log.arg = QString::number(myseat);
             log.arg2 = QString::number(player->getSeat());
             room->sendLog(log);
-            /*
-            int myseat = player->getSeat();
-            ServerPlayer *target = player;
-            foreach(target, room->getAlivePlayers()){
-                if(target->getSeat() == myseat + runum)
-                    break;
-            }
-            room->swapSeat(player, target);
-
-            log.type = "#Runaway2";
-            log.from = player;
-            log.to << target;
-            log.arg = QString::number(myseat);
-            log.arg2 = QString::number(myseat + runum);
-            room->sendLog(log);
-            */
 
             room->throwCard(card_ids.first());
 

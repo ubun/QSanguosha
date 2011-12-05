@@ -39,7 +39,6 @@ extern "C" {
     Package *NewJoyEquip();
 
     Scenario *NewCoupleScenario();
-    Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
 }
@@ -62,7 +61,6 @@ Engine::Engine()
     addPackage(NewJoyEquip());
 
     //addScenario(NewCoupleScenario());
-    addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
 
@@ -328,9 +326,6 @@ QStringList Engine::getExtensions() const{
 
         extensions << package->objectName();
     }
-
-    extensions.removeOne("challenge_modes");
-
     return extensions;
 }
 
@@ -392,8 +387,6 @@ QMap<QString, QString> Engine::getAvailableModes() const{
 QString Engine::getModeName(const QString &mode) const{
     if(modes.contains(mode))
         return modes.value(mode);
-    else if(mode.startsWith("@"))
-        return tr("%1 [Challenge mode]").arg(translate(mode));
     else
         return tr("%1 [Scenario mode]").arg(translate(mode));
 
