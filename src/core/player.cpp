@@ -708,39 +708,6 @@ bool Player::canSlashWithoutCrossbow() const{
         return slash_count < 1;
 }
 
-void Player::jilei(const QString &type){
-    if(type == "basic")
-        jilei_set << Card::Basic;
-    else if(type == "equip")
-        jilei_set << Card::Equip;
-    else if(type == "trick")
-        jilei_set << Card::Trick;
-    else
-        jilei_set.clear();
-}
-
-bool Player::isJilei(const Card *card) const{
-    Card::CardType type = card->getTypeId();
-    if(type == Card::Skill){
-        if(!card->willThrow())
-            return false;
-
-        foreach(int card_id, card->getSubcards()){
-            const Card *c = Sanguosha->getCard(card_id);
-            if(jilei_set.contains(c->getTypeId()))
-                return true;
-        }
-
-        return false;
-    }else
-        return jilei_set.contains(type);
-}
-
-bool Player::isCaoCao() const{
-    QString general_name = getGeneralName();
-    return general_name == "caocao" || general_name == "shencaocao" || general_name == "shencc";
-}
-
 void Player::copyFrom(Player* p)
 {
     Player *b = this;
@@ -769,7 +736,6 @@ void Player::copyFrom(Player* p)
     b->judging_area     = QList<const Card *> (a->judging_area);
     b->delayed_tricks   = QList<const DelayedTrick *> (a->delayed_tricks);
     b->fixed_distance   = QHash<const Player *, int> (a->fixed_distance);
-    b->jilei_set        = QSet<Card::CardType> (a->jilei_set);
 
     b->tag              = QVariantMap(a->tag);
 }

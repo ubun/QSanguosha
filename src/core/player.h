@@ -43,7 +43,6 @@ class Player : public QObject
     Q_PROPERTY(bool kongcheng READ isKongcheng)
     Q_PROPERTY(bool nude READ isNude)
     Q_PROPERTY(bool all_nude READ isAllNude)
-    Q_PROPERTY(bool caocao READ isCaoCao)
 
     Q_ENUMS(Phase)
     Q_ENUMS(Place)
@@ -193,10 +192,6 @@ public:
     bool canSlashWithoutCrossbow() const;
     virtual bool isLastHandCard(const Card *card) const = 0;
 
-    void jilei(const QString &type);
-    bool isJilei(const Card *card) const;
-
-    bool isCaoCao() const;
     void copyFrom(Player* p);
 
     QList<const Player *> getSiblings() const;
@@ -231,8 +226,6 @@ private:
     QList<const Card *> judging_area;
     QList<const DelayedTrick *> delayed_tricks;
     QHash<const Player *, int> fixed_distance;
-
-    QSet<Card::CardType> jilei_set;
 
 signals:
     void general_changed();

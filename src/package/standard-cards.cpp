@@ -1,5 +1,4 @@
 #include "standard.h"
-#include "standard-equips.h"
 #include "general.h"
 #include "engine.h"
 #include "client.h"
@@ -158,12 +157,6 @@ void Peach::onEffect(const CardEffectStruct &effect) const{
 
 bool Peach::isAvailable(const Player *player) const{
     return player->isWounded();
-}
-
-Crossbow::Crossbow(Suit suit, int number)
-    :Weapon(suit, number, 1)
-{
-    setObjectName("crossbow");
 }
 
 AmazingGrace::AmazingGrace(Suit suit, int number)
@@ -373,8 +366,8 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
 Microphone::Microphone(Suit suit, int number)
     :DelayedTrick(suit, number)
 {
-    setObjectName("indulgence");
-    target_fixed = false;
+    setObjectName("microphone");
+    target_fixed = true;
 }
 
 bool Microphone::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const

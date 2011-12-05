@@ -41,7 +41,6 @@ SOURCES += src/main.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
 	src/package/standard.cpp \
-	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/legend-mode-scenario.cpp \
 	src/scenario/scenario.cpp \
@@ -98,10 +97,8 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/roleassigndialog.h \ 
 	src/dialog/scenario-overview.h \
 	src/package/package.h \
-	src/package/standard-equips.h \
 	src/package/standard-skillcards.h \
 	src/package/standard.h \
-	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
 	src/scenario/legend-mode-scenario.h \
 	src/scenario/scenario.h \

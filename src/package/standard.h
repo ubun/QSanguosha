@@ -14,6 +14,13 @@ public:
     void addGenerals();
 };
 
+class StandardCardPackage: public Package{
+    Q_OBJECT
+
+public:
+    StandardCardPackage();
+};
+
 class TestPackage: public Package{
     Q_OBJECT
 
