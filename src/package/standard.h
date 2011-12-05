@@ -285,6 +285,13 @@ public:
     virtual bool isAvailable(const Player *player) const;
 };
 
+class Ingenarg: public Jink{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Ingenarg(Card::Suit suit, int number);
+};
+
 class Peach: public BasicCard{
     Q_OBJECT
 

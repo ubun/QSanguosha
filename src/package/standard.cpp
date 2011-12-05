@@ -336,6 +336,13 @@ public:
     }
 };
 
+class JinkPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return ! player->hasEquip(card) && card->inherits("Jink");
+    }
+};
+
 class NamePattern: public CardPattern{
 public:
     NamePattern(const QString &name)
@@ -345,8 +352,6 @@ public:
     }
 
     virtual bool match(const Player *player, const Card *card) const{
-        if(name == "peach")
-            return card->inherits("Peach");
         return ! player->hasEquip(card) && card->objectName() == name;
     }
 
@@ -374,7 +379,7 @@ StandardPackage::StandardPackage()
     patterns[".D"] = new SuitPattern(Card::Diamond);
 
     patterns["slash"] = new SlashPattern;
-    patterns["jink"] = new NamePattern("jink");
+    patterns["jink"] = new JinkPattern;
     patterns["peach"] = new NamePattern("peach");
     patterns["wall"] = new NamePattern("wall");
     patterns["nullification"] = new NamePattern("nullification");

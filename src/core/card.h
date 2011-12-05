@@ -43,7 +43,7 @@ public:
     // card types
     enum CardType{
         Skill,
-        Basic,
+        //Basic,
         Trick,
         Equip,
     };

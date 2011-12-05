@@ -3,7 +3,7 @@
 local t = {
 	["standard_cards"] = "标准卡牌包",
 
-	["slash"] = "杀", 
+	["slash"] = "杀",
 	["jink"] = "闪", 
 	["peach"] = "桃", 
 	["crossbow"] = "诸葛连弩", 

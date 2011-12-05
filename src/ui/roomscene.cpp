@@ -1350,10 +1350,10 @@ void RoomScene::updateRoleComboBox(const QString &new_role){
 }
 
 void RoomScene::enableTargets(const Card *card){
-    if(card/* && Self->isJilei(card)*/){
+    /*if(card && Self->isJilei(card)){
         ok_button->setEnabled(false);
         return;
-    }
+    }*/
 
     selected_targets.clear();
 

@@ -36,7 +36,7 @@ QString Slash::getSubtype() const{
 }
 
 void Slash::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    TrickCard::use(room, source, targets);
+    BasicCard::use(room, source, targets);
 
     if(source->hasFlag("drank")){
         LogMessage log;
@@ -90,7 +90,6 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
 
 Jink::Jink(Suit suit, int number):BasicCard(suit, number, false){
     setObjectName("jink");
-
     target_fixed = true;
 }
 
@@ -100,6 +99,11 @@ QString Jink::getSubtype() const{
 
 bool Jink::isAvailable(const Player *) const{
     return false;
+}
+
+Ingenarg::Ingenarg(Suit suit, int number)
+    :Jink(suit, number) {
+    setObjectName("ingenarg");
 }
 
 Peach::Peach(Suit suit, int number):BasicCard(suit, number, false){
@@ -470,7 +474,7 @@ StandardCardPackage::StandardCardPackage()
             << new Jink(Card::Diamond, 9)
             << new Jink(Card::Diamond, 10)
             << new Jink(Card::Diamond, 11)
-            << new Jink(Card::Diamond, 11)
+            << new Ingenarg(Card::Diamond, 11)
 
             << new Peach(Card::Heart, 3)
             << new Peach(Card::Heart, 4)

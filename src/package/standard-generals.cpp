@@ -1370,7 +1370,6 @@ void StandardPackage::addGenerals(){
     luxun->addSkill(new Lianying);
 
     sunshangxiang = new General(this, "sunshangxiang", "wu", 3, false);
-    sunshangxiang->addSkill(new Chujia);
     sunshangxiang->addSkill(new Jieyin);
     sunshangxiang->addSkill(new Xiaoji);
 
@@ -1386,7 +1385,6 @@ void StandardPackage::addGenerals(){
     diaochan = new General(this, "diaochan", "qun", 3, false);
     diaochan->addSkill(new Lijian);
     diaochan->addSkill(new Biyue);
-    diaochan->addSkill(new Tuoqiao);
 
     // for skill cards
     addMetaObject<ZhihengCard>();
