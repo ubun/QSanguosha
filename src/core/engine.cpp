@@ -4,7 +4,6 @@
 #include "ai.h"
 #include "settings.h"
 #include "scenario.h"
-#include "challengemode.h"
 #include "lua.hpp"
 #include "banpairdialog.h"
 
@@ -31,34 +30,15 @@ Engine *Sanguosha = NULL;
 
 extern "C" {
     Package *NewStandard();
-    Package *NewWind();
-    Package *NewFire();
-    Package *NewThicket();
-    Package *NewMountain();
-    Package *NewGod();
-    Package *NewYitian();
-    Package *NewSP();
-    Package *NewYJCM();
-    Package *NewWisdom();
-    Package *NewNewbility();
-    Package *NewNewbilityGeneral();
     Package *NewTest();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
-    Package *NewManeuvering();
-    Package *NewSPCard();
-    Package *NewNostalgia();
-    Package *NewYitianCard();
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
-    Package *NewTechnology();
 
-    Scenario *NewGuanduScenario();
-    Scenario *NewFanchengScenario();
     Scenario *NewCoupleScenario();
-    Scenario *NewHongyanScenario();
     Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
@@ -73,34 +53,15 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    addPackage(NewWind());
-    addPackage(NewFire());
-    addPackage(NewThicket());
-    addPackage(NewMountain());
-    addPackage(NewGod());
-    addPackage(NewSP());
-    addPackage(NewYJCM());
-    addPackage(NewYitian());
-    addPackage(NewWisdom());
-    addPackage(NewNewbilityGeneral());
-    addPackage(NewTechnology());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
-    addPackage(NewManeuvering());
-    addPackage(NewSPCard());
-    addPackage(NewYitianCard());
-    addPackage(NewNostalgia());
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
-    addPackage(NewNewbility());
 
-    addScenario(NewGuanduScenario());
-    addScenario(NewFanchengScenario());
-    addScenario(NewCoupleScenario());
-    addScenario(NewHongyanScenario());
+    //addScenario(NewCoupleScenario());
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
@@ -111,7 +72,7 @@ Engine::Engine()
     modes["02_1v1"] = tr("2 players (KOF style)");
     modes["03p"] = tr("3 players");
     modes["04p"] = tr("4 players");
-    modes["04_1v3"] = tr("4 players (Hulao Pass)");
+    //modes["04_1v3"] = tr("4 players (Hulao Pass)");
     modes["05p"] = tr("5 players");
     modes["06p"] = tr("6 players");
     modes["06pd"] = tr("6 players (2 renegades)");
@@ -119,15 +80,11 @@ Engine::Engine()
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
-    modes["08boss"] = tr("8 players (boss mode)");
+    //modes["08boss"] = tr("8 players (boss mode)");
     modes["08same"] = tr("8 players (same mode)");
     modes["08raw"] = tr("8 players (runaway mode)");
     modes["09p"] = tr("9 players");
     modes["10p"] = tr("10 players");
-
-    //challenge_mode_set = NULL;
-    challenge_mode_set = new ChallengeModeSet(this);
-    //addPackage(challenge_mode_set);
 
     translations.insert("bossmode", tr("Boss mode"));
     translations.insert("runaway", tr("Runaway mode"));
@@ -201,14 +158,6 @@ void Engine::addScenario(Scenario *scenario){
 
 const Scenario *Engine::getScenario(const QString &name) const{
     return scenarios.value(name, NULL);
-}
-
-const ChallengeModeSet *Engine::getChallengeModeSet() const{
-    return challenge_mode_set;
-}
-
-const ChallengeMode *Engine::getChallengeMode(const QString &name) const{
-    return challenge_mode_set->getMode(name);
 }
 
 void Engine::addSkills(const QList<const Skill *> &all_skills){
@@ -457,11 +406,6 @@ int Engine::getPlayerCount(const QString &mode) const{
         int index = rx.indexIn(mode);
         if(index != -1)
             return rx.capturedTexts().first().toInt();
-    }else if(mode.startsWith("@")){
-        // challenge mode
-        const ChallengeMode *cmode = challenge_mode_set->getMode(mode);
-        if(cmode)
-            return cmode->getGenerals().length() * 2;
     }else{
         // scenario mode
         const Scenario *scenario = scenarios.value(mode, NULL);

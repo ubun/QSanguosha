@@ -414,11 +414,11 @@ void Dashboard::drawHp(QPainter *painter) const{
     QPixmap *magatama, *zero_magatama;
     int index = Self->isWounded() ? qMin(hp, 5) : 5;
     if(max_hp > 6){
-        magatama = MagatamaWidget::GetSmallMagatama(index);
-        zero_magatama = MagatamaWidget::GetSmallMagatama(0);
+        magatama = MagatamaWidget::GetSmallMagatama(0);
+        zero_magatama = MagatamaWidget::GetSmallMagatama(index);
     }else{
-        magatama = MagatamaWidget::GetMagatama(index);
-        zero_magatama = MagatamaWidget::GetMagatama(0);
+        magatama = MagatamaWidget::GetMagatama(0);
+        zero_magatama = MagatamaWidget::GetMagatama(index);
     }
 
     qreal total_width = magatama->width() * max_hp;
