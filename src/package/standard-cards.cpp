@@ -284,6 +284,17 @@ bool Nullification::isAvailable(const Player *) const{
     return false;
 }
 
+Ignore::Ignore(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false)
+{
+    setObjectName("ignore");
+    target_fixed = true;
+}
+
+void Ignore::onEffect(const CardEffectStruct &effect) const{
+    effect.to->addToPile("ignore", this->getSubcards().first());
+}
+
 ExNihilo::ExNihilo(Suit suit, int number)
     :SingleTargetTrick(suit, number, false)
 {
@@ -380,6 +391,17 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
     room->sendLog(log);
 }
 
+Speak::Speak(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false)
+{
+    setObjectName("speak");
+    target_fixed = true;
+}
+
+void Speak::onEffect(const CardEffectStruct &effect) const{
+    effect.to->getRoom()->obtainCard(effect.to, 0);
+}
+
 Microphone::Microphone(Suit suit, int number)
     :DelayedTrick(suit, number)
 {
@@ -425,86 +447,70 @@ StandardCardPackage::StandardCardPackage()
     cards
             << new Microphone(Card::Club, 4)
 
-            << new Slash(Card::Spade, 7)
-            << new Slash(Card::Spade, 8)
-            << new Slash(Card::Spade, 8)
-            << new Slash(Card::Spade, 9)
-            << new Slash(Card::Spade, 9)
-            << new Slash(Card::Spade, 10)
-            << new Slash(Card::Spade, 10)
-
-            << new Slash(Card::Club, 2)
-            << new Slash(Card::Club, 3)
-            << new Slash(Card::Club, 4)
+            << new Slash(Card::Club, 1)
+            << new Duel(Card::Club, 2)
+            << new Jink(Card::Diamond, 3)
+            << new Ignore(Card::Club, 4)
             << new Slash(Card::Club, 5)
-            << new Slash(Card::Club, 6)
+            << new Dismantlement(Card::Club, 6)
             << new Slash(Card::Club, 7)
-            << new Slash(Card::Club, 8)
-            << new Slash(Card::Club, 8)
-            << new Slash(Card::Club, 9)
-            << new Slash(Card::Club, 9)
-            << new Slash(Card::Club, 10)
-            << new Slash(Card::Club, 10)
-            << new Slash(Card::Club, 11)
-            << new Slash(Card::Club, 11)
+            << new Jink(Card::Club, 8)
+            << new Dismantlement(Card::Club, 9)
+            << new AmazingGrace(Card::Club, 10)
+            << new Slash(Card::Club, 12)
+            << new Ingenarg(Card::Club, 13)
 
-            << new Slash(Card::Heart, 10)
-            << new Slash(Card::Heart, 10)
+            << new Ignore(Card::Heart, 1)
+            << new ExNihilo(Card::Heart, 2)
+            << new ExNihilo(Card::Heart, 3)
+            << new Slash(Card::Heart, 4)
+            << new Concludence(Card::Heart, 5)
+            << new Ingenarg(Card::Heart, 6)
+            << new Jink(Card::Heart, 7)
+            << new Slash(Card::Heart, 8)
+            << new Peach(Card::Heart, 9)
+            << new Dismantlement(Card::Heart, 10)
             << new Slash(Card::Heart, 11)
+            << new Slash(Card::Heart, 12)
 
-            << new Slash(Card::Diamond, 6)
+            << new ArcheryAttack(Card::Spade, 1)
+            << new Slash(Card::Spade, 2)
+            << new Slash(Card::Spade, 3)
+            << new Duel(Card::Spade, 4)
+            << new Peach(Card::Spade, 5)
+            << new Jink(Card::Diamond, 6)
+            << new Ignore(Card::Spade, 7)
+            << new Slash(Card::Spade, 8)
+            << new Ingenarg(Card::Spade, 9)
+            << new Slash(Card::Spade, 10)
+            << new Dismantlement(Card::Spade, 11)
+            << new AmazingGrace(Card::Spade, 12)
+            << new Nullification(Card::Spade, 13)
+
+            << new Duel(Card::Diamond, 1)
+            << new Slash(Card::Diamond, 2)
+            << new Peach(Card::Diamond, 3)
+            << new Jink(Card::Diamond, 4)
+            << new Slash(Card::Diamond, 5)
+            << new Ingenarg(Card::Diamond, 6)
             << new Slash(Card::Diamond, 7)
             << new Slash(Card::Diamond, 8)
-            << new Slash(Card::Diamond, 9)
-            << new Slash(Card::Diamond, 10)
-            << new Slash(Card::Diamond, 13)
+            << new Dismantlement(Card::Diamond, 9)
+            << new ExNihilo(Card::Diamond, 10)
+            << new Nullification(Card::Diamond, 12)
+            << new ArcheryAttack(Card::Diamond, 13)
 
-            << new Jink(Card::Heart, 2)
-            << new Jink(Card::Heart, 2)
-            << new Jink(Card::Heart, 13)
-
-            << new Jink(Card::Diamond, 2)
-            << new Jink(Card::Diamond, 2)
-            << new Jink(Card::Diamond, 3)
-            << new Jink(Card::Diamond, 4)
-            << new Jink(Card::Diamond, 5)
-            << new Jink(Card::Diamond, 6)
-            << new Jink(Card::Diamond, 7)
-            << new Jink(Card::Diamond, 8)
-            << new Jink(Card::Diamond, 9)
-            << new Jink(Card::Diamond, 10)
-            << new Jink(Card::Diamond, 11)
-            << new Ingenarg(Card::Diamond, 11)
-
-            << new Peach(Card::Heart, 3)
-            << new Peach(Card::Heart, 4)
-            << new Peach(Card::Heart, 6)
-            << new Peach(Card::Heart, 7)
-            << new Peach(Card::Heart, 8)
-            << new Peach(Card::Heart, 9)
-            << new Peach(Card::Heart, 14)
-
-            << new Peach(Card::Diamond, 12);
-
-    cards << new AmazingGrace(Card::Heart, 3)
-          << new AmazingGrace(Card::Heart, 4)
-          << new ArcheryAttack
-          << new Duel(Card::Spade, 1)
-          << new Duel(Card::Club, 1)
-          << new Duel(Card::Diamond, 1)
-          << new ExNihilo(Card::Heart, 7)
-          << new ExNihilo(Card::Heart, 8)
-          << new ExNihilo(Card::Heart, 9)
-          << new ExNihilo(Card::Heart, 11)
-          << new Concludence(Card::Spade, 3)
-          << new Dismantlement(Card::Spade, 4)
-          << new Dismantlement(Card::Spade, 12)
-          << new Dismantlement(Card::Club, 3)
-          << new Dismantlement(Card::Club, 4)
-          << new Dismantlement(Card::Heart, 12)
-          << new Nullification(Card::Spade, 11)
-          << new Nullification(Card::Club, 12)
-          << new Nullification(Card::Club, 13);
+            << new Slash(Card::Heart, 1)
+            << new Slash(Card::Spade, 2)
+            << new Slash(Card::Diamond, 3)
+            << new Slash(Card::Club, 4)
+            << new Jink(Card::Heart, 5)
+            << new Speak(Card::Spade, 6)
+            << new Peach(Card::Diamond, 7)
+            << new Ignore(Card::Club, 8)
+            << new ExNihilo(Card::Heart, 9)
+            << new AmazingGrace(Card::Spade, 10)
+            << new Speak(Card::Diamond, 11);
 
     foreach(Card *card, cards)
         card->setParent(this);

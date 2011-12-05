@@ -132,6 +132,14 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class Ignore: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Ignore(Card::Suit suit, int number);
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class ExNihilo: public SingleTargetTrick{
     Q_OBJECT
 
@@ -167,15 +175,6 @@ private:
     bool movable;
 };
 
-class Microphone:public DelayedTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Microphone(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-};
-
 class Nullification:public SingleTargetTrick{
     Q_OBJECT
 
@@ -184,6 +183,23 @@ public:
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual bool isAvailable(const Player *player) const;
+};
+
+class Speak: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Speak(Card::Suit suit, int number);
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class Microphone:public DelayedTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Microphone(Card::Suit suit, int number);
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class Weapon:public EquipCard{

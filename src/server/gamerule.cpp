@@ -340,6 +340,13 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
     case CardEffected:{
             if(data.canConvert<CardEffectStruct>()){
                 CardEffectStruct effect = data.value<CardEffectStruct>();
+                if(!effect.to->getPile("ignore").isEmpty() &&
+                   (effect.card->inherits("Slash") || effect.card->inherits("Duel"))){
+                    if(effect.to->askForSkillInvoke("ignore")){
+                        room->throwCard(effect.to->getPile("ignore").first());
+                        return true;
+                    }
+                }
                 if(room->isCanceled(effect))
                     return true;
 
