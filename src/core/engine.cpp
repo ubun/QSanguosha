@@ -33,7 +33,6 @@ extern "C" {
     Package *NewTest();
 
     Package *NewStandardCard();
-    Package *NewStandardExCard();
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
@@ -55,10 +54,9 @@ Engine::Engine()
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
-    addPackage(NewStandardExCard());
-    addPackage(NewJoy());
-    addPackage(NewDisaster());
-    addPackage(NewJoyEquip());
+    //addPackage(NewJoy());
+    //addPackage(NewDisaster());
+    //addPackage(NewJoyEquip());
 
     //addScenario(NewCoupleScenario());
     addScenario(NewLegendScenario());

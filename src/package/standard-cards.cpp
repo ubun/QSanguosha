@@ -86,10 +86,6 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
     if(targets.length() >= slash_targets)
         return false;
 
-    if(inherits("WushenSlash")){
-        distance_limit = false;
-    }
-
     return Self->canSlash(to_select, distance_limit);
 }
 
@@ -109,7 +105,6 @@ bool Jink::isAvailable(const Player *) const{
 
 Peach::Peach(Suit suit, int number):BasicCard(suit, number){
     setObjectName("peach");
-    target_fixed = true;
 }
 
 QString Peach::getSubtype() const{
@@ -118,6 +113,10 @@ QString Peach::getSubtype() const{
 
 QString Peach::getEffectPath(bool is_male) const{
     return Card::getEffectPath();
+}
+
+bool Peach::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty();
 }
 
 void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
@@ -165,340 +164,6 @@ Crossbow::Crossbow(Suit suit, int number)
     :Weapon(suit, number, 1)
 {
     setObjectName("crossbow");
-}
-
-class DoubleSwordSkill: public WeaponSkill{
-public:
-    DoubleSwordSkill():WeaponSkill("double_sword"){
-        events << SlashEffect;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        Room *room = player->getRoom();
-
-        if(effect.from->getGeneral()->isMale() != effect.to->getGeneral()->isMale()){
-            if(effect.from->askForSkillInvoke(objectName())){
-                bool draw_card = false;
-
-                if(effect.to->isKongcheng())
-                    draw_card = true;
-                else{
-                    QString prompt = "double-sword-card:" + effect.from->getGeneralName();
-                    const Card *card = room->askForCard(effect.to, ".", prompt);
-                    if(card){
-                        room->throwCard(card);
-                    }else
-                        draw_card = true;
-                }
-
-                if(draw_card)
-                    effect.from->drawCards(1);
-            }
-        }
-
-        return false;
-    }
-};
-
-DoubleSword::DoubleSword(Suit suit, int number)
-    :Weapon(suit, number, 2)
-{
-    setObjectName("double_sword");
-    skill = new DoubleSwordSkill;
-}
-
-class QinggangSwordSkill: public WeaponSkill{
-public:
-    QinggangSwordSkill():WeaponSkill("qinggang_sword"){
-        events << SlashEffect;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        effect.to->addMark("qinggang");
-
-        return false;
-    }
-};
-
-QinggangSword::QinggangSword(Suit suit, int number)
-    :Weapon(suit, number, 2)
-{
-    setObjectName("qinggang_sword");
-
-    skill = new QinggangSwordSkill;
-}
-
-class BladeSkill : public WeaponSkill{
-public:
-    BladeSkill():WeaponSkill("blade"){
-        events << SlashMissed;
-    }
-
-    virtual int getPriority() const{
-        return -1;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-
-        if(effect.to->hasSkill("kongcheng") && effect.to->isKongcheng())
-            return false;
-
-        Room *room = player->getRoom();
-        const Card *card = room->askForCard(player, "slash", "blade-slash");
-        if(card){
-            // if player is drank, unset his flag
-            if(player->hasFlag("drank"))
-                room->setPlayerFlag(player, "-drank");
-
-            CardUseStruct use;
-            use.card = card;
-            use.from = player;
-            use.to << effect.to;
-            room->useCard(use, false);
-        }
-
-        return false;
-    }
-};
-
-Blade::Blade(Suit suit, int number)
-    :Weapon(suit, number, 3)
-{
-    setObjectName("blade");
-    skill = new BladeSkill;
-}
-
-class SpearSkill: public ViewAsSkill{
-public:
-    SpearSkill():ViewAsSkill("spear"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return Slash::IsAvailable(player);
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "slash";
-    }
-
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        return selected.length() < 2 && !to_select->isEquipped();
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.length() != 2)
-            return NULL;
-
-        const Card *first = cards.at(0)->getFilteredCard();
-        const Card *second = cards.at(1)->getFilteredCard();
-
-        Card::Suit suit = Card::NoSuit;
-        if(first->isBlack() && second->isBlack())
-            suit = Card::Spade;
-        else if(first->isRed() && second->isRed())
-            suit = Card::Heart;
-
-        Slash *slash = new Slash(suit, 0);
-        slash->setSkillName(objectName());
-        slash->addSubcard(first);
-        slash->addSubcard(second);
-
-        return slash;
-    }
-};
-
-Spear::Spear(Suit suit, int number)
-    :Weapon(suit, number, 3)
-{
-    setObjectName("spear");
-    attach_skill = true;
-}
-
-class AxeViewAsSkill: public ViewAsSkill{
-public:
-    AxeViewAsSkill():ViewAsSkill("axe"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
-        return pattern == "@axe";
-    }
-
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        if(selected.length() >= 2)
-            return false;
-
-        if(to_select->getCard() == Self->getWeapon())
-            return false;
-
-        return true;
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.length() != 2)
-            return NULL;
-
-        DummyCard *card = new DummyCard;
-        card->setSkillName(objectName());
-        card->addSubcards(cards);
-        return card;
-    }
-};
-
-class AxeSkill: public WeaponSkill{
-public:
-    AxeSkill():WeaponSkill("axe"){
-        events << SlashMissed;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-
-        Room *room = player->getRoom();
-        CardStar card = room->askForCard(player, "@axe", "@axe:" + effect.to->objectName());
-        if(card){
-            QList<int> card_ids = card->getSubcards();
-            foreach(int card_id, card_ids){
-                LogMessage log;
-                log.type = "$DiscardCard";
-                log.from = player;
-                log.card_str = QString::number(card_id);
-
-                room->sendLog(log);
-            }
-
-            LogMessage log;
-            log.type = "#AxeSkill";
-            log.from = player;
-            log.to << effect.to;
-            room->sendLog(log);
-
-            room->slashResult(effect, NULL);
-        }
-
-        return false;
-    }
-};
-
-Axe::Axe(Suit suit, int number)
-    :Weapon(suit, number, 3)
-{
-    setObjectName("axe");
-    skill = new AxeSkill;
-    attach_skill = true;
-}
-
-Halberd::Halberd(Suit suit, int number)
-    :Weapon(suit, number, 4)
-{
-    setObjectName("halberd");
-}
-
-class KylinBowSkill: public WeaponSkill{
-public:
-    KylinBowSkill():WeaponSkill("kylin_bow"){
-        events << SlashHit;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-
-        QStringList horses;
-        if(effect.to->getDefensiveHorse())
-            horses << "dhorse";
-        if(effect.to->getOffensiveHorse())
-            horses << "ohorse";
-
-        if(horses.isEmpty())
-            return false;
-
-        Room *room = player->getRoom();
-        if(!player->askForSkillInvoke(objectName(), data))
-            return false;
-
-        QString horse_type;
-        if(horses.length() == 2)
-            horse_type = room->askForChoice(player, objectName(), horses.join("+"));
-        else
-            horse_type = horses.first();
-
-        if(horse_type == "dhorse")
-            room->throwCard(effect.to->getDefensiveHorse());
-        else if(horse_type == "ohorse")
-            room->throwCard(effect.to->getOffensiveHorse());
-
-        return false;
-    }
-};
-
-KylinBow::KylinBow(Suit suit, int number)
-    :Weapon(suit, number, 5)
-{
-    setObjectName("kylin_bow");
-    skill = new KylinBowSkill;
-}
-
-class EightDiagramSkill: public ArmorSkill{
-private:
-    EightDiagramSkill():ArmorSkill("eight_diagram"){
-        events << CardAsked;
-    }
-
-public:
-    static EightDiagramSkill *GetInstance(){
-        static EightDiagramSkill *instance = NULL;
-        if(instance == NULL)
-            instance = new EightDiagramSkill;
-
-        return instance;
-    }
-
-    virtual int getPriority() const{
-        return 2;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        QString asked = data.toString();
-        if(asked == "jink"){
-            Room *room = player->getRoom();
-            if(room->askForSkillInvoke(player, objectName())){
-                JudgeStruct judge;
-                judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
-                judge.good = true;
-                judge.reason = objectName();
-                judge.who = player;
-
-                room->judge(judge);
-                if(judge.isGood()){
-                    Jink *jink = new Jink(Card::NoSuit, 0);
-                    jink->setSkillName(objectName());
-                    room->provide(jink);
-                    room->setEmotion(player, "good");
-                    room->broadcastInvoke("playAudio", objectName());
-
-                    return true;
-                }else
-                    room->setEmotion(player, "bad");
-            }
-        }
-        return false;
-    }
-};
-
-
-
-EightDiagram::EightDiagram(Suit suit, int number)
-    :Armor(suit, number){
-    setObjectName("eight_diagram");
-    skill = EightDiagramSkill::GetInstance();
 }
 
 AmazingGrace::AmazingGrace(Suit suit, int number)
@@ -906,76 +571,6 @@ void Lightning::takeEffect(ServerPlayer *target) const{
     target->getRoom()->damage(damage);
 }
 
-
-// EX cards
-
-class IceSwordSkill: public TriggerSkill{
-public:
-    IceSwordSkill():TriggerSkill("ice_sword"){
-        events << SlashHit;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasWeapon(objectName());
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-
-        Room *room = player->getRoom();
-
-        if(!effect.to->isNude() && player->askForSkillInvoke("ice_sword", data)){
-            int card_id = room->askForCardChosen(player, effect.to, "he", "ice_sword");
-            room->throwCard(card_id);
-
-            if(!effect.to->isNude()){
-                card_id = room->askForCardChosen(player, effect.to, "he", "ice_sword");
-                room->throwCard(card_id);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-};
-
-IceSword::IceSword(Suit suit, int number)
-    :Weapon(suit, number, 2)
-{
-    setObjectName("ice_sword");
-    skill = new IceSwordSkill;
-}
-
-class RenwangShieldSkill: public ArmorSkill{
-public:
-    RenwangShieldSkill():ArmorSkill("renwang_shield"){
-        events << SlashEffected;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(effect.slash->isBlack()){
-            LogMessage log;
-            log.type = "#ArmorNullify";
-            log.from = player;
-            log.arg = objectName();
-            log.arg2 = effect.slash->objectName();
-            player->getRoom()->sendLog(log);
-
-            return true;
-        }else
-            return false;
-    }
-};
-
-RenwangShield::RenwangShield(Suit suit, int number)
-    :Armor(suit, number)
-{
-    setObjectName("renwang_shield");
-    skill = new RenwangShieldSkill;
-}
-
 class HorseSkill: public DistanceSkill{
 public:
     HorseSkill():DistanceSkill("horse"){
@@ -1062,40 +657,7 @@ StandardCardPackage::StandardCardPackage()
           << new Peach(Card::Diamond, 12)
 
           << new Crossbow(Card::Club)
-          << new Crossbow(Card::Diamond)
-          << new DoubleSword
-          << new QinggangSword
-          << new Blade
-          << new Spear
-          << new Axe
-          << new Halberd
-          << new KylinBow
-
-          << new EightDiagram(Card::Spade)
-          << new EightDiagram(Card::Club);
-
-    skills << EightDiagramSkill::GetInstance();
-
-    {
-        QList<Card *> horses;
-        horses << new DefensiveHorse(Card::Spade, 5)
-                << new DefensiveHorse(Card::Club, 5)
-                << new DefensiveHorse(Card::Heart, 13)
-                << new OffensiveHorse(Card::Heart, 5)
-                << new OffensiveHorse(Card::Spade, 13)
-                << new OffensiveHorse(Card::Diamond, 13);
-
-        horses.at(0)->setObjectName("jueying");
-        horses.at(1)->setObjectName("dilu");
-        horses.at(2)->setObjectName("zhuahuangfeidian");
-        horses.at(3)->setObjectName("chitu");
-        horses.at(4)->setObjectName("dayuan");
-        horses.at(5)->setObjectName("zixing");
-
-        cards << horses;
-
-        skills << new HorseSkill;
-    }
+          << new Crossbow(Card::Diamond);
 
     cards << new AmazingGrace(Card::Heart, 3)
           << new AmazingGrace(Card::Heart, 4)
@@ -1134,24 +696,6 @@ StandardCardPackage::StandardCardPackage()
 
     foreach(Card *card, cards)
         card->setParent(this);
-
-    skills << new SpearSkill << new AxeViewAsSkill;
-}
-
-StandardExCardPackage::StandardExCardPackage()
-    :Package("standard_ex_cards")
-{
-    QList<Card *> cards;
-    cards << new IceSword(Card::Spade, 2)
-            << new RenwangShield(Card::Club, 2)
-            << new Lightning(Card::Heart, 12)
-            << new Nullification(Card::Diamond, 12);
-
-    foreach(Card *card, cards)
-        card->setParent(this);
-
-    type = CardPack;
 }
 
 ADD_PACKAGE(StandardCard)
-ADD_PACKAGE(StandardExCard)

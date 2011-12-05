@@ -589,10 +589,10 @@ bool Player::canSlash(const Player *other, bool distance_limit) const{
     if(other == this)
         return false;
 
-    if(distance_limit)
-        return distanceTo(other) <= getAttackRange();
-    else
-        return true;
+    //if(distance_limit)
+    //    return distanceTo(other) <= getAttackRange();
+    //else
+    return true;
 }
 
 int Player::getCardCount(bool include_equip) const{
