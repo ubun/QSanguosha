@@ -159,6 +159,25 @@ bool Peach::isAvailable(const Player *player) const{
     return player->isWounded();
 }
 
+Concludence::Concludence(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false) {
+    setObjectName("concludence");
+}
+
+bool Concludence::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return true;
+}
+
+void Concludence::onEffect(const CardEffectStruct &effect) const{
+    DamageStruct dmaa;
+    dmaa.from = effect.from;
+    dmaa.to = effect.to;
+    dmaa.card = this;
+    effect.from->getRoom()->damage(dmaa);
+}
+
 AmazingGrace::AmazingGrace(Suit suit, int number)
     :GlobalEffect(suit, number)
 {
@@ -333,7 +352,7 @@ bool Dismantlement::targetFilter(const QList<const Player *> &targets, const Pla
     if(!targets.isEmpty())
         return false;
 
-    if(to_select->isAllNude())
+    if(to_select->isKongcheng())
         return false;
 
     if(to_select == Self)
@@ -343,11 +362,11 @@ bool Dismantlement::targetFilter(const QList<const Player *> &targets, const Pla
 }
 
 void Dismantlement::onEffect(const CardEffectStruct &effect) const{
-    if(effect.to->isAllNude())
+    if(effect.to->isKongcheng())
         return;
 
     Room *room = effect.to->getRoom();
-    int card_id = room->askForCardChosen(effect.from, effect.to, "hej", objectName());
+    int card_id = effect.to->getRandomHandCardId();
     room->throwCard(card_id);
 
     LogMessage log;
@@ -355,12 +374,6 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
     log.from = effect.to;
     log.card_str = QString::number(card_id);
     room->sendLog(log);
-
-    if(effect.from->hasArmorEffect("urban") && effect.from->hasSkill("qixi") && effect.card->getSuit() == Card::Club){
-        bool result = effect.from->getState() != "robot" ? room->askForSkillInvoke(effect.from, "urban") : true;
-        if(result)
-            room->obtainCard(effect.from, card_id);
-    }
 }
 
 Microphone::Microphone(Suit suit, int number)
@@ -479,7 +492,7 @@ StandardCardPackage::StandardCardPackage()
           << new ExNihilo(Card::Heart, 8)
           << new ExNihilo(Card::Heart, 9)
           << new ExNihilo(Card::Heart, 11)
-          << new Dismantlement(Card::Spade, 3)
+          << new Concludence(Card::Spade, 3)
           << new Dismantlement(Card::Spade, 4)
           << new Dismantlement(Card::Spade, 12)
           << new Dismantlement(Card::Club, 3)
