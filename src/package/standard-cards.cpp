@@ -6,7 +6,7 @@
 #include "room.h"
 #include "carditem.h"
 
-Slash::Slash(Suit suit, int number): BasicCard(suit, number)
+Slash::Slash(Suit suit, int number): BasicCard(suit, number, false)
 {
     setObjectName("slash");
     nature = DamageStruct::Normal;
@@ -37,7 +37,7 @@ QString Slash::getSubtype() const{
 }
 
 void Slash::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    BasicCard::use(room, source, targets);
+    TrickCard::use(room, source, targets);
 
     if(source->hasFlag("drank")){
         LogMessage log;
@@ -89,7 +89,7 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
     return Self->canSlash(to_select, distance_limit);
 }
 
-Jink::Jink(Suit suit, int number):BasicCard(suit, number){
+Jink::Jink(Suit suit, int number):BasicCard(suit, number, false){
     setObjectName("jink");
 
     target_fixed = true;
@@ -103,7 +103,7 @@ bool Jink::isAvailable(const Player *) const{
     return false;
 }
 
-Peach::Peach(Suit suit, int number):BasicCard(suit, number){
+Peach::Peach(Suit suit, int number):BasicCard(suit, number, false){
     setObjectName("peach");
 }
 
@@ -116,7 +116,7 @@ QString Peach::getEffectPath(bool is_male) const{
 }
 
 bool Peach::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty();
+    return targets.isEmpty() && to_select->isWounded();
 }
 
 void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
@@ -370,17 +370,22 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
     }
 }
 
-Disaster::Disaster(Card::Suit suit, int number)
-    :DelayedTrick(suit, number, true)
+Microphone::Microphone(Suit suit, int number)
+    :DelayedTrick(suit, number)
 {
-    target_fixed = true;
+    setObjectName("indulgence");
+    target_fixed = false;
 }
 
-bool Disaster::isAvailable(const Player *player) const{
-    if(player->containsTrick(objectName()))
+bool Microphone::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if(!targets.isEmpty())
         return false;
 
-    return ! player->isProhibited(player, this);
+    if(to_select->containsTrick(objectName()))
+        return false;
+
+    return true;
 }
 
 class HorseSkill: public DistanceSkill{
@@ -464,12 +469,11 @@ StandardCardPackage::StandardCardPackage()
           << new Peach(Card::Heart, 7)
           << new Peach(Card::Heart, 8)
           << new Peach(Card::Heart, 9)
-          << new Peach(Card::Heart, 12)
+          << new Peach(Card::Heart, 14)
 
           << new Peach(Card::Diamond, 12)
 
-          << new Crossbow(Card::Club)
-          << new Crossbow(Card::Diamond);
+          << new Microphone(Card::Club, 4);
 
     cards << new AmazingGrace(Card::Heart, 3)
           << new AmazingGrace(Card::Heart, 4)

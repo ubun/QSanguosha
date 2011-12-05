@@ -4,13 +4,6 @@
 
 %}
 
-class BasicCard:public Card{
-public:
-    BasicCard(Suit suit, int number):Card(suit, number){}
-    virtual QString getType() const;
-    virtual CardType getTypeId() const;
-};
-
 class TrickCard:public Card{
 public:
     TrickCard(Suit suit, int number, bool aggressive);
@@ -24,6 +17,11 @@ public:
 private:
     bool aggressive;
     bool cancelable;
+};
+
+class BasicCard:public TrickCard{
+public:
+    BasicCard(Suit suit, int number, bool aggressive):TrickCard(suit, number, aggressive){}
 };
 
 class EquipCard:public Card{

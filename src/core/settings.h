@@ -33,7 +33,6 @@ public:
     bool ForbidSIMC;
     bool DisableChat;
     bool Enable2ndGeneral;
-    bool EnableScene;	//changjing
     int MaxHpScheme;
     bool AnnounceIP;
     QString Address;

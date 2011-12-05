@@ -5,7 +5,6 @@
 #include "ai.h"
 #include "scenario.h"
 #include "gamerule.h"
-#include "scenerule.h"	//changjing
 #include "contestdb.h"
 #include "banpairdialog.h"
 #include "roomthread3v3.h"
@@ -1632,21 +1631,11 @@ int Room::getCardFromPile(const QString &card_pattern){
     if(draw_pile->isEmpty())
         swapPile();
 
-    if(card_pattern.startsWith("@")){
-        if(card_pattern == "@duanliang"){
-            foreach(int card_id, *draw_pile){
-                const Card *card = Sanguosha->getCard(card_id);
-                if(card->isBlack() && (card->inherits("BasicCard") || card->inherits("EquipCard")))
-                    return card_id;
-            }
-        }
-    }else{
-        QString card_name = card_pattern;
-        foreach(int card_id, *draw_pile){
-            const Card *card = Sanguosha->getCard(card_id);
-            if(card->objectName() == card_name)
-                return card_id;
-        }
+    QString card_name = card_pattern;
+    foreach(int card_id, *draw_pile){
+        const Card *card = Sanguosha->getCard(card_id);
+        if(card->objectName() == card_name)
+            return card_id;
     }
 
     return -1;
@@ -2012,8 +2001,6 @@ void Room::startGame(){
         game_rule = new HulaoPassMode(this);
     else if(mode == "08raw")
         game_rule = new RunawayMode(this);
-    else if(Config.EnableScene)	//changjing
-        game_rule = new SceneRule(this);	//changjing
     else
         game_rule = new GameRule(this);
 

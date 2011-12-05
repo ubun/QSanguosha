@@ -37,7 +37,6 @@ SOURCES += src/main.cpp \
 	src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
         src/dialog/halldialog.cpp \
-	src/package/joypackage.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
@@ -46,7 +45,6 @@ SOURCES += src/main.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/legend-mode-scenario.cpp \
 	src/scenario/scenario.cpp \
-	src/scenario/scenerule.cpp \
 	src/server/ai.cpp \
 	src/server/contestdb.cpp \
 	src/server/gamerule.cpp \
@@ -99,7 +97,6 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/playercarddialog.h \
 	src/dialog/roleassigndialog.h \ 
 	src/dialog/scenario-overview.h \
-	src/package/joypackage.h \
 	src/package/package.h \
 	src/package/standard-equips.h \
 	src/package/standard-skillcards.h \
@@ -108,7 +105,6 @@ HEADERS += src/client/aux-skills.h \
 	src/scenario/couple-scenario.h \
 	src/scenario/legend-mode-scenario.h \
 	src/scenario/scenario.h \
-	src/scenario/scenerule.h \
 	src/server/ai.h \
 	src/server/contestdb.h \
 	src/server/gamerule.h \

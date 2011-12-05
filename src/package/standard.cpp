@@ -6,14 +6,6 @@
 #include "engine.h"
 #include "client.h"
 
-QString BasicCard::getType() const{
-    return "basic";
-}
-
-Card::CardType BasicCard::getTypeId() const{
-    return Basic;
-}
-
 TrickCard::TrickCard(Suit suit, int number, bool aggressive)
     :Card(suit, number), aggressive(aggressive),
     cancelable(true)
@@ -175,30 +167,6 @@ void DelayedTrick::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
 
 QString DelayedTrick::getSubtype() const{
     return "delayed_trick";
-}
-
-void DelayedTrick::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.to->getRoom();
-
-    if(!movable)
-        room->throwCard(this);
-
-    LogMessage log;
-    log.from = effect.to;
-    log.type = "#DelayedTrick";
-    log.arg = effect.card->objectName();
-    room->sendLog(log);
-
-    JudgeStruct judge_struct = judge;
-    judge_struct.who = effect.to;
-    room->judge(judge_struct);
-
-    if(judge_struct.isBad()){
-        room->throwCard(this);
-        takeEffect(effect.to);
-    }else if(movable){
-        onNullified(effect.to);
-    }
 }
 
 void DelayedTrick::onNullified(ServerPlayer *target) const{

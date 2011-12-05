@@ -33,9 +33,6 @@ extern "C" {
     Package *NewTest();
 
     Package *NewStandardCard();
-    Package *NewJoy();
-    Package *NewDisaster();
-    Package *NewJoyEquip();
 
     Scenario *NewCoupleScenario();
     Scenario *NewLegendScenario();
@@ -54,9 +51,6 @@ Engine::Engine()
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
-    //addPackage(NewJoy());
-    //addPackage(NewDisaster());
-    //addPackage(NewJoyEquip());
 
     //addScenario(NewCoupleScenario());
     addScenario(NewLegendScenario());
@@ -355,8 +349,6 @@ QString Engine::getSetupString() const{
         flags.append("F");
     if(Config.Enable2ndGeneral)
         flags.append("S");
-    if(Config.EnableScene)
-        flags.append("C");
     if(Config.EnableAI)
         flags.append("A");
     if(Config.DisableChat)

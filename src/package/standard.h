@@ -21,15 +21,6 @@ public:
     TestPackage();
 };
 
-class BasicCard:public Card{
-    Q_OBJECT
-
-public:
-    BasicCard(Suit suit, int number):Card(suit, number){}
-    virtual QString getType() const;
-    virtual CardType getTypeId() const;
-};
-
 class TrickCard:public Card{
     Q_OBJECT
 
@@ -45,6 +36,13 @@ public:
 private:
     bool aggressive;
     bool cancelable;
+};
+
+class BasicCard: public TrickCard{
+    Q_OBJECT
+
+public:
+    BasicCard(Suit suit, int number, bool aggressive):TrickCard(suit, number, aggressive){}
 };
 
 class EquipCard:public Card{
@@ -153,9 +151,6 @@ public:
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual QString getSubtype() const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-    virtual void takeEffect(ServerPlayer *target) const = 0;
-
     static const DelayedTrick *CastFrom(const Card *card);
 
 protected:
@@ -165,13 +160,13 @@ private:
     bool movable;
 };
 
-class Disaster: public DelayedTrick{
+class Microphone:public DelayedTrick{
     Q_OBJECT
 
 public:
-    Disaster(Card::Suit suit, int number);
+    Q_INVOKABLE Microphone(Card::Suit suit, int number);
 
-    virtual bool isAvailable(const Player *player) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class Nullification:public SingleTargetTrick{
