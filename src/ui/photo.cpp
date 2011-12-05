@@ -468,8 +468,8 @@ void Photo::drawHp(QPainter *painter){
     if(player->isWounded())
         index = qBound(0, hp, 5);
 
-    QPixmap *magatama = MagatamaWidget::GetSmallMagatama(index);
-    QPixmap *zero_magatama = MagatamaWidget::GetSmallMagatama(0);
+    QPixmap *magatama = MagatamaWidget::GetSmallMagatama(0);
+    QPixmap *zero_magatama = MagatamaWidget::GetSmallMagatama(index);
 
     int max_hp = player->getMaxHP();
     int i;

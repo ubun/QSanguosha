@@ -223,12 +223,9 @@ void DelayedTrick::onNullified(ServerPlayer *target) const{
 
 const DelayedTrick *DelayedTrick::CastFrom(const Card *card){
     DelayedTrick *trick = NULL;
-    Card::Suit suit = card->getSuit();
-    int number = card->getNumber();
-    if(card->getSuit() == Card::Diamond){
-        trick = new Indulgence(suit, number);
-        trick->addSubcard(card->getId());
-    }else if(card->inherits("DelayedTrick"))
+    //Card::Suit suit = card->getSuit();
+    //int number = card->getNumber();
+    if(card->inherits("DelayedTrick"))
         return qobject_cast<const DelayedTrick *>(card);
 
     return trick;

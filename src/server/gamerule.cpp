@@ -153,35 +153,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
     switch(event){
     case GameStart: {
-            if(player->isLord() && !Sanguosha->getBanPackages().contains("newbility")){
-                //niubi-card get out
-                ServerPlayer *niubi_player = player;
-                if(player->getState() == "robot"){
-                    QList<ServerPlayer *> players = room->getOtherPlayers(player), unrobot;
-                    foreach(ServerPlayer *p, players){
-                        if(p->getState() != "robot"){
-                            unrobot << p;
-                            break;
-                        }
-                    }
-                    niubi_player = unrobot.first();
-                }
-                QString result = Sanguosha->getSetupString().split(":").last().contains("S") ?
-                                 room->askForChoice(niubi_player,"niubi-getout","player+player2+package+cancel") :
-                                 room->askForChoice(niubi_player,"niubi-getout","player+package+cancel");
-
-                LogMessage log;
-                log.from = niubi_player;
-                log.type = "#NiubiSelect";
-                log.arg = "niubi" + result;
-                room->sendLog(log);
-
-                if(result != "cancel"){
-                    room->niubiMoveout(result);
-                    room->getThread()->delay();
-                }
-            }
-
             if(player->getGeneral()->getKingdom() == "god"){
                 QString new_kingdom = room->askForKingdom(player);
                 room->setPlayerProperty(player, "kingdom", new_kingdom);
@@ -241,28 +212,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             room->setPlayerProperty(player, "hp", new_hp);
             room->broadcastInvoke("hpChange", QString("%1:%2").arg(player->objectName()).arg(recover));
 
-            if(player->isChained() && recover_struct.card->inherits("JuicePeach")){
-                room->setPlayerProperty(player, "chained", false);
-
-                QList<ServerPlayer *> chained_players = room->getOtherPlayers(player);
-                foreach(ServerPlayer *chained_player, chained_players){
-                    if(chained_player->isChained() && chained_player->isWounded()){
-                        room->setPlayerProperty(chained_player, "chained", false);
-
-                        LogMessage log;
-                        log.type = "#IronChainRecover";
-                        log.from = chained_player;
-                        room->sendLog(log);
-
-                        RecoverStruct recover;
-                        recover.who = recover_struct.who;
-                        recover.card = recover_struct.card;
-                        room->recover(chained_player, recover);
-
-                        //break;
-                    }
-                 }
-            }
             break;
         }
 

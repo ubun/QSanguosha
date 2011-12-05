@@ -966,25 +966,6 @@ public:
     }
 };
 
-class Guose: public OneCardViewAsSkill{
-public:
-    Guose():OneCardViewAsSkill("guose"){
-
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getCard()->getSuit() == Card::Diamond;
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *first = card_item->getCard();
-        Indulgence *indulgence = new Indulgence(first->getSuit(), first->getNumber());
-        indulgence->addSubcard(first->getId());
-        indulgence->setSkillName(objectName());
-        return indulgence;
-    }
-};
-
 class LiuliViewAsSkill: public OneCardViewAsSkill{
 public:
     LiuliViewAsSkill():OneCardViewAsSkill("liuli"){
@@ -1382,7 +1363,6 @@ void StandardPackage::addGenerals(){
     zhouyu->addSkill(new Fanjian);
 
     daqiao = new General(this, "daqiao", "wu", 3, false);
-    daqiao->addSkill(new Guose);
     daqiao->addSkill(new Liuli);
 
     luxun = new General(this, "luxun", "wu", 3);
