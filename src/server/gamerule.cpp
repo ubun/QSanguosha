@@ -34,9 +34,7 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
             player->setMark("SlashCount", 0);
             break;
         }
-    case Player::Judge: {
-            break;
-        }
+    case Player::Judge: break;
     case Player::Draw: {
             QVariant num = 2;
             if(room->getTag("FirstRound").toBool() && room->getMode() == "02_1v1"){

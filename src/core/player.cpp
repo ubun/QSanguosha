@@ -700,7 +700,7 @@ bool Player::isProhibited(const Player *to, const Card *card) const{
 bool Player::canSlashWithoutCrossbow() const{
     if(hasSkill("paoxiao"))
         return true;
-    return slash_count < 1;
+    return getSlashCount() < 1;
 }
 
 void Player::copyFrom(Player* p)
