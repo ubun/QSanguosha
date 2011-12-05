@@ -1,12 +1,19 @@
 return {
-	["spade"] = "黑桃", 
-	["club"] = "梅花", 
-	["heart"] = "红桃", 
-	["diamond"] = "方块", 
-	["basic"] = "基本牌", 
-	["trick"] = "锦囊牌", 
-	["equip"] = "装备牌", 
-	
+	["spade"] = "黑桃",
+	["club"] = "梅花",
+	["heart"] = "红桃",
+	["diamond"] = "方块",
+
+	["trick"] = "线索牌",
+	["attack_card"] = "进攻牌",
+	["defense_card"] = "防御牌",
+	["recover_card"] = "恢复牌",
+	["global_effect"] = "全局效果",
+	["aoe"] = "范围效果",
+	["single_target_trick"] = "单体效果",
+	["delayed_trick"] = "硬件",
+	["microphone"] = "话筒",
+
 	["lord"] = "主公", 
 	["loyalist"] = "忠臣", 
 	["rebel"] = "反贼", 

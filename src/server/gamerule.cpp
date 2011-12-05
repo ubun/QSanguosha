@@ -67,26 +67,6 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
 
     case Player::Discard:{
             int discard_num = player->getHandcardNum() - player->getMaxCards();
-            if(player->hasFlag("jilei")){
-                QSet<const Card *> jilei_cards;
-                QList<const Card *> handcards = player->getHandcards();
-                foreach(const Card *card, handcards){
-                    if(player->isJilei(card))
-                        jilei_cards << card;
-                }
-
-                if(jilei_cards.size() > player->getMaxCards()){
-                    // show all his cards
-                    room->showAllCards(player);
-
-                    foreach(const Card *card, handcards.toSet() - jilei_cards){
-                        room->throwCard(card);
-                    }
-
-                    return;
-                }
-            }
-
             if(discard_num > 0)
                 room->askForDiscard(player, "gamerule", discard_num);
             break;

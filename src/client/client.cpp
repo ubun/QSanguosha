@@ -64,7 +64,6 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["setScreenName"] = &Client::setScreenName;
     callbacks["setFixedDistance"] = &Client::setFixedDistance;
     callbacks["transfigure"] = &Client::transfigure;
-    callbacks["jilei"] = &Client::jilei;
     callbacks["pile"] = &Client::pile;
 
     callbacks["updateStateItem"] = &Client::updateStateItem;
@@ -531,10 +530,6 @@ void Client::setStatus(Status status){
 
 Client::Status Client::getStatus() const{
     return status;
-}
-
-void Client::jilei(const QString &jilei_str){
-    Self->jilei(jilei_str);
 }
 
 void Client::judgeResult(const QString &result_str){

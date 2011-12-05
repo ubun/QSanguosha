@@ -34,9 +34,9 @@ extern "C" {
 
     Package *NewStandardCard();
 
-    Scenario *NewCoupleScenario();
+    //Scenario *NewCoupleScenario();
     Scenario *NewLegendScenario();
-    Scenario *NewImpasseScenario();
+    //Scenario *NewImpasseScenario();
 }
 
 extern "C" {
@@ -54,7 +54,7 @@ Engine::Engine()
 
     //addScenario(NewCoupleScenario());
     addScenario(NewLegendScenario());
-    addScenario(NewImpasseScenario());
+    //addScenario(NewImpasseScenario());
 
     // available game modes
     modes["02p"] = tr("2 players");

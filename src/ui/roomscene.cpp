@@ -1350,7 +1350,7 @@ void RoomScene::updateRoleComboBox(const QString &new_role){
 }
 
 void RoomScene::enableTargets(const Card *card){
-    if(card && Self->isJilei(card)){
+    if(card/* && Self->isJilei(card)*/){
         ok_button->setEnabled(false);
         return;
     }
@@ -2220,23 +2220,7 @@ void RoomScene::onGameOver(){
     bool victory = Self->property("win").toBool();
 
 #ifdef AUDIO_SUPPORT
-    QString win_effect;
-    if(victory){
-        win_effect = "win";
-        foreach(const Player *player, ClientInstance->getPlayers()){
-            if(player->property("win").toBool() && player->isCaoCao()){
-
-#ifdef Q_OS_WIN
-                if(SoundEngine)
-                    SoundEngine->stopAllSounds();
-#endif
-
-                win_effect = "win-cc";
-                break;
-            }
-        }
-    }else
-        win_effect = "lose";
+    QString win_effect = victory ? "win": "lose";
 
     Sanguosha->playAudio(win_effect);
 #endif

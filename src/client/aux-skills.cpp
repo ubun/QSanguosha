@@ -28,9 +28,6 @@ bool DiscardSkill::viewFilter(const QList<CardItem *> &selected, const CardItem 
     if(!include_equip && to_select->isEquipped())
         return false;
 
-    if(Self->isJilei(to_select->getFilteredCard()))
-        return false;
-
     return true;
 }
 
@@ -56,9 +53,6 @@ void ResponseSkill::setPattern(const QString &pattern){
 }
 
 bool ResponseSkill::matchPattern(const Player *player, const Card *card) const{
-    if(player->isJilei(card))
-        return false;
-
     return pattern && pattern->match(player, card);
 }
 
