@@ -125,7 +125,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
     switch(event){
     case GameStart: {
-            if(player->getGeneral()->getKingdom() == "god"){
+
+            /*if(player->getGeneral()->getKingdom() == "god"){
                 QString new_kingdom = room->askForKingdom(player);
                 room->setPlayerProperty(player, "kingdom", new_kingdom);
 
@@ -134,7 +135,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 log.from = player;
                 log.arg = new_kingdom;
                 room->sendLog(log);
-            }
+            }*/
 
             if(player->getMaxHP() < 1){
                 room->setPlayerProperty(player, "maxhp", 1);
@@ -142,6 +143,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             }
 
             if(player->isLord()){
+                room->moveCardTo(Sanguosha->getCard(0), player, Player::Judging);
                 setGameProcess(room);
             }
 

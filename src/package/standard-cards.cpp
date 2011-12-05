@@ -20,11 +20,10 @@ void Slash::setNature(DamageStruct::Nature nature){
 }
 
 bool Slash::IsAvailable(const Player *player){
-    if((player->hasFlag("tianyi_failed") && !player->hasArmorEffect("apple"))
-        || player->hasFlag("xianzhen_failed"))
+    if(player->hasFlag("tianyi_failed"))
         return false;
 
-    return player->hasWeapon("crossbow") || player->canSlashWithoutCrossbow();
+    return player->containsTrick("microphone") || player->canSlashWithoutCrossbow();
 }
 
 bool Slash::isAvailable(const Player *player) const{
