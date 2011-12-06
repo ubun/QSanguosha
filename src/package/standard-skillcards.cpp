@@ -28,36 +28,6 @@ void ShexianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
     room->loseHp(source);
 }
 
-RendeCard::RendeCard(){
-    will_throw = false;
-}
-
-void RendeCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *target = NULL;
-    if(targets.isEmpty()){
-        foreach(ServerPlayer *player, room->getAlivePlayers()){
-            if(player != source){
-                target = player;
-                break;
-            }
-        }
-    }else
-        target = targets.first();
-
-    room->moveCardTo(this, target, Player::Hand, false);
-
-    int old_value = source->getMark("rende");
-    int new_value = old_value + subcards.length();
-    room->setPlayerMark(source, "rende", new_value);
-
-    if(old_value < 2 && new_value >= 2){
-        RecoverStruct recover;
-        recover.card = this;
-        recover.who = source;
-        room->recover(source, recover);
-    }
-}
-
 JieyinCard::JieyinCard(){
     once = true;
     mute = true;
@@ -93,78 +63,6 @@ void JieyinCard::onEffect(const CardEffectStruct &effect) const{
     }
 
     room->playSkillEffect("jieyin", index);
-}
-
-TuxiCard::TuxiCard(){
-}
-
-bool TuxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    int num = Self->hasArmorEffect("flashlight")?3:2;
-    if(targets.length() >= num)
-        return false;
-
-    if(to_select == Self)
-        return false;
-
-    return !to_select->isKongcheng();
-}
-
-void TuxiCard::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.from->getRoom();
-    int card_id = room->askForCardChosen(effect.from, effect.to, "h", "tuxi");
-    const Card *card = Sanguosha->getCard(card_id);
-    room->moveCardTo(card, effect.from, Player::Hand, false);
-
-    room->setEmotion(effect.to, "bad");
-    room->setEmotion(effect.from, "good");
-}
-
-FanjianCard::FanjianCard(){
-    once = true;
-}
-
-void FanjianCard::onEffect(const CardEffectStruct &effect) const{
-    ServerPlayer *zhouyu = effect.from;
-    ServerPlayer *target = effect.to;
-    Room *room = zhouyu->getRoom();
-
-    int card_id = zhouyu->getRandomHandCardId();
-    const Card *card = Sanguosha->getCard(card_id);
-    Card::Suit suit = room->askForSuit(target);
-
-    LogMessage log;
-    log.type = "#ChooseSuit";
-    log.from = target;
-    log.arg = Card::Suit2String(suit);
-    room->sendLog(log);
-
-    if(zhouyu->hasArmorEffect("cologne")){
-        card = room->askForCardShow(zhouyu,target,objectName());
-        room->getThread()->delay();
-        if(card->getSuit() != suit){
-            DamageStruct damage;
-            damage.card = NULL;
-            damage.from = zhouyu;
-            damage.to = target;
-            room->damage(damage);
-        }
-        if(target->isAlive()){
-            target->obtainCard(card);
-        }
-    }
-    else {
-        room->getThread()->delay();
-        target->obtainCard(card);
-        room->showCard(target, card_id);
-        if(card->getSuit() != suit){
-            DamageStruct damage;
-            damage.card = NULL;
-            damage.from = zhouyu;
-            damage.to = target;
-
-            room->damage(damage);
-        }
-    }
 }
 
 LijianCard::LijianCard(){

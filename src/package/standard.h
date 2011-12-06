@@ -138,6 +138,7 @@ class Ignore: public SingleTargetTrick{
 public:
     Q_INVOKABLE Ignore(Card::Suit suit, int number);
     virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual bool isAvailable(const Player *Self) const;
 };
 
 class ExNihilo: public SingleTargetTrick{
@@ -191,6 +192,7 @@ class Speak: public SingleTargetTrick{
 public:
     Q_INVOKABLE Speak(Card::Suit suit, int number);
     virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual bool isAvailable(const Player *Self) const;
 };
 
 class Microphone:public DelayedTrick{

@@ -254,7 +254,13 @@ Ignore::Ignore(Suit suit, int number)
 }
 
 void Ignore::onEffect(const CardEffectStruct &effect) const{
-    effect.to->addToPile("ignore", this->getSubcards().first());
+    if(!effect.to->getPile("ignore").isEmpty())
+        effect.from->getRoom()->throwCard(this);
+    effect.to->addToPile("ignore", effect.card->getId());
+}
+
+bool Ignore::isAvailable(const Player *Self) const{
+    return Self->getPile("ignore").isEmpty();
 }
 
 ExNihilo::ExNihilo(Suit suit, int number)
@@ -361,7 +367,11 @@ Speak::Speak(Suit suit, int number)
 }
 
 void Speak::onEffect(const CardEffectStruct &effect) const{
-    effect.to->getRoom()->obtainCard(effect.to, 0);
+    effect.to->getRoom()->moveCardTo(Sanguosha->getCard(0), effect.to, Player::Judging);
+}
+
+bool Speak::isAvailable(const Player *Self) const{
+    return !Self->containsTrick("microphone");
 }
 
 Microphone::Microphone(Suit suit, int number)

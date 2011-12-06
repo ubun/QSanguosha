@@ -9,89 +9,6 @@
 #include "standard-skillcards.h"
 #include "ai.h"
 
-class Hujia:public TriggerSkill{
-public:
-    Hujia():TriggerSkill("hujia$"){
-        events << CardAsked;
-        default_choice = "ignore";
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasLordSkill("hujia");
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        QString pattern = data.toString();
-        if(pattern != "jink")
-            return false;
-
-        Room *room = player->getRoom();
-        QList<ServerPlayer *> lieges = room->getLieges("wei", player);
-        if(lieges.isEmpty())
-            return false;
-
-        if(!room->askForSkillInvoke(player, objectName()))
-            return false;
-
-        room->playSkillEffect(objectName());
-        QVariant tohelp = QVariant::fromValue((PlayerStar)player);
-        foreach(ServerPlayer *liege, lieges){
-            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + player->objectName(), tohelp);
-            if(jink){
-                room->provide(jink);
-                return true;
-            }
-        }
-
-        return false;
-    }
-};
-
-class TuxiViewAsSkill: public ZeroCardViewAsSkill{
-public:
-    TuxiViewAsSkill():ZeroCardViewAsSkill("tuxi"){
-    }
-
-    virtual const Card *viewAs() const{
-        return new TuxiCard;
-    }
-
-protected:
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "@@tuxi";
-    }
-};
-
-class Tuxi:public PhaseChangeSkill{
-public:
-    Tuxi():PhaseChangeSkill("tuxi"){
-        view_as_skill = new TuxiViewAsSkill;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *sujiang) const{
-        if(sujiang->getPhase() == Player::Draw){
-            Room *room = sujiang->getRoom();
-            bool can_invoke = false;
-            QList<ServerPlayer *> other_players = room->getOtherPlayers(sujiang);
-            foreach(ServerPlayer *player, other_players){
-                if(!player->isKongcheng()){
-                    can_invoke = true;
-                    break;
-                }
-            }
-
-            if(can_invoke && room->askForUseCard(sujiang, "@@tuxi", "@tuxi-card"))
-                return true;
-        }
-
-        return false;
-    }
-};
-
 class Tiandu:public TriggerSkill{
 public:
     Tiandu():TriggerSkill("tiandu"){
@@ -349,48 +266,6 @@ public:
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
         return  pattern == "jink";
-    }
-};
-
-class RendeViewAsSkill:public ViewAsSkill{
-public:
-    RendeViewAsSkill():ViewAsSkill("rende"){
-    }
-
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        if(ServerInfo.GameMode == "04_1v3"
-           && selected.length() + Self->getMark("rende") >= 2)
-           return false;
-        else
-            return !to_select->isEquipped();
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.isEmpty())
-            return NULL;
-
-        RendeCard *rende_card = new RendeCard;
-        rende_card->addSubcards(cards);
-        return rende_card;
-    }
-};
-
-class Rende: public PhaseChangeSkill{
-public:
-    Rende():PhaseChangeSkill("rende"){
-        view_as_skill = new RendeViewAsSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getPhase() == Player::NotActive
-                && target->hasUsed("RendeCard");
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *target) const{
-        target->getRoom()->setPlayerMark(target, "rende", 0);
-
-        return false;
     }
 };
 
@@ -654,21 +529,6 @@ public:
         }
 
         return false;
-    }
-};
-
-class Fanjian:public ZeroCardViewAsSkill{
-public:
-    Fanjian():ZeroCardViewAsSkill("fanjian"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->isKongcheng() && ! player->hasUsed("FanjianCard");
-    }
-
-    virtual const Card *viewAs() const{
-        return new FanjianCard;
     }
 };
 
@@ -1232,7 +1092,6 @@ void StandardPackage::addGenerals(){
 
     General *liubei, *zhaoyun, *machao, *zhugeliang;
     liubei = new General(this, "liubei$", "shu");
-    liubei->addSkill(new Rende);
     liubei->addSkill(new Jijiang);
 
     zhugeliang = new General(this, "zhugeliang", "shu", 3);
@@ -1247,7 +1106,7 @@ void StandardPackage::addGenerals(){
     machao = new General(this, "machao", "shu");
     machao->addSkill(new Tieji);
 
-    General *sunquan, *zhouyu, *lumeng, *ganning, *daqiao, *sunshangxiang;
+    General *sunquan, *lumeng, *ganning, *daqiao, *sunshangxiang;
     sunquan = new General(this, "sunquan$", "wu");
     sunquan->addSkill(new Jiuyuan);
 
@@ -1258,9 +1117,6 @@ void StandardPackage::addGenerals(){
     lumeng->addSkill(new Keji);
     lumeng->addSkill(new KejiSkip);
     related_skills.insertMulti("keji", "#keji-skip");
-
-    zhouyu = new General(this, "zhouyu", "wu", 3);
-    zhouyu->addSkill(new Fanjian);
 
     daqiao = new General(this, "daqiao", "wu", 3, false);
     daqiao->addSkill(new Liuli);
@@ -1278,11 +1134,8 @@ void StandardPackage::addGenerals(){
     diaochan->addSkill(new Lijian);
 
     // for skill cards
-    addMetaObject<RendeCard>();
-    addMetaObject<TuxiCard>();
     addMetaObject<JieyinCard>();
     addMetaObject<LijianCard>();
-    addMetaObject<FanjianCard>();
     addMetaObject<GuicaiCard>();
     addMetaObject<QingnangCard>();
     addMetaObject<LiuliCard>();
