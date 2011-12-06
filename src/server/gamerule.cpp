@@ -84,6 +84,9 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
             }
 
             player->clearFlags();
+            foreach(ServerPlayer *tmp, room->getAlivePlayers())
+                if(tmp->hasFlag("mp3"))
+                    tmp->setFlags("-mp3");
 
             return;
         }
@@ -135,6 +138,10 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             }
 
             player->drawCards(4, false);
+            room->attachSkillToPlayer(player, "mp1");
+            room->attachSkillToPlayer(player, "mp2");
+            room->attachSkillToPlayer(player, "mp3");
+            room->attachSkillToPlayer(player, "mp4");
 
             if(room->getMode() == "02_1v1")
                 room->setTag("FirstRound", true);
@@ -330,6 +337,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(data.canConvert<CardEffectStruct>()){
                 CardEffectStruct effect = data.value<CardEffectStruct>();
                 if(!effect.to->getPile("ignore").isEmpty() &&
+                   effect.card && effect.card->getSkillName() != "mp2" &&
                    (effect.card->inherits("Slash") || effect.card->inherits("Duel"))){
                     if(effect.to->askForSkillInvoke("ignore")){
                         room->throwCard(effect.to->getPile("ignore").first());

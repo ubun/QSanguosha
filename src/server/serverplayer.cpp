@@ -105,6 +105,8 @@ void ServerPlayer::clearPrivatePiles(){
 }
 
 void ServerPlayer::bury(){
+    if(this->containsTrick("microphone"))
+        room->moveMicrophone(this);
     throwAllCards();
     throwAllMarks();
     clearPrivatePiles();

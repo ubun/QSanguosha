@@ -1037,6 +1037,64 @@ public:
     }
 };
 
+class Mp1: public ZeroCardViewAsSkill{
+public:
+    Mp1():ZeroCardViewAsSkill("mp1"){
+    }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->containsTrick("microphone");
+    }
+    virtual const Card *viewAs() const{
+        return new Mp1Card;
+    }
+};
+
+class Mp2: public OneCardViewAsSkill{
+public:
+    Mp2():OneCardViewAsSkill("mp2"){
+    }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->containsTrick("microphone");
+    }
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->inherits("Slash");
+    }
+    virtual const Card *viewAs(CardItem *card_item) const{
+        Mp2Card *card = new Mp2Card;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
+    }
+};
+
+class Mp3: public ZeroCardViewAsSkill{
+public:
+    Mp3():ZeroCardViewAsSkill("mp3"){
+    }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->containsTrick("microphone");
+    }
+    virtual const Card *viewAs() const{
+        return new Mp3Card;
+    }
+};
+
+class Mp4: public OneCardViewAsSkill{
+public:
+    Mp4():OneCardViewAsSkill("mp4"){
+    }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->containsTrick("microphone") && player->isWounded();
+    }
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return true;
+    }
+    virtual const Card *viewAs(CardItem *card_item) const{
+        Mp4Card *card = new Mp4Card;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
+    }
+};
+
 void StandardPackage::addGenerals(){
     General *conan = new General(this, "conan", "45s");
     conan->addSkill(new Zhizhi);
@@ -1088,6 +1146,11 @@ void StandardPackage::addGenerals(){
     vodka->addSkill(new Shexian);
     addMetaObject<ShexianCard>();
 
+    skills << new Mp1 << new Mp2 << new Mp3 << new Mp4;
+    addMetaObject<Mp1Card>();
+    addMetaObject<Mp4Card>();
+    addMetaObject<Mp3Card>();
+    addMetaObject<Mp2Card>();
 
 
     General *liubei, *zhaoyun, *machao, *zhugeliang;

@@ -3050,3 +3050,12 @@ Room* Room::duplicate()
     room->copyFrom(this);
     return room;
 }
+
+void Room::moveMicrophone(ServerPlayer *user){
+    foreach(ServerPlayer *tmp, getAlivePlayers()){
+        if(tmp->getNextAlive() == user){
+            moveCardTo(Sanguosha->getCard(0), tmp, Player::Judging);
+            break;
+        }
+    }
+}

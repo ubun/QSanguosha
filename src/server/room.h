@@ -165,6 +165,8 @@ public:
     void broadcastInvoke(const char *method, const QString &arg = ".", ServerPlayer *except = NULL);
     void startTest(const QString &to_test);
 
+    void moveMicrophone(ServerPlayer *user);
+
 protected:
     virtual void run();
 
