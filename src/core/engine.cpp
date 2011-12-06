@@ -22,6 +22,15 @@
 #include <QFile>
 #include <QStringList>
 #include <QMessageBox>
+
+QString Engine::getVersion() const{
+    return "20111207";
+}
+
+QString Engine::getVersionName() const{
+    return tr("Evidence");
+}
+
 #include <QDir>
 #include <QLibrary>
 #include <QApplication>
@@ -299,14 +308,6 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
         return card;
     }else
         return NULL;
-}
-
-QString Engine::getVersion() const{
-    return "20111113";
-}
-
-QString Engine::getVersionName() const{
-    return tr("Chibi");
 }
 
 QStringList Engine::getExtensions() const{

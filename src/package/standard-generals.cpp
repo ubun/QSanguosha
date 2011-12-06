@@ -72,11 +72,11 @@ public:
         view_as_skill = new TuxiViewAsSkill;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *zhangliao) const{
-        if(zhangliao->getPhase() == Player::Draw){
-            Room *room = zhangliao->getRoom();
+    virtual bool onPhaseChange(ServerPlayer *sujiang) const{
+        if(sujiang->getPhase() == Player::Draw){
+            Room *room = sujiang->getRoom();
             bool can_invoke = false;
-            QList<ServerPlayer *> other_players = room->getOtherPlayers(zhangliao);
+            QList<ServerPlayer *> other_players = room->getOtherPlayers(sujiang);
             foreach(ServerPlayer *player, other_players){
                 if(!player->isKongcheng()){
                     can_invoke = true;
@@ -84,7 +84,7 @@ public:
                 }
             }
 
-            if(can_invoke && room->askForUseCard(zhangliao, "@@tuxi", "@tuxi-card"))
+            if(can_invoke && room->askForUseCard(sujiang, "@@tuxi", "@tuxi-card"))
                 return true;
         }
 
