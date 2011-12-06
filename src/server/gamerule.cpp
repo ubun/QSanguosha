@@ -83,6 +83,12 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
                 room->setPlayerFlag(player, "-drank");
             }
 
+            if(player->hasFlag("Speak") && !player->hasUsed("MpCard")){
+                ServerPlayer *owner = room->getTag("McOwner").value<ServerPlayer *>();
+                //if(owner->isDead())
+                //    owner = room->moveMicrophone(owner, true);
+                room->moveMc(player, owner);
+            }
             player->clearFlags();
             foreach(ServerPlayer *tmp, room->getAlivePlayers())
                 if(tmp->hasFlag("mp3"))
@@ -212,25 +218,9 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
             QList<ServerPlayer *> savers;
             ServerPlayer *current = room->getCurrent();
-            if(current->hasSkill("wansha") && current->isAlive()){
-                room->playSkillEffect("wansha");
-
-                savers << current;
-
-                LogMessage log;
-                log.from = current;
-                if(current != player){
-                    savers << player;
-                    log.type = "#WanshaTwo";
-                    log.to << player;
-                }else{
-                    log.type = "#WanshaOne";
-                }
-
-                room->sendLog(log);
-
-            }else
-                savers = room->getAllPlayers();
+            if(current->isAlive()){
+                savers << player;
+            }
 
             LogMessage log;
             log.type = "#AskForPeaches";

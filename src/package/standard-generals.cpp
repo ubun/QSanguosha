@@ -1124,10 +1124,10 @@ void StandardPackage::addGenerals(){
     General *kogorou = new General(this, "kogorou", "45s");
     kogorou->addSkill(new Weiya);
 
-    General *takagi = new General(this, "kogorou", "45s", 5);
+    General *takagi = new General(this, "takagi", "45s", 5);
     takagi->addSkill(new Skill("zhengzhi"));
 
-    General *sato = new General(this, "sato", "45s", 5);
+    General *sato = new General(this, "sato", "45s", 5, false);
     sato->addSkill(new Checha);
 
     General *meguri = new General(this, "meguri", "45s");

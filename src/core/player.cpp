@@ -593,7 +593,7 @@ bool Player::canSlash(const Player *other, bool distance_limit) const{
     //if(distance_limit)
     //    return distanceTo(other) <= getAttackRange();
     //else
-    if(this->hasFlag("mp3"))
+    if(this->hasFlag("mp3") && this->hasUsed("Slash"))
         return other->hasFlag("mp3");
     return true;
 }

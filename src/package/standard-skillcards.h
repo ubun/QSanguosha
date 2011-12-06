@@ -102,7 +102,11 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class Mp1Card:public SkillCard{
+class MpCard:public SkillCard{
+    Q_OBJECT
+};
+
+class Mp1Card:public MpCard{
     Q_OBJECT
 
 public:
@@ -111,7 +115,7 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class Mp2Card: public SkillCard{
+class Mp2Card: public MpCard{
     Q_OBJECT
 
 public:
@@ -120,7 +124,7 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class Mp3Card:public SkillCard{
+class Mp3Card:public MpCard{
     Q_OBJECT
 
 public:
@@ -129,7 +133,7 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class Mp4Card: public SkillCard{
+class Mp4Card: public MpCard{
     Q_OBJECT
 
 public:

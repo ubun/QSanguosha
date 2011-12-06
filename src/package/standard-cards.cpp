@@ -41,19 +41,8 @@ bool Slash::targetsFeasible(const QList<const Player *> &targets, const Player *
 
 bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     int slash_targets = 1;
-    if(Self->hasWeapon("halberd") && Self->isLastHandCard(this)){
-        slash_targets = 3;
-    }
 
     bool distance_limit = true;
-
-    if(Self->hasFlag("tianyi_success")){
-        distance_limit = false;
-        slash_targets ++;
-    }
-
-    if(Self->hasSkill("shenji") && Self->getWeapon() == NULL)
-        slash_targets = 3;
 
     if(targets.length() >= slash_targets)
         return false;
@@ -367,7 +356,17 @@ Speak::Speak(Suit suit, int number)
 }
 
 void Speak::onEffect(const CardEffectStruct &effect) const{
-    effect.to->getRoom()->moveCardTo(Sanguosha->getCard(0), effect.to, Player::Judging);
+    Room *room = effect.to->getRoom();
+    effect.from->setFlags("Speak");
+    ServerPlayer *o;
+    foreach(ServerPlayer *tmp, room->getAllPlayers()){
+        if(tmp->containsTrick("microphone")){
+            o = tmp;
+            room->setTag("McOwner", QVariant::fromValue(o));
+            break;
+        }
+    }
+    room->moveMc(o, effect.to);
 }
 
 bool Speak::isAvailable(const Player *Self) const{

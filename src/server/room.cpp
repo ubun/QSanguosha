@@ -528,7 +528,7 @@ bool Room::isCanceled(const CardEffectStruct &effect){
 
 bool Room::askForNullification(const TrickCard *trick, ServerPlayer *from, ServerPlayer *to, bool positive){
     QString trick_name = trick->objectName();
-    QList<ServerPlayer *> players = getAllPlayers();
+    QList<ServerPlayer *> players = getOtherPlayers(from);
     foreach(ServerPlayer *player, players){
         if(!player->hasNullification())
             continue;
@@ -3051,11 +3051,22 @@ Room* Room::duplicate()
     return room;
 }
 
-void Room::moveMicrophone(ServerPlayer *user){
+void Room::moveMicrophone(ServerPlayer *user, bool include_dead){
     foreach(ServerPlayer *tmp, getAlivePlayers()){
-        if(tmp->getNextAlive() == user){
-            moveCardTo(Sanguosha->getCard(0), tmp, Player::Judging);
+        if((!include_dead && tmp->getNextAlive() == user) ||
+           (include_dead && tmp->getNext() == user)){
+            moveMc(user, tmp);
             break;
         }
     }
+}
+
+void Room::moveMc(ServerPlayer *from, ServerPlayer *to){
+    moveCardTo(Sanguosha->getCard(0), to, Player::Judging);
+    LogMessage msg;
+    msg.type = "$MicroMove";
+    msg.from = from;
+    msg.to << to;
+    msg.card_str = QString::number(0);
+    sendLog(msg);
 }
