@@ -463,7 +463,8 @@ int Player::getMaxCards() const{
             extra = 1;
     }
 
-    int juejing = hasSkill("juejing") ? 2 : 0;
+    if(hasSkill("jianchi"))
+        return 4321;
 
     int xueyi = 0;
     if(hasLordSkill("xueyi")){
@@ -478,7 +479,7 @@ int Player::getMaxCards() const{
     if(hasSkill("shenwei"))
         shenwei = 2;
 
-    return qMax(hp,0) + extra + juejing + xueyi + shenwei;
+    return qMax(hp,0) + extra + xueyi + shenwei;
 }
 
 QString Player::getKingdom() const{
