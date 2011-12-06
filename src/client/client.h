@@ -29,7 +29,6 @@ public:
         AskForSkillInvoke,
         AskForAG,
         AskForPlayerChoose,
-        AskForYiji,
         AskForGuanxing,
         AskForGongxin,
     };
@@ -52,7 +51,6 @@ public:
     void responseCard(const Card *card);
     bool noTargetResponsing() const;
     void discardCards(const Card *card);
-    void replyYiji(const Card *card, const Player *to);
     void replyGuanxing(const QList<int> &up_cards, const QList<int> &down_cards);
     QList<const ClientPlayer *> getPlayers() const;
     void speakToServer(const QString &text);
@@ -136,7 +134,6 @@ public:
     void askForKingdom(const QString &);
     void askForNullification(const QString &ask_str);
     void askForPindian(const QString &ask_str);
-    void askForYiji(const QString &card_list);
     void askForCardChosen(const QString &ask_str);
     void askForPlayerChosen(const QString &ask_str);
     void askForGeneral(const QString &generals);

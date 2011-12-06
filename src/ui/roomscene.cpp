@@ -122,7 +122,6 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
     response_skill = new ResponseSkill;
     discard_skill = new DiscardSkill;
-    yiji_skill = new YijiViewAsSkill;
     choose_skill = new ChoosePlayerSkill;
 
     known_cards_menu = new QMenu(main_window);
@@ -1495,17 +1494,6 @@ void RoomScene::useSelectedCard(){
             break;
         }
 
-    case Client::AskForYiji:{
-            const Card *card = dashboard->pendingCard();
-            if(card){
-                ClientInstance->replyYiji(card, selected_targets.first());
-                dashboard->stopPending();
-                prompt_box->disappear();
-            }
-
-            break;
-        }
-
     case Client::AskForGuanxing:{
             guanxing_box->reply();
 
@@ -1745,11 +1733,6 @@ void RoomScene::doTimeout(){
             break;
         }
 
-    case Client::AskForYiji:{
-            cancel_button->click();
-            break;
-        }
-
     case Client::AskForGuanxing:
     case Client::AskForGongxin:{
             ok_button->click();
@@ -1886,18 +1869,6 @@ void RoomScene::updateStatus(Client::Status status){
             break;
         }
 
-    case Client::AskForYiji:{
-            ok_button->setEnabled(false);
-            cancel_button->setEnabled(true);
-            discard_button->setEnabled(false);
-
-            yiji_skill->setCards(ClientInstance->getPattern());
-            dashboard->startPending(yiji_skill);
-
-            prompt_box->appear();
-
-            break;
-        }
     case Client::AskForGuanxing:{
             ok_button->setEnabled(true);
             cancel_button->setEnabled(false);
@@ -2091,13 +2062,6 @@ void RoomScene::doCancelButton(){
 
     case Client::AskForSkillInvoke:{
             ClientInstance->invokeSkill(false);
-            prompt_box->disappear();
-            break;
-        }
-
-    case Client::AskForYiji:{
-            dashboard->stopPending();
-            ClientInstance->replyYiji(NULL, NULL);
             prompt_box->disappear();
             break;
         }

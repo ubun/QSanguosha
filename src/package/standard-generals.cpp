@@ -123,34 +123,6 @@ public:
     }
 };
 
-class Yiji:public MasochismSkill{
-public:
-    Yiji():MasochismSkill("yiji"){
-        frequency = Frequent;
-    }
-
-    virtual void onDamaged(ServerPlayer *guojia, const DamageStruct &damage) const{
-        Room *room = guojia->getRoom();
-
-        if(!room->askForSkillInvoke(guojia, objectName()))
-            return;
-
-        room->playSkillEffect(objectName());
-
-        int n = !guojia->hasArmorEffect("linctus")? 2 : 3;
-
-        int x = damage.damage, i;
-        for(i=0; i<x; i++){
-            guojia->drawCards(n);
-            QList<int> yiji_cards = guojia->handCards().mid(guojia->getHandcardNum() - n);
-
-            while(room->askForYiji(guojia, yiji_cards))
-                ; // empty loop
-        }
-
-    }
-};
-
 class Fankui:public MasochismSkill{
 public:
     Fankui():MasochismSkill("fankui"){

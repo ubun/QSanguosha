@@ -193,7 +193,6 @@ private:
 
     ResponseSkill *response_skill;
     DiscardSkill *discard_skill;
-    YijiViewAsSkill *yiji_skill;
     ChoosePlayerSkill *choose_skill;
 
     QList<const Player *> selected_targets;

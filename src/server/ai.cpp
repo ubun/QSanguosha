@@ -350,10 +350,6 @@ const Card *TrustAI::askForSinglePeach(ServerPlayer *dying) {
     return NULL;
 }
 
-ServerPlayer *TrustAI::askForYiji(const QList<int> &, int &){
-    return NULL;
-}
-
 void TrustAI::askForGuanxing(const QList<int> &cards, QList<int> &up, QList<int> &bottom, bool up_only){
     Q_UNUSED(bottom);
     Q_UNUSED(up_only);

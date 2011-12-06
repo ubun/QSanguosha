@@ -98,7 +98,6 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["askForNullification"] = &Client::askForNullification;
     callbacks["askForCardShow"] = &Client::askForCardShow;
     callbacks["askForPindian"] = &Client::askForPindian;
-    callbacks["askForYiji"] = &Client::askForYiji;
     callbacks["askForPlayerChosen"] = &Client::askForPlayerChosen;
     callbacks["askForGeneral"] = &Client::askForGeneral;
 
@@ -1390,14 +1389,6 @@ void Client::askForPindian(const QString &ask_str){
     setStatus(Responsing);
 }
 
-void Client::askForYiji(const QString &card_list){
-    int count = card_list.count(QChar('+')) + 1;
-    prompt_doc->setHtml(tr("Please distribute %1 cards as you wish").arg(count));
-
-    card_pattern = card_list;
-    setStatus(AskForYiji);
-}
-
 void Client::askForPlayerChosen(const QString &players){
     players_to_choose = players.split("+");
 
@@ -1409,15 +1400,6 @@ void Client::askForPlayerChosen(const QString &players){
 void Client::askForGeneral(const QString &generals){
     choose_command = "chooseGeneral";
     emit generals_got(generals.split("+"));
-}
-
-void Client::replyYiji(const Card *card, const Player *to){
-    if(card)
-        request(QString("replyYiji %1->%2").arg(card->subcardString()).arg(to->objectName()));
-    else
-        request("replyYiji .");
-
-    setStatus(NotActive);
 }
 
 void Client::replyGuanxing(const QList<int> &up_cards, const QList<int> &down_cards){

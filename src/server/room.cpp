@@ -46,7 +46,6 @@ void Room::initCallbacks(){
     callbacks["choosePlayerCommand"] = &Room::commonCommand;
     callbacks["chooseGeneralCommand"] = &Room::commonCommand;
     callbacks["selectChoiceCommand"] = &Room::commonCommand;
-    callbacks["replyYijiCommand"] = &Room::commonCommand;
     callbacks["replyGuanxingCommand"] = &Room::commonCommand;
     callbacks["replyGongxinCommand"] = &Room::commonCommand;
     callbacks["assignRolesCommand"] = &Room::commonCommand;
@@ -2932,54 +2931,6 @@ void Room::showAllCards(ServerPlayer *player, ServerPlayer *to){
         to->invoke("doGongxin", gongxin_str);
     else
         broadcastInvoke("doGongxin", gongxin_str, player);
-}
-
-bool Room::askForYiji(ServerPlayer *guojia, QList<int> &cards){
-    if(cards.isEmpty())
-        return false;
-
-    AI *ai = guojia->getAI();
-    if(ai){
-        int card_id;
-        ServerPlayer *who = ai->askForYiji(cards, card_id);
-        if(who){
-            cards.removeOne(card_id);
-            moveCardTo(Sanguosha->getCard(card_id), who, Player::Hand, false);
-            return true;
-        }else
-            return false;
-    }else{
-        QStringList card_str;
-        foreach(int card_id, cards)
-            card_str << QString::number(card_id);
-
-        guojia->invoke("askForYiji", card_str.join("+"));
-        getResult("replyYijiCommand", guojia);
-
-        if(result.isEmpty() || result == ".")
-            return false;
-        else{
-            QRegExp rx("(.+)->(\\w+)");
-            rx.exactMatch(result);
-
-            QStringList texts = rx.capturedTexts();
-            QList<int> ids = Card::StringsToIds(texts.at(1).split("+"));
-            ServerPlayer *who = findChild<ServerPlayer *>(texts.at(2));
-
-            DummyCard *dummy_card = new DummyCard;
-            foreach(int card_id, ids){
-                cards.removeOne(card_id);
-                dummy_card->addSubcard(card_id);
-            }
-
-            moveCardTo(dummy_card, who, Player::Hand, false);
-            delete dummy_card;
-
-            setEmotion(who, "draw-card");
-
-            return true;
-        }
-    }
 }
 
 QString Room::generatePlayerName(){
