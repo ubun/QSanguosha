@@ -6,19 +6,17 @@
 #include "client.h"
 #include "settings.h"
 
-ZhihengCard::ZhihengCard(){
+KaituoCard::KaituoCard(){
     target_fixed = true;
     once = true;
 }
 
-void ZhihengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+void KaituoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
     room->throwCard(this);
-    if(source->isAlive()){
-        if(source->hasArmorEffect("brainplatinum"))
-            room->drawCards(source, subcards.length()+1);
-        else
-            room->drawCards(source, subcards.length());
-    }
+    RecoverStruct revocer;
+    revocer.card = this;
+    revocer.who = source;
+    room->recover(source, revocer);
 }
 
 

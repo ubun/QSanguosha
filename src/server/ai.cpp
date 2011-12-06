@@ -334,13 +334,13 @@ const Card *TrustAI::askForSinglePeach(ServerPlayer *dying) {
             //}
         //}
 
-        if(self->hasSkill("jijiu") && self->getPhase() == Player::NotActive){
+        if(self->hasSkill("tongqing") && self->getPhase() == Player::NotActive){
             cards = self->getCards("he");
             foreach(const Card *card, cards){
                 if(card->isRed()){
                     Peach *peach = new Peach(card->getSuit(), card->getNumber());
                     peach->addSubcard(card);
-                    peach->setSkillName("jijiu");
+                    peach->setSkillName("tongqing");
                     return peach;
                 }
             }
