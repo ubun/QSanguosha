@@ -372,8 +372,8 @@ void Room::gameOver(const QString &winner){
 void Room::slashEffect(const SlashEffectStruct &effect){
     effect.from->addMark("SlashCount");
 
-    //if(effect.from->getMark("SlashCount") > 1 && effect.from->hasSkill("paoxiao"))
-    //    playSkillEffect("paoxiao");
+    //if(effect.from->getMark("SlashCount") > 1 && effect.from->hasSkill("zhuisuo"))
+    //    playSkillEffect("zhuisuo");
 
     QVariant data = QVariant::fromValue(effect);
 
@@ -797,8 +797,8 @@ const Card *Room::askForCardShow(ServerPlayer *player, ServerPlayer *requestor, 
 
 const Card *Room::askForSinglePeach(ServerPlayer *player, ServerPlayer *dying){
     if(player->isKongcheng()){
-        // jijiu special case
-        if(player->hasSkill("jijiu") && player->getPhase() == Player::NotActive){
+        // tongqing special case
+        if(player->hasSkill("tongqing") && player->getPhase() == Player::NotActive){
             bool has_red = false;
             foreach(const Card *equip, player->getEquips()){
                 if(equip->isRed()){

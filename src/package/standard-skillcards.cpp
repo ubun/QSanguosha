@@ -19,6 +19,14 @@ void KaituoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     room->recover(source, revocer);
 }
 
+ShexianCard::ShexianCard(){
+    target_fixed = true;
+}
+
+void ShexianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    room->drawCards(source, 3);
+    room->loseHp(source);
+}
 
 RendeCard::RendeCard(){
     will_throw = false;
@@ -157,22 +165,6 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
             room->damage(damage);
         }
     }
-}
-
-KurouCard::KurouCard(){
-    target_fixed = true;
-}
-
-void KurouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    if(source->hasArmorEffect("whip") && room->askForChoice(source,"whip","yes+no")=="yes"){
-        room->loseHp(source,2);
-        if(source->isAlive())
-            room->drawCards(source,5);
-        return;
-    }
-    room->loseHp(source);
-    if(source->isAlive())
-        room->drawCards(source, 2);
 }
 
 LijianCard::LijianCard(){

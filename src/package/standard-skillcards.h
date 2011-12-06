@@ -4,13 +4,23 @@
 #include "skill.h"
 #include "card.h"
 
-class ZhihengCard:public SkillCard{
+class KaituoCard:public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE ZhihengCard();
+    Q_INVOKABLE KaituoCard();
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
+
+class ShexianCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ShexianCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 
 class RendeCard:public SkillCard{
     Q_OBJECT
@@ -44,15 +54,6 @@ class FanjianCard: public SkillCard{
 public:
     Q_INVOKABLE FanjianCard();
     virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class KurouCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE KurouCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
 class LijianCard: public SkillCard{

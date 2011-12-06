@@ -699,7 +699,7 @@ bool Player::isProhibited(const Player *to, const Card *card) const{
 }
 
 bool Player::canSlashWithoutCrossbow() const{
-    if(hasSkill("paoxiao"))
+    if(hasSkill("zhuisuo"))
         return true;
     return getSlashCount() < 1;
 }

@@ -9,25 +9,6 @@
 #include "standard-skillcards.h"
 #include "ai.h"
 
-class Jianxiong:public MasochismSkill{
-public:
-    Jianxiong():MasochismSkill("jianxiong"){
-    }
-
-    virtual void onDamaged(ServerPlayer *caocao, const DamageStruct &damage) const{
-        Room *room = caocao->getRoom();
-        const Card *card = damage.card;
-        if(!room->obtainable(card, caocao))
-            return;
-
-        QVariant data = QVariant::fromValue(card);
-        if(room->askForSkillInvoke(caocao, "jianxiong", data)){
-            room->playSkillEffect(objectName());
-            caocao->obtainCard(card);
-        }
-    }
-};
-
 class Hujia:public TriggerSkill{
 public:
     Hujia():TriggerSkill("hujia$"){
@@ -39,23 +20,23 @@ public:
         return target->hasLordSkill("hujia");
     }
 
-    virtual bool trigger(TriggerEvent, ServerPlayer *caocao, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
         QString pattern = data.toString();
         if(pattern != "jink")
             return false;
 
-        Room *room = caocao->getRoom();
-        QList<ServerPlayer *> lieges = room->getLieges("wei", caocao);
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> lieges = room->getLieges("wei", player);
         if(lieges.isEmpty())
             return false;
 
-        if(!room->askForSkillInvoke(caocao, objectName()))
+        if(!room->askForSkillInvoke(player, objectName()))
             return false;
 
         room->playSkillEffect(objectName());
-        QVariant tohelp = QVariant::fromValue((PlayerStar)caocao);
+        QVariant tohelp = QVariant::fromValue((PlayerStar)player);
         foreach(ServerPlayer *liege, lieges){
-            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName(), tohelp);
+            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + player->objectName(), tohelp);
             if(jink){
                 room->provide(jink);
                 return true;
@@ -497,40 +478,6 @@ public:
     }
 };
 
-class Wusheng:public OneCardViewAsSkill{
-public:
-    Wusheng():OneCardViewAsSkill("wusheng"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return Slash::IsAvailable(player);
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "slash";
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        const Card *card = to_select->getFilteredCard();
-
-        if(!Self->hasArmorEffect("redsunglasses") && !card->isRed())
-            return false;
-
-        if(card == Self->getWeapon() && card->objectName() == "crossbow")
-            return Self->canSlashWithoutCrossbow();
-        else
-            return true;
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *card = card_item->getCard();
-        Card *slash = new Slash(card->getSuit(), card->getNumber());
-        slash->addSubcard(card->getId());
-        slash->setSkillName(objectName());
-        return slash;
-    }
-};
-
 class Longdan:public OneCardViewAsSkill{
 public:
     Longdan():OneCardViewAsSkill("longdan"){
@@ -818,17 +765,6 @@ public:
         dismantlement->addSubcard(first->getId());
         dismantlement->setSkillName(objectName());
         return dismantlement;
-    }
-};
-
-class Kurou: public ZeroCardViewAsSkill{
-public:
-    Kurou():ZeroCardViewAsSkill("kurou"){
-
-    }
-
-    virtual const Card *viewAs() const{
-        return new KurouCard;
     }
 };
 
@@ -1200,6 +1136,80 @@ public:
     }
 };
 
+class Checha: public TriggerSkill{
+public:
+    Checha():TriggerSkill("checha"){
+        events << Death;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return !target->hasSkill(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        ServerPlayer *miwako = player->getRoom()->findPlayerBySkillName(objectName());
+        if(miwako)
+            miwako->drawCards(2);
+        return false;
+    }
+};
+
+class Fanjie:public MasochismSkill{
+public:
+    Fanjie():MasochismSkill("fanjie"){
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        const Card *card = damage.card;
+        if(!room->obtainable(card, player))
+            return;
+
+        QVariant data = QVariant::fromValue(card);
+        if(room->askForSkillInvoke(player, "jianxiong", data)){
+            room->playSkillEffect(objectName());
+            player->obtainCard(card);
+        }
+    }
+};
+
+class Gouxian:public OneCardViewAsSkill{
+public:
+    Gouxian():OneCardViewAsSkill("gouxian"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "slash";
+    }
+
+    virtual bool viewFilter(const CardItem *) const{
+        return true;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getCard();
+        Card *slash = new Slash(card->getSuit(), card->getNumber());
+        slash->addSubcard(card->getId());
+        slash->setSkillName(objectName());
+        return slash;
+    }
+};
+
+class Shexian: public ZeroCardViewAsSkill{
+public:
+    Shexian():ZeroCardViewAsSkill("shexian"){
+
+    }
+    virtual const Card *viewAs() const{
+        return new ShexianCard;
+    }
+};
+
 void StandardPackage::addGenerals(){
     General *conan = new General(this, "conan", "45s");
     conan->addSkill(new Zhizhi);
@@ -1232,45 +1242,31 @@ void StandardPackage::addGenerals(){
     General *takagi = new General(this, "kogorou", "45s", 5);
     takagi->addSkill(new Skill("zhengzhi"));
 
+    General *sato = new General(this, "sato", "45s", 5);
+    sato->addSkill(new Checha);
+
     General *meguri = new General(this, "meguri", "45s");
     meguri->addSkill(new Tiemian);
 
+    General *akai = new General(this, "akai", "45s");
+    akai->addSkill(new Skill("zhuisuo"));
 
-    General *caocao, *zhangliao, *guojia, *simayi, *xuchu, *zhenji;
-    caocao = new General(this, "caocao$", "wei");
-    caocao->addSkill(new Jianxiong);
-    caocao->addSkill(new Hujia);
+    General *jodie = new General(this, "jodie", "45s", 4, false);
+    jodie->addSkill(new Fanjie);
 
-    simayi = new General(this, "simayi", "wei", 3);
-    simayi->addSkill(new Fankui);
-    simayi->addSkill(new Guicai);
+    General *gin = new General(this, "gin", "45s");
+    gin->addSkill(new Gouxian);
 
-    zhangliao = new General(this, "zhangliao", "wei");
-    zhangliao->addSkill(new Tuxi);
+    General *vodka = new General(this, "vodka", "45s");
+    vodka->addSkill(new Shexian);
+    addMetaObject<ShexianCard>();
 
-    xuchu = new General(this, "xuchu", "wei");
-    xuchu->addSkill(new Luoyi);
-    xuchu->addSkill(new LuoyiBuff);
-    related_skills.insertMulti("luoyi", "#luoyi");
 
-    guojia = new General(this, "guojia", "wei", 3);
-    guojia->addSkill(new Tiandu);
-    guojia->addSkill(new Yiji);
 
-    zhenji = new General(this, "zhenji", "wei", 3, false);
-    zhenji->addSkill(new Luoshen);
-    zhenji->addSkill(new Qingguo);
-
-    General *liubei, *guanyu, *zhangfei, *zhaoyun, *machao, *zhugeliang;
+    General *liubei, *zhaoyun, *machao, *zhugeliang;
     liubei = new General(this, "liubei$", "shu");
     liubei->addSkill(new Rende);
     liubei->addSkill(new Jijiang);
-
-    guanyu = new General(this, "guanyu", "shu");
-    guanyu->addSkill(new Wusheng);
-
-    zhangfei = new General(this, "zhangfei", "shu");
-    zhangfei->addSkill(new Skill("paoxiao"));
 
     zhugeliang = new General(this, "zhugeliang", "shu", 3);
     zhugeliang->addSkill(new Guanxing);
@@ -1284,7 +1280,7 @@ void StandardPackage::addGenerals(){
     machao = new General(this, "machao", "shu");
     machao->addSkill(new Tieji);
 
-    General *sunquan, *zhouyu, *lumeng, *ganning, *huanggai, *daqiao, *sunshangxiang;
+    General *sunquan, *zhouyu, *lumeng, *ganning, *daqiao, *sunshangxiang;
     sunquan = new General(this, "sunquan$", "wu");
     sunquan->addSkill(new Jiuyuan);
 
@@ -1295,9 +1291,6 @@ void StandardPackage::addGenerals(){
     lumeng->addSkill(new Keji);
     lumeng->addSkill(new KejiSkip);
     related_skills.insertMulti("keji", "#keji-skip");
-
-    huanggai = new General(this, "huanggai", "wu");
-    huanggai->addSkill(new Kurou);
 
     zhouyu = new General(this, "zhouyu", "wu", 3);
     zhouyu->addSkill(new Fanjian);
@@ -1321,7 +1314,6 @@ void StandardPackage::addGenerals(){
     addMetaObject<RendeCard>();
     addMetaObject<TuxiCard>();
     addMetaObject<JieyinCard>();
-    addMetaObject<KurouCard>();
     addMetaObject<LijianCard>();
     addMetaObject<FanjianCard>();
     addMetaObject<GuicaiCard>();
