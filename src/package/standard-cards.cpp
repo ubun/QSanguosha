@@ -13,7 +13,7 @@ bool Slash::IsAvailable(const Player *player){
     if(player->hasFlag("tianyi_failed"))
         return false;
 
-    return player->containsTrick("microphone") || player->canSlashWithoutCrossbow();
+    return player->canSlashWithoutCrossbow();
 }
 
 bool Slash::isAvailable(const Player *player) const{
@@ -239,6 +239,7 @@ Ignore::Ignore(Suit suit, int number)
     :SingleTargetTrick(suit, number, false)
 {
     setObjectName("ignore");
+    will_throw = false;
     target_fixed = true;
 }
 

@@ -1092,13 +1092,13 @@ void RoomScene::moveCard(const CardMoveStructForClient &move){
 
         // both src and dest are player
         QString type;
-        if(dest_place == Player::Judging){
+        /*if(dest_place == Player::Judging){
             const Card *trick = Sanguosha->getCard(move.card_id);
             if(trick->objectName() == "lightning")
                 type = "$LightningMove";
             else
                 type = "$PasteCard";
-        }else if(dest_place == Player::Hand)
+        }else */if(dest_place == Player::Hand)
             type = "$MoveCard";
 
         if(!type.isNull()){
