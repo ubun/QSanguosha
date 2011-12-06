@@ -1024,7 +1024,6 @@ public:
         if(player->getPhase() == Player::NotActive){
             player->drawCards(player->getHp());
         }
-
         return false;
     }
 };
@@ -1130,6 +1129,7 @@ public:
 class Fanjie:public MasochismSkill{
 public:
     Fanjie():MasochismSkill("fanjie"){
+        frequency = Compulsory;
     }
 
     virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
@@ -1137,12 +1137,7 @@ public:
         const Card *card = damage.card;
         if(!room->obtainable(card, player))
             return;
-
-        QVariant data = QVariant::fromValue(card);
-        if(room->askForSkillInvoke(player, "jianxiong", data)){
-            room->playSkillEffect(objectName());
-            player->obtainCard(card);
-        }
+        player->obtainCard(card);
     }
 };
 

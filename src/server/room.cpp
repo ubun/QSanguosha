@@ -796,19 +796,7 @@ const Card *Room::askForCardShow(ServerPlayer *player, ServerPlayer *requestor, 
 
 const Card *Room::askForSinglePeach(ServerPlayer *player, ServerPlayer *dying){
     if(player->isKongcheng()){
-        // tongqing special case
-        if(player->hasSkill("tongqing") && player->getPhase() == Player::NotActive){
-            bool has_red = false;
-            foreach(const Card *equip, player->getEquips()){
-                if(equip->isRed()){
-                    has_red = true;
-                    break;
-                }
-            }
-
-            if(!has_red)
-                return NULL;
-        }else if(player->hasSkill("jiushi")){
+        if(player->hasSkill("jiushi")){
             if(!player->faceUp())
                 return NULL;
         }else if(player->hasSkill("longhun")){
@@ -2421,7 +2409,7 @@ QString Room::askForKingdom(ServerPlayer *player){
         return askForKingdom(player);
 
     if(result == ".")
-        return "wei";
+        return "45s";
     else
         return result;
 }

@@ -205,7 +205,7 @@ QString TrustAI::askForKingdom(){
     QString role;
     switch(self->getRoleEnum()){
     case Player::Lord:
-    case Player::Rebel: role = "wei"; break;
+    case Player::Rebel: role = "45s"; break;
     case Player::Loyalist:
     case Player::Renegade:
         role = room->getLord()->getKingdom(); break;
@@ -337,7 +337,7 @@ const Card *TrustAI::askForSinglePeach(ServerPlayer *dying) {
         if(self->hasSkill("tongqing") && self->getPhase() == Player::NotActive){
             cards = self->getCards("he");
             foreach(const Card *card, cards){
-                if(card->isRed()){
+                if(card->inherits("Jink")){
                     Peach *peach = new Peach(card->getSuit(), card->getNumber());
                     peach->addSubcard(card);
                     peach->setSkillName("tongqing");
