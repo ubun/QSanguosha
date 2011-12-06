@@ -371,7 +371,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             QString slasher = effect.from->objectName();
             const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher);
             room->slashResult(effect, jink);
-            if(jink->objectName() == "ingenarg")
+            if(jink && jink->objectName() == "ingenarg")
                 effect.to->drawCards(1);
 
             break;

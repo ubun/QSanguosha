@@ -5,18 +5,8 @@
 #include "room.h"
 #include "carditem.h"
 
-Slash::Slash(Suit suit, int number): BasicCard(suit, number, false)
-{
+Slash::Slash(Suit suit, int number): BasicCard(suit, number, false){
     setObjectName("slash");
-    nature = DamageStruct::Normal;
-}
-
-DamageStruct::Nature Slash::getNature() const{
-    return nature;
-}
-
-void Slash::setNature(DamageStruct::Nature nature){
-    this->nature = nature;
 }
 
 bool Slash::IsAvailable(const Player *player){
@@ -34,29 +24,13 @@ QString Slash::getSubtype() const{
     return "attack_card";
 }
 
-void Slash::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    BasicCard::use(room, source, targets);
-
-    if(source->hasFlag("drank")){
-        LogMessage log;
-        log.type = "#UnsetDrank";
-        log.from = source;
-        room->sendLog(log);
-
-        room->setPlayerFlag(source, "-drank");
-    }
-}
-
 void Slash::onEffect(const CardEffectStruct &card_effect) const{
     Room *room = card_effect.from->getRoom();
 
     SlashEffectStruct effect;
     effect.from = card_effect.from;
-    effect.nature = nature;
     effect.slash = this;
-
     effect.to = card_effect.to;
-    effect.drank = effect.from->hasFlag("drank");
 
     room->slashEffect(effect);
 }
@@ -129,7 +103,7 @@ void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
     else
         foreach(ServerPlayer *tmp, targets)
             room->cardEffect(this, source, tmp);
-
+/*
     if(getSuit() == Card::Spade){
         room->setPlayerMark(source, "poison",1);
         room->setEmotion(source, "bad");
@@ -140,6 +114,7 @@ void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
 
         room->acquireSkill(source, "poson", false);
     }
+    */
 }
 
 void Peach::onEffect(const CardEffectStruct &effect) const{
