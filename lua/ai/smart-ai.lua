@@ -745,6 +745,23 @@ sgs.ai_skill_use["slash"] = function(self, prompt)
 	return "."
 end
 
+function SmartAI:slashIsEffective(slash, to)
+	local nature = {
+		Slash = sgs.DamageStruct_Normal,
+		FireSlash = sgs.DamageStruct_Fire,
+		ThunderSlash = sgs.DamageStruct_Thunder,
+	}
+
+	if not self:damageIsEffective(player, nature[slash:className()]) then return false end
+	return true
+end
+
+function SmartAI:damageIsEffective(player, nature, source)
+	player = player or self.player
+	source = source or self.player
+	nature = nature or sgs.DamageStruct_Normal
+	return true
+end
 function SmartAI:slashIsAvailable(player)
 	player = player or self.player
 
@@ -984,32 +1001,9 @@ function SmartAI:getAllPeachNum(player)
 	return n
 end
 
-function SmartAI:useCardBasicCard(card, use)
-	if card:inherits("Slash") and self:slashIsAvailable() then
+function SmartAI:useCardSlash(card, use)
+	if self:slashIsAvailable() then
 		local target_count = 0
-		if self.player:hasSkill("qingnang") and self:isWeak() and self:getOverflow() == 0 then return end
-		for _, friend in ipairs(self.friends_noself) do						
-			local slash_prohibit = false
-			slash_prohibit = self:slashProhibit(card,friend)
-			if (self.player:hasSkill("pojun") and friend:getHp()  > 4 and self:getCardsNum("Jink", friend) == 0) 
-			or (friend:hasSkill("leiji") and (self:getCardsNum("Jink", friend) > 0 or (not self:isWeak(friend) and self:isEquip("EightDiagram",friend))))
-			or (friend:isLord() and self.player:hasSkill("guagu") and friend:getLostHp() >= 1 and self:getCardsNum("Jink", friend) == 0)
-			then
-				if not slash_prohibit then
-					if (self.player:canSlash(friend, not no_distance)) and 
-						self:slashIsEffective(card, friend) then
-						use.card = card
-						if use.to then 
-							use.to:append(friend) 
-							self:speak("hostile", self.player:getGeneral():isFemale())
-						end
-						target_count = target_count+1
-						if self.slash_targets <= target_count then return end
-					end
-				end	
---				break
-			end
-		end
 		self:sort(self.enemies, "defense")
 		for _, enemy in ipairs(self.enemies) do
 			local slash_prohibit = false
@@ -1032,16 +1026,18 @@ function SmartAI:useCardBasicCard(card, use)
 				end
 			end
 		end
-	elseif card:inherits("Peach") then
-		self:sort(self.friends, "hp")
-		for _, friend in ipairs(self.friends) do
-			if friend:isWounded() then
-				use.card = card
-				if use.to then use.to:append(friend) end
-			end
-		end
-		return "."
 	end
+end
+
+function SmartAI:useCardPeach(card, use)
+	self:sort(self.friends, "hp")
+	for _, friend in ipairs(self.friends) do
+		if friend:isWounded() then
+			use.card = card
+			if use.to then use.to:append(friend) end
+		end
+	end
+	return
 end
 
 function SmartAI:useTrickCard(card, use)

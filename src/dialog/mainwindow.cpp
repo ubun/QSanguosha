@@ -597,7 +597,7 @@ MeleeDialog::MeleeDialog(QWidget *parent)
     layout->addWidget(record_view);
     setLayout(layout);
 
-    setGeneral(Config.value("MeleeGeneral", "sujiang").toString());
+    setGeneral(Config.value("MeleeGeneral", "conan").toString());
 }
 
 QGroupBox *MeleeDialog::createGeneralBox(){

@@ -19,11 +19,6 @@ private:
     bool cancelable;
 };
 
-class BasicCard:public TrickCard{
-public:
-    BasicCard(Suit suit, int number, bool aggressive):TrickCard(suit, number, aggressive){}
-};
-
 class EquipCard:public Card{
 public:
     enum Location {
