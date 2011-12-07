@@ -45,13 +45,6 @@ private:
     bool cancelable;
 };
 
-class BasicCard: public TrickCard{
-    Q_OBJECT
-
-public:
-    BasicCard(Suit suit, int number, bool aggressive):TrickCard(suit, number, aggressive){}
-};
-
 class EquipCard:public Card{
     Q_OBJECT
 
@@ -130,6 +123,13 @@ public:
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class BasicCard: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    BasicCard(Suit suit, int number, bool aggressive):SingleTargetTrick(suit, number, aggressive){}
 };
 
 class Ignore: public SingleTargetTrick{
