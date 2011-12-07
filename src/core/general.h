@@ -23,7 +23,7 @@ class General : public QObject
     Q_PROPERTY(bool hidden READ isHidden CONSTANT)
 
 public:
-    explicit General(Package *package, const QString &name, bool male = true, int max_hp = 4, const QString &kingdom = "45s", bool hidden = false);
+    explicit General(Package *package, const QString &name, const QString &kingdom, int max_hp = 4, bool male = true, bool hidden = false);
 
     // property getters/setters
     int getMaxHp() const;

@@ -236,7 +236,7 @@ void CardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
             painter->setPen(Qt::red);
         else
             painter->setPen(Qt::black);
-        painter->drawText(8, 50, card->getNumberString());
+        //painter->drawText(8, 50, card->getNumberString());
     }
 }
 

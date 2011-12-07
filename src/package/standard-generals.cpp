@@ -338,53 +338,53 @@ public:
 };
 
 void StandardPackage::addGenerals(){
-    General *conan = new General(this, "conan");
+    General *conan = new General(this, "conan", "45s");
     conan->addSkill(new Zhizhi);
 
-    General *ai = new General(this, "ai", false, 3);
+    General *ai = new General(this, "ai", "45s", 3, false);
     ai->addSkill(new Shensi);
 
-    General *ran = new General(this, "ran", false);
+    General *ran = new General(this, "ran", "45s", 4, false);
     ran->addSkill(new Lingxi);
 
-    General *heiji = new General(this, "heiji");
+    General *heiji = new General(this, "heiji", "45s");
     heiji->addSkill(new Jizhi);
 
-    General *kazuha = new General(this, "kazuha", false);
+    General *kazuha = new General(this, "kazuha", "45s", 4, false);
     kazuha->addSkill(new Skill("jianchi"));
 
-    General *sonoko = new General(this, "sonoko", false);
+    General *sonoko = new General(this, "sonoko", "45s", 4, false);
     sonoko->addSkill(new Kaituo);
     addMetaObject<KaituoCard>();
 
-    General *hiroshi = new General(this, "hiroshi");
+    General *hiroshi = new General(this, "hiroshi", "45s");
     hiroshi->addSkill(new Boxue);
 
-    General *tanteitan = new General(this, "tanteitan");
+    General *tanteitan = new General(this, "tanteitan", "45s");
     tanteitan->addSkill(new Tongqing);
 
-    General *kogorou = new General(this, "kogorou");
+    General *kogorou = new General(this, "kogorou", "45s");
     kogorou->addSkill(new Weiya);
 
-    General *takagi = new General(this, "takagi", true, 5);
+    General *takagi = new General(this, "takagi", "45s", 5);
     takagi->addSkill(new Skill("zhengzhi"));
 
-    General *sato = new General(this, "sato", false);
+    General *sato = new General(this, "sato", "45s", 4, false);
     sato->addSkill(new Checha);
 
-    General *meguri = new General(this, "meguri");
+    General *meguri = new General(this, "meguri", "45s");
     meguri->addSkill(new Tiemian);
 
-    General *akai = new General(this, "akai");
+    General *akai = new General(this, "akai", "45s");
     akai->addSkill(new Skill("zhuisuo"));
 
-    General *jodie = new General(this, "jodie", false);
+    General *jodie = new General(this, "jodie", "45s", 4, false);
     jodie->addSkill(new Fanjie);
 
-    General *gin = new General(this, "gin");
+    General *gin = new General(this, "gin", "45s");
     gin->addSkill(new Gouxian);
 
-    General *vodka = new General(this, "vodka");
+    General *vodka = new General(this, "vodka", "45s");
     vodka->addSkill(new Shexian);
     addMetaObject<ShexianCard>();
 
@@ -400,8 +400,8 @@ void StandardPackage::addGenerals(){
 TestPackage::TestPackage()
     :Package("test")
 {
-    new General(this, "sujiang", true, 5, "god", true);
-    new General(this, "sujiangf", false, 5, "god", true);
+    new General(this, "sujiang", "god", 5, true, true);
+    new General(this, "sujiangf", "god", 5, false, true);
 }
 
 ADD_PACKAGE(Test)
