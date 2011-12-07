@@ -64,6 +64,8 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
         }
 
     case Player::Discard:{
+            if(player->hasSkill("jianchi") && player->getHandcardNum() > player->getHp())
+                room->invokeSkill(player, "jianchi");
             int discard_num = player->getHandcardNum() - player->getMaxCards();
             if(discard_num > 0)
                 room->askForDiscard(player, "gamerule", discard_num);

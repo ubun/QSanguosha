@@ -371,8 +371,8 @@ void Room::gameOver(const QString &winner){
 void Room::slashEffect(const SlashEffectStruct &effect){
     effect.from->addMark("SlashCount");
 
-    //if(effect.from->getMark("SlashCount") > 1 && effect.from->hasSkill("zhuisuo"))
-    //    playSkillEffect("zhuisuo");
+    if(effect.from->getMark("SlashCount") > 1 && effect.from->hasSkill("zhuisuo"))
+        invokeSkill(effect.from, "zhuisuo");
 
     QVariant data = QVariant::fromValue(effect);
 
@@ -3049,6 +3049,14 @@ Room* Room::duplicate()
     room->fillRobotsCommand(NULL, 0);
     room->copyFrom(this);
     return room;
+}
+
+void Room::invokeSkill(ServerPlayer *user, const QString &src, bool isPassive){
+    LogMessage log;
+    log.type = isPassive ? "#TriggerSkill" : "#InvokeSkill";
+    log.from = user;
+    log.arg = src;
+    sendLog(log);
 }
 
 void Room::moveMicrophone(ServerPlayer *user, bool include_dead){

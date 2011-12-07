@@ -764,8 +764,7 @@ function SmartAI:damageIsEffective(player, nature, source)
 end
 function SmartAI:slashIsAvailable(player)
 	player = player or self.player
-
-	if player:containsTrick("microphone") or player:hasSkill("zhuisuo") then
+	if player:hasSkill("zhuisuo") then
 		return true
 	end
 end
@@ -1014,11 +1013,11 @@ function SmartAI:useCardSlash(card, use)
 				self:objectiveLevel(enemy) > 3 and
 				self:slashIsEffective(card, enemy) then
 					-- fill the card use struct
-					local anal = self:searchForAnaleptic(use,enemy,card)
-					if anal and not self:isEquip("SilverLion", enemy) then 
-						use.card = anal
-						return 
-					end
+					--local anal = self:searchForAnaleptic(use,enemy,card)
+					--if anal and not self:isEquip("SilverLion", enemy) then 
+					--	use.card = anal
+					--	return 
+					--end
 					use.card = card
 					if use.to then use.to:append(enemy) end
 					target_count = target_count+1
@@ -1035,6 +1034,7 @@ function SmartAI:useCardPeach(card, use)
 		if friend:isWounded() then
 			use.card = card
 			if use.to then use.to:append(friend) end
+			return
 		end
 	end
 	return

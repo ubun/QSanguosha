@@ -18,10 +18,9 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         Room *room = player->getRoom();
-        room->playSkillEffect(objectName());
+        room->invokeSkill(player, objectName());
 
         QString slasher = player->objectName();
-
         const Card *first_jink = NULL, *second_jink = NULL;
         first_jink = room->askForCard(effect.to, "jink", "@wushuang-jink-1:" + slasher);
         if(first_jink)
@@ -33,7 +32,6 @@ public:
             jink->addSubcard(first_jink);
             jink->addSubcard(second_jink);
         }
-
         room->slashResult(effect, jink);
 
         return true;
@@ -46,7 +44,8 @@ public:
         frequency = Compulsory;
     }
 
-    virtual int getDrawNum(ServerPlayer *, int) const{
+    virtual int getDrawNum(ServerPlayer *player, int) const{
+        player->getRoom()->invokeSkill(player, objectName());
         return 4;
     }
 };
@@ -63,7 +62,7 @@ public:
             CardMoveStar move = data.value<CardMoveStar>();
             if(move->from_place == Player::Hand){
                 Room *room = player->getRoom();
-                room->playSkillEffect(objectName());
+                room->invokeSkill(player, objectName());
                 player->drawCards(1);
             }
         }
@@ -79,6 +78,8 @@ public:
 
     virtual int getDrawNum(ServerPlayer *heiji, int n) const{
         int a = heiji->getLostHp();
+        if(a > 0)
+            heiji->getRoom()->invokeSkill(heiji, objectName());
         return n + a;
     }
 };
@@ -116,7 +117,10 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         if(player->getPhase() == Player::NotActive){
-            player->drawCards(player->getHp());
+            int x = player->getHp();
+            if(x > 0)
+                player->getRoom()->invokeSkill(player, objectName());
+            player->drawCards(x);
         }
         return false;
     }
@@ -176,8 +180,10 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.to)
+        if(damage.to && !damage.to->isKongcheng()){
+            player->getRoom()->invokeSkill(player, objectName());
             player->getRoom()->throwCard(damage.to->getRandomHandCardId());
+        }
         return false;
     }
 };
@@ -185,18 +191,17 @@ public:
 class Tiemian:public MasochismSkill{
 public:
     Tiemian():MasochismSkill("tiemian"){
-        frequency = Compulsory;
     }
 
     virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
         Room *room = player->getRoom();
         if(damage.from && damage.to && player->getLostHp() > damage.from->getLostHp() &&
            room->askForDiscard(damage.to, objectName(), 1)){
-            DamageStruct damage;
-            damage.from = player;
-            damage.to = damage.from;
-            room->setEmotion(player, "good");
-            room->damage(damage);
+            DamageStruct dmg;
+            dmg.from = player;
+            dmg.to = damage.from;
+            room->invokeSkill(player, objectName(), false);
+            room->damage(dmg);
         }
     }
 };
@@ -214,8 +219,10 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         ServerPlayer *miwako = player->getRoom()->findPlayerBySkillName(objectName());
-        if(miwako)
+        if(miwako){
+            miwako->getRoom()->invokeSkill(miwako, objectName());
             miwako->drawCards(2);
+        }
         return false;
     }
 };
@@ -231,6 +238,7 @@ public:
         const Card *card = damage.card;
         if(!room->obtainable(card, player))
             return;
+        room->invokeSkill(player, objectName());
         player->obtainCard(card);
     }
 };
