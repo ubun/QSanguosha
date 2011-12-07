@@ -1198,6 +1198,11 @@
         <translation>4 人局</translation>
     </message>
     <message>
+        <location filename="src/core/engine.cpp" line="73"/>
+        <source>4 players (Hulao Pass)</source>
+        <translation>4 人局 [虎牢关1v3]</translation>
+    </message>
+    <message>
         <location filename="src/core/engine.cpp" line="74"/>
         <source>5 players</source>
         <translation>5 人局</translation>

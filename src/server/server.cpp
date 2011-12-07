@@ -134,6 +134,7 @@ QWidget *ServerDialog::createAdvancedTab(){
 
     contest_mode_checkbox = new QCheckBox(tr("Contest mode"));
     contest_mode_checkbox->setChecked(Config.ContestMode);
+    contest_mode_checkbox->setEnabled(false);
     contest_mode_checkbox->setToolTip(tr("Requires password to login, hide screen name and disable kicking"));
 
     free_choose_checkbox = new QCheckBox(tr("Choose generals and cards freely"));
@@ -143,7 +144,7 @@ QWidget *ServerDialog::createAdvancedTab(){
     free_assign_checkbox->setChecked(Config.value("FreeAssign").toBool());
 
     maxchoice_spinbox = new QSpinBox;
-    maxchoice_spinbox->setRange(3, 10);
+    maxchoice_spinbox->setRange(3, 5);
     maxchoice_spinbox->setValue(Config.value("MaxChoice", 5).toInt());
 
     forbid_same_ip_checkbox = new QCheckBox(tr("Forbid same IP with multiple connection"));
@@ -153,6 +154,7 @@ QWidget *ServerDialog::createAdvancedTab(){
     disable_chat_checkbox->setChecked(Config.DisableChat);
 
     second_general_checkbox = new QCheckBox(tr("Enable second general"));
+    second_general_checkbox->setEnabled(false);
 
     max_hp_scheme_combobox = new QComboBox;
     max_hp_scheme_combobox->addItem(tr("Sum - 3"));
@@ -380,19 +382,22 @@ QGroupBox *ServerDialog::createGameModeBox(){
             if(itor.key() == "02_1v1"){
                 // add 1v1 banlist edit button
                 QPushButton *edit_button = new QPushButton(tr("Banlist ..."));
+                edit_button->setEnabled(false);
                 connect(edit_button, SIGNAL(clicked()), this, SLOT(edit1v1Banlist()));
                 item_list << HLay(button, edit_button);
-
             }else if(itor.key() == "06_3v3"){
                 // add 3v3 options
                 QGroupBox *box = create3v3Box();
                 connect(button, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
-
                 item_list << button << box;
             }else{
                 item_list << button;
             }
 
+            QStringList ban_mode;
+            ban_mode << "02_1v1" << "06_3v3" << "04_1v3" << "09p" << "10p";
+            if(ban_mode.contains(itor.key()))
+                button->setEnabled(false);
             if(itor.key() == Config.GameMode)
                 button->setChecked(true);
         }
@@ -402,6 +407,7 @@ QGroupBox *ServerDialog::createGameModeBox(){
         // add scenario modes
         QRadioButton *scenario_button = new QRadioButton(tr("Scenario mode"));
         scenario_button->setObjectName("scenario");
+        scenario_button->setEnabled(false);
         mode_group->addButton(scenario_button);
 
         scenario_combobox = new QComboBox;

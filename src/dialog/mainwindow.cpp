@@ -256,7 +256,7 @@ void MainWindow::enterRoom(){
     ui->actionSaveRecord->setEnabled(true);
 
     connect(ui->actionView_Discarded, SIGNAL(triggered()), room_scene, SLOT(toggleDiscards()));
-    connect(ui->actionView_distance, SIGNAL(triggered()), room_scene, SLOT(viewDistance()));
+    //connect(ui->actionView_distance, SIGNAL(triggered()), room_scene, SLOT(viewDistance()));
     connect(ui->actionServerInformation, SIGNAL(triggered()), room_scene, SLOT(showServerInformation()));
     connect(ui->actionKick, SIGNAL(triggered()), room_scene, SLOT(kick()));
     connect(ui->actionSurrender, SIGNAL(triggered()), room_scene, SLOT(surrender()));
