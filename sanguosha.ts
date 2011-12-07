@@ -6,7 +6,7 @@
     <message>
         <location filename="src/dialog/banpairdialog.cpp" line="82"/>
         <source>Ban pair table</source>
-        <translation>双将禁配表</translation>
+        <translation>双人禁配表</translation>
     </message>
     <message>
         <location filename="src/dialog/banpairdialog.cpp" line="89"/>
@@ -131,7 +131,7 @@
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="825"/>
         <source>Reset photo</source>
-        <translation>重置武将图</translation>
+        <translation>重置人物图</translation>
     </message>
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="830"/>
@@ -166,17 +166,17 @@
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="918"/>
         <source>Lord</source>
-        <translation>主公</translation>
+        <translation>侦探</translation>
     </message>
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="937"/>
         <source>Kingdom</source>
-        <translation>所属势力</translation>
+        <translation>所属阵营</translation>
     </message>
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="938"/>
         <source>Max HP</source>
-        <translation>体力上限</translation>
+        <translation>罪证上限</translation>
     </message>
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="939"/>
@@ -211,7 +211,7 @@
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="1005"/>
         <source>Lord skill</source>
-        <translation>主公技</translation>
+        <translation>侦探技</translation>
     </message>
     <message>
         <location filename="src/dialog/cardeditor.cpp" line="1006"/>
@@ -345,7 +345,7 @@
     <message>
         <location filename="src/dialog/choosegeneraldialog.cpp" line="47"/>
         <source>Choose general</source>
-        <translation>选择武将</translation>
+        <translation>选择人物</translation>
     </message>
     <message>
         <location filename="src/dialog/choosegeneraldialog.cpp" line="109"/>
@@ -355,7 +355,7 @@
     <message>
         <location filename="src/dialog/choosegeneraldialog.cpp" line="129"/>
         <source>Free choose ...</source>
-        <translation>自由选将 ...</translation>
+        <translation>自由选人 ...</translation>
     </message>
 </context>
 <context>
@@ -375,7 +375,7 @@
         <location filename="src/client/client.cpp" line="423"/>
         <source>Your role is %1</source>
         <oldsource>Your role is </oldsource>
-        <translation>您的角色是 %1</translation>
+        <translation>您的身份是 %1</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="425"/>
@@ -383,7 +383,7 @@
  wait for the lord player choosing general, please</source>
         <oldsource>, wait for the lord player choosing general, please</oldsource>
         <translation>
-请等待主公选择武将</translation>
+请等待侦探选择人物</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="492"/>
@@ -450,7 +450,7 @@
     <message>
         <location filename="src/client/client.cpp" line="1048"/>
         <source>%1[dead]</source>
-        <translation>%1【阵亡】</translation>
+        <translation>%1【出局】</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1067"/>
@@ -490,33 +490,33 @@
     <message>
         <location filename="src/client/client.cpp" line="1146"/>
         <source>Please choose a kingdom</source>
-        <translation>请选择一个势力</translation>
+        <translation>请选择一个阵营</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1231"/>
         <source>You are dying, please provide %1 peach(es)(or analeptic) to save yourself</source>
         <oldsource>You are dying, please provide %2 peach(es)(or analeptic) to save yourself</oldsource>
-        <translation>您正在死亡线上挣扎，请提供 %1 个桃子（或酒）来救您自己</translation>
+        <translation>您已经获得了足够多的罪证，请提供 %1 个不在场证明来救您自己</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1235"/>
         <source>%1 is dying, please provide %2 peach(es) to save him</source>
-        <translation>%1 正在死亡线上挣扎，请提供 %2 个桃子来拯救他</translation>
+        <translation>%1 已经获得了足够多的罪证，请提供 %2 个不在场证明来拯救他</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1246"/>
         <source>%1 request you to show one hand card</source>
-        <translation>%1 要求您展示一张手牌</translation>
+        <translation>%1 要求您展示一张牌</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1385"/>
         <source>Please play a card for pindian</source>
-        <translation>请打出一张卡牌以用于拼点</translation>
+        <translation>请打出一张牌以用于拼点</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1388"/>
         <source>%1 ask for you to play a card to pindian</source>
-        <translation>%1 要求你打出一张卡牌已用于拼点</translation>
+        <translation>%1 要求你打出一张牌已用于拼点</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1400"/>
@@ -536,7 +536,7 @@
     <message>
         <location filename="src/client/client.cpp" line="1603"/>
         <source>The order who first choose general</source>
-        <translation>选择武将的顺序</translation>
+        <translation>选择人物的顺序</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1605"/>
@@ -758,7 +758,7 @@
     <message>
         <location filename="src/dialog/configdialog.ui" line="120"/>
         <source>Enable effects</source>
-        <translation>启用武将技能及卡牌声效</translation>
+        <translation>启用人物技能及卡牌声效</translation>
     </message>
     <message>
         <location filename="src/dialog/configdialog.ui" line="45"/>
@@ -768,7 +768,7 @@
     <message>
         <location filename="src/dialog/configdialog.ui" line="130"/>
         <source>Enable last word</source>
-        <translation>启用阵亡音效</translation>
+        <translation>启用出局音效</translation>
     </message>
     <message>
         <location filename="src/dialog/configdialog.ui" line="137"/>
@@ -844,7 +844,7 @@
     <message>
         <location filename="src/dialog/configdialog.ui" line="470"/>
         <source>Never nullify my single target trick</source>
-        <translation>从不无懈自己的单体锦囊</translation>
+        <translation>从不异议自己的单体线索卡</translation>
     </message>
     <message>
         <location filename="src/dialog/configdialog.ui" line="479"/>
@@ -895,7 +895,7 @@
     <message>
         <location filename="src/dialog/configdialog.ui" line="559"/>
         <source>Only save the record of lord</source>
-        <translation>仅保存主公的重放记录</translation>
+        <translation>仅保存侦探的重放记录</translation>
     </message>
     <message>
         <location filename="src/dialog/configdialog.cpp" line="81"/>
@@ -1027,7 +1027,7 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2359"/>
         <source>Damage maker</source>
-        <translation>伤害制造器</translation>
+        <translation>罪证制造器</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2368"/>
@@ -1047,12 +1047,12 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2371"/>
         <source>HP recover</source>
-        <translation>体力回复</translation>
+        <translation>去除罪证</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2372"/>
         <source>Lose HP</source>
-        <translation>流失体力</translation>
+        <translation>得到罪证</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2378"/>
@@ -1062,22 +1062,22 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2386"/>
         <source>Damage source</source>
-        <translation>伤害来源</translation>
+        <translation>获罪来源</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2387"/>
         <source>Damage target</source>
-        <translation>伤害目标</translation>
+        <translation>获罪目标</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2388"/>
         <source>Damage nature</source>
-        <translation>伤害属性</translation>
+        <translation>获罪属性</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2389"/>
         <source>Damage point</source>
-        <translation>伤害点数</translation>
+        <translation>获罪数目</translation>
     </message>
 </context>
 <context>
@@ -1094,7 +1094,7 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2324"/>
         <source>Death note</source>
-        <translation>死亡笔记</translation>
+        <translation>犯罪档案</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2332"/>
@@ -1104,12 +1104,12 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2336"/>
         <source>Killer</source>
-        <translation>凶手</translation>
+        <translation>审判者</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2337"/>
         <source>Victim</source>
-        <translation>遇害者</translation>
+        <translation>罪犯</translation>
     </message>
 </context>
 <context>
@@ -1210,7 +1210,7 @@
     <message>
         <location filename="src/core/engine.cpp" line="76"/>
         <source>6 players (2 renegades)</source>
-        <translation>6 人局 [双内奸]</translation>
+        <translation>6 人局 [双黑衣人]</translation>
     </message>
     <message>
         <location filename="src/core/engine.cpp" line="77"/>
@@ -1230,12 +1230,12 @@
     <message>
         <location filename="src/core/engine.cpp" line="80"/>
         <source>8 players (2 renegades)</source>
-        <translation>8 人局 [双内奸]</translation>
+        <translation>8 人局 [双黑衣人]</translation>
     </message>
     <message>
         <location filename="src/core/engine.cpp" line="82"/>
         <source>8 players (same mode)</source>
-        <translation>8 人局 [同将模式]</translation>
+        <translation>8 人局 [同人模式]</translation>
     </message>
     <message>
         <location filename="src/core/engine.cpp" line="83"/>
@@ -1288,7 +1288,7 @@
     <message>
         <location filename="src/dialog/choosegeneraldialog.cpp" line="184"/>
         <source>Free choose generals</source>
-        <translation>自由选择武将</translation>
+        <translation>自由选择人物</translation>
     </message>
     <message>
         <location filename="src/dialog/choosegeneraldialog.cpp" line="210"/>
@@ -1306,17 +1306,17 @@
     <message>
         <location filename="src/dialog/generaloverview.ui" line="17"/>
         <source>General Overview</source>
-        <translation>武将一览</translation>
+        <translation>人物一览</translation>
     </message>
     <message>
         <location filename="src/dialog/generaloverview.ui" line="42"/>
         <source>General</source>
-        <translation>武将</translation>
+        <translation>人物</translation>
     </message>
     <message>
         <location filename="src/dialog/generaloverview.ui" line="47"/>
         <source>Kingdom</source>
-        <translation>势力</translation>
+        <translation>阵营</translation>
     </message>
     <message>
         <location filename="src/dialog/generaloverview.ui" line="52"/>
@@ -1326,7 +1326,7 @@
     <message>
         <location filename="src/dialog/generaloverview.ui" line="57"/>
         <source>MaxHP</source>
-        <translation>体力上限</translation>
+        <translation>罪证上限</translation>
     </message>
     <message>
         <location filename="src/dialog/generaloverview.ui" line="62"/>
@@ -1378,7 +1378,7 @@
     <message>
         <location filename="src/dialog/generaloverview.cpp" line="168"/>
         <source>Death</source>
-        <translation>阵亡</translation>
+        <translation>出局</translation>
     </message>
     <message>
         <location filename="src/dialog/generaloverview.cpp" line="177"/>
@@ -1429,7 +1429,7 @@
     <message>
         <location filename="src/server/server.cpp" line="255"/>
         <source>Select generals that are excluded in 1v1 mode</source>
-        <translation>选择在 1v1 模式中排除的武将</translation>
+        <translation>选择在 1v1 模式中排除的人物</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="269"/>
@@ -1453,7 +1453,7 @@
         <location filename="src/dialog/mainwindow.ui" line="14"/>
         <location filename="src/dialog/mainwindow.cpp" line="138"/>
         <source>Sanguosha</source>
-        <translation>太阳神三国杀</translation>
+        <translation>罪证单机版 - 罪证联机版 - 太阳神三国杀MOD</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="28"/>
@@ -1529,7 +1529,7 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="139"/>
         <source>General overview</source>
-        <translation>武将一览</translation>
+        <translation>人物一览</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="152"/>
@@ -1625,7 +1625,7 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="292"/>
         <source>Damage maker</source>
-        <translation>伤害制造器</translation>
+        <translation>罪证制造器</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="300"/>
@@ -1640,12 +1640,12 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="313"/>
         <source>Death note ...</source>
-        <translation>死亡笔记 ...</translation>
+        <translation>犯罪档案 ...</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="318"/>
         <source>Revive wand ...</source>
-        <translation>复活魔杖 ...</translation>
+        <translation>保释出狱 ...</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="323"/>
@@ -1701,7 +1701,7 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="243"/>
         <source>Surrender</source>
-        <translation>投降</translation>
+        <translation>自首</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="248"/>
@@ -1878,27 +1878,27 @@
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="451"/>
         <source>Lord</source>
-        <translation>主公</translation>
+        <translation>侦探</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="451"/>
         <source>Loyalist</source>
-        <translation>忠臣</translation>
+        <translation>好人</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="451"/>
         <source>Rebel</source>
-        <translation>反贼</translation>
+        <translation>凶手</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="451"/>
         <source>Renegade</source>
-        <translation>内奸</translation>
+        <translation>黑衣人</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="468"/>
         <source> (double renegade)</source>
-        <translation> (双内奸)</translation>
+        <translation> (双黑衣人)</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="114"/>
@@ -1928,7 +1928,7 @@
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="604"/>
         <source>General</source>
-        <translation>武将</translation>
+        <translation>人物</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="617"/>
@@ -1953,22 +1953,22 @@
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="745"/>
         <source>Lord</source>
-        <translation>主公</translation>
+        <translation>侦探</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="746"/>
         <source>Loyalist</source>
-        <translation>忠臣</translation>
+        <translation>好人</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="747"/>
         <source>Rebel</source>
-        <translation>反贼</translation>
+        <translation>凶手</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="748"/>
         <source>Renegade</source>
-        <translation>内奸</translation>
+        <translation>黑衣人</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="749"/>
@@ -2244,22 +2244,22 @@
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="41"/>
         <source>Lord</source>
-        <translation>主公</translation>
+        <translation>侦探</translation>
     </message>
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="42"/>
         <source>Loyalist</source>
-        <translation>忠臣</translation>
+        <translation>好人</translation>
     </message>
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="43"/>
         <source>Renegade</source>
-        <translation>内奸</translation>
+        <translation>黑衣人</translation>
     </message>
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="44"/>
         <source>Rebel</source>
-        <translation>反贼</translation>
+        <translation>凶手</translation>
     </message>
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="46"/>
@@ -2285,7 +2285,7 @@
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="79"/>
         <source>The first assigned role must be lord!</source>
-        <translation>1号位必须是主公!</translation>
+        <translation>1号位必须是侦探!</translation>
     </message>
     <message>
         <location filename="src/dialog/roleassigndialog.cpp" line="95"/>
@@ -2412,7 +2412,7 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="307"/>
         <source>Sanguosha</source>
-        <translation>三国杀</translation>
+        <translation>罪证</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1029"/>
@@ -2422,22 +2422,22 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="1325"/>
         <source>Lord</source>
-        <translation>主公</translation>
+        <translation>侦探</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1326"/>
         <source>Loyalist</source>
-        <translation>忠臣</translation>
+        <translation>好人</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1327"/>
         <source>Rebel</source>
-        <translation>反贼</translation>
+        <translation>凶手</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1328"/>
         <source>Renegade</source>
-        <translation>内奸</translation>
+        <translation>黑衣人</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1330"/>
@@ -2497,7 +2497,7 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="132"/>
         <source>Change general ...</source>
-        <translation>修改武将 ...</translation>
+        <translation>修改人物 ...</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="845"/>
@@ -2559,22 +2559,22 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2463"/>
         <source>No victims now!</source>
-        <translation>暂时没有阵亡者!</translation>
+        <translation>暂时没有出局者!</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2468"/>
         <source>Reviving wand</source>
-        <translation>复活魔杖</translation>
+        <translation>保释出狱</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2469"/>
         <source>Please select a player to revive</source>
-        <translation>请选择要复活的角色</translation>
+        <translation>请选择要保释的角色</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2483"/>
         <source>General</source>
-        <translation>武将</translation>
+        <translation>人物</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="2483"/>
@@ -2615,7 +2615,7 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="3196"/>
         <source>Only the lord can kick!</source>
-        <translation>只有主公才能踢人!</translation>
+        <translation>只有侦探才能踢人!</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="3201"/>
@@ -2635,22 +2635,22 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="3226"/>
         <source>Only lord can surrender!</source>
-        <translation>只有主公才能投降!</translation>
+        <translation>只有侦探才能自首!</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="3232"/>
         <source>When there are more than 2 players, the lord can surrender!</source>
-        <translation>只有场上存活人数大于2时才能投降!</translation>
+        <translation>只有场上存活人数大于2时才能自首!</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="3237"/>
         <source>Surrender</source>
-        <translation>投降</translation>
+        <translation>自首</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="3237"/>
         <source>Are you sure to surrender ?</source>
-        <translation>您真的要投降吗 ?</translation>
+        <translation>您真的要自首吗 ?</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="3442"/>
@@ -2665,7 +2665,7 @@
     <message>
         <location filename="src/ui/roomscene.cpp" line="2504"/>
         <source>Dead</source>
-        <translation>阵亡</translation>
+        <translation>出局</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="852"/>
@@ -2696,7 +2696,7 @@
     <message>
         <location filename="src/server/server.cpp" line="515"/>
         <source>Select generals in extend 3v3 mode</source>
-        <translation>选择在扩展 3v3 模式中启用的武将</translation>
+        <translation>选择在扩展 3v3 模式中启用的人物</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="524"/>
@@ -2768,7 +2768,7 @@
     <message>
         <location filename="src/server/server.cpp" line="84"/>
         <source>General package</source>
-        <translation>武将包</translation>
+        <translation>人物包</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="85"/>
@@ -2788,7 +2788,7 @@
     <message>
         <location filename="src/server/server.cpp" line="331"/>
         <source>General selection ...</source>
-        <translation>武将选择 ...</translation>
+        <translation>人物选择 ...</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="336"/>
@@ -2834,7 +2834,7 @@
         <location filename="src/server/server.cpp" line="137"/>
         <source>Requires password to login, hide screen name and disable kicking</source>
         <oldsource>Requires password to login, hide screen name and disable kicking and </oldsource>
-        <translation>需要密码才能登录，隐藏玩家昵称且禁止主公T人</translation>
+        <translation>需要密码才能登录，隐藏玩家昵称且禁止侦探T人</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="142"/>
@@ -2849,7 +2849,7 @@
     <message>
         <location filename="src/server/server.cpp" line="155"/>
         <source>Enable second general</source>
-        <translation>启用双将</translation>
+        <translation>启用双人</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="157"/>
@@ -2879,7 +2879,7 @@
     <message>
         <location filename="src/server/server.cpp" line="206"/>
         <source>Max HP scheme</source>
-        <translation>体力上限分配方案</translation>
+        <translation>罪证上限分配方案</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="172"/>
@@ -2961,7 +2961,7 @@
         <location filename="src/server/server.cpp" line="139"/>
         <source>Choose generals and cards freely</source>
         <oldsource>Free choose generals</oldsource>
-        <translation>自由选择武将与卡牌</translation>
+        <translation>自由选择人物与卡牌</translation>
     </message>
     <message>
         <location filename="src/server/server.cpp" line="149"/>
@@ -3029,7 +3029,7 @@
     <message>
         <location filename="src/client/clientstruct.cpp" line="86"/>
         <source>2nd general mode</source>
-        <translation>双将模式</translation>
+        <translation>双人模式</translation>
     </message>
     <message>
         <location filename="src/client/clientstruct.cpp" line="87"/>
@@ -3070,7 +3070,7 @@
     <message>
         <location filename="src/client/clientstruct.cpp" line="89"/>
         <source>Free choose</source>
-        <translation>自由选将</translation>
+        <translation>自由选人</translation>
     </message>
     <message>
         <location filename="src/client/clientstruct.cpp" line="115"/>
@@ -3090,7 +3090,7 @@
     <message>
         <location filename="src/client/clientstruct.cpp" line="120"/>
         <source>2nd general is disabled</source>
-        <translation>双将未启用</translation>
+        <translation>双人未启用</translation>
     </message>
     <message>
         <location filename="src/client/clientstruct.cpp" line="128"/>
@@ -3142,7 +3142,7 @@
         <location filename="src/core/settings.cpp" line="83"/>
         <source>Sanguosha-fans</source>
         <oldsource>Sanguosha-lover</oldsource>
-        <translation>三国杀fans</translation>
+        <translation>45sfans</translation>
     </message>
     <message>
         <location filename="src/core/settings.cpp" line="84"/>
@@ -3251,12 +3251,12 @@
     <message>
         <location filename="src/ui/startscene.cpp" line="156"/>
         <source>Secondary general is enabled, max hp scheme is %1</source>
-        <translation>双将模式已启用，体力上限分配方案是 %1</translation>
+        <translation>双人模式已启用，体力上限分配方案是 %1</translation>
     </message>
     <message>
         <location filename="src/ui/startscene.cpp" line="158"/>
         <source>Seconardary general is disabled</source>
-        <translation>双将模式未启用</translation>
+        <translation>双人模式未启用</translation>
     </message>
     <message>
         <location filename="src/ui/startscene.cpp" line="161"/>
@@ -3301,7 +3301,7 @@
     <message>
         <location filename="src/ui/startscene.cpp" line="146"/>
         <source>Free general choose is %1</source>
-        <translation>自由选将是 %1</translation>
+        <translation>自由选人是 %1</translation>
     </message>
 </context>
 <context>
