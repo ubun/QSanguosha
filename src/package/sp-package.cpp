@@ -407,6 +407,7 @@ SPPackage::SPPackage()
     sp_jiaxu->addSkill("wansha");
     sp_jiaxu->addSkill("luanwu");
     sp_jiaxu->addSkill("weimu");
+    sp_jiaxu->addSkill("#@chaos-1");
 }
 
 ADD_PACKAGE(SP);

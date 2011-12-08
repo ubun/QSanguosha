@@ -232,7 +232,7 @@ public:
         }
 
         DamageStruct damage = data.value<DamageStruct>();
-        ServerPlayer *target = zhurong->tag.value("LierenTarget", NULL).value<ServerPlayer *>();
+        ServerPlayer *target = zhurong->tag["LierenTarget"].value<ServerPlayer *>();
         if(target && damage.card && damage.card->inherits("Slash") && !zhurong->isKongcheng()
             && !target->isKongcheng() && target != zhurong){
             Room *room = zhurong->getRoom();
@@ -920,8 +920,9 @@ ThicketPackage::ThicketPackage()
     jiaxu->addSkill(new Weimu);
     jiaxu->addSkill(new MarkAssignSkill("@chaos", 1));
     jiaxu->addSkill(new Luanwu);
+    jiaxu->addSkill(new SPConvertSkill("guiwei", "jiaxu", "sp_jiaxu"));
 
-    related_skills.insertMulti("luanwu", "#@chaos");
+    related_skills.insertMulti("luanwu", "#@chaos-1");
 
     dongzhuo = new General(this, "dongzhuo$", "qun", 8);
     dongzhuo->addSkill(new Jiuchi);
