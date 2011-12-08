@@ -275,6 +275,9 @@ public:
     Shexian():ZeroCardViewAsSkill("shexian"){
 
     }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("ShexianCard");
+    }
     virtual const Card *viewAs() const{
         return new ShexianCard;
     }

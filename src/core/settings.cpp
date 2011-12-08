@@ -101,7 +101,7 @@ void Settings::init(){
 
     if(!contains("1v1/Banlist")){
         QStringList banlist;
-        banlist << "conan" << "ai" << "akai";
+        banlist << "kazuha";
         setValue("1v1/Banlist", banlist);
     }
 }

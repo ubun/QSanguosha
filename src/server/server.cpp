@@ -380,10 +380,12 @@ QGroupBox *ServerDialog::createGameModeBox(){
                 QPushButton *edit_button = new QPushButton(tr("Banlist ..."));
                 connect(edit_button, SIGNAL(clicked()), this, SLOT(edit1v1Banlist()));
                 item_list << HLay(button, edit_button);
+
             }else if(itor.key() == "06_3v3"){
                 // add 3v3 options
                 QGroupBox *box = create3v3Box();
                 connect(button, SIGNAL(toggled(bool)), box, SLOT(setEnabled(bool)));
+
                 item_list << button << box;
             }else{
                 item_list << button;

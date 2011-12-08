@@ -21,6 +21,7 @@ void KaituoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
 
 ShexianCard::ShexianCard(){
     target_fixed = true;
+    once = true;
 }
 
 void ShexianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{

@@ -75,7 +75,13 @@ QString Peach::getEffectPath(bool is_male) const{
 }
 
 bool Peach::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && to_select->isWounded();
+    if(!targets.isEmpty())
+        return false;
+    return to_select->isWounded();
+}
+
+bool Peach::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() < 2;
 }
 
 void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
@@ -182,8 +188,11 @@ ArcheryAttack::ArcheryAttack(Card::Suit suit, int number)
 void ArcheryAttack::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *jink = room->askForCard(effect.to, "jink", "archery-attack-jink:" + effect.from->objectName());
-    if(jink)
+    if(jink){
         room->setEmotion(effect.to, "jink");
+        if(jink->objectName() == "ingenarg")
+            effect.to->drawCards(1);
+    }
     else{
         DamageStruct damage;
         damage.card = this;

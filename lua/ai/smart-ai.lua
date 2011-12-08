@@ -732,19 +732,6 @@ function SmartAI:askForUseCard(pattern, prompt)
 	end
 end
 
--- yicai,badao,yitian-slash,moon-spear-slash
-sgs.ai_skill_use["slash"] = function(self, prompt)
-	if prompt ~= "@askforslash" and prompt ~= "@moon-spear-slash" then return "." end
-	local slash = self:getCard("Slash")
-	if not slash then return "." end
-	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy, true) and not self:slashProhibit(slash, enemy) and self:slashIsEffective(slash, enemy) then
-			return ("%s->%s"):format(slash:toString(), enemy:objectName())
-		end
-	end
-	return "."
-end
-
 function SmartAI:slashIsEffective(slash, to)
 	local nature = {
 		Slash = sgs.DamageStruct_Normal,
@@ -768,6 +755,7 @@ function SmartAI:slashIsAvailable(player)
 	if player:hasSkill("zhuisuo") then
 		return true
 	end
+	return (player:usedTimes("Slash")) < 1
 end
 
 local function prohibitUseDirectly(card, player)

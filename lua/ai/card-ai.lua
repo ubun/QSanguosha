@@ -3,11 +3,11 @@
 function SmartAI:useCardSlash(card, use)
 	if self:slashIsAvailable() then
 	--	local target_count = 0
-		self:sort(self.enemies, "defense")
+		self:sort(self.enemies, "hp")
 		for _, enemy in ipairs(self.enemies) do
 			local slash_prohibit = false
-		--	slash_prohibit = self:slashProhibit(card,enemy)
-		--	if not slash_prohibit then
+			slash_prohibit = self:slashProhibit(card,enemy)
+			if not slash_prohibit then
 				if self.player:canSlash(enemy) and self:objectiveLevel(enemy) > 3 then
 					use.card = card
 					if use.to then use.to:append(enemy) end
@@ -16,7 +16,7 @@ function SmartAI:useCardSlash(card, use)
 					return
 				--	end
 				end
-		--	end
+			end
 		end
 	end
 end
@@ -51,7 +51,17 @@ function SmartAI:useCardIgnore(card, use)
 		use.card = card
 	end
 end
-sgs.ai_skill_invoke["ignore"] = true
+sgs.ai_skill_invoke["ignore"] = function(self, data)
+	local effect = data:toCardEffect()
+	if effect.card:inherits("Duel") and self:getCardsNum("Nullification") == 0 then
+		return true
+	elseif effect.card:inherits("Slash") then
+		local jink = self:getCardsNum("Jink") + self:getCardsNum("Ingenarg") + self:getCardsNum("Nullification")
+		return jink == 0
+	else
+		return true
+	end
+end
 
 function SmartAI:useCardAmazingGrace(card, use)
 	if #self.friends >= #self.enemies then

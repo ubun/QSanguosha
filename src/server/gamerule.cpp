@@ -331,7 +331,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 if(!effect.to->getPile("ignore").isEmpty() &&
                    effect.card && effect.card->getSkillName() != "mp2" &&
                    (effect.card->inherits("Slash") || effect.card->inherits("Duel"))){
-                    if(effect.to->askForSkillInvoke("ignore")){
+                    if(effect.to->askForSkillInvoke("ignore", data)){
                         room->throwCard(effect.to->getPile("ignore").first());
                         return true;
                     }
