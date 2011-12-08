@@ -117,10 +117,11 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         if(player->getPhase() == Player::NotActive){
-            int x = player->getHp();
-            if(x > 0)
+            int x = player->getHp() - player->getHandcardNum();
+            if(x > 0){
                 player->getRoom()->invokeSkill(player, objectName());
-            player->drawCards(x);
+                player->drawCards(x);
+            }
         }
         return false;
     }
