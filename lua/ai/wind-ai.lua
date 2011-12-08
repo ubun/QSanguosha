@@ -156,7 +156,6 @@ huangtianv_skill.getTurnUseCard=function(self)
     if self.player:hasUsed("HuangtianCard") then return nil end
     if self.player:isLord() then return nil end
     if self.player:getKingdom() ~= "qun" then return nil end
-	if not self.room:getLord():hasSkill("huangtian") then return nil end
 
     local cards = self.player:getCards("h")	
     cards=sgs.QList2Table(cards)
@@ -204,8 +203,8 @@ end
 sgs.ai_skill_askforag.buqu = function(self, card_ids)
 -- find duplicated one or the first
 	for i, card_id in ipairs(card_ids) do
-		for j, card_id2 in sgs.list(card_ids) do
-			if i ~= j and card_id == card_id2 then
+		for j, card_id2 in ipairs(card_ids) do
+			if i ~= j and sgs.Sanguosha:getCard(card_id):getNumber() == sgs.Sanguosha:getCard(card_id2):getNumber() then
 				return card_id
 			end
 		end

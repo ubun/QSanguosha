@@ -60,6 +60,12 @@ int main(int argc, char *argv[])
         return qApp->exec();
     }
 
+    QFile file("sanguosha.qss");
+    if(file.open(QIODevice::ReadOnly)){
+        QTextStream stream(&file);
+        qApp->setStyleSheet(stream.readAll());
+    }
+
 #ifdef AUDIO_SUPPORT
 
 #ifdef  Q_OS_WIN32

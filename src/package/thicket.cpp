@@ -60,9 +60,11 @@ void FangzhuCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
 
     int index;
-    if(effect.to->faceUp())
-        index = effect.to->getGeneralName() == "caozhi" ? 3 : 1;
-    else
+    if(effect.to->faceUp()){
+        QString to_exile = effect.to->getGeneralName();
+        bool is_brother = to_exile == "caozhi" || to_exile == "caochong";
+        index = is_brother ? 3 : 1;
+    }else
         index = 2;
     room->playSkillEffect("fangzhu", index);
 
@@ -218,19 +220,26 @@ public:
 class Lieren: public TriggerSkill{
 public:
     Lieren():TriggerSkill("lieren"){
-        events << Damage;
+        events << SlashHit << Damage;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *zhurong, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
+    virtual bool trigger(TriggerEvent event, ServerPlayer *zhurong, QVariant &data) const{
+        if(event == SlashHit){
+            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+            if(effect.to)
+                zhurong->tag["LierenTarget"] = QVariant::fromValue(effect.to);
+            return false;
+        }
 
-        if(damage.card && damage.card->inherits("Slash") && damage.to->isAlive()
-            && !zhurong->isKongcheng() && !damage.to->isKongcheng() && damage.to != zhurong){
+        DamageStruct damage = data.value<DamageStruct>();
+        ServerPlayer *target = zhurong->tag["LierenTarget"].value<ServerPlayer *>();
+        if(target && damage.card && damage.card->inherits("Slash") && !zhurong->isKongcheng()
+            && !target->isKongcheng() && target != zhurong){
             Room *room = zhurong->getRoom();
             if(room->askForSkillInvoke(zhurong, objectName(), data)){
                 room->playSkillEffect(objectName(), 1);
 
-                bool success = zhurong->pindian(damage.to, "lieren", NULL);
+                bool success = zhurong->pindian(target, "lieren", NULL);
                 if(success)
                     room->playSkillEffect(objectName(), 2);
                 else{
@@ -238,8 +247,8 @@ public:
                     return false;
                 }
 
-                if(!damage.to->isNude()){
-                    int card_id = room->askForCardChosen(zhurong, damage.to, "he", objectName());
+                if(!target->isNude()){
+                    int card_id = room->askForCardChosen(zhurong, target, "he", objectName());
                     if(room->getCardPlace(card_id) == Player::Hand)
                         room->moveCardTo(Sanguosha->getCard(card_id), zhurong, Player::Hand, false);
                     else
@@ -247,7 +256,7 @@ public:
                 }
             }
         }
-
+        zhurong->tag["LierenTarget"] = NULL;
         return false;
     }
 };
@@ -911,8 +920,9 @@ ThicketPackage::ThicketPackage()
     jiaxu->addSkill(new Weimu);
     jiaxu->addSkill(new MarkAssignSkill("@chaos", 1));
     jiaxu->addSkill(new Luanwu);
+    jiaxu->addSkill(new SPConvertSkill("guiwei", "jiaxu", "sp_jiaxu"));
 
-    related_skills.insertMulti("luanwu", "#@chaos");
+    related_skills.insertMulti("luanwu", "#@chaos-1");
 
     dongzhuo = new General(this, "dongzhuo$", "qun", 8);
     dongzhuo->addSkill(new Jiuchi);

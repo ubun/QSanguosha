@@ -62,21 +62,24 @@ bool ChengxiangCard::targetsFeasible(const QList<const Player *> &targets, const
 }
 
 void ChengxiangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    QList<ServerPlayer *> to = targets;
-
-    if(to.isEmpty())
+    if(targets.isEmpty()){
+        QList<ServerPlayer *> to;
         to << source;
-
-    return SkillCard::use(room, source, to);
+        SkillCard::use(room, source, to);
+    }else
+        SkillCard::use(room, source, targets);
 }
 
 void ChengxiangCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
 
-    RecoverStruct recover;
-    recover.card = this;
-    recover.who = effect.from;
-    room->recover(effect.to, recover);
+    if(effect.to->isWounded()){
+        RecoverStruct recover;
+        recover.card = this;
+        recover.who = effect.from;
+        room->recover(effect.to, recover);
+    }else
+        effect.to->drawCards(2);
 }
 
 class ChengxiangViewAsSkill: public ViewAsSkill{
@@ -156,6 +159,10 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Discard;
+    }
+
+    virtual int getPriority() const{
+        return 3;
     }
 
     virtual bool onPhaseChange(ServerPlayer *) const{
