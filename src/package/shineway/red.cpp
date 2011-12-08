@@ -1105,7 +1105,7 @@ public:
                 tmp->setMark("Tsuku", 0);
         }
         room->detachSkillFromPlayer(itachi, itachi->tag.value("Tsuku").toString());
-        itachi->tag["Tsuku"] = "";
+        itachi->tag.remove("Tsuku");
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *itachi, QVariant &data) const{

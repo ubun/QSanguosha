@@ -135,7 +135,7 @@ public:
         }
         room->setPlayerProperty(player, "kingdom", yuanlv_data.kingdom);
 
-        player->tag["YuanlvStore"] = NULL;
+        player->tag.remove("YuanlvStore");
         return false;
     }
 };
