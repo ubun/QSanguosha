@@ -911,8 +911,8 @@ void Room::swapPile(){
 
     int times = tag.value("SwapPile", 0).toInt();
     tag.insert("SwapPile", ++times);
-    if(times == 6)
-        gameOver(".");
+    //if(times == 6)
+    //    gameOver(".");
     if(mode == "04_1v3"){
         int limit = Config.BanPackages.contains("maneuvering") ? 3 : 2;
         if(times == limit)

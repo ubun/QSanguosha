@@ -10,9 +10,6 @@ Slash::Slash(Suit suit, int number): BasicCard(suit, number, false){
 }
 
 bool Slash::IsAvailable(const Player *player){
-    if(player->hasFlag("tianyi_failed"))
-        return false;
-
     return player->canSlashWithoutCrossbow();
 }
 
@@ -41,13 +38,10 @@ bool Slash::targetsFeasible(const QList<const Player *> &targets, const Player *
 
 bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     int slash_targets = 1;
-
-    bool distance_limit = true;
-
     if(targets.length() >= slash_targets)
         return false;
 
-    return Self->canSlash(to_select, distance_limit);
+    return Self->canSlash(to_select);
 }
 
 Jink::Jink(Suit suit, int number):BasicCard(suit, number, false){

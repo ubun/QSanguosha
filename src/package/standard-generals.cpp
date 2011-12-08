@@ -300,7 +300,7 @@ public:
         return player->containsTrick("microphone");
     }
     virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->inherits("Slash");
+        return to_select->getCard()->inherits("Slash");
     }
     virtual const Card *viewAs(CardItem *card_item) const{
         Mp2Card *card = new Mp2Card;

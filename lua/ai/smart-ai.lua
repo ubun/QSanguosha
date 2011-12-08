@@ -762,6 +762,7 @@ function SmartAI:damageIsEffective(player, nature, source)
 	nature = nature or sgs.DamageStruct_Normal
 	return true
 end
+
 function SmartAI:slashIsAvailable(player)
 	player = player or self.player
 	if player:hasSkill("zhuisuo") then
@@ -888,76 +889,12 @@ function SmartAI:exclude(players, card)
 	return excluded
 end
 
-function SmartAI:useCardDismantlement(dismantlement, use)
-	self:sort(self.enemies,"defense")
-	for _, enemy in ipairs(self.enemies) do
-		if getDefense(enemy) < 8 then break
-		else self:sort(self.enemies,"threat")
-		break
-		end
-	end
-	local enemies = self:exclude(self.enemies, dismantlement)
-	for _, enemy in ipairs(enemies) do
-		local equips = enemy:getEquips()
-		    if not enemy:isNude() and self:hasTrickEffective(dismantlement, enemy) and
-			   not (self:hasSkills(sgs.lose_equip_skill, enemy) and enemy:getHandcardNum() == 0) and
-			   not (enemy:getCards("he"):length() == 1 and self:isEquip("GaleShell",enemy)) then
-				if enemy:getHandcardNum() == 1 then
-					if enemy:hasSkill("kongcheng") or enemy:hasSkill("lianying") then return end
-				end
-				use.card = dismantlement
-                if use.to then
-                    use.to:append(enemy)
-                    self:speak("hostile", self.player:getGeneral():isFemale())
-                end
-				return
-		    end
-	end
-end
-
 function SmartAI:useCardByClassName(card, use)
 	local class_name = card:className()
 	local use_func = self["useCard" .. class_name]
 
 	if use_func then
 		use_func(self, card, use)
-	end
-end
-
-local function factorial(n)
-	if n <= 0.1 then return 1 end
-	return n*factorial(n-1)
-end
-
-function SmartAI:useCardDuel(duel, use)
-	if self.player:hasSkill("wuyan") then return end
-	self:sort(self.enemies,"handcard")
-	local enemies = self:exclude(self.enemies, duel)
-	for _, enemy in ipairs(enemies) do
-		if self:objectiveLevel(enemy) > 3 then
-			local n1 = self:getCardsNum("Slash")
-			local n2 = enemy:getHandcardNum()
-			if enemy:hasSkill("wushuang") then n2 = n2*2 end
-			local useduel
-			if self:hasTrickEffective(duel, enemy) then
-				if n1 >= n2 then
-					useduel = true
-				elseif n1 > 0 then
-					local percard = 0.35
-					if enemy:hasSkill("paoxiao") or enemy:hasWeapon("crossbow") then percard = 0.2 end
-					local poss = percard ^ n1 * (factorial(n1)/factorial(n2)/factorial(n1-n2))
-					if math.random() > poss then useduel = true end
-				end
-				if useduel then
-					use.card = duel
-					if use.to then
-						use.to:append(enemy)
-						self:speak("duel", self.player:getGeneral():isFemale())
-					end
-					return
-				end
-			end
-		end
 	end
 end
 
@@ -975,22 +912,6 @@ local function hp_subtract_handcard(a,b)
 	return diff1 < diff2
 end
 
--- the ExNihilo is always used
-function SmartAI:useCardExNihilo(card, use)
-        use.card = card
-        if not use.isDummy then
-            self:speak("lucky")
-        end
-end
-
-function SmartAI:useCardAmazingGrace(card, use)
-	if #self.friends >= #self.enemies then
-		use.card = card
-	elseif self.player:hasSkill("wuyan") then
-		use.card = card
-	end
-end
-
 function SmartAI:getAllPeachNum(player)
 	player = player or self.player
 	local n = 0
@@ -998,46 +919,6 @@ function SmartAI:getAllPeachNum(player)
 		n = n + self:getCardsNum("Peach")
 	end
 	return n
-end
-
-function SmartAI:useCardSlash(card, use)
-	if self:slashIsAvailable() then
-		local target_count = 0
-		self:sort(self.enemies, "defense")
-		for _, enemy in ipairs(self.enemies) do
-			local slash_prohibit = false
-			slash_prohibit = self:slashProhibit(card,enemy)
-			if not slash_prohibit then
-				self.predictedRange = self.player:getAttackRange()
-				if (self.player:canSlash(enemy, not no_distance)) and 
-				self:objectiveLevel(enemy) > 3 and
-				self:slashIsEffective(card, enemy) then
-					-- fill the card use struct
-					--local anal = self:searchForAnaleptic(use,enemy,card)
-					--if anal and not self:isEquip("SilverLion", enemy) then 
-					--	use.card = anal
-					--	return 
-					--end
-					use.card = card
-					if use.to then use.to:append(enemy) end
-					target_count = target_count+1
-					if self.slash_targets <= target_count then return end
-				end
-			end
-		end
-	end
-end
-
-function SmartAI:useCardPeach(card, use)
-	self:sort(self.friends, "hp")
-	for _, friend in ipairs(self.friends) do
-		if friend:isWounded() then
-			use.card = card
-			if use.to then use.to:append(friend) end
-			return
-		end
-	end
-	return
 end
 
 function SmartAI:useTrickCard(card, use)
@@ -1075,7 +956,6 @@ function SmartAI:useTrickCard(card, use)
 		self:useCardByClassName(card, use)
 	end
 end
-
 
 sgs.weapon_range  =
 {
@@ -1195,7 +1075,7 @@ function SmartAI:getTurnUse()
 
     self:sortByUseValue(cards)
 
-    if self.player:hasSkill("paoxiao") or
+    if self.player:hasSkill("zhuisuo") or
         (
             self.player:getWeapon() and
             (self.player:getWeapon():objectName() == "crossbow")
@@ -1315,15 +1195,6 @@ end
 function SmartAI:getUseValue(card)
 	local class_name = card:className()
 	local v = 0
-
-	if card:inherits("GuhuoCard") then
-		local userstring = card:toString()
-		userstring = (userstring:split(":"))[2]
-		local guhuocard = sgs.Sanguosha:cloneCard(userstring, card:getSuit(), card:getNumber())
-		local usevalue = self:getUseValue(guhuocard,player) + #self.enemies*0.3
-		if sgs.Sanguosha:getCard(card:getSubcards():first()):objectName() == userstring and card:getSuit() == sgs.Card_Heart then usevalue = usevalue + 3 end
-		return usevalue
-	end
 
 	if card:getTypeId() == sgs.Card_Equip then
 		if self:hasEquip(card) then
@@ -2335,8 +2206,8 @@ function SmartAI:hasSameEquip(card, player)
 end
 
 sgs.lose_equip_skill = "xiaoji|xuanfeng"
-sgs.need_kongcheng = "lianying|kongcheng"
-sgs.masochism_skill = "fankui|quhu|yiji|ganglie|enyuan|fangzhu"
+sgs.need_kongcheng = "lingxi|kongcheng"
+sgs.masochism_skill = "fankui|quhu|yiji|tiemian|enyuan|fangzhu"
 sgs.wizard_skill = "guicai|guidao|tiandu"
 sgs.wizard_harm_skill = "guicai|guidao"
 
@@ -2364,7 +2235,7 @@ function SmartAI:getCardId(class_name, player)
 	local cards = player:getCards("he")
 	cards = sgs.QList2Table(cards)
 	self:sortByUsePriority(cards)
-	local card_str = self:getGuhuoCard(class_name, player) or zeroCardView(class_name, player)
+	local card_str = zeroCardView(class_name, player)
 	if card_str then return card_str end
 
 	for _, card in ipairs(cards) do
@@ -2531,32 +2402,6 @@ function SmartAI:getAoeValueTo(card, to , from)
 	return value
 end
 
-local function getGuhuoViewCard(self, class_name, player)
-	local card_use = {}
-	card_use = self:getCards(class_name, player)
-
-	if #card_use > 1 or (#card_use > 0 and card_use[1]:getSuit() == sgs.Card_Heart) then
-		local index = 1
-		if class_name == "Peach" or class_name == "Analeptic" or class_name == "Jink" then
-			index = #card_use
-		end
-		return "@GuhuoCard=" .. card_use[index]:getEffectiveId() ..":".. card_use[index]:objectName()
-	end
-end
-
-function SmartAI:getGuhuoCard(class_name, player, at_play)
-	player = player or self.player
-	if not player or not player:hasSkill("guhuo") then return end
-	if at_play then
-		if class_name == "Peach" and not player:isWounded() then return
-		elseif class_name == "Analeptic" and player:hasUsed("Analeptic") then return
-		elseif class_name == "Slash" and not self:slashIsAvailable(player) then return
-		elseif class_name == "Jink" or class_name == "Nullification" then return
-		end
-	end
-	return getGuhuoViewCard(self, class_name, player)
-end
-
 function SmartAI:getCard(class_name, player)
 	player = player or self.player
 	local card_id = self:getCardId(class_name, player)
@@ -2643,6 +2488,7 @@ function SmartAI:cardProhibit(card, to)
 end
 
 -- load other ai scripts
+dofile "lua/ai/card-ai.lua"
 dofile "lua/ai/standard-ai.lua"
 dofile "lua/ai/general_config.lua"
 dofile "lua/ai/intention-ai.lua"

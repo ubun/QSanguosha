@@ -136,15 +136,7 @@ void Player::clearFlags(){
 }
 
 int Player::getAttackRange() const{
-    if(hasFlag("tianyi_success"))
-        return 1000;
-
-    if(weapon)
-        return weapon->getRange();
-    else if(hasSkill("zhengfeng"))
-        return hp;
-    else
-        return 1;
+    return 1000;
 }
 
 bool Player::inMyAttackRange(const Player *other) const{
@@ -584,9 +576,6 @@ int Player::getMark(const QString &mark) const{
 }
 
 bool Player::canSlash(const Player *other, bool distance_limit) const{
-    if(other->hasSkill("kongcheng") && other->isKongcheng())
-        return false;
-
     if(other == this)
         return false;
 
