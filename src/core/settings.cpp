@@ -50,10 +50,7 @@ void Settings::init(){
 
     if(!contains("BanPackages")){
         QStringList banlist;
-        banlist << "nostalgia" << "yitian" << "wisdom" << "test"
-                << "disaster" << "god" << "YJCM" << "yitian_cards"
-                << "sp" << "sp_cards"
-                << "joy" << "joy_equip";
+        banlist << "joy" << "joy_equip";
 
         setValue("BanPackages", banlist);
     }

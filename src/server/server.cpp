@@ -329,9 +329,6 @@ QGroupBox *ServerDialog::create3v3Box(){
     connect(extend, SIGNAL(toggled(bool)), extend_edit_button, SLOT(setEnabled(bool)));
     connect(extend_edit_button, SIGNAL(clicked()), this, SLOT(select3v3Generals()));
 
-    exclude_disaster_checkbox = new QCheckBox(tr("Exclude disasters"));
-    exclude_disaster_checkbox->setChecked(Config.value("3v3/ExcludeDisasters", true).toBool());
-
     {
         QComboBox *combobox = new QComboBox;
         combobox->addItem(tr("Normal"), "Normal");
@@ -349,7 +346,6 @@ QGroupBox *ServerDialog::create3v3Box(){
 
     vlayout->addWidget(standard_3v3_radiobutton);
     vlayout->addLayout(HLay(extend, extend_edit_button));
-    vlayout->addWidget(exclude_disaster_checkbox);
     vlayout->addLayout(HLay(new QLabel(tr("Role choose")), role_choose_combobox));
     box->setLayout(vlayout);
 
@@ -382,7 +378,6 @@ QGroupBox *ServerDialog::createGameModeBox(){
             if(itor.key() == "02_1v1"){
                 // add 1v1 banlist edit button
                 QPushButton *edit_button = new QPushButton(tr("Banlist ..."));
-                edit_button->setEnabled(false);
                 connect(edit_button, SIGNAL(clicked()), this, SLOT(edit1v1Banlist()));
                 item_list << HLay(button, edit_button);
             }else if(itor.key() == "06_3v3"){
@@ -395,7 +390,7 @@ QGroupBox *ServerDialog::createGameModeBox(){
             }
 
             QStringList ban_mode;
-            ban_mode << "02_1v1" << "06_3v3" << "04_1v3" << "09p" << "10p";
+            ban_mode << "04_1v3" << "09p" << "10p";
             if(ban_mode.contains(itor.key()))
                 button->setEnabled(false);
             if(itor.key() == Config.GameMode)
@@ -680,7 +675,6 @@ bool ServerDialog::config(){
     Config.beginGroup("3v3");
     Config.setValue("UsingExtension", ! standard_3v3_radiobutton->isChecked());
     Config.setValue("RoleChoose", role_choose_combobox->itemData(role_choose_combobox->currentIndex()).toString());
-    Config.setValue("ExcludeDisaster", exclude_disaster_checkbox->isChecked());
     Config.endGroup();
 
     QSet<QString> ban_packages;
