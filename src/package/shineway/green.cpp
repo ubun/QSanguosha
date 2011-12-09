@@ -388,7 +388,8 @@ void DuizhengCard::onEffect(const CardEffectStruct &effect) const{
     ServerPlayer *git = effect.to;
     Room *room = wanglang->getRoom();
 
-    room->askForPindian(git, git, wanglang, "duizheng");
+    if(!room->askForPindian(git, git, wanglang, "duizheng"))
+        git->pindian(wanglang, "duizheng", git->getRandomHandCard());
 }
 
 class DuizhengViewAsSkill:public ZeroCardViewAsSkill{
@@ -650,9 +651,8 @@ QuanyiCard::QuanyiCard(){
 }
 
 bool QuanyiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(targets.isEmpty()){
+    if(targets.length() >= 2)
         return false;
-    }
     return true;
 }
 
@@ -762,6 +762,8 @@ public:
         CardMoveStar move = data.value<CardMoveStar>();
         if(move->to_place == Player::DiscardedPile){
             const Card *card = Sanguosha->getCard(move->card_id);
+            if(!card->inherits("BasicCard"))
+                return false;
             ServerPlayer *chenqun = NULL;
             foreach(ServerPlayer *tmp, room->getAllPlayers()){
                 if(tmp->getMark("Zhunsuan") > 0){

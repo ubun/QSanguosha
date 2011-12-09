@@ -54,6 +54,7 @@ return {
 	[":zhuima"] = "锁定技，杀死你的角色使用的非延时锦囊无效直到游戏结束",
 	["#ZhuimaEffect"] = "%from 的锁定技【%arg】被触发，凶手 %to 将被剥夺非延时锦囊使用权",
 	["#ZhuimaForbidden"] = "%from 受到坠马效果影响，对 %to 使用的 %arg 无效",
+	["@zhuima"] = "坠马",
 
 --WU#05 江上麒麟
 	["greenchenwu"] = "陈武",
