@@ -324,51 +324,132 @@ public:
     }
 };
 
-FanjianCard::FanjianCard(){
+DuizhengCard::DuizhengCard(){
     once = true;
 }
 
-void FanjianCard::onEffect(const CardEffectStruct &effect) const{
-    ServerPlayer *zhouyu = effect.from;
-    ServerPlayer *target = effect.to;
-    Room *room = zhouyu->getRoom();
+bool DuizhengCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(to_select == Self)
+        return false;
 
-    int card_id = zhouyu->getRandomHandCardId();
-    const Card *card = Sanguosha->getCard(card_id);
-    Card::Suit suit = room->askForSuit(target);
-
-    LogMessage log;
-    log.type = "#ChooseSuit";
-    log.from = target;
-    log.arg = Card::Suit2String(suit);
-    room->sendLog(log);
-
-    room->getThread()->delay();
-    target->obtainCard(card);
-    room->showCard(target, card_id);
-
-    if(card->getSuit() != suit){
-        DamageStruct damage;
-        damage.card = NULL;
-        damage.from = zhouyu;
-        damage.to = target;
-
-        room->damage(damage);
-    }
+    return !to_select->isKongcheng();
 }
 
-class Fanjian:public ZeroCardViewAsSkill{
+void DuizhengCard::onEffect(const CardEffectStruct &effect) const{
+    ServerPlayer *wanglang = effect.from;
+    ServerPlayer *git = effect.to;
+    Room *room = wanglang->getRoom();
+
+    room->askForPindian(git, git, wanglang, "duizheng");
+}
+
+class DuizhengViewAsSkill:public ZeroCardViewAsSkill{
 public:
-    Fanjian():ZeroCardViewAsSkill("fanjian"){
+    DuizhengViewAsSkill():ZeroCardViewAsSkill("duizheng"){
 
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->isKongcheng() && ! player->hasUsed("FanjianCard");
+        return !player->isKongcheng() && ! player->hasUsed("DuizhengCard");
     }
 
     virtual const Card *viewAs() const{
-        return new FanjianCard;
+        return new DuizhengCard;
+    }
+};
+
+class Duizheng: public TriggerSkill{
+public:
+    Duizheng():TriggerSkill("duizheng"){
+        events << Pindian;
+        view_as_skill = new DuizhengViewAsSkill;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        PindianStar pindian = data.value<PindianStar>();
+        Room *room = player->getRoom();
+        if(pindian->reason == "duizheng"){
+            if(pindian->isSuccess()){
+                DamageStruct damage;
+                damage.from = pindian->from;
+                damage.to = pindian->to;
+                room->damage(damage);
+            }
+            else{
+                int n = ceil(pindian->from->getHandcardNum());
+                if(n == 0)
+                    return false;
+                QList<const Card *> cards = pindian->from->getCards("h");
+                qShuffle(cards);
+                cards = cards.mid(0, n);
+                DummyCard *dummy_card = new DummyCard;
+                foreach(const Card *card, cards)
+                    dummy_card->addSubcard(card->getId());
+                room->moveCardTo(dummy_card, pindian->to, Player::Hand);
+                delete dummy_card;
+            }
+        }
+        return false;
+    }
+};
+
+class Zhuima: public TriggerSkill{
+public:
+    Zhuima():TriggerSkill("zhuima"){
+        events << Death;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasSkill(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStar damage = data.value<DamageStar>();
+        if(damage && damage->from){
+            Room *room = player->getRoom();
+            LogMessage log;
+            log.type = "#ZhuimaEffect";
+            log.from = player;
+            log.arg = objectName();
+            log.to << damage->from;
+            room->sendLog(log);
+            damage->from->gainMark("@zhuima");
+            room->acquireSkill(damage->from, "#zhuima_effect");
+        }
+        return false;
+    }
+};
+
+class ZhuimaEffect:public TriggerSkill{
+public:
+    ZhuimaEffect():TriggerSkill("#zhuima_effect"){
+        events << CardUsed;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardUseStruct use = data.value<CardUseStruct>();
+        CardStar card = use.card;
+        if(card->isNDTrick()){
+            Room *room = player->getRoom();
+            LogMessage log;
+            log.type = "#ZhuimaForbidden";
+            log.from = player;
+            log.arg = use.card->objectName();
+            log.to = use.to;
+            room->sendLog(log);
+            room->throwCard(card);
+            return true;
+        }
+        return false;
     }
 };
 
@@ -538,7 +619,10 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("diezhi", "#@drig");
     greenkanze->addSkill(new Fengjue);
 
-    General *greenwanglang = new General(this, "greenwanglang", "wei");
+    General *greenwanglang = new General(this, "greenwanglang", "wei", 3);
+    greenwanglang->addSkill(new Duizheng);
+    greenwanglang->addSkill(new Zhuima);
+    skills << new ZhuimaEffect;
 
     General *greenchenwu = new General(this, "greenchenwu", "wu");
     greenchenwu->addSkill(new Qilin);
@@ -549,10 +633,11 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("jinguo", "#jinguo_eft");
     greenmayunlu->addSkill(new Wuqi);
 
-    General *greenchenqun = new General(this, "greenchenqun", "wei");
+    General *greenchenqun = new General(this, "greenchenqun", "wei", 3);
 
     addMetaObject<YuanlvCard>();
     addMetaObject<DiezhiCard>();
+    addMetaObject<DuizhengCard>();
     addMetaObject<JinguoCard>();
 }
 
