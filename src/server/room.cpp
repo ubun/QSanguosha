@@ -972,15 +972,6 @@ ServerPlayer *Room::findPlayerBySkillName(const QString &skill_name, bool includ
     return NULL;
 }
 
-ServerPlayer *Room::findPlayerByProperty(const QString &property, QVariant &data, bool include_dead) const{
-    const QList<ServerPlayer *> &list = include_dead ? players : alive_players;
-    foreach(ServerPlayer *player, list){
-        if(player->property(property) == data)
-            return player;
-    }
-    return NULL;
-}
-
 void Room::installEquip(ServerPlayer *player, const QString &equip_name){
     if(player == NULL)
         return;

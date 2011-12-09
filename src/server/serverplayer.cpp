@@ -489,7 +489,7 @@ void ServerPlayer::turnOver(){
     log.arg = faceUp() ? "face_up" : "face_down";
     room->sendLog(log);
 
-    room->getThread()->trigger(TurnOvered, this, QVariant::fromValue(faceUp));
+    room->getThread()->trigger(TurnOvered, this);
 }
 
 void ServerPlayer::play(){

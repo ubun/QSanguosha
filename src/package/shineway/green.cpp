@@ -67,7 +67,7 @@ public:
         log.arg = objectName();
         rom->sendLog(log);
 
-        ServerPlayer *target = room->askForPlayerChosen(p, rom->getAllPlayers(), objectName());
+        ServerPlayer *target = rom->askForPlayerChosen(p, rom->getAllPlayers(), objectName());
         if(!target)
             target = p;
         Slash *slash = new Slash(Card::NoSuit, 0);
@@ -77,6 +77,26 @@ public:
         card_use.from = p;
         card_use.to << target;
         rom->useCard(card_use);
+        return false;
+    }
+};
+
+class Zhechong: public PhaseChangeSkill{
+public:
+    Zhechong():PhaseChangeSkill("zhechong"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        //Room *room = player->getRoom();
+        if(player->getPhase() == Player::Draw ||
+           player->getPhase() == Player::Play ||
+           player->getPhase() == Player::Discard){
+            if(player->askForSkillInvoke(objectName())){
+                player->turnOver();
+                return true;
+            }
+        }
+        return false;
     }
 };
 
@@ -625,6 +645,139 @@ public:
     }
 };
 
+QuanyiCard::QuanyiCard(){
+    once = true;
+}
+
+bool QuanyiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty()){
+        return false;
+    }
+    return true;
+}
+
+bool QuanyiCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() == 2;
+}
+
+void QuanyiCard::use(Room *room, ServerPlayer *s, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
+
+    ServerPlayer *from = targets.at(0);
+    ServerPlayer *to = targets.at(1);
+    from->drawCards(s->getHp());
+    room->acquireSkill(from, "#qy_from");
+    room->acquireSkill(to, "#qy_to");
+}
+
+class QuanyiViewAsSkill: public OneCardViewAsSkill{
+public:
+    QuanyiViewAsSkill():OneCardViewAsSkill("quanyi"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("QuanyiCard");
+    }
+
+    virtual bool viewFilter(const CardItem *) const{
+        return true;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        QuanyiCard *card = new QuanyiCard;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
+    }
+};
+
+class Quanyi: public PhaseChangeSkill{
+public:
+    Quanyi():PhaseChangeSkill("quanyi"){
+        view_as_skill = new QuanyiViewAsSkill;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        if(player->getPhase() == Player::Start){
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                room->detachSkillFromPlayer(tmp, "#qy_from");
+                room->detachSkillFromPlayer(tmp, "#qy_to");
+            }
+        }
+        return false;
+    }
+};
+
+class QuanyiEffect: public ProhibitSkill{
+public:
+    QuanyiEffect():ProhibitSkill("#qy_from"){
+    }
+
+    virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
+        if(card->inherits("Slash") || card->isNDTrick())
+            return to->hasSkill("#qy_to") && from->hasSkill("#qy_from");
+        else
+            return false;
+    }
+};
+
+#include <QInputDialog>
+class Zhunsuan: public PhaseChangeSkill{
+public:
+    Zhunsuan():PhaseChangeSkill("zhunsuan"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        if(player->getPhase() == Player::Start){
+            room->setPlayerMark(player, "Zhunsuan", -100);
+            return false;
+        }
+        if(player->getPhase() == Player::Finish && player->askForSkillInvoke(objectName())){
+            bool ok;
+            int number = QInputDialog::getInteger(NULL, tr("QInputDialog::getInteger()"), tr("Please input the number"), 9, -5, 15, 1, &ok);
+            if(ok)
+                room->setPlayerMark(player, "Zhunsuan", number);
+        }
+        return false;
+    }
+};
+
+class ZhunsuanGet: public TriggerSkill{
+public:
+    ZhunsuanGet():TriggerSkill("#zhunsuan_get"){
+        events << CardLost;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        CardMoveStar move = data.value<CardMoveStar>();
+        if(move->to_place == Player::DiscardedPile){
+            const Card *card = Sanguosha->getCard(move->card_id);
+            ServerPlayer *chenqun = NULL;
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                if(tmp->getMark("Zhunsuan") > 0){
+                    chenqun = tmp;
+                    break;
+                }
+            }
+            if(!chenqun)
+                return false;
+            if(qAbs(chenqun->getMark("Zhunsuan") - card->getNumber()) < 3)
+                chenqun->obtainCard(card);
+        }
+        return false;
+    }
+};
+
 GreenPackage::GreenPackage()
     :Package("green")
 {
@@ -633,6 +786,7 @@ GreenPackage::GreenPackage()
 
     General *greencaozhang = new General(this, "greencaozhang", "wei");
     greencaozhang->addSkill(new Ba0nu);
+    greencaozhang->addSkill(new Zhechong);
 
     General *greenjushou = new General(this, "greenjushou", "qun", 3);
     greenjushou->addSkill(new Yuanlv);
@@ -663,11 +817,17 @@ GreenPackage::GreenPackage()
     greenmayunlu->addSkill(new Wuqi);
 
     General *greenchenqun = new General(this, "greenchenqun", "wei", 3);
+    greenchenqun->addSkill(new Quanyi);
+    skills << new QuanyiEffect << new Skill("#qy_to");
+    greenchenqun->addSkill(new Zhunsuan);
+    greenchenqun->addSkill(new ZhunsuanGet);
+    related_skills.insertMulti("zhunsuan", "#zhunsuan_get");
 
     addMetaObject<YuanlvCard>();
     addMetaObject<DiezhiCard>();
     addMetaObject<DuizhengCard>();
     addMetaObject<JinguoCard>();
+    addMetaObject<QuanyiCard>();
 }
 
 ADD_PACKAGE(Green)
