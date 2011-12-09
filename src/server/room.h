@@ -87,6 +87,7 @@ public:
     int getCardFromPile(const QString &card_name);
     ServerPlayer *findPlayer(const QString &general_name, bool include_dead = false) const;
     ServerPlayer *findPlayerBySkillName(const QString &skill_name, bool include_dead = false) const;
+    ServerPlayer *findPlayerByProperty(const QString &property, QVariant &data, bool include_dead) const;
     void installEquip(ServerPlayer *player, const QString &equip_name);
     void resetAI(ServerPlayer *player);
     void transfigure(ServerPlayer *player, const QString &new_general, bool full_state, bool invoke_start = true);
