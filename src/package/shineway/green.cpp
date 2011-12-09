@@ -324,6 +324,75 @@ public:
     }
 };
 
+FanjianCard::FanjianCard(){
+    once = true;
+}
+
+void FanjianCard::onEffect(const CardEffectStruct &effect) const{
+    ServerPlayer *zhouyu = effect.from;
+    ServerPlayer *target = effect.to;
+    Room *room = zhouyu->getRoom();
+
+    int card_id = zhouyu->getRandomHandCardId();
+    const Card *card = Sanguosha->getCard(card_id);
+    Card::Suit suit = room->askForSuit(target);
+
+    LogMessage log;
+    log.type = "#ChooseSuit";
+    log.from = target;
+    log.arg = Card::Suit2String(suit);
+    room->sendLog(log);
+
+    room->getThread()->delay();
+    target->obtainCard(card);
+    room->showCard(target, card_id);
+
+    if(card->getSuit() != suit){
+        DamageStruct damage;
+        damage.card = NULL;
+        damage.from = zhouyu;
+        damage.to = target;
+
+        room->damage(damage);
+    }
+}
+
+class Fanjian:public ZeroCardViewAsSkill{
+public:
+    Fanjian():ZeroCardViewAsSkill("fanjian"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->isKongcheng() && ! player->hasUsed("FanjianCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new FanjianCard;
+    }
+};
+
+class Qilin:public PhaseChangeSkill{
+public:
+    Qili():PhaseChangeSkill("qilin"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
+            Room *room = player->getRoom();
+            ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName());
+            int delta = target->getHandcardNum() - player->getHandcardNum();
+            if(delta > 0)
+                room->askForDiscard(target, objectName(), delta);
+            else if(delta < 0)
+                target->drawCards(qAbs(delta));
+            if(qAbs(delta) >= 3)
+                player->turnOver();
+        }
+        return false;
+    }
+};
+
 JinguoCard::JinguoCard(){
     once = true;
 }
@@ -453,6 +522,8 @@ GreenPackage::GreenPackage()
     General *greenyanpeng = new General(this, "greenyanpeng", "shu");
     greenyanpeng->addSkill(new Yabian);
 
+    General *greencaozhang = new General(this, "greencaozhang", "wei");
+
     General *greenjushou = new General(this, "greenjushou", "qun", 3);
     greenjushou->addSkill(new Yuanlv);
     greenjushou->addSkill(new YuanlvReset);
@@ -467,11 +538,18 @@ GreenPackage::GreenPackage()
     related_skills.insertMulti("diezhi", "#@drig");
     greenkanze->addSkill(new Fengjue);
 
+    General *greenwanglang = new General(this, "greenwanglang", "wei");
+
+    General *greenchenwu = new General(this, "greenchenwu", "wu");
+    greenchenwu->addSkill(new Qilin);
+
     General *greenmayunlu = new General(this, "greenmayunlu", "shu", 3, false);
     greenmayunlu->addSkill(new Jinguo);
     greenmayunlu->addSkill(new JinguoEffect);
     related_skills.insertMulti("jinguo", "#jinguo_eft");
     greenmayunlu->addSkill(new Wuqi);
+
+    General *greenchenqun = new General(this, "greenchenqun", "wei");
 
     addMetaObject<YuanlvCard>();
     addMetaObject<DiezhiCard>();

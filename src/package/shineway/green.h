@@ -34,6 +34,14 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class FanjianCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE FanjianCard();
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class JinguoCard: public SkillCard{
     Q_OBJECT
 
