@@ -1245,7 +1245,7 @@ public:
 RedPackage::RedPackage()
     :Package("red")
 {
-    General *redzhonghui = new General(this, "redzhonghui", "wei");
+    General *redzhonghui = new General(this, "redzhonghui", "wei", 4, true, true);
     redzhonghui->addSkill(new Tongmou);
     redzhonghui->addSkill(new TongmouClear);
     redzhonghui->addSkill(new TongmouForbidden);
