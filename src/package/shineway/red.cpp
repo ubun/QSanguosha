@@ -1299,7 +1299,7 @@ RedPackage::RedPackage()
     uchihaitachi->addSkill(new Amaterasu);
     uchihaitachi->addSkill(new Susa);
     uchihaitachi->addSkill(new MarkAssignSkill("@susa", 1));
-    related_skills.insertMulti("Susa", "#@susa");
+    related_skills.insertMulti("Susa", "#@susa-1");
 
     addMetaObject<TongmouCard>();
     addMetaObject<XianhaiCard>();

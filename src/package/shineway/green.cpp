@@ -805,7 +805,7 @@ GreenPackage::GreenPackage()
     General *greenkanze = new General(this, "greenkanze", "wu", 5);
     greenkanze->addSkill(new Diezhi);
     greenkanze->addSkill(new MarkAssignSkill("@drig", 1));
-    related_skills.insertMulti("diezhi", "#@drig");
+    related_skills.insertMulti("diezhi", "#@drig-1");
     greenkanze->addSkill(new Fengjue);
 
     General *greenwanglang = new General(this, "greenwanglang", "wei", 3);
