@@ -52,6 +52,34 @@ public:
     }
 };
 
+class Ba0nu: public TriggerSkill{
+public:
+    Ba0nu():TriggerSkill("ba0nu"){
+        events << TurnOvered;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *p, QVariant &data) const{
+        Room *rom = p->getRoom();
+        LogMessage log;
+        log.type = "#TriggerSkill";
+        log.from = p;
+        log.arg = objectName();
+        rom->sendLog(log);
+
+        ServerPlayer *target = room->askForPlayerChosen(p, rom->getAllPlayers(), objectName());
+        if(!target)
+            target = p;
+        Slash *slash = new Slash(Card::NoSuit, 0);
+        slash->setSkillName(objectName());
+        CardUseStruct card_use;
+        card_use.card = slash;
+        card_use.from = p;
+        card_use.to << target;
+        rom->useCard(card_use);
+    }
+};
+
 typedef Skill SkillClass;
 
 YuanlvCard::YuanlvCard(){
@@ -455,7 +483,7 @@ public:
 
 class Qilin:public PhaseChangeSkill{
 public:
-    Qili():PhaseChangeSkill("qilin"){
+    Qilin():PhaseChangeSkill("qilin"){
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
@@ -604,6 +632,7 @@ GreenPackage::GreenPackage()
     greenyanpeng->addSkill(new Yabian);
 
     General *greencaozhang = new General(this, "greencaozhang", "wei");
+    greencaozhang->addSkill(new Ba0nu);
 
     General *greenjushou = new General(this, "greenjushou", "qun", 3);
     greenjushou->addSkill(new Yuanlv);

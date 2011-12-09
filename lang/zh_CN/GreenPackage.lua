@@ -11,6 +11,15 @@ return {
 	[":yabian"] = "你用【杀】对一名其他角色造成伤害后，可以和该角色交换武将牌",
 	["yabian:yes"] = "抢夺对方的武将牌",
 
+--WEI06 鄢陵侯
+	["greencaozhang"] = "曹彰",
+	["designer:greencaozhang"] = "章鱼哥",
+	["cv:greencaozhang"] = "",
+	["ba0nu"] = "暴怒",
+	[":ba0nu"] = "锁定技，当你的武将牌被翻面后，视为你对任意一名角色使用了一张杀",
+	["zhechong"] = "折冲",
+	[":zhechong"] = "回合内，你可以选择跳过摸牌，出牌或者弃牌阶段并将你的武将牌翻面，每回合限一次",
+
 --QUN#05 深远的谋士
 	["greenjushou"] = "沮授",
 	["designer:greenjushou"] = "日月小辰",
@@ -35,7 +44,7 @@ return {
 --	["fengjue"] = "封绝",
 --	[":fengjue"] = "回合内，指定一名角色，其体力值发生变化时立即复原，直到你下回合开始",
 
---WEI#06 王朗 魏 三血
+--WEI#06 旧朝老臣
 	["greenwanglang"] = "王朗",
 	["designer:greenwanglang"] = "星空梦幻、宇文天启",
 	["cv:greenwanglang"] = "",

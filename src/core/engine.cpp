@@ -87,7 +87,7 @@ Engine::Engine()
     addPackage(NewWisdom());
     addPackage(NewRed());
     addPackage(NewCyan());
-    //addPackage(NewGreen());
+    addPackage(NewGreen());
     addPackage(NewKuso());
     addPackage(NewTechnology());
     addPackage(NewTest());
