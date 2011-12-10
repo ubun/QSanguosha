@@ -623,7 +623,8 @@ public:
         if(player->getPhase() != Player::Start)
             return false;
         Room *room = player->getRoom();
-        int x = player->getMaxCards() - player->getHandcardNum();
+        int max = qMax(player->getMaxCards(), player->getMaxHP());
+        int x = max - player->getHandcardNum();
         LogMessage log;
         log.from = player;
         log.arg = objectName();
