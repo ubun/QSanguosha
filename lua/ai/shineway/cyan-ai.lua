@@ -72,3 +72,9 @@ sgs.ai_skill_use["@@ruji!"] = function(self, prompt)
 	end
 end
 
+-- jiaozei
+sgs.ai_skill_invoke["jiaozei"] = function(self, data)
+	local max_card = self:getMaxCard()
+	return max_card and max_card:getNumber() > 11
+end
+sgs.ai_skill_invoke["zhaobing"] = false

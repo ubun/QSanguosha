@@ -2852,6 +2852,20 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return "."
+	elseif parsedPrompt[1] == "@zhaobing-pindian" then
+		local who = data:toPlayer()
+		local max_card = self:getMaxCard()
+		if self:isFriend(who) and max_card and max_card:getNumber() > 11 then
+			return max_card:getEffectiveId()
+		elseif self:isEnemy(who) then
+			local cards = self.player:getHandcards()
+			for _, card in sgs.qlist(cards) do
+				if card:getNumber() < 4 then
+					return card:getEffectiveId()
+				end
+			end
+		end
+		return "."
 	end
 
 	if parsedPrompt[1] == "double-sword-card" then 
