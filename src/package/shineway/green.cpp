@@ -802,7 +802,7 @@ GreenPackage::GreenPackage()
     greenjushou->addSkill(new ZhongjianTarget);
     related_skills.insertMulti("zhongjian", "#zhongjian_target");
 
-    General *greenkanze = new General(this, "greenkanze", "wu", 5);
+    General *greenkanze = new General(this, "greenkanze", "wu");
     greenkanze->addSkill(new Diezhi);
     greenkanze->addSkill(new MarkAssignSkill("@drig", 1));
     related_skills.insertMulti("diezhi", "#@drig-1");

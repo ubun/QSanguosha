@@ -6,6 +6,7 @@ return {
 -- Red
 	["uchihaitachi"] = "宇智波鼬",
 	["designer:uchihaitachi"] = "春哥姨妈",
+	["cv:uchihaitachi"] = "",
 	["tsukuyomi"] = "月读",
 	[":tsukuyomi"] = "回合外，当你受到伤害时，你可获得一名其他角色的一项技能直到你的下个回合结束阶段或你选择了其他的角色或你死亡。在此期间，目标角色使用的任何牌均无效",
 	["amaterasu"] = "天照",
