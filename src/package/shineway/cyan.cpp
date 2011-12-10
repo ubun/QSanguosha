@@ -783,7 +783,7 @@ public:
                 foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
                     if(tmp->getKingdom() != "qun")
                         continue;
-                    from_card = room->askForCard(tmp, ".", "@zhaobing-pindian:" + player->objectName());
+                    from_card = room->askForCard(tmp, ".", "@zhaobing-pindian:" + player->objectName(), QVariant::fromValue(player));
                     if(from_card){
                         LogMessage log;
                         log.type = "$Zhaobing";

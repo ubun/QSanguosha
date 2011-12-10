@@ -3515,6 +3515,16 @@ void RoomScene::finishArrange(){
     ClientInstance->request("arrange " + names.join("+"));
 }
 
+static inline void AddRoleIcon(QMap<QChar, QPixmap> &map, char c, const QString &role){
+    QPixmap pixmap(QString("image/system/roles/small-%1.png").arg(role));
+
+    QChar qc(c);
+    map[qc.toUpper()] = pixmap;
+
+    Pixmap::MakeGray(pixmap);
+    map[qc.toLower()] = pixmap;
+}
+
 void RoomScene::updateStateItem(const QString &roles)
 {
     foreach(QGraphicsItem *item, role_items)
@@ -3523,14 +3533,13 @@ void RoomScene::updateStateItem(const QString &roles)
 
     static QMap<QChar, QPixmap> map;
     if(map.isEmpty()){
-        map[QChar('Z')] = QPixmap("image/system/roles/small-lord.png");
-        map[QChar('C')] = QPixmap("image/system/roles/small-loyalist.png");
-        map[QChar('F')] = QPixmap("image/system/roles/small-rebel.png");
-        map[QChar('N')] = QPixmap("image/system/roles/small-renegade.png");
+        AddRoleIcon(map, 'Z', "lord");
+        AddRoleIcon(map, 'C', "loyalist");
+        AddRoleIcon(map, 'F', "rebel");
+        AddRoleIcon(map, 'N', "renegade");
     }
 
-    for(int i=0; i<roles.length(); i++){
-        QChar c = roles.at(i);
+    foreach(QChar c, roles){
         if(map.contains(c)){
             QGraphicsPixmapItem *item = addPixmap(map.value(c));
             item->setPos(21*role_items.length(), 6);
