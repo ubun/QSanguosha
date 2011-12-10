@@ -74,7 +74,27 @@ end
 
 -- jiaozei
 sgs.ai_skill_invoke["jiaozei"] = function(self, data)
-	local max_card = self:getMaxCard()
-	return max_card and max_card:getNumber() > 11
+	local zhb_enable = false
+	if self.player:hasLordSkill("zhaobing") then
+		for _, player in sgs.qlist(self.room:getAlivePlayers()) do
+			if player:getKingdom() == "qun" and player ~= self.player and self:isFriend(player) and not player:isKongcheng() then
+				zhb_enable = true
+				break
+			end
+		end
+	end
+	if zhb_enable then
+		return true
+	else
+		local max_card = self:getMaxCard()
+		return max_card and max_card:getNumber() > 11
+	end
 end
-sgs.ai_skill_invoke["zhaobing"] = false
+sgs.ai_skill_invoke["zhaobing"] = function(self, data)
+	local max_card = self:getMaxCard()
+	if max_card and max_card:getNumber() > 11 then
+		return false
+	else
+		return true
+	end
+end

@@ -874,6 +874,11 @@ function SmartAI:slashIsEffective(slash, to)
 			return false
 		end		
 	end
+	if to:hasSkill("linjia") then
+		if not slash:inherits("NatureSlash") and not self.player:hasWeapon("fan") then
+			return false
+		end
+	end
 	
 	local nature = {
 		Slash = sgs.DamageStruct_Normal,
@@ -893,6 +898,8 @@ function SmartAI:slashIsEffective(slash, to)
 			return not slash:isBlack()
 		elseif armor:objectName() == "vine" then
 			return slash:inherits("NatureSlash") or self.player:hasWeapon("fan")
+		elseif armor:objectName() == "kawaii_dress" and to:getHp() == 1 then
+			return false
 		end
 	end
 
@@ -1074,7 +1081,7 @@ function SmartAI:slashProhibit(card,enemy)
 
     if self:isFriend(enemy) then
         if card:inherits("FireSlash") or self.player:hasWeapon("fan") then
-            if self:isEquip("Vine", enemy) then return true end
+            if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then return true end
         end
         if enemy:isChained() and card:inherits("NatureSlash") and #(self:getChainedFriends())>1 and
 			self:slashIsEffective(card,enemy) then return true end
@@ -1221,7 +1228,7 @@ function SmartAI:useBasicCard(card, use, no_distance)
 						if use.card then return end
 					end
 					if enemy:getArmor() and self:getCardsNum("Fan", self.player, "h") > 0 and
-						(enemy:getArmor():inherits("Vine") or enemy:getArmor():inherits("GaleShell")) then
+						(enemy:getArmor():inherits("Vine") or enemy:getArmor():inherits("GaleShell") or enemy:hasSkill("linjia")) then
 						self:useEquipCard(self:getCard("Fan"), use)
 						if use.card then return end
 					end
@@ -1320,6 +1327,11 @@ function SmartAI:aoeIsEffective(card, to)
 		if (to:hasSkill("leiji") and self:getCardsNum("Jink", to) > 0) or (self:isEquip("EightDiagram", to) and to:getHp() > 1) then
 			return false
 		end
+	end
+
+	-- ¦Ðtugu's Linjia
+	if to:hasSkill("linjia") then
+		return false
 	end
 
 	return true
@@ -1515,7 +1527,8 @@ function SmartAI:useCardFireAttack(fire_attack, use)
 	
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
-		if (self:objectiveLevel(enemy) > 3) and not enemy:isKongcheng() and self:hasTrickEffective(fire_attack, enemy) then	
+		if (self:objectiveLevel(enemy) > 3) and not enemy:isKongcheng() and self:hasTrickEffective(fire_attack, enemy) 
+			and not (self:isEquip("KawaiiDress", enemy) and enemy:getHp() == 1) then	
 			
 			local cards = enemy:getHandcards()
 			local success = true
@@ -1527,7 +1540,7 @@ function SmartAI:useCardFireAttack(fire_attack, use)
 			end
 
 			if success then
-				if self:isEquip("Vine", enemy) then
+				if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then
 					table.insert(targets_succ, 1, enemy) 
 					break
 				else
@@ -1568,7 +1581,8 @@ function SmartAI:useCardDuel(duel, use)
 	self:sort(self.enemies,"handcard")
 	local enemies = self:exclude(self.enemies, duel)
 	for _, enemy in ipairs(enemies) do
-		if self:objectiveLevel(enemy) > 3 then
+		if self:objectiveLevel(enemy) > 3 and
+			not (self:isEquip("KawaiiDress", enemy) and enemy:getHp() == 1) then
 			local n1 = self:getCardsNum("Slash")
 			local n2 = enemy:getHandcardNum()
 			if enemy:hasSkill("wushuang") then n2 = n2*2 end

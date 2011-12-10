@@ -73,10 +73,12 @@ end
 sgs.ai_skill_invoke["mengJie"] = function(self, data)
 	local struct = data:toCardUse()
 	local card = struct.card
+	local to = struct.to
+	to = sgs.QList2Table(to)
 	if card:inherits("Peach") or card:inherits("ExNihilo") then
-		return struct.to[1] ~= self.player
+		return to[1] ~= self.player
 	end
-	if #struct.to == 1 and struct.to[1] == self.player then
+	if #to == 1 and to[1] == self.player then
 		return true
 	end
 	return false

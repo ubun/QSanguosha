@@ -1214,7 +1214,6 @@ void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
 class SusaViewAsSkill:public ZeroCardViewAsSkill{
 public:
     SusaViewAsSkill():ZeroCardViewAsSkill("susa"){
-        frequency = Limited;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{

@@ -132,7 +132,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("liaot") >= 1;
+        return player->getMark("@liaot") >= 1;
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -158,7 +158,7 @@ LiaotingCard::LiaotingCard(){
 
 void LiaotingCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
     QList<int> subs = this->getSubcards();
-    source->loseMark("liaot");
+    source->loseMark("@liaot");
     foreach(int tmp, subs){
         if(!Sanguosha->getCard(tmp)->inherits("Shit")){
             room->throwCard(this);
@@ -372,8 +372,8 @@ KusoPackage::KusoPackage()
     kusoking->addSkill(new HuaxuEffect);
     related_skills.insertMulti("huaxu", "#huaxu_eft");
     kusoking->addSkill(new Liaoting);
-    kusoking->addSkill(new MarkAssignSkill("liaot", 1));
-    related_skills.insertMulti("liaoting", "#liaot-1");
+    kusoking->addSkill(new MarkAssignSkill("@liaot", 1));
+    related_skills.insertMulti("liaoting", "#@liaot-1");
 
     General *tianyin = new General(this, "tianyin", "god", 3);
     tianyin->addSkill(new Skydao);
