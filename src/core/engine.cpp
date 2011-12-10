@@ -367,11 +367,11 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
-    return "20111113";
+    return "20111210";
 }
 
 QString Engine::getVersionName() const{
-    return tr("Chibi");
+    return tr("ShineWay-Green");
 }
 
 QStringList Engine::getExtensions() const{

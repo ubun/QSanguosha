@@ -12,6 +12,9 @@ sgs.dynamic_value = {
 		LijianCard = true,
 		LuanwuCard = true,
 		ShenfenCard = true,
+		
+		TongluCard = true,
+		AmaterasuCard = true,
 	},
 	control_usecard = 
 	{
@@ -33,6 +36,13 @@ sgs.dynamic_value = {
 		GanluCard = true,
 		QuhuCard = true,
 		ShenfenCard = true,
+		
+		TongmouCard = true,
+		XianhaiCard = true,
+		BaichuCard = true,
+		XiefangCard = true,
+		GoulianCard = true,
+		SusaCard = true,
 	},
 	lucky_chance = 
 	{
@@ -50,6 +60,9 @@ sgs.dynamic_value = {
 		QingnangCard = true,
 		JujianCard = true,
 		ZhihengCard = true,
+		
+		TongmouCard = true,
+		GoulianCard = true,
 	},
 }
 

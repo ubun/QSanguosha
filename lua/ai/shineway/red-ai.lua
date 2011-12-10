@@ -63,10 +63,14 @@ end
 -- tonglu-response
 sgs.ai_skill_choice["tonglu"] = function(self, choices)
 	local hejin = self.room:findPlayerBySkillName("tonglu")
-	if hejin and self:isFriend(hejin) and self.player:getHp() > 2 and self.player:getHandcardNum() > 2 then
-		return "agree"
-	else
-		return "deny"
+	if hejin and self:isFriend(hejin) then
+		if self.player:getHp() > 2 and self.player:getHandcardNum() > 2 then
+			return "agree"
+		elseif self:isEquip("Axe", hejin) then
+			return "agree"
+		else
+			return "deny"
+		end
 	end
 end
 
