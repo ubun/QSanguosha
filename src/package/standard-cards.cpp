@@ -111,7 +111,7 @@ void Peach::onEffect(const CardEffectStruct &effect) const{
 }
 
 bool Peach::isAvailable(const Player *player) const{
-    return player->isWounded();
+    return true;
 }
 
 Concludence::Concludence(Suit suit, int number)

@@ -1,101 +1,117 @@
--- jianxiong
-sgs.ai_skill_invoke.jianxiong = function(self, data)
-		return not sgs.Shit_HasShit(data:toCard())
-end
-
-sgs.ai_skill_invoke.jijiang = function(self, data)
-	if self:getCardsNum("Slash")<=0 then
-		return true
-	end
-	return false
-end
-
-sgs.ai_skill_choice.jijiang = function(self , choices)
-	if not self.player:hasLordSkill("jijiang") then
-		if self:getCardsNum("Slash") <= 0 then return "ignore" end
-	end
-
-	if self.player:isLord() then
-		local target
-		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if player:hasSkill("weidi") then
-				target = player
-				break
-			end
-		end
-		if target and self:isEnemy(target) then return "ignore" end
-	elseif self:isFriend(self.room:getLord()) then return "accept" end
-	return "ignore"
-end
-
-sgs.ai_skill_choice.hujia = function(self , choices)
-	if not self.player:hasLordSkill("hujia") then
-		if self:getCardsNum("Jink") <= 0 then return "ignore" end
-	end
-	if self.player:isLord() then
-		local target
-		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if player:hasSkill("weidi") then
-				target = player
-				break
-			end
-		end
-		if target and self:isEnemy(target) then return "ignore" end
-	elseif self:isFriend(self.room:getLord()) then return "accept" end
-	return "ignore"
-end
-
--- hujia
-sgs.ai_skill_invoke.hujia = function(self, data)
+-- kaituo
+local kaituo_skill = {}
+kaituo_skill.name = "kaituo"
+table.insert(sgs.ai_skills, kaituo_skill)
+kaituo_skill.getTurnUseCard = function(self)
+	if self.player:getHandcardNum() < 2 or not self.player:isWounded() then return nil end
 	local cards = self.player:getHandcards()
-	for _, friend in ipairs(self.friends_noself) do
-		if friend:getKingdom() == "wei" and self:isEquip("EightDiagram", friend) then return true end
+	cards=sgs.QList2Table(cards)
+	local discard = {}
+	self:sortByUseValue(cards, true)
+	for _, card in ipairs(cards) do
+		table.insert(discard, card:getEffectiveId())
+		if #discard == 2 then break end
 	end
-	for _, card in sgs.qlist(cards) do
-		if card:inherits("Jink") then
-			return false
-		end
-	end
-	return true
+	if #discard ~= 2 then return end
+	return sgs.Card_Parse("@KaituoCard=" .. table.concat(discard, "+"))
+end
+sgs.ai_skill_use_func["KaituoCard"]=function(card,use,self)
+	use.card = card
 end
 
--- tuxi
-sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
+-- gouxian
+local gouxian_skill = {}
+gouxian_skill.name = "gouxian"
+table.insert(sgs.ai_skills, gouxian_skill)
+gouxian_skill.getTurnUseCard = function(self, inclusive)
+    local cards = self.player:getHandcards()
+    cards=sgs.QList2Table(cards)
+	self:sortByUseValue(cards,true)
+	local gx
+	for _,card in ipairs(cards)  do
+		if not card:inherits("Slash") and not card:inherits("Peach")
+			and ((self:getUseValue(card)<sgs.ai_use_value["Slash"]) or inclusive) then
+			gx = card
+			break
+		end
+	end
+	if gx then		
+		local suit = gx:getSuitString()
+    	local number = gx:getNumberString()
+		local card_id = gx:getEffectiveId()
+		local card_str = ("slash:gouxian[%s:%s]=%d"):format(suit, number, card_id)
+		local slash = sgs.Card_Parse(card_str)
+		assert(slash)
+        return slash
+	end
+end
+
+-- shexian
+local shexian_skill = {}
+shexian_skill.name = "shexian"
+table.insert(sgs.ai_skills, shexian_skill)
+shexian_skill.getTurnUseCard = function(self)
+	if (self.player:getHp() > 3 and self.player:getHandcardNum() > self.player:getHp()) or		
+		(self.player:getHp() - self.player:getHandcardNum() >= 2) then
+		return sgs.Card_Parse("@ShexianCard=.")
+	end
+	if self.player:hasFlag("mp3") then
+		for _, enemy in ipairs(self.enemies) do
+			if self.player:canSlash(enemy, true) and self.player:getHp() > 1 then
+				return sgs.Card_Parse("@ShexianCard=.")
+			end
+		end
+	end
+end
+sgs.ai_skill_use_func["ShexianCard"]=function(card,use,self)
+	use.card = card
+end
+
+-- mp3
+local mp3_skill = {}
+mp3_skill.name = "mp3"
+table.insert(sgs.ai_skills, mp3_skill)
+mp3_skill.getTurnUseCard = function(self)
+	if not self.player:containsTrick("microphone") then return end
+	if self.player:usedTimes("Mp3Card") > 0 then return nil end
+	local card_str = "@Mp3Card=."
+	local slash = sgs.Card_Parse(card_str)
+	assert(slash)
+	return slash
+end
+sgs.ai_skill_use_func["Mp3Card"] = function(card,use,self)
 	self:sort(self.enemies, "handcard")
-
-	local first_index, second_index
-	for i=1, #self.enemies-1 do
-		if self:hasSkills(sgs.need_kongcheng, self.enemies[i]) and self.enemies[i]:getHandcardNum() == 1 then
-		elseif not self.enemies[i]:isKongcheng() then
-			if not first_index then
-				first_index = i
-			else
-				second_index = i
-			end
-		end
-		if second_index then break end
-	end
-
-	if first_index and not second_index then
-		local others = self.room:getOtherPlayers(self.player)
-		for _, other in sgs.qlist(others) do
-			if (not self:isFriend(other) or (self:hasSkills(sgs.need_kongcheng, other) and other:getHandcardNum() == 1)) and
-				self.enemies[first_index]:objectName() ~= other:objectName() and not other:isKongcheng() then
-				return ("@TuxiCard=.->%s+%s"):format(self.enemies[first_index]:objectName(), other:objectName())
-			end
-		end
-	end
-
-	if not second_index then return "." end
-
-	self:log(self.enemies[first_index]:getGeneralName() .. "+" .. self.enemies[second_index]:getGeneralName())
-	local first = self.enemies[first_index]:objectName()
-	local second = self.enemies[second_index]:objectName()
-	return ("@TuxiCard=.->%s+%s"):format(first, second)
+	if use.to then use.to:append(self.enemies[1]) end
+	use.card = card
 end
 
--- yiji (frequent)
-sgs.ai_skill_invoke.tiandu = sgs.ai_skill_invoke.jianxiong
+-- mp4
+local mp4_skill = {}
+mp4_skill.name = "mp4"
+table.insert(sgs.ai_skills, mp4_skill)
+mp4_skill.getTurnUseCard = function(self)
+	if not self.player:containsTrick("microphone") or not self.player:isWounded() then return end
+	if self.player:usedTimes("Mp4Card") > 0 then return nil end
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+	self:sortByKeepValue(cards)
+	local card_str = ("@Mp4Card=%d"):format(cards[1]:getId())
+	return sgs.Card_Parse(card_str)
+end
+sgs.ai_skill_use_func["Mp3Card"] = function(card,use,self)
+	use.card = card
+end
+
+-- heiyi
+local heiyi_skill = {}
+heiyi_skill.name = "heiyi"
+table.insert(sgs.ai_skills, heiyi_skill)
+heiyi_skill.getTurnUseCard = function(self)
+	return sgs.Card_Parse("@HeiyiCard=.")
+end
+sgs.ai_skill_use_func["HeiyiCard"] = function(card,use,self)
+	use.card = card
+end
 
 -- ganglie
 sgs.ai_skill_invoke.ganglie = function(self, data)

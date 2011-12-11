@@ -36,7 +36,7 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
         }
     case Player::Judge: break;
     case Player::Draw: {
-            QVariant num = 2;
+            QVariant num = !player->property("draw3").toBool() ? 2 : 3;
             if(room->getTag("FirstRound").toBool() && room->getMode() == "02_1v1"){
                 room->setTag("FirstRound", false);
                 num = 1;
@@ -150,6 +150,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             room->attachSkillToPlayer(player, "mp2");
             room->attachSkillToPlayer(player, "mp3");
             room->attachSkillToPlayer(player, "mp4");
+            if(player->getRole() == "renegade" && room->getMode() != "02_1v1" && room->getMode() != "06_3v3")
+                room->attachSkillToPlayer(player, "heiyi");
 
             if(room->getMode() == "02_1v1")
                 room->setTag("FirstRound", true);

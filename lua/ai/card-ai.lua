@@ -8,7 +8,10 @@ function SmartAI:useCardSlash(card, use)
 			local slash_prohibit = false
 			slash_prohibit = self:slashProhibit(card,enemy)
 			if not slash_prohibit then
-				if self.player:canSlash(enemy) and self:objectiveLevel(enemy) > 3 then
+				if self.player:hasFlag("mp3") and enemy:hasFlag("mp3") then
+					use.card = card
+					if use.to then use.to:append(enemy) end
+				elseif self.player:canSlash(enemy) and self:objectiveLevel(enemy) > 3 then
 					use.card = card
 					if use.to then use.to:append(enemy) end
 				--	target_count = target_count + 1
@@ -127,5 +130,11 @@ function SmartAI:useCardDismantlement(dismantlement, use)
                 end
 				return
 		    end
+	end
+end
+
+function SmartAI:useCardSpeak(card, use)
+	if not self.player:containsTrick("microphone") then
+		use.card = card
 	end
 end

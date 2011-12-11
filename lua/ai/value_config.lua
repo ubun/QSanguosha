@@ -35,11 +35,8 @@ sgs.dynamic_value = {
 sgs.akai_keep_value = 
 {
 Peach = 6,
-Analeptic = 5.8,
 Jink = 5.7,
-FireSlash = 5.6,
 Slash = 5.4,
-ThunderSlash = 5.5,
 ExNihilo = 4.7
 }
 

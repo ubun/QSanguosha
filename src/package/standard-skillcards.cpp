@@ -107,3 +107,18 @@ void Mp4Card::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> 
     reo.who = source;
     room->recover(source, reo);
 }
+
+HeiyiCard::HeiyiCard(){
+    target_fixed = true;
+}
+
+void HeiyiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->setPlayerProperty(source, "role", "renegade");
+    room->setPlayerProperty(source, "draw3", true);
+    LogMessage log;
+    log.type = "#Heiyi";
+    log.from = source;
+    log.arg = "renegade";
+    room->sendLog(log);
+    room->detachSkillFromPlayer(source, "heiyi");
+}

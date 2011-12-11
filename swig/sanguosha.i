@@ -850,6 +850,10 @@ public:
     ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const char *reason);
     void askForGeneralAsync(ServerPlayer *player);
     const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
+
+    void invokeSkill(ServerPlayer *user, const QString &src, bool isPassive = true);
+    void moveMicrophone(ServerPlayer *user, bool include_dead = false);
+    void moveMc(ServerPlayer *from, ServerPlayer *to);
 };
 
 %extend Room {

@@ -45,8 +45,9 @@ public:
     }
 
     virtual int getDrawNum(ServerPlayer *player, int) const{
+        int ext = player->property("draw3").toBool() ? 1 : 0;
         player->getRoom()->invokeSkill(player, objectName());
-        return 4;
+        return 4 + ext;
     }
 };
 
@@ -90,7 +91,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("KaituoCard");
+        return player->isWounded() && player->getHandcardNum() > 1;
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -341,6 +342,18 @@ public:
     }
 };
 
+class Heiyi: public ZeroCardViewAsSkill{
+public:
+    Heiyi():ZeroCardViewAsSkill("heiyi"){
+    }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->getRole() == "renegade" && !player->property("draw3").toBool();
+    }
+    virtual const Card *viewAs() const{
+        return new HeiyiCard;
+    }
+};
+
 void StandardPackage::addGenerals(){
     General *conan = new General(this, "conan", "45s");
     conan->addSkill(new Zhizhi);
@@ -392,11 +405,12 @@ void StandardPackage::addGenerals(){
     vodka->addSkill(new Shexian);
     addMetaObject<ShexianCard>();
 
-    skills << new Mp1 << new Mp2 << new Mp3 << new Mp4;
+    skills << new Mp1 << new Mp2 << new Mp3 << new Mp4 << new Heiyi;
     addMetaObject<Mp1Card>();
     addMetaObject<Mp4Card>();
     addMetaObject<Mp3Card>();
     addMetaObject<Mp2Card>();
+    addMetaObject<HeiyiCard>();
 
     addMetaObject<CheatCard>();
 }

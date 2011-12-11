@@ -640,6 +640,7 @@ function SmartAI:getEnemies(player)
 end
 
 function SmartAI:isFriend(other, another)
+	if not other then self.room:writeToConsole(debug.traceback()) end
 	if another then
 		if self.lua_ai:isFriend(other) and self.lua_ai:isFriend(another) then return true end
 	end
@@ -789,14 +790,6 @@ local function getSkillViewCard(card, class_name, player, card_place)
 			return ("slash:gouxian[%s:%s]=%d"):format(suit, number, card_id)
 		end
 	elseif class_name == "Jink" then
-		if player:hasSkill("baichu") then
-			local jis = player:getPile("ji")
-			jis = sgs.QList2Table(jis)
-			local baichu_card = sgs.Sanguosha:getCard(jis[1])
-			if card:getNumber() >= baichu_card:getNumber() then
-				return ("jink:baichu[%s:%s]=%d"):format(suit, number, card_id)
-			end
-		end
 		if player:hasSkill("longhun") and player:getHp() <= 1 then
 			if card:getSuit() == sgs.Card_Club then
 				return ("jink:longhun[%s:%s]=%d"):format(suit, number, card_id)
@@ -884,20 +877,6 @@ function SmartAI:useCardByClassName(card, use)
 	if use_func then
 		use_func(self, card, use)
 	end
-end
-
-local function handcard_subtract_hp(a, b)
-	local diff1 = a:getHandcardNum() - a:getHp()
-	local diff2 = b:getHandcardNum() - b:getHp()
-
-	return diff1 < diff2
-end
-
-local function hp_subtract_handcard(a,b)
-	local diff1 = a:getHp() - a:getHandcardNum()
-	local diff2 = b:getHp() - b:getHandcardNum()
-
-	return diff1 < diff2
 end
 
 function SmartAI:getAllPeachNum(player)
@@ -1132,21 +1111,18 @@ function SmartAI:activate(use)
 --	self:sortByUsePriority(self.toUse)
 	self:sortByDynamicUsePriority(self.toUse)
 	for _, card in ipairs(self.toUse) do
-		if not prohibitUseDirectly(card,self.player) then
-			local type = card:getTypeId()
+		local type = card:getTypeId()
 
-			if type == sgs.Card_Trick then
-				self:useTrickCard(card, use)
-			elseif type == sgs.Card_Skill then
-				self:useSkillCard(card, use)
-			else
-				self:useEquipCard(card, use)
-			end
-
-			if use:isValid() then
-				self.toUse = nil
-				return
-			end
+		if type == sgs.Card_Trick then
+			self:useTrickCard(card, use)
+		elseif type == sgs.Card_Skill then
+			self:useSkillCard(card, use)
+		else
+			self:useEquipCard(card, use)
+		end
+		if use:isValid() then
+			self.toUse = nil
+			return
 		end
 	end
 
@@ -1604,17 +1580,6 @@ function SmartAI:askForCardChosen(who, flags, reason)
 				return indulgence or supply_shortage
 			end
 		end
-
-		if flags:match("e") then
-			if who:isWounded() and self:isEquip("SilverLion", who) then return who:getArmor():getId() end
-			if self:isEquip("GaleShell", who) then return who:getArmor():getId() end
-			if self:hasSkills(sgs.lose_equip_skill, who) then
-				local equips = who:getEquips()
-				if not equips:isEmpty() then
-					return equips:at(0):getId()
-				end
-			end
-		end
 	else
         if (who:getHandcardNum() < 2) and (not who:isKongcheng()) and
 			not self:hasSkills(sgs.need_kongcheng, who) then return -1
@@ -1633,65 +1598,6 @@ function SmartAI:askForCardChosen(who, flags, reason)
 			end
 		end
 
-		if flags:match("e") then
-			if who:getWeapon() and self:isEquip("Crossbow",who) then
-				for _, friend in ipairs(self.friends) do
-					if who:distanceTo(friend) <= 1 then return who:getWeapon():getId() end
-				end
-				for _, enemy in ipairs(self.enemies) do
-					if who:distanceTo(enemy) <= 1 then return who:getWeapon():getId() end
-				end
-			end
-
-			if who:getDefensiveHorse() then
-				for _,friend in ipairs(self.friends) do
-					if friend:distanceTo(who) == friend:getAttackRange()+1 then
-					 	return who:getDefensiveHorse():getId()
-					end
-				end
-			end
-
-			if who:getArmor() then
-			    local canFire = false
-
-				if self.player:getWeapon() then
-					if self.player:getWeapon():inherits("Fan") then canFire = true end
-				end
-			    if self.toUse then
-			        for _,card in ipairs(self.toUse) do
-			            if card:inherits("FireSlash") then canFire = true end
-			            if card:inherits("FireAttack") then canFire = true end
-			        end
-			    end
-			    if canFire and (who:getArmor():objectName() == "vine") then
-				elseif who:getArmor():objectName() == "gale-shell" then
-				elseif (who:getArmor():objectName() == "silver_lion") and who:isWounded() then
-                else return who:getArmor():getId()
-                end
-			end
-
-			if who:getWeapon() then
-			    if not (who:hasSkill("xiaoji") and (who:getHandcardNum() >= who:getHp())) and not self:isEquip("YitianSword",who) then
-					for _,friend in ipairs(self.friends) do
-						if (who:distanceTo(friend) <= who:getAttackRange()) and (who:distanceTo(friend) > 1) then
-							return who:getWeapon():getId()
-						end
-					end
-				end
-			end
-
-			if who:getOffensiveHorse() then
-			    if who:hasSkill("xiaoji") and who:getHandcardNum() >= who:getHp() then
-			    else
-				    for _,friend in ipairs(self.friends) do
-					    if who:distanceTo(friend) == who:getAttackRange() and
-					    who:getAttackRange() > 1 then
-					 	    return who:getOffensiveHorse():getId()
-					    end
-				    end
-				end
-			end
-		end
 		if flags:match("h") then
 			if not who:isKongcheng() then
 				local cards = who:getHandcards()
@@ -2024,10 +1930,9 @@ function SmartAI:askForSinglePeach(dying)
 		else
 			card_str = self:getCardId("Peach")
 		end
-		if card_str then return sgs.Card_Parse(card_str) end
 	end
-
-	return "."
+	
+	return card_str or "."
 end
 
 function SmartAI:getChainedFriends()
@@ -2065,8 +1970,13 @@ function SmartAI:hasSkill(skill)
 end
 
 function SmartAI:fillSkillCards(cards)
-	for index, card in ipairs(cards) do
-		if prohibitUseDirectly(card, self.player) then table.remove(cards, index) end
+	local i = 1
+	while i <= #cards do
+		if prohibitUseDirectly(cards[i], self.player) then
+			table.remove(cards, i)
+		else
+			i = i + 1
+		end
 	end
     for _,skill in ipairs(sgs.ai_skills) do
         if self:hasSkill(skill) then
@@ -2082,7 +1992,7 @@ function SmartAI:useSkillCard(card,use)
 	if use.to then
 		if not use.to:isEmpty() and sgs.dynamic_value.damage_card[card:className()] then
 			for _, target in sgs.qlist(use.to) do
-				if not (target:getMark("@fog") > 0 or (target:hasSkill("shenjun") and target:getGender() ~= self:getGender())) then return end
+				if self:damageIsEffective(target) then return end
 			end
 			use.card = nil
 		end

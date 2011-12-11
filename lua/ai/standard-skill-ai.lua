@@ -133,38 +133,6 @@ qixi_skill.getTurnUseCard=function(self,inclusive)
 	end
 end
 
-local wusheng_skill={}
-wusheng_skill.name="wusheng"
-table.insert(sgs.ai_skills,wusheng_skill)
-wusheng_skill.getTurnUseCard=function(self,inclusive)
-    local cards = self.player:getCards("he")	
-    cards=sgs.QList2Table(cards)
-	
-	local red_card
-	
-	self:sortByUseValue(cards,true)
-	
-	for _,card in ipairs(cards)  do
-		if card:isRed() and not card:inherits("Slash") and not card:inherits("Peach") 				--not peach
-			and ((self:getUseValue(card)<sgs.ai_use_value["Slash"]) or inclusive) then
-			red_card = card
-			break
-		end
-	end
-
-	if red_card then		
-		local suit = red_card:getSuitString()
-    	local number = red_card:getNumberString()
-		local card_id = red_card:getEffectiveId()
-		local card_str = ("slash:wusheng[%s:%s]=%d"):format(suit, number, card_id)
-		local slash = sgs.Card_Parse(card_str)
-		
-		assert(slash)
-        
-        return slash
-	end
-end
-
 local longdan_skill={}
 longdan_skill.name="longdan"
 table.insert(sgs.ai_skills,longdan_skill)
@@ -299,66 +267,6 @@ sgs.ai_skill_use_func["QingnangCard"]=function(card,use,self)
 			return
 		end
 	end
-end
-
-local kurou_skill={}
-kurou_skill.name="kurou"
-table.insert(sgs.ai_skills,kurou_skill)
-kurou_skill.getTurnUseCard=function(self,inclusive)
-        if  (self.player:getHp() > 3 and self.player:getHandcardNum() > self.player:getHp()) or		
-		(self.player:getHp() - self.player:getHandcardNum() >= 2) then
-                return sgs.Card_Parse("@KurouCard=.")
-        end
-		
-		--if not inclusive then return nil end
-		
-	if self.player:getWeapon() and self.player:getWeapon():inherits("Crossbow") then
-        for _, enemy in ipairs(self.enemies) do
-            if self.player:canSlash(enemy,true) and self.player:getHp()>1 then
-                return sgs.Card_Parse("@KurouCard=.")
-            end
-        end
-    end
-end
-
-sgs.ai_skill_use_func["KurouCard"]=function(card,use,self)
-	
-	if not use.isDummy then self:speak("kurou") end
-	
-	use.card=card
-end
-
-local jijiang_skill={}
-jijiang_skill.name="jijiang"
-table.insert(sgs.ai_skills,jijiang_skill)
-jijiang_skill.getTurnUseCard=function(self)
-        if self.player:hasUsed("JijiangCard") or not self:slashIsAvailable() then return end
-		local card_str = "@JijiangCard=."
-		local slash = sgs.Card_Parse(card_str)
-	    assert(slash)
-        
-        return slash
-end
-
-sgs.ai_skill_use_func["JijiangCard"]=function(card,use,self)
-	self:sort(self.enemies, "defense")
-		local target_count=0
-                for _, enemy in ipairs(self.enemies) do
-                        if ((self.player:canSlash(enemy, not no_distance)) or 
-                        (use.isDummy and (self.player:distanceTo(enemy)<=self.predictedRange)))
-                                 and
-                                self:objectiveLevel(enemy)>3 and
-                                self:slashIsEffective(card, enemy) then
-
-                                use.card=card
-                                if use.to then 
-                                    use.to:append(enemy) 
-                                end
-                                target_count=target_count+1
-                                if self.slash_targets<=target_count then return end
-                        end
-               end
-	
 end
 
 local guose_skill={}

@@ -16,7 +16,11 @@ sgs.ai_use_value =
 
 --skill cards
 		KaituoCard = 8,
-		Shexian = 5,
+		ShexianCard = 5,
+		Mp1Card = 3,
+		Mp2Card = 7,
+		Mp3Card = 9,
+		Mp4Card = 6,
 --normal cards
 		ExNihilo=10,
 		Peach = 6,
@@ -40,7 +44,11 @@ sgs.ai_use_priority = {
 
 --skill cards
 		KaituoCard = 4,
-		Shexian = 4,
+		ShexianCard = 4,
+		Mp1Card = 1,
+		Mp2Card = 2,
+		Mp3Card = 3,
+		Mp4Card = 4,
 --
 		Peach = 4.1,
 		Dismantlement = 4.4,

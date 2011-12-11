@@ -71,4 +71,13 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class HeiyiCard: public MpCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE HeiyiCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 #endif // STANDARDSKILLCARDS_H

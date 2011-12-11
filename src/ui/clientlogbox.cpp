@@ -67,9 +67,9 @@ void ClientLogBox::appendLog(
         QString card_name = card->getLogName();
 
         if(card->isVirtualCard()){
-            if(card->getSkillName().startsWith("mp"))
-                card->getSkillName() = "microphone";
-            QString skill_name = Sanguosha->translate(card->getSkillName());
+            QString skill_name = !card->getSkillName().startsWith("mp") ?
+                                 Sanguosha->translate(card->getSkillName()) :
+                                 Sanguosha->translate("microphone");
 
             QList<int> card_ids = card->getSubcards();
             QStringList subcard_list;
