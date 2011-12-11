@@ -664,6 +664,9 @@ void ServerPlayer::introduceTo(ServerPlayer *player){
         player->invoke("addPlayer", introduce_str);
     else
         room->broadcastInvoke("addPlayer", introduce_str, this);
+
+    if(isReady())
+        room->broadcastProperty(this, "ready");
 }
 
 void ServerPlayer::marshal(ServerPlayer *player) const{
@@ -753,6 +756,14 @@ void ServerPlayer::addToPile(const QString &pile_name, int card_id, bool open){
     piles[pile_name] << card_id;
 
     room->moveCardTo(Sanguosha->getCard(card_id), this, Player::Special, open);
+}
+
+void ServerPlayer::gainAnExtraTurn(){
+    ServerPlayer *current = room->getCurrent();
+
+    room->setCurrent(this);
+    room->getThread()->trigger(TurnStart, this);
+    room->setCurrent(current);
 }
 
 void ServerPlayer::copyFrom(ServerPlayer* sp)

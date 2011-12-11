@@ -293,7 +293,7 @@ bool Player::hasLordSkill(const QString &skill_name) const{
         return true;
 
     QString mode = getGameMode();
-    if(mode == "06_3v3" || mode == "02_1v1" || mode == "02p")
+    if(mode == "06_3v3" || mode == "02_1v1")
         return false;
 
     if(isLord())
@@ -436,11 +436,9 @@ Player::Phase Player::getPhase() const{
 }
 
 void Player::setPhase(Phase phase){
-    if(this->phase != phase){
-        this->phase = phase;
+    this->phase = phase;
 
-        emit phase_changed();
-    }
+    emit phase_changed();
 }
 
 bool Player::faceUp() const{
@@ -727,13 +725,13 @@ bool Player::isJilei(const Card *card) const{
 
         foreach(int card_id, card->getSubcards()){
             const Card *c = Sanguosha->getCard(card_id);
-            if(jilei_set.contains(c->getTypeId()))
+            if(jilei_set.contains(c->getTypeId())&&!hasEquip(c))
                 return true;
         }
 
         return false;
     }else
-        return jilei_set.contains(type);
+        return jilei_set.contains(type)&&!hasEquip(card);
 }
 
 bool Player::isCaoCao() const{

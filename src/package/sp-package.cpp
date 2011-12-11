@@ -9,17 +9,21 @@
 class SPMoonSpearSkill: public WeaponSkill{
 public:
     SPMoonSpearSkill():WeaponSkill("sp_moonspear"){
-        events << CardResponsed;
+        events << CardFinished << CardResponsed;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(player->getPhase() != Player::NotActive)
             return false;
 
         CardStar card = NULL;
-        card = data.value<CardStar>();
+        if(event == CardFinished){
+            CardUseStruct card_use = data.value<CardUseStruct>();
+            card = card_use.card;
+        }else if(event == CardResponsed)
+            card = data.value<CardStar>();
 
-        if(!card || !card->isBlack())
+        if(card == NULL || !card->isBlack())
             return false;
 
         Room *room = player->getRoom();
@@ -405,6 +409,11 @@ SPPackage::SPPackage()
     sp_machao->addSkill("mashu");
     sp_machao->addSkill("tieji");
 
+    General *sp_jiaxu = new General(this, "sp_jiaxu", "wei", 3, true, true);
+    sp_jiaxu->addSkill("wansha");
+    sp_jiaxu->addSkill("luanwu");
+    sp_jiaxu->addSkill("weimu");
+    sp_jiaxu->addSkill("#@chaos-1");
 }
 
 ADD_PACKAGE(SP);

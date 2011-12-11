@@ -100,13 +100,12 @@ sgs.ai_skill_use["@@fangzhu"] = function(self, prompt)
 end
 
 sgs.ai_skill_invoke.songwei = function(self, data)
-	return self:isFriend(self.room:getLord())
+	local who = data:toPlayer()
+	return self:isFriend(who)
 end
 
 -- baonue
-sgs.ai_skill_invoke.baonue = function(self, data)
-	return self.player:getRole() == "loyalist"
-end
+sgs.ai_skill_invoke.baonue = sgs.ai_skill_invoke.songwei
 
 local function getLowerBoundOfHandcard(self)
 	local least = math.huge
@@ -137,7 +136,7 @@ end
 
 -- haoshi
 sgs.ai_skill_invoke.haoshi = function(self, data)
-	if self.player:getHandcardNum() <= 1 then
+	if self.player:getHandcardNum() <= 1 and not self.player:hasSkill("yongsi") then
 		return true
 	end
 
