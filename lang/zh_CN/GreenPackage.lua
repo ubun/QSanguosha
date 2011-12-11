@@ -13,11 +13,11 @@ return {
 
 --WEI06 鄢陵侯
 	["greencaozhang"] = "曹彰",
-	["designer:greencaozhang"] = "章鱼哥",
-	["nubao"] = "怒暴",
-	[":nubao"] = "锁定技，当你的武将牌被翻面时，视为对任意一名角色(包括自己)使用了一张【杀】",
-	["zhechong"] = "驰援",
-	[":zhechong"] = "你可以跳过自己的摸牌，出牌或弃牌阶段并将你的武将牌翻面，每回合限一次",
+	["designer:greencaozhang"] = "章鱼哥、sailiss",
+	["liji"] = "厉击",
+	[":liji"] = "锁定技，当你的武将牌翻面时，视为对任意一名角色(包括自己)使用了一张【杀】",
+	["shixian"] = "士先",
+	[":shixian"] = "你可以跳过自己的摸牌，出牌或弃牌阶段并将你的武将牌翻面，每回合限一次",
 
 --QUN#05 深远的谋士
 	["greenjushou"] = "沮授",
