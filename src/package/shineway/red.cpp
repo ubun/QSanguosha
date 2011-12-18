@@ -509,30 +509,28 @@ bool XiefangCard::targetFilter(const QList<const Player *> &targets, const Playe
         return to_select->getWeapon() && to_select != Self;
     }else if(targets.length() == 1){
         const Player *first = targets.first();
-        return first != Self && first->getWeapon() && Self->canSlash(to_select);
+        return to_select != Self && first->getWeapon() && Self->canSlash(to_select);
     }else
         return false;
 }
 
 void XiefangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    const Card *weapon = targets.at(0)->getWeapon();
     ServerPlayer *target;
-    if(targets.length() == 1){
-        if(!Self->canSlash(targets.first()))
-            return;
-        else
-            target = targets.first();
+    if(targets.length() > 1)
+        target = targets.at(1);
+    else if(targets.length() == 1 && source->canSlash(targets.first())){
+        target = targets.first();
     }
     else
-        target = targets.at(1);
+        return;
 
+    const Card *weapon = targets.first()->getWeapon();
     if(weapon){
-        room->throwCard(weapon->getId());
         Slash *slash = new Slash(weapon->getSuit(), weapon->getNumber());
         slash->setSkillName("xiefang");
         slash->addSubcard(weapon);
+        room->throwCard(weapon->getId());
         CardUseStruct use;
-        //room->throwCard(slash->getId());
         use.card = slash;
         use.from = source;
         use.to << target;
@@ -583,16 +581,23 @@ public:
         }
         if((asked == "slash" && playerAs.isEmpty()) || (asked == "jink" && playerBs.isEmpty()))
             return false;
-        if(room->askForSkillInvoke(player, "xiefang", data)){
+        if(room->askForSkillInvoke(player, objectName(), data)){
             ServerPlayer *target = asked == "slash" ?
                                    room->askForPlayerChosen(player, playerAs, objectName()) :
                                    room->askForPlayerChosen(player, playerBs, objectName());
-            int card_id = asked == "slash" ?
-                          target->getWeapon()->getId() :
-                          room->askForCardChosen(player, target, "e", objectName());
-            if(asked == "jink" && target->getWeapon() && target->getWeapon()->getId() == card_id)
+            const Card *card = NULL;
+            if(asked == "slash")
+                card = target->getWeapon();
+            else if(asked == "jink"){
+                if(target->getEquips().length() == 1 && !target->getWeapon())
+                    card = target->getEquips().first();
+                else if(target->getWeapon() && target->getEquips().length() == 2)
+                    card = target->getEquips().at(1);
+                else
+                    card = Sanguosha->getCard(room->askForCardChosen(player, target, "e", objectName()));
+            }
+            if(asked == "jink" && target->getWeapon() && target->getWeapon()->getId() == card->getId())
                 return false;
-            const Card *card = Sanguosha->getCard(card_id);
             if(asked == "slash"){
                 Slash *xiefang_card = new Slash(card->getSuit(), card->getNumber());
                 xiefang_card->setSkillName(objectName());
@@ -605,6 +610,8 @@ public:
                 xiefang_card->addSubcard(card);
                 room->provide(xiefang_card);
             }
+            room->setEmotion(player, "good");
+            return true;
         }
         return false;
     }

@@ -108,9 +108,8 @@ xiefang_skill.getTurnUseCard = function(self)
 	end
 end
 sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
---	self:sort(self.enemies, "handcard")
 	self:sort(self.enemies, "threat")
-	
+
 	for _, friend in ipairs(self.friends_noself) do
 		if friend:getWeapon() and self:hasSkills(sgs.lose_equip_skill, friend) then
 			for _, enemy in ipairs(self.enemies) do
@@ -125,49 +124,28 @@ sgs.ai_skill_use_func["XiefangCard"] = function(card, use, self)
 			end
 		end
 	end
-
-	local n = nil 
-	local final_enemy = nil
 	for _, enemy in ipairs(self.enemies) do
 		if not self.room:isProhibited(self.player, enemy, card)
 			and not self:hasSkill(sgs.lose_equip_skill, enemy)
 			and enemy:getWeapon() then
 
-			for _, enemy2 in ipairs(self.enemies) do
+			local enemies = self.enemies
+			self:sort(enemies, "handcard")
+			for _, enemy2 in ipairs(enemies) do
 				if self.player:canSlash(enemy2) then
-					if enemy:getHandcardNum() == 0 then
-						use.card = card
-						if enemy == enemy2 then
-							if use.to then use.to:append(enemy) end
-							return
-						end
-						if use.to then
-							use.to:append(enemy)
+					use.card = card
+					if use.to then
+						use.to:append(enemy)
+						if enemy ~= enemy2 then
 							use.to:append(enemy2)
 						end
-						return
-					else
-						n = 1;
-						final_enemy = enemy2
 					end
-				end
-			end
-			if n then use.card = card end
-			if enemy == final_enemy then
-				if use.to and self.player:canSlash(enemy) then
-					use.to:append(enemy)
-					use.card = card
 					return
 				end
 			end
-			if use.to then
-				use.to:append(enemy)
-				use.to:append(final_enemy)
-			end
-			return
 		end
-		n = nil
 	end
+	return "."
 end
 
 -- xiefang-slash&jink
