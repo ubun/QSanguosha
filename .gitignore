@@ -13,5 +13,3 @@ doc/*.html
 swig/*.bat
 .DS_Store
 liblua5.1.dylib
-src/package/shineway/green.cpp
-src/package/shineway/cyan.cpp
