@@ -266,7 +266,11 @@ sgs.ai_chaofeng = {
 		shencaocao = -6,
 		shenguanyu = -6,
 		
-<<<<<<< HEAD
+		sp_caiwenji = caiwenji,
+		sp_sunshangxiang = sunshangxiang,
+		sp_machao = machao,
+		sp_diaochan = diaochan,
+
 -- red
 		redzhonghui = 7,
 		redxunyou = 2,
@@ -300,11 +304,5 @@ sgs.ai_chaofeng = {
 		tianyin = -4,
 		miheng = 3,
 		tensb = -3,
-=======
-		sp_caiwenji = caiwenji,
-		sp_sunshangxiang = sunshangxiang,
-		sp_machao = machao,
-		sp_diaochan = diaochan,
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
 }
 

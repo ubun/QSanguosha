@@ -900,23 +900,19 @@ function SmartAI:slashIsEffective(slash, to)
 			return false
 		end
 	end
-<<<<<<< HEAD
 	if to:hasSkill("linjia") then
 		if not slash:inherits("NatureSlash") and not self.player:hasWeapon("fan") then
 			return false
 		end
 	end
-	
-=======
 
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
 	local nature = {
 		Slash = sgs.DamageStruct_Normal,
 		FireSlash = sgs.DamageStruct_Fire,
 		ThunderSlash = sgs.DamageStruct_Thunder,
 	}
 
-	if not self:damageIsEffective(player, nature[slash:className()]) then return false end
+	if not self:damageIsEffective(to, nature[slash:className()]) then return false end
 
 	if self.player:hasWeapon("qinggang_sword") or (self.player:hasFlag("xianzhen_success") and self.room:getTag("XianzhenTarget"):toPlayer() == to) then
 		return true
@@ -1041,13 +1037,8 @@ local function getSkillViewCard(card, class_name, player, card_place)
 			if card:getSuit() == sgs.Card_Heart then
 				return ("peach:longhun[%s:%s]=%d"):format(suit, number, card_id)
 			end
-<<<<<<< HEAD
-		end	
-		if player:hasSkill("jijiu") and card:isRed() and self.room:getCurrent()~=player then 
-=======
 		end
 		if player:hasSkill("jijiu") and card:isRed() and player:getPhase()==sgs.Player_NotActive then
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
 			return ("peach:jijiu[%s:%s]=%d"):format(suit, number, card_id)
 		end
 	elseif class_name == "Analeptic" then
@@ -1113,19 +1104,11 @@ function SmartAI:slashProhibit(card,enemy)
 		card = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
 	end
 
-<<<<<<< HEAD
-    if self:isFriend(enemy) then
-        if card:inherits("FireSlash") or self.player:hasWeapon("fan") then
-            if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then return true end
-        end
-        if enemy:isChained() and card:inherits("NatureSlash") and #(self:getChainedFriends())>1 and
-=======
 	if self:isFriend(enemy) then
 		if card:inherits("FireSlash") or self.player:hasWeapon("fan") then
-			if self:isEquip("Vine", enemy) then return true end
+			if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then return true end
 		end
 		if enemy:isChained() and card:inherits("NatureSlash") and #(self:getChainedFriends())>1 and
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
 			self:slashIsEffective(card,enemy) then return true end
 		if self:getCardsNum("Jink",enemy) == 0 and enemy:getHp() < 2 and self:slashIsEffective(card,enemy) then return true end
 		if enemy:isLord() and self:isWeak(enemy) and self:slashIsEffective(card,enemy) then return true end
@@ -1254,33 +1237,6 @@ function SmartAI:useBasicCard(card, use, no_distance)
 				self:objectiveLevel(enemy) > 3 and
 				self:slashIsEffective(card, enemy) then
 					-- fill the card use struct
-<<<<<<< HEAD
-					local anal = self:searchForAnaleptic(use,enemy,card)
-					if anal and not self:isEquip("SilverLion", enemy) and (not use.to or use.to:isEmpty()) and not self:isWeak() then
-						use.card = anal
-						return
-					end
-					if self.player:getGender()~=enemy:getGender() and self:getCardsNum("DoubleSword",self.player,"h") > 0 then
-						self:useEquipCard(self:getCard("DoubleSword"), use)
-						if use.card then return end
-					end
-					if enemy:isKongcheng() and self:getCardsNum("GudingBlade", self.player, "h") > 0 then
-						self:useEquipCard(self:getCard("GudingBlade"), use)
-						if use.card then return end
-					end
-					if self:getOverflow()>0 and self:getCardsNum("Axe", self.player, "h") > 0 then
-						self:useEquipCard(self:getCard("Axe"), use)
-						if use.card then return end
-					end
-					if enemy:getArmor() and self:getCardsNum("Fan", self.player, "h") > 0 and
-						(enemy:getArmor():inherits("Vine") or enemy:getArmor():inherits("GaleShell") or enemy:hasSkill("linjia")) then
-						self:useEquipCard(self:getCard("Fan"), use)
-						if use.card then return end
-					end
-					if enemy:getDefensiveHorse() and self:getCardsNum("KylinBow", self.player, "h") > 0 then
-						self:useEquipCard(self:getCard("KylinBow") ,use)
-						if use.card then return end
-=======
 					if not use.to or use.to:isEmpty() then
 						local anal = self:searchForAnaleptic(use,enemy,card)
 						if anal and not self:isEquip("SilverLion", enemy) and not self:isWeak() then
@@ -1308,7 +1264,6 @@ function SmartAI:useBasicCard(card, use, no_distance)
 							self:useEquipCard(self:getCard("KylinBow") ,use)
 							if use.card then return end
 						end
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
 					end
 					use.card = card
 					if use.to then use.to:append(enemy) end
@@ -1601,14 +1556,8 @@ function SmartAI:useCardFireAttack(fire_attack, use)
 
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
-<<<<<<< HEAD
 		if (self:objectiveLevel(enemy) > 3) and not enemy:isKongcheng() and self:hasTrickEffective(fire_attack, enemy) 
-			and not (self:isEquip("KawaiiDress", enemy) and enemy:getHp() == 1) then	
-			
-=======
-		if (self:objectiveLevel(enemy) > 3) and not enemy:isKongcheng() and self:hasTrickEffective(fire_attack, enemy) then
-
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
+			and not (self:isEquip("KawaiiDress", enemy) and enemy:getHp() == 1) then
 			local cards = enemy:getHandcards()
 			local success = true
 			for _, card in sgs.qlist(cards) do
@@ -1619,13 +1568,8 @@ function SmartAI:useCardFireAttack(fire_attack, use)
 			end
 
 			if success then
-<<<<<<< HEAD
 				if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then
-					table.insert(targets_succ, 1, enemy) 
-=======
-				if self:isEquip("Vine", enemy) then
 					table.insert(targets_succ, 1, enemy)
->>>>>>> 0b3c2e0aa78ee34fb64510cccebacb2c85a62131
 					break
 				else
 					table.insert(targets_succ, enemy)
@@ -2712,7 +2656,7 @@ end
 
 function SmartAI:getCardRandomly(who, flags)
 	local cards = who:getCards(flags)
-	if cards:isEmpty() then return -1 end
+	if cards:isEmpty() then return end
 	local r = math.random(0, cards:length()-1)
 	local card = cards:at(r)
 	if self:isEquip("SilverLion", who) then
