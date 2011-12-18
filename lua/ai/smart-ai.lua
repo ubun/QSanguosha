@@ -1279,9 +1279,15 @@ function SmartAI:useBasicCard(card, use, no_distance)
 				if card:inherits("Peach") then peaches = peaches+1 end
 			end
 
-				for _, friend in ipairs(self.friends_noself) do
-					if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
-				end
+			for _, friend in ipairs(self.friends_noself) do
+				if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
+			end
+
+			if self.player:hasSkill("jieyin") then
+				local dummy_use = {isDummy = true}
+				self:useSkillCard(sgs.Card_Parse("@JieyinCard=."), dummy_use)
+				if dummy_use.card then return end
+			end
 
 			use.card = card
 		end
@@ -2259,7 +2265,7 @@ function SmartAI:getDynamicUsePriority(card)
 		local dynamic_value
 
 		if use_card:getTypeId() == sgs.Card_Equips then
-			if self:hasSkills(sgs.lose_equip_skill) then value = value + 8 end
+			if self:hasSkills(sgs.lose_equip_skill) then value = value + 12 end
 		end
 
 		if use_card:getSkillName() == "wusheng" and
@@ -2725,7 +2731,8 @@ function SmartAI:askForCardChosen(who, flags, reason)
 		end
 
 		if flags:match("e") then
-			if who:getArmor() and self:evaluateArmor(who:getArmor(), who)>0 then
+			if who:getArmor() and self:evaluateArmor(who:getArmor(), who)>0
+				and not (who:getArmor():inherits("SilverLion") and self:isWeak(who)) then
 				return who:getArmor():getId()
 			end
 
