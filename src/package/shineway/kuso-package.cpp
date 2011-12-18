@@ -247,9 +247,9 @@ public:
     }
 };
 
-class Shishi: public TriggerSkill{
+class EatDeath: public TriggerSkill{
 public:
-    Shishi():TriggerSkill("shishi"){
+    EatDeath():TriggerSkill("eatdeath"){
         events << Death;
     }
 
@@ -262,15 +262,15 @@ public:
         ServerPlayer *tenkei = room->findPlayerBySkillName(objectName());
         if(!tenkei)
             return false;
-        QVariantList shishi_skills = tenkei->tag["Shishi"].toList();
+        QVariantList eatdeath_skills = tenkei->tag["EatDeath"].toList();
         if(room->askForSkillInvoke(tenkei, objectName(), data)){
-            QStringList shishis;
-            foreach(QVariant tmp, shishi_skills)
-                shishis << tmp.toString();
-            if(!shishis.isEmpty()){
-                QString choice = room->askForChoice(tenkei, objectName(), shishis.join("+"));
+            QStringList eatdeaths;
+            foreach(QVariant tmp, eatdeath_skills)
+                eatdeaths << tmp.toString();
+            if(!eatdeaths.isEmpty()){
+                QString choice = room->askForChoice(tenkei, objectName(), eatdeaths.join("+"));
                 room->detachSkillFromPlayer(tenkei, choice);
-                shishi_skills.removeOne(choice);
+                eatdeath_skills.removeOne(choice);
             }
             room->loseMaxHp(tenkei);
             QList<const Skill *> skills = player->getVisibleSkillList();
@@ -278,10 +278,10 @@ public:
                 if(skill->parent()){
                     QString sk = skill->objectName();
                     room->acquireSkill(tenkei, sk);
-                    shishi_skills << sk;
+                    eatdeath_skills << sk;
                 }
             }
-            tenkei->tag["Shishi"] = shishi_skills;
+            tenkei->tag["EatDeath"] = eatdeath_skills;
         }
 
         return false;
@@ -380,7 +380,7 @@ KusoPackage::KusoPackage()
     tianyin->addSkill(new Noqing);
 
     General *tenkei = new General(this, "tenkei", "god", 5, false);
-    tenkei->addSkill(new Shishi);
+    tenkei->addSkill(new EatDeath);
 
     General *shenzilong = new General(this, "shenzilong", "god", 1, true, true);
     shenzilong->addSkill(new SuperJuejing);

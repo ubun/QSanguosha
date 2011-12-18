@@ -30,11 +30,11 @@ sgs.ai_skill_playerchosen["zhongjian"] = function(self, targets)
 	return self.friends_noself[1]
 end
 
--- zhechong&nubao
-sgs.ai_skill_invoke["zhechong"] = function(self, data)
+-- shixian&liji
+sgs.ai_skill_invoke["shixian"] = function(self, data)
 	return self.player:getPhaseString() == "discard" and self.player:getHandcardNum() >= self.player:getHp()
 end
-sgs.ai_skill_playerchosen["nubao"] = function(self, targets)
+sgs.ai_skill_playerchosen["liji"] = function(self, targets)
 	self:sort(self.enemies, "hp")
 	return self.enemies[1]
 end

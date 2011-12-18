@@ -6,8 +6,8 @@ sgs.ai_skill_invoke["huaxu"] = function(self, data)
 	return self:isEnemy(damage.to)
 end
 
--- shishi
-sgs.ai_skill_invoke["shishi"] = function(self, data)
+-- eatdeath
+sgs.ai_skill_invoke["eatdeath"] = function(self, data)
 	local damage = data:toDamage()
 	local target = damage.to
 	if self.player:getMaxHP() < 4 then
