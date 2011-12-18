@@ -88,13 +88,29 @@ function SmartAI.GetValue(player)
 	return player:getHp() * 2 + player:getHandcardNum()
 end
 
---- defense is defined as min(value, hp*3) + 2(if armor is present)
 function SmartAI.GetDefense(player)
 	local defense = math.min(SmartAI.GetValue(player), player:getHp() * 3)
-	if player:getArmor() then
+	if player:getArmor() and not player:getArmor():inherits("GaleShell") then
 		defense = defense + 2
 	end
-	
+	if not player:getArmor() and player:hasSkill("bazhen") then
+		defense = defense + 2
+	end
+	if player:hasSkill("ganglie") then
+		defense = defense + 1
+	end
+	if player:hasSkill("enyuan") then
+		defense = defense + 1
+	end
+	if player:hasSkill("yiji") then
+		defense = defense + 1
+	end
+	if player:hasSkill("jieming") then
+		defense = defense + 1
+	end
+	if player:getMark("@tied")>0 then
+		defense = defense + 1
+	end
 	return defense
 end
 
@@ -244,15 +260,14 @@ function SmartAI:updatePlayers(inclusive)
 		else
 			if self:objectiveLevel(player) <= 0 then return end
 			table.insert(elist,player)
---			self:updateLoyalTarget(player)
---			self:updateRebelTarget(player)
+			self:updateLoyalTarget(player)
+			self:updateRebelTarget(player)
 			
 			if self:objectiveLevel(player) >= 4 then self.harsh_retain = false end
 		end
 	end
 end
 
---[[
 function SmartAI:updateLoyalTarget(player)
 	if self.role == "rebel" then return end
 	
@@ -293,7 +308,6 @@ function SmartAI:printFEList()
 	
     self.room:output(self.player:getGeneralName().." list end")
 end
-]]
 
 function SmartAI:objectiveLevel(player)
     if useDefaultStrategy() then 
@@ -492,34 +506,6 @@ function SmartAI:sortEnemies(players)
         end
     end
     table.sort(players,comp_func)
-end
-
-function SmartAI:sortEnemiesByChaofeng(players)
-	local function getChaofeng(player)
-		local level = 0
-		if player:hasSkill("jieming") then level = self:getJiemingChaofeng(player) end
-		if level > 0 then level = 0 end
-		level = level + (sgs.ai_chaofeng[player:getGeneralName()] or 0)
-		level = level + (sgs.ai_chaofeng[player:getGeneral2Name()] or 0)
-		if player:isLord() then level = level + 1 end
-		if player:getArmor() and self:evaluateArmor(player:getArmor(), player)>0 then level = level - 1 end
-		if self:isWeak(player) then level = level + 1 end
-		return level
-	end
-	local comp_func = function(a,b)
-		alevel = getChaofeng(a)
-		blevel = getChaofeng(b)
-		if alevel~= blevel then
-			return alevel > blevel
-		end
-
-		alevel = getDefense(a)
-		blevel = getDefense(b)
-		if alevel~= blevel then
-			return alevel < blevel
-		end
-	end
-	table.sort(players,comp_func)
 end
 
 function SmartAI:hasWizard(players,onlyharm)
@@ -975,7 +961,6 @@ local function prohibitUseDirectly(card, player)
 	if player:hasSkill("jiejiu") then return card:inherits("Analeptic") 
 	elseif player:hasSkill("wushen") then return card:getSuit() == sgs.Card_Heart
 	elseif player:hasSkill("ganran") then return card:getTypeId() == sgs.Card_Equip
-	elseif player:hasSkill("wumou") then return card:isNDTrick() and not card:inherits("AOE")
 	end
 end
 
@@ -1205,6 +1190,7 @@ function SmartAI:useBasicCard(card, use, no_distance)
 		self.slash_targets = 3
 	end	
 	
+	self.predictedRange = self.player:getAttackRange()
 	if card:inherits("Slash") and self:slashIsAvailable() then
 		local target_count = 0
 		if self.player:hasSkill("qingnang") and self:isWeak() and self:getOverflow() == 0 then return end
@@ -1233,12 +1219,11 @@ function SmartAI:useBasicCard(card, use, no_distance)
 			end
 		end	
 
-		self:sortEnemiesByChaofeng(self.enemies)
+		self:sort(self.enemies, "defense")
 		for _, enemy in ipairs(self.enemies) do
 			local slash_prohibit = false
 			slash_prohibit = self:slashProhibit(card,enemy)
 			if not slash_prohibit then
-				self.predictedRange = self.player:getAttackRange()
 				if ((self.player:canSlash(enemy, not no_distance)) or 
 				(use.isDummy and self.predictedRange and (self.player:distanceTo(enemy) <= self.predictedRange))) and 
 				self:objectiveLevel(enemy) > 3 and
@@ -1807,7 +1792,7 @@ end
 function SmartAI:useCardGodSalvation(card, use)				
 	local good, bad = 0, 0
 	
-	if self.player:hasSkill("wuyan") then 						
+	if self.player:hasSkill("wuyan") and self.player:isWounded() then 						
 		use.card = card
 		return 
 	end	
@@ -2223,6 +2208,9 @@ function SmartAI:getUseValue(card)
 		if self.player:getWeapon() and not self:hasSkills(sgs.lose_equip_skill) and card:inherits("Collateral") then v = 2 end
 		if self.player:getMark("shuangxiong") and card:inherits("Duel") then v = 8 end
 		if self.player:hasSkill("jizhi") then v = 8.7 end
+		if self.player:hasSkill("wumou") and card:isNDTrick() and not card:inherits("AOE") then
+			if not (card:inherits("Duel") and self.player:hasUsed("WuqianCard")) then v = 1 end
+		end
 		if not self:hasTrickEffective(card) then v = 0 end
 	end
 	
@@ -2323,6 +2311,25 @@ function SmartAI:getDynamicUsePriority(card)
 					dynamic_value = dynamic_value - 1
 					if self:isEnemy(player) then dynamic_value = dynamic_value - ((player:getHandcardNum()+player:getHp())/player:getHp())*dynamic_value
 					else dynamic_value = dynamic_value + ((player:getHandcardNum()+player:getHp())/player:getHp())*dynamic_value
+					end
+				end
+			elseif use_card:inherits("GodSalvation") then
+				local weak_mate, weak_enemy = 0, 0
+				for _, player in sgs.qlist(self.room:getAllPlayers()) do
+					if player:getHp() <= 1 and player:getHandcardNum() <= 1 then
+						if self:isEnemy(player) then weak_enemy = weak_enemy + 1
+						elseif self:isFriend(player) then weak_mate = weak_mate + 1
+						end
+					end
+				end
+				
+				if weak_enemy > weak_mate then 
+					for _, card in sgs.qlist(self.player:getHandcards()) do
+						if card:isAvailable(self.player) and sgs.dynamic_value.damage_card[card:className()] then 
+							if self:getDynamicUsePriority(card) - 0.5 > self:getUsePriority(card) then
+								dynamic_value = -5
+							end
+						end
 					end
 				end
 			elseif use_card:inherits("Peach") then 
@@ -2782,10 +2789,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 		end
 		if flags:match("h") then
 			if not who:isKongcheng() then
-				local cards = who:getHandcards()
-				cards = sgs.QList2Table(cards)
-				self:sortByUseValue(cards)
-				return cards[1]:getId()
+				return -1
 			end
 		end
         
