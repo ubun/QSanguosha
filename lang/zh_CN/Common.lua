@@ -1,11 +1,11 @@
 return {
-	["spade"] = "黑桃", 
-	["club"] = "梅花", 
-	["heart"] = "红桃", 
-	["diamond"] = "方块", 
-	["basic"] = "基本牌", 
-	["trick"] = "锦囊牌", 
-	["equip"] = "装备牌", 
+	["spade"] = "黑桃",
+	["club"] = "梅花",
+	["heart"] = "红桃",
+	["diamond"] = "方块",
+	["basic"] = "基本牌",
+	["trick"] = "锦囊牌",
+	["equip"] = "装备牌",
 	
 	["lord"] = "主公", 
 	["loyalist"] = "忠臣", 
