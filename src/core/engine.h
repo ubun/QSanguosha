@@ -5,10 +5,7 @@
 #include "general.h"
 #include "skill.h"
 #include "package.h"
-
-#ifdef AUDIO_SUPPORT
-#include "irrKlang.h"
-#endif
+#include "exppattern.h"
 
 #include <QHash>
 #include <QStringList>
@@ -16,8 +13,7 @@
 
 class AI;
 class Scenario;
-class ChallengeModeSet;
-class ChallengeMode;
+class QLibrary;
 
 struct lua_State;
 
@@ -40,8 +36,10 @@ public:
     QStringList getBanPackages() const;
     Card *cloneCard(const QString &name, Card::Suit suit, int number) const;
     SkillCard *cloneSkillCard(const QString &name) const;
+    QString getVersionNumber() const;
     QString getVersion() const;
     QString getVersionName() const;
+    QString getMODName() const;
     QStringList getExtensions() const;
     QStringList getKingdoms() const;
     QColor getKingdomColor(const QString &kingdom) const;
@@ -61,8 +59,8 @@ public:
     void addScenario(Scenario *scenario);
     const Scenario *getScenario(const QString &name) const;
 
-    const ChallengeModeSet *getChallengeModeSet() const;
-    const ChallengeMode *getChallengeMode(const QString &name) const;
+    void addPackage(const QString &name);
+    void addScenario(const QString &name);
 
     const General *getGeneral(const QString &name) const;
     int getGeneralCount(bool include_banned = false) const;
@@ -104,13 +102,14 @@ private:
     QList<const DistanceSkill *> distance_skills;
 
     QHash<QString, const Scenario *> scenarios;
-    ChallengeModeSet *challenge_mode_set;
 
     QList<Card*> cards;
     QStringList lord_list, nonlord_list;
     QSet<QString> ban_package;
 
     lua_State *lua;
+
+    QLibrary *lib;
 };
 
 extern Engine *Sanguosha;

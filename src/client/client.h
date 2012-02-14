@@ -162,6 +162,7 @@ public:
     bool refusable;
     bool include_equip;
     int discard_num;
+    QString skill_name;
     QList<const Card*> discarded_list;
     QDialog *ask_dialog;
     QStringList players_to_choose;   
@@ -213,7 +214,7 @@ private slots:
     void selectRole();
 
 signals:
-    void version_checked(const QString &server_version);
+    void version_checked(const QString &version_number, const QString &mod_name);
     void server_connected();
     void error_message(const QString &msg);
     void player_added(ClientPlayer *new_player);
@@ -238,6 +239,7 @@ signals:
     void text_spoken(const QString &text);
     void line_spoken(const QString &line);
     void judge_result(const QString &who, const QString &result);
+    void card_used();
 
     void game_started();
     void game_over();
@@ -266,6 +268,7 @@ signals:
     void role_state_changed(const QString & state_str);
 
     void assign_asked();
+    void start_in_xs();
 };
 
 extern Client *ClientInstance;

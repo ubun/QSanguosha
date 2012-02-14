@@ -119,7 +119,7 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
 
     int card_id = zhouyu->getRandomHandCardId();
     const Card *card = Sanguosha->getCard(card_id);
-    Card::Suit suit = room->askForSuit(target);
+    Card::Suit suit = room->askForSuit(target, "fanjian");
 
     LogMessage log;
     log.type = "#ChooseSuit";
@@ -222,6 +222,7 @@ void QingnangCard::onEffect(const CardEffectStruct &effect) const{
 GuicaiCard::GuicaiCard(){
     target_fixed = true;
     will_throw = false;
+    can_jilei = true;
 }
 
 void GuicaiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
@@ -246,6 +247,8 @@ bool LiuliCard::targetFilter(const QList<const Player *> &targets, const Player 
     int card_id = subcards.first();
     if(Self->getWeapon() && Self->getWeapon()->getId() == card_id)
         return Self->distanceTo(to_select) <= 1;
+    else if(Self->getOffensiveHorse() && Self->getOffensiveHorse()->getId() == card_id)
+        return Self->distanceTo(to_select) <= (Self->getWeapon()?Self->getWeapon()->getRange():1);
     else
         return true;
 }
@@ -278,20 +281,6 @@ void JijiangCard::use(Room *room, ServerPlayer *liubei, const QList<ServerPlayer
             room->useCard(card_use);
             return;
         }
-    }
-}
-
-HuanzhuangCard::HuanzhuangCard(){
-    target_fixed = true;
-}
-
-void HuanzhuangCard::onUse(Room *room, const CardUseStruct &card_use) const{
-    ServerPlayer *diaochan = card_use.from;
-
-    if(diaochan->getGeneralName() == "diaochan"){
-        room->transfigure(diaochan, "sp_diaochan", false, false);
-    }else if(diaochan->getGeneralName() == "sp_diaochan"){
-        room->transfigure(diaochan, "diaochan", false, false);
     }
 }
 

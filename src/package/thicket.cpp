@@ -7,6 +7,7 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "engine.h"
+#include "general.h"
 
 class Xingshang: public TriggerSkill{
 public:
@@ -122,7 +123,10 @@ public:
             foreach(ServerPlayer *p, players){
                 QVariant who = QVariant::fromValue(p);
                 if(p->hasLordSkill("songwei") && player->askForSkillInvoke("songwei", who)){
-                    room->playSkillEffect(objectName(), 1);
+                    if(player->getGeneral()->isMale())
+                        room->playSkillEffect(objectName(), 1);
+                    else
+                        room->playSkillEffect(objectName(), 2);
                     p->drawCards(1);
                 }
             }
@@ -802,7 +806,7 @@ public:
         }
 
         if(trigger_this){
-            QString result = room->askForChoice(dongzhuo, "benghuai", "hp+max_hp");
+            QString result = room->askForChoice(dongzhuo, "benghuai", "hp+maxhp");
 
             room->playSkillEffect(objectName());
             room->setEmotion(dongzhuo, "bad");

@@ -6,6 +6,7 @@
 #include "clientplayer.h"
 #include "engine.h"
 #include "client.h"
+#include "exppattern.h"
 
 QString BasicCard::getType() const{
     return "basic";
@@ -347,75 +348,32 @@ EquipCard::Location Horse::location() const{
         return OffensiveHorseLocation;
 }
 
-class HandcardPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card);
-    }
-};
-
-class SuitPattern: public CardPattern{
-public:
-    SuitPattern(Card::Suit suit)
-        :suit(suit)
-    {
-    }
-
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->getSuit() == suit;
-    }
-
-private:
-    Card::Suit suit;
-};
-
-class SlashPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->inherits("Slash");
-    }
-};
-
-class NamePattern: public CardPattern{
-public:
-    NamePattern(const QString &name)
-        :name(name)
-    {
-
-    }
-
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->objectName() == name;
-    }
-
-private:
-    QString name;
-};
-
-class PAPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) &&
-                (card->inherits("Peach") || card->inherits("Analeptic"));
-    }
-};
 
 StandardPackage::StandardPackage()
     :Package("standard")
 {
     addGenerals();
 
-    patterns["."] = new HandcardPattern;
-    patterns[".S"] = new SuitPattern(Card::Spade);
-    patterns[".C"] = new SuitPattern(Card::Club);
-    patterns[".H"] = new SuitPattern(Card::Heart);
-    patterns[".D"] = new SuitPattern(Card::Diamond);
+    patterns["."] = new ExpPattern(".|.|.|hand");
+    patterns[".S"] = new ExpPattern(".|spade|.|hand");
+    patterns[".C"] = new ExpPattern(".|club|.|hand");
+    patterns[".H"] = new ExpPattern(".|heart|.|hand");
+    patterns[".D"] = new ExpPattern(".|diamond|.|hand");
 
-    patterns["slash"] = new SlashPattern;
-    patterns["jink"] = new NamePattern("jink");
-    patterns["peach"] = new NamePattern("peach");
-    patterns["nullification"] = new NamePattern("nullification");
-    patterns["peach+analeptic"] = new PAPattern;
+    patterns[".black"] = new ExpPattern(".|.|.|hand|black");
+    patterns[".red"] = new ExpPattern(".|.|.|hand|red");
+
+    patterns[".."] = new ExpPattern(".");
+    patterns[".S"] = new ExpPattern(".|spade");
+    patterns[".C"] = new ExpPattern(".|club");
+    patterns[".H"] = new ExpPattern(".|heart");
+    patterns[".D"] = new ExpPattern(".|diamond");
+
+    patterns["slash"] = new ExpPattern("Slash");
+    patterns["jink"] = new ExpPattern("Jink");
+    patterns["peach"] = new  ExpPattern("Peach");
+    patterns["nullification"] = new ExpPattern("Nullification");
+    patterns["peach+analeptic"] = new ExpPattern("Peach,Analeptic");
 }
 
 ADD_PACKAGE(Standard)

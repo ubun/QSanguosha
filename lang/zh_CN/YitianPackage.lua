@@ -62,7 +62,7 @@ return {
 	[":liqian"] = "<b>锁定技</b>，当你处于连理状态时，势力为蜀；当你处于未连理状态时，势力为魏",
 	[":qiaocai"] = "当你处于未连理状态时，出牌阶段，你可以获得一名角色判定区的所有牌，每阶段限一次",
 
-	["$lianli"] = "连理并蒂，比翼不疑",
+	["$lianli"] = "连理并蒂，比翼不移",
 	["$tongxin"] = "执子之手，与子偕老",
 	["$qiaocai"] = "陟彼南山，言采其樵。未见君子，忧心惙惙",
 	["~xiahoujuan"] = "行与子逝兮，归于其室",
@@ -74,6 +74,7 @@ return {
 	["lianli-jink:jink"] = "你是否想你的连理角色替你出闪？",
 	["@lianli-slash"] = "请提供一张杀给你的连理对象",
 	["@lianli-jink"] = "请提供一张闪给你的连理对象",
+	[":lianli-slash"] = "与你处于连理状态的女性角色可以替你出杀",
 
 	["@@lianli-card"] = "请选择一名要连理的对象",
 	["#LianliConnection"] = "%from 与 %to 结为连理",
@@ -118,7 +119,7 @@ return {
 	["caizhaoji"] = "蔡昭姬",
 	["guihan"] = "归汉",
 	["caizhaoji_hujia"] = "胡笳",
-	[":guihan"] = "出牌阶段，你可以主动弃置两张红色手牌，和你指定的一名其他存活角色互换位置。每阶段限一次",
+	[":guihan"] = "出牌阶段，你可以主动弃置两张相同花色的红色手牌，和你指定的一名其他存活角色互换位置。每阶段限一次",
 	[":caizhaoji_hujia"] = "回合结束阶段开始时，你可以进行判定：若为红色，立即获得此牌，如此往复，直到出现黑色为止，连续发动3次后武将翻面",
 	["$guihan"] = "雁南征兮欲寄边心，雁北归兮为得汉音",
 	["$caizhaoji_hujia"] = "北风厉兮肃泠泠。胡笳动兮边马鸣",
@@ -215,12 +216,12 @@ return {
 	[":yitian"] = "<b>联动技</b>，当你对曹操造成伤害时，可令该伤害-1",
 	["#YitianSolace"] = "%from 发动了技能【倚天】，对 %to 的 %arg 点伤害减至 %arg2 点",
 
-	-- SP庞德
-	["sp_pangde"] = "SP庞德",
+	-- 庞令明
+	["panglingming"] = "庞令明",
 	["taichen"] = "抬榇",
 	[":taichen"] = "出牌阶段，你可以自减1点体力或弃置一张武器牌，弃置你攻击范围内的一名角色区域的两张牌。每回合中，你可以多次使用抬榇",
 	["$taichen"] = "良将不惧死以苟免，烈士不毁节以求生",
-	["~sp_pangde"] = "吾宁死于刀下，岂降汝乎",
+	["~panglingming"] = "吾宁死于刀下，岂降汝乎",
 
 	["yanghu"] = "羊祜",
 	["jinshen"] = "谨慎",
@@ -243,7 +244,7 @@ return {
 	["cv:dengshizai"] = "阿澈",
 	["cv:zhanggongqi"] = "",
 	["cv:yitianjian"] = "",
-	["cv:sp_pangde"] = "Glory",
+	["cv:panglingming"] = "Glory",
 
 	["designer:shencc"] = "官方内测第三版",
 	["designer:caochong"] = "太阳神上",
@@ -261,6 +262,6 @@ return {
 	["designer:dengshizai"] = "Bu懂",
 	["designer:zhanggongqi"] = "背碗卤粉, Jr. Wakaran",
 	["designer:yitianjian"] = "太阳神上",
-	["designer:sp_pangde"] = "太阳神上",
+	["designer:panglingming"] = "太阳神上",
 }
 

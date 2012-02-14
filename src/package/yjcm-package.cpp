@@ -6,6 +6,7 @@
 #include "carditem.h"
 #include "engine.h"
 #include "ai.h"
+#include "general.h"
 
 class Yizhong: public TriggerSkill{
 public:
@@ -44,6 +45,7 @@ public:
     Luoying():TriggerSkill("luoying"){
         events << CardDiscarded << CardUsed << FinishJudge;
         frequency = Frequent;
+        default_choice = "no";
     }
 
     virtual int getPriority() const{
@@ -96,10 +98,15 @@ public:
                clubs << judge->card;
         }
 
+        ServerPlayer *caozhi = room->findPlayerBySkillName(objectName());
+        foreach(const Card* card, clubs)
+            if(card->objectName() == "shit")
+                if(caozhi && room->askForChoice(caozhi, objectName(), "yes+no") == "no")
+                    clubs.removeOne(card);
+
         if(clubs.isEmpty())
             return false;
 
-        ServerPlayer *caozhi = room->findPlayerBySkillName(objectName());
         if(caozhi && caozhi->askForSkillInvoke(objectName(), data)){
             if(player->getGeneralName() == "zhenji")
                 room->playSkillEffect("luoying", 2);
@@ -400,8 +407,8 @@ public:
             log.to << killer;
             room->sendLog(log);
 
-            killer->throwAllEquips();
             killer->throwAllHandCards();
+            killer->throwAllEquips();
 
             QString killer_name = killer->getGeneralName();
             if(killer_name == "zhugeliang" || killer_name == "wolong" || killer_name == "shenzhugeliang")
@@ -525,6 +532,7 @@ void XianzhenCard::onEffect(const CardEffectStruct &effect) const{
 
 XianzhenSlashCard::XianzhenSlashCard(){
     target_fixed = true;
+    can_jilei = true;
 }
 
 void XianzhenSlashCard::onUse(Room *room, const CardUseStruct &card_use) const{

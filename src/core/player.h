@@ -176,6 +176,7 @@ public:
     int getCardCount(bool include_equip) const;
 
     QList<int> getPile(const QString &pile_name) const;
+    QStringList getPileNames() const;
     QString getPileName(int card_id) const;
 
     void addHistory(const QString &name, int times = 1);
@@ -232,7 +233,7 @@ private:
     QList<const DelayedTrick *> delayed_tricks;
     QHash<const Player *, int> fixed_distance;
 
-    QSet<Card::CardType> jilei_set;
+    QSet<QString> jilei_set;
 
 signals:
     void general_changed();

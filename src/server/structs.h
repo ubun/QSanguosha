@@ -152,7 +152,7 @@ enum TriggerEvent{
     FinishJudge,
 
     Pindian,
-    TurnOvered,
+    TurnedOver,
 
     Predamage,
     Predamaged,
@@ -179,6 +179,9 @@ enum TriggerEvent{
     CardDiscarded,
     CardLost,
     CardLostDone,
+    CardGot,
+    CardGotDone,
+    CardDrawnDone,
 
     CardEffect,
     CardEffected,

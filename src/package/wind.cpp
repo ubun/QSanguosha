@@ -5,12 +5,14 @@
 #include "carditem.h"
 #include "engine.h"
 #include "ai.h"
+#include "general.h"
 
 // skill cards
 
 GuidaoCard::GuidaoCard(){
     target_fixed = true;
     will_throw = false;
+    can_jilei = true;
 }
 
 void GuidaoCard::use(Room *room, ServerPlayer *zhangjiao, const QList<ServerPlayer *> &targets) const{
@@ -131,8 +133,6 @@ public:
         prompt_list << "@guidao-card" << judge->who->objectName()
                 << "" << judge->reason << judge->card->getEffectIdString();
         QString prompt = prompt_list.join(":");
-
-        player->tag["Judge"] = data;
         const Card *card = room->askForCard(player, "@guidao", prompt, data);
 
         if(card){
@@ -886,7 +886,7 @@ const Card *GuhuoCard::validate(const CardUseStruct *card_use) const{
         const Card *card = Sanguosha->getCard(subcards.first());
         Card *use_card = Sanguosha->cloneCard(user_string, card->getSuit(), card->getNumber());
         use_card->setSkillName("guhuo");
-        use_card->addSubcard(this);
+        room->throwCard(this);
 
         return use_card;
     }else
@@ -915,7 +915,7 @@ const Card *GuhuoCard::validateInResposing(ServerPlayer *yuji, bool *continuable
         const Card *card = Sanguosha->getCard(subcards.first());
         Card *use_card = Sanguosha->cloneCard(to_guhuo, card->getSuit(), card->getNumber());
         use_card->setSkillName("guhuo");
-        use_card->addSubcard(this);
+        room->throwCard(this);
 
         return use_card;
     }else

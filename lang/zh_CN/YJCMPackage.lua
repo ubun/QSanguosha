@@ -67,6 +67,7 @@ return {
 	["designer:chengong"] = "Kaycent",
 	
 	["cv:caozhi"] = "殆尘",
+	["cv:chengong"] = "官方,V7",
 	
 	["#WuyanBad"] = "%from 的锁定技【无言】被触发，对 %to 的锦囊【%arg】无效",
 	["#WuyanGood"] = "%from 的锁定技【无言】被触发， %to 的锦囊【%arg】对其无效",
@@ -84,6 +85,8 @@ return {
 	["xuanfeng:damage"] = "对距离1以内的其他角色造成伤害",
 	["xuanfeng:slash"] = "对任意一名其他角色使用一张【杀】",
 	["#JujianRecover"] = "%from 用举荐弃掉了三张 %arg ，将恢复一点体力",
+	["luoying:yes"] = "拿屎",
+	["luoying:no"] = "不拿屎",
 	
 	["$jiushi1"] = "举泰山以为肉，倾东海以为酒",
 	["$jiushi2"] = "饮酒并醉，纵横喧哗。",
@@ -124,7 +127,7 @@ return {
 	["$yizhong1"] = "不先为备，何以待敌",
 	["$yizhong2"] = "稳重行军，百战不殆！",
 	
-	["~chengong"] = "请出就戳！",
+	["~chengong"] = "请出就戮！",
 	["~fazheng"] = "辅翼既折，蜀汉衰矣…",
 	["~gaoshun"] = "生死有命…",
 	["~lingtong"] = "大丈夫不惧死亡",

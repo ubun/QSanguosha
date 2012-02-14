@@ -1,4 +1,6 @@
 return {
+	["Pairs"] = "双将",
+
 	["spade"] = "黑桃",
 	["club"] = "梅花",
 	["heart"] = "红桃",
@@ -27,6 +29,7 @@ return {
 	["robot"] = "电脑",
 	["trust"] = "托管",
 	["cheat"] = "作弊",
+	["free-discard"] = "自由弃牌",
 	["yes"] = "是",
 	["no"] = "否",
 
@@ -103,10 +106,12 @@ return {
 	["#LoseHp"] = "%from 流失了 %arg 点体力",
 	["#ChangeKingdom"] = "%from 把 %to 的国籍由原来的 %arg 改成了 %arg2",
 	["@askforslash"] = "你可以对你攻击范围内的一名角色使用一张【杀】",
+	["#AnalepticBuff"] = "%from 喝了【酒】，对 %to 造成的杀伤害 +1",
 
 	["3v3:cw"] = "顺时针",
 	["3v3:ccw"] = "逆时针",
 	["cw"] = "顺时针",
 	["ccw"] = "逆时针",
 	["#TrickDirection"] = "%from 选择了 %arg 作为锦囊的顺序",
+	["custom"] = "自定义模式",
 }

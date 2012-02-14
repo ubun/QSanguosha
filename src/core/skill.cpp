@@ -81,6 +81,10 @@ void Skill::initMediaSource(){
     }
 }
 
+Skill::Location Skill::getLocation() const{
+    return parent() ? Right : Left;
+}
+
 void Skill::playEffect(int index) const{
     if(!sources.isEmpty()){
         if(index == -1)
@@ -99,6 +103,10 @@ void Skill::playEffect(int index) const{
         if(ClientInstance)
             ClientInstance->setLines(filename);
     }
+}
+
+bool Skill::useCardSoundEffect() const{
+    return false;
 }
 
 void Skill::setFlag(ServerPlayer *player) const{
@@ -298,25 +306,31 @@ bool GameStartSkill::trigger(TriggerEvent, ServerPlayer *player, QVariant &) con
     return false;
 }
 
-SPConvertSkill::SPConvertSkill(const QString &name, const QString &from, const QString &to)
-    :GameStartSkill(name), from(from), to(to)
+SPConvertSkill::SPConvertSkill(const QString &name, const QString &from, const QString &to, bool transfigure)
+    :GameStartSkill(name), from(from), to(to), transfigure(transfigure)
 {
     frequency = Limited;
 }
 
 bool SPConvertSkill::triggerable(const ServerPlayer *target) const{
+    QString package = Sanguosha->getGeneral(to)->getPackage();
+    if(Sanguosha->getBanPackages().contains(package)) return false;
     return GameStartSkill::triggerable(target) && target->getGeneralName() == from;
 }
 
 void SPConvertSkill::onGameStart(ServerPlayer *player) const{
     if(player->askForSkillInvoke(objectName())){
         Room *room = player->getRoom();
-        room->setPlayerProperty(player, "general", to);
+        if(transfigure)
+            room->transfigure(player, to, true, false);
+        else
+            room->setPlayerProperty(player, "general", to);
 
         const General *general = Sanguosha->getGeneral(to);
         const QString kingdom = general->getKingdom();
         if(kingdom != player->getKingdom())
             room->setPlayerProperty(player, "kingdom", kingdom);
+
     }
 }
 

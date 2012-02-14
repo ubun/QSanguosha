@@ -18,8 +18,7 @@ return {
 	["gongsunzan"] = "公孙瓒",
 	["yicong"] = "义从",
 	[":yicong"] = "<b>锁定技</b>，只要你的体力值大于2点，你计算与其他角色的距离时，始终-1；只要你的体力值为2点或更低，其他角色计算与你的距离时，始终+1",
-	["~gongsunzan"] = "如今阵败吾已无颜苟活于世",
-	["cv:gongsunzan"] = "",
+	["~gongsunzan"] = "我军将败，我已无颜苟活于世",
 
 	["yuanshu"] = "袁术",
 	["yongsi"] = "庸肆",
@@ -37,10 +36,9 @@ return {
 	["#YongsiWorst"] = "%from 的锁定技【庸肆】被触发，弃掉了所有的装备和手牌（共 %arg 张）",
 
 	["sp_diaochan"] = "SP貂蝉",
+	["SP-Diaochan"] = "SP貂蝉",
 	["tuoqiao"] = "脱壳",
-	["xuwei"] = "续尾",
-	[":tuoqiao"] = "金蝉脱壳，变身为SP貂蝉",
-	[":xuwei"] = "狗尾续貂，变身为原版貂蝉",
+	[":tuoqiao"] = "<b>限定技</b>，游戏开始时，你可以选择变身为SP貂蝉或桌游志貂蝉",
 	["cv:sp_diaochan"] = "",
 
 	["sp_sunshangxiang"] = "SP孙尚香",
@@ -63,17 +61,23 @@ return {
 	[":guiwei"] = "<b>限定技</b>，游戏开始时，你可以选择变身为SP贾诩，势力为魏",
 	["cv:sp_jiaxu"] = "落凤一箭",
 	
+	["sp_pangde"] = "SP庞德",
+	["pangde_guiwei"] = "归魏",
+	[":pangde_guiwei"] = "<b>限定技</b>，游戏开始时，你可以选择变身为SP庞德，势力为魏",
+	["cv:sp_pangde"] = "Glory",
+
 	["sp_machao"] = "SP马超",
 	["fanqun"] = "返群",
 	[":fanqun"] = "<b>限定技</b>，游戏开始时，你可以选择变身为SP马超，势力为群",
 
 --hulao mode
-	["hulaopass"] = "虎牢关模式",
+	["Hulaopass"] = "虎牢关模式",
 
 	["shenlvbu1"] = "神吕布(1)",
 	["shenlvbu2"] = "神吕布(2)",
 	["xiuluo"] = "修罗",
 	[":xiuluo"] = "回合开始阶段，你可以弃一张手牌来弃置你判定区里的一张延时类锦囊(必须花色相同)。",
+	["@xiuluo"] = "请弃置一张花色相同的手牌",
 	["shenwei"] = "神威",
 	[":shenwei"] = "<b>锁定技</b>，摸牌阶段，你额外摸两张牌，你的手牌上限+2。",
 	["shenji"] = "神戟",
@@ -81,9 +85,12 @@ return {
 
 	["#Reforming"] = "%from 进入重整状态",
 	["#ReformingRecover"] = "%from 在重整状态中回复了1点体力",
+	["#ReformingDraw"] = "%from 在重整状态中摸了1张牌",
 	["#ReformingRevive"] = "%from 从重整状态中复活!",
 	["draw_1v3"] = "重整摸牌",
 	["weapon_recast"] = "武器重铸",
+	["Hulaopass:recover"] = "恢复1点体力",
+	["Hulaopass:draw"] = "摸1张牌",
 	
 --sp_card
 	["sp_cards"] = "SP卡牌包",

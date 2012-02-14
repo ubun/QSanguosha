@@ -91,7 +91,7 @@ public:
     ServerPlayer *findPlayerBySkillName(const QString &skill_name, bool include_dead = false) const;
     void installEquip(ServerPlayer *player, const QString &equip_name);
     void resetAI(ServerPlayer *player);
-    void transfigure(ServerPlayer *player, const QString &new_general, bool full_state, bool invoke_start = true);
+    void transfigure(ServerPlayer *player, const QString &new_general, bool full_state, bool invoke_start = true, const QString &old_general = QString(""));
     void swapSeat(ServerPlayer *a, ServerPlayer *b);
     lua_State *getLuaState() const;
     void setFixedDistance(Player *from, const Player *to, int distance);
@@ -133,7 +133,7 @@ public:
 
     // interactive methods
     void activate(ServerPlayer *player, CardUseStruct &card_use);
-    Card::Suit askForSuit(ServerPlayer *player);
+    Card::Suit askForSuit(ServerPlayer *player, const QString &reason);
     QString askForKingdom(ServerPlayer *player);
     bool askForSkillInvoke(ServerPlayer *player, const QString &skill_name, const QVariant &data = QVariant());
     QString askForChoice(ServerPlayer *player, const QString &skill_name, const QString &choices);
@@ -197,6 +197,7 @@ private:
     QMap<int, ServerPlayer*> owner_map;
 
     const Card *provided;
+    bool has_provided;
 
     QVariantMap tag;
     const Scenario *scenario;
@@ -221,6 +222,7 @@ private:
     void makeDamage(const QStringList &texts);
     void makeKilling(const QStringList &texts);
     void makeReviving(const QStringList &texts);
+    void doScript(const QString &script);
 
 private slots:
     void reportDisconnection();
