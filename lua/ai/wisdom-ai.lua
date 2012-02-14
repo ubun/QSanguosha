@@ -95,6 +95,10 @@ sgs.ai_skill_use["@@weidai"] = function(self, prompt)
 	return "@WeidaiCard=.->."
 end
 
+sgs.ai_skill_use_func["WeidaiCard"] = function(card, use, self)
+	use.card = card
+end
+
 -- fuzuo
 sgs.ai_skill_choice["fuzuo"] = function(self , choices)
 	return "cancel"
@@ -107,7 +111,11 @@ sgs.ai_skill_playerchosen["longluo"] = function(self, targets)
 			return player
 		end
 	end
-	return self.friends[1]
+	return self.friends_noself[1]
+end
+
+sgs.ai_skill_invoke.longluo = function(self, data)
+	return #self.friends > 1
 end
 
 -- jincui
@@ -120,10 +128,13 @@ sgs.ai_skill_playerchosen["jincui"] = function(self, targets)
 			return player
 		end
 	end
-	return self.friends[1]
+	if #self.friends > 1 then return self.friends_noself[1] end
+	sgs.jincui_discard = true
+	return self.enemies[1]
 end
+
 sgs.ai_skill_choice["jincui"] = function(self, choices)
-	return "draw"
+	if sgs.jincui_discard then return "throw" else return "draw" end
 end
 
 -- shipo

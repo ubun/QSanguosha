@@ -1,14 +1,4 @@
-sgs.ai_skill_invoke.jueji=function(self,data)
-	local target=data:toPlayer()
-	if target:getHandcardNum()<1 or (target:getHandcardNum()==1 and self:hasSkills(sgs.need_kongcheng,target)) then
-		return false
-	end
-	local handcard=target:getHandcardNum()
-	local max_point=self:getMaxCard():getNumber()
-	local poss=((max_point-1)/13)^handcard
-	if math.random()<=poss then return true end
-
-end
+sgs.ai_skill_invoke.jueji = true
 
 sgs.ai_skill_use["@@jueji"]=function(self,prompt)
 	local target
@@ -108,16 +98,11 @@ sgs.ai_skill_invoke.tongxin = true
 
 -- wuling, choose a effect randomly
 sgs.ai_skill_choice.wuling = function(self, choices)
-	local choices_table = choices:split("+")
-	local available = {}
-	for _, availchoice in ipairs(choices_table) do
-		available[availchoice] = true
-	end
-	if available["water"] then
+	if choices:match("water") then
 		self:sort(self.friends, "hp")
 		if self:isWeak(self.friends[1]) then return "water" end
 	end
-	if available["earth"] then
+	if choices:match("earth") then
 		if #(self:getChainedFriends()) > #(self:getChainedEnemies()) and
 			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "earth" end
 		if self:hasWizard(self.enemies, true) and not self:hasWizard(self.friends, true) then
@@ -126,14 +111,14 @@ sgs.ai_skill_choice.wuling = function(self, choices)
 			end
 		end
 	end
-	if available["fire"] then
+	if choices:match("fire") then
 		for _,enemy in ipairs(self.enemies) do
 			if self:isEquip("GaleShell", enemy) or self:isEquip("Vine", enemy) then return "fire" end
 		end
 		if #(self:getChainedFriends()) < #(self:getChainedEnemies()) and
 			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "fire" end
 	end
-	if available["wind"] then
+	if choices:match("wind") then
 		for _,enemy in ipairs(self.enemies) do
 			if self:isEquip("GaleShell", enemy) or self:isEquip("Vine", enemy) then return "wind" end
 		end
@@ -147,7 +132,7 @@ sgs.ai_skill_choice.wuling = function(self, choices)
 		end
 		if self:getCardId("FireSlash") or self:getCardId("FireAttack") then return "wind" end
 	end
-	if available["thunder"] then
+	if choices:match("thunder") then
 		if self:hasWizard(self.friends,true) and not self:hasWizard(self.enemies,true) then
 			for _, player in sgs.qlist(self.room:getAlivePlayers()) do
 				if player:containsTrick("lightning") then return "thunder" end
@@ -158,6 +143,7 @@ sgs.ai_skill_choice.wuling = function(self, choices)
 		end
 		if self:getCardId("ThunderSlash") then return "thunder" end
 	end
+	local choices_table = choices:split("+")
 	return choices_table[math.random(1, #choices_table)]
 end
 
@@ -245,6 +231,8 @@ local function chooseKingdomForPlayer(self, to_modify)
 		end
 	elseif lord:hasLordSkill("xueyi") and not to_modify:isLord() then
 		return isGood and "qun" or "wei"
+	elseif self.player:hasLordSkill("xueyi") then
+		return "qun"
 	end
 
 	return "wei"
@@ -257,7 +245,11 @@ sgs.ai_skill_choice.guixin2 = function(self, choices)
 	end
 
 	if choices ~= "modify+obtain" then
-		return choices:split("+")[1]
+		if choices:match("xueyi") and not self.room:getLieges("qun", self.player):isEmpty() then return "xueyi" end
+		if choices:match("weidai") and self:isWeak() then return "weidai" end
+		if choices:match("ruoyu") then return "ruoyu" end
+		local choice_table = choices:split("+")
+		return choice_table[math.random(1,#choice_table)]
 	end
 
 	-- two choices: modify and obtain
@@ -352,7 +344,7 @@ sgs.ai_skill_use_func["YisheAskCard"]=function(card,use,self)
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		if player:hasSkill("yishe") and not player:getPile("rice"):isEmpty() then zhanglu=player cards=player:getPile("rice") break end
 	end	
-	if not zhanglu then return end
+	if not zhanglu or not self:isFriend(zhanglu) then return end
 	cards = sgs.QList2Table(cards)
 	for _, pcard in ipairs(cards) do
 		if not sgs.Sanguosha:getCard(pcard):inherits("Shit") then
