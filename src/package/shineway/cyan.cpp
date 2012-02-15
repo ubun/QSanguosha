@@ -249,7 +249,7 @@ public:
 class Weighing: public TriggerSkill{
 public:
     Weighing():TriggerSkill("weighing"){
-        events << HandCardNumChanged << HpChanged;
+        events << CardGotDone << CardLostDone << HpChanged;
         frequency = Compulsory;
     }
 
@@ -265,12 +265,10 @@ public:
                log.arg = objectName();
                room->sendLog(log);
 
-               cc->setMark("Exception", 1);
                if(handcard < hp)
                    cc->drawCards(hp - handcard);
                else
                    room->askForDiscard(cc, objectName(), handcard - qMax(hp, 0));
-               cc->setMark("Exception", 0);
            }
         }
         return false;

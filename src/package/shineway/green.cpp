@@ -58,7 +58,7 @@ public:
 class Liji: public TriggerSkill{
 public:
     Liji():TriggerSkill("liji"){
-        events << TurnOvered;
+        events << TurnedOver;
         frequency = Compulsory;
     }
 
@@ -359,7 +359,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *player) const{;
-        return player->getMark("Exception") == 0;
+        return true;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{

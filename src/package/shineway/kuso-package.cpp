@@ -291,7 +291,7 @@ public:
 class SuperJuejing: public TriggerSkill{
 public:
     SuperJuejing():TriggerSkill("super_juejing"){
-        events << GameStart << PhaseChange << HandCardNumChanged;
+        events << GameStart << PhaseChange << CardLostDone << CardGotDone;
         frequency = Compulsory;
     }
 
@@ -320,12 +320,10 @@ public:
         log.arg = objectName();
         room->sendLog(log);
 
-        player->setMark("Exception", 1);
         if(handcard < 4)
             player->drawCards(4 - handcard);
         else
             room->askForDiscard(player, objectName(), handcard - 4);
-        player->setMark("Exception", 0);
         return false;
     }
 };

@@ -13,7 +13,7 @@ return {
 
 --WEI06 鄢陵侯
 	["greencaozhang"] = "曹彰",
-	["designer:greencaozhang"] = "章鱼哥、sailiss",
+	["designer:greencaozhang"] = "章鱼哥",
 	["liji"] = "厉击",
 	[":liji"] = "锁定技，当你的武将牌翻面时，视为对任意一名角色(包括自己)使用了一张【杀】",
 	["shixian"] = "士先",

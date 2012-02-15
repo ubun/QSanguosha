@@ -1207,7 +1207,7 @@ void SusaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
         if(target && target->getMark("Tsuku") > 0){
             source->loseMark("@susa");
             target->setMark("Tsuku", 0);
-            int maxhp = ceil(target->getMaxHP() / 2 * 3);
+            int maxhp = target->getMaxHP() / 2 * 3;
             room->transfigure(target, "sujiang", false, false);
             room->setPlayerProperty(target, "maxhp", maxhp);
             room->broadcastInvoke("animate", "lightbox:$susa:2500");

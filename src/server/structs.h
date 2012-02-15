@@ -186,7 +186,6 @@ enum TriggerEvent{
     CardEffect,
     CardEffected,
     CardFinished,
-    HandCardNumChanged,
 
     PreSkillInvoke,
     ChoiceMade,
