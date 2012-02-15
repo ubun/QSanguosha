@@ -5,16 +5,16 @@ return {
 
 --WEI#01
 	["redzhonghui"] = "钟会",
-	["designer:redzhonghui"] = "宇文天启",
+	["designer:redzhonghui"] = "淬毒",
 	["cv:redzhonghui"] = "",
-	["tongmou"] = "同谋",
-	[":tongmou"] = "出牌阶段出牌前,指定一名角色为谋友并获得以下技能直到该角色下个回合结束:互为谋友的两名角色在其出牌阶段可以共享对方的手牌(见详解)",
-	["tongmou_tie"] = "指定一名角色成为你的谋友",
-	["#Tongmou_forbidden"] = "%from 拥有技能【%arg2】，为了避免无限刷牌的情况发生，你只能发动一次【%arg】",
---	["mycard"] = "我的手牌",
-	["tongmouv"] = "同謀",
-	["xianhai"] = "陷害",
-	[":xianhai"] = "你可以将你的天灾手牌放在任意角色的判定区内，然后摸一张牌",
+	["tianhui"] = "天慧",
+	[":tianhui"] = "回合开始阶段，你可展示一张手牌，则本回合内，其他角色不能使用或打出与此牌相同花色的牌。",
+	["#Tianhui"] = "%from 天慧了其他角色的 %arg 牌",
+	["jifeng"] = "机锋",
+	[":jifeng"] = "每当你受到一次伤害后，你可展示一张手牌，伤害来源需展示其所有手牌，并弃掉其中与展示牌相同颜色的牌。",
+	["#Jifeng"] = "%from 受到【%arg】技能的影响，须弃掉所有 %arg2 手牌",
+	["jifengr"] = "红色",
+	["jifengb"] = "黑色",
 
 --WEI#02
 	["redxunyou"] = "荀攸",

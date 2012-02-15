@@ -5,228 +5,72 @@
 #include "carditem.h"
 #include "room.h"
 
-TongmouCard::TongmouCard(){
-    target_fixed = true;
-}
-
-void TongmouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *tmp = NULL;
-    foreach(tmp, room->getOtherPlayers(source)){
-        if(tmp->getMark("xoxo") > 0)
-            break;
-    }
-    ServerPlayer *zhonghui, *gay;
-    if(source->hasSkill("tongmou")){
-        zhonghui = source;
-        gay = tmp;
-    }
-    else{
-        zhonghui = tmp;
-        gay = source;
-    }
-    if(!gay || !zhonghui) return;
-    QList<ServerPlayer *> gays;
-    gays << zhonghui << gay;
-    QStringList forbid_skills;
-    forbid_skills << "lianying" << "tuntian" << "shangshi" << "beifa"
-            << "weighing" << "liufang";
-    foreach(ServerPlayer *tmp, gays){
-        if(tmp->hasSkill("tuntian") && tmp == source)
-            continue;
-        if(tmp->hasSkill("juxiang") && tmp != source)
-            source->setFlags("sa_forbidden");
-        foreach(QString tmp2, forbid_skills){
-            if(tmp->hasSkill(tmp2)){
-                if(source->hasFlag("forct")){
-                    LogMessage log;
-                    log.type = "#Tongmou_forbidden";
-                    log.from = tmp;
-                    log.arg = "tongmou";
-                    log.arg2 = tmp2;
-                    room->sendLog(log);
-                    return;
-                }
-                source->setFlags("forct");
-            }
-        }
-    }
-
-    DummyCard *card1 = zhonghui->wholeHandCards();
-    DummyCard *card2 = gay->wholeHandCards();
-
-    if(card1){
-        room->moveCardTo(card1, gay, Player::Hand, false);
-        delete card1;
-    }
-    //room->getThread()->delay();
-    if(card2){
-        room->moveCardTo(card2, zhonghui, Player::Hand, false);
-        delete card2;
-    }
-    source->tag["flag"] = !source->tag.value("flag", true).toBool();
-}
-
-class TongmouViewAsSkill: public ZeroCardViewAsSkill{
+class Tianhui: public PhaseChangeSkill{
 public:
-    TongmouViewAsSkill():ZeroCardViewAsSkill("tongmouv"){
-    }
-    virtual const Card *viewAs() const{
-        return new TongmouCard;
-    }
-};
-
-class TongmouAsSkill: public ZeroCardViewAsSkill{
-public:
-    TongmouAsSkill():ZeroCardViewAsSkill("tongmou"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->hasSkill(objectName());
-    }
-
-    virtual const Card *viewAs() const{
-        return new TongmouCard;
-    }
-};
-
-class Tongmou: public PhaseChangeSkill{
-public:
-    Tongmou():PhaseChangeSkill("tongmou"){
-        view_as_skill = new TongmouAsSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
+    Tianhui():PhaseChangeSkill("tianhui"){
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         Room *room = player->getRoom();
-        ServerPlayer *zhonghui = room->findPlayerBySkillName(objectName());
-        if(!zhonghui) return false;
-        if(player != zhonghui && player->getMark("xoxo") < 1)
-            return false;
-
-        if(player->getMark("xoxo") > 0 && player->getPhase() == Player::Discard){
-            ServerPlayer *gay = NULL;
-            foreach(gay, room->getOtherPlayers(player)){
-                if(gay->getMark("xoxo") > 0)
-                    break;
-            }
-            if(gay && !player->tag.value("flag", true).toBool()){
-                DummyCard *card1 = player->wholeHandCards();
-                DummyCard *card2 = gay->wholeHandCards();
-
-                if(card1){
-                    room->moveCardTo(card1, gay, Player::Hand, false);
-                    delete card1;
+        if(player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
+            const Card *card = room->askForCardShow(player, player, objectName());
+            if(card){
+                QString suit = ".|" + card->getSuitString() + "|.|hand";
+                foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                    tmp->jilei(suit);
+                    tmp->invoke("jilei", suit);
                 }
-                //room->getThread()->delay();
-                if(card2){
-                    room->moveCardTo(card2, player, Player::Hand, false);
-                    delete card2;
+                LogMessage log;
+                log.type = "#Tianhui";
+                log.from = player;
+                log.arg = card->getSuitString();
+                room->sendLog(log);
+            }
+        }
+        else if(player->getPhase() == Player::NotActive){
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                tmp->jilei(".");
+                tmp->invoke("jilei", ".");
+            }
+        }
+        return false;
+    }
+};
+
+class Jifeng:public MasochismSkill{
+public:
+    Jifeng():MasochismSkill("jifeng"){
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        if(!damage.from || damage.from->isKongcheng() || !player->askForSkillInvoke(objectName()))
+            return;
+        const Card *card = room->askForCardShow(player, player, objectName());
+        if(card){
+            LogMessage log;
+            log.type = "#Jifeng";
+            log.from = damage.from;
+            log.arg = objectName();
+            log.arg2 = card->isRed() ? "jifengr" : "jifengb";
+            room->sendLog(log);
+
+            QList<int> cardes = damage.from->handCards();
+            room->fillAG(cardes, player);
+            room->askForAG(player, cardes, true, objectName());
+            QList<const Card *> cards = damage.from->getHandcards();
+            player->invoke("clearAG");
+            foreach(const Card *c, cards){
+                if(c->isRed() != card->isRed()){
+                    room->showCard(damage.from, card->getEffectiveId());
+                    room->getThread()->delay();
+                }else{
+                    room->showCard(damage.from, card->getEffectiveId());
+                    room->getThread()->delay();
+                    room->throwCard(c);
                 }
             }
         }
-        if(player == zhonghui && player->getPhase() == Player::Play){
-            if(!player->askForSkillInvoke(objectName())){
-                zhonghui->setMark("xoxo",0);
-                return false;
-            }
-            QList<ServerPlayer *> players;
-            foreach(ServerPlayer *p, room->getOtherPlayers(zhonghui)){
-                players << p;
-            }
-            ServerPlayer *gay = room->askForPlayerChosen(zhonghui, players, "tongmou_tie");
-            if(!gay) return false;
-            player->tag["flag"] = true;
-            gay->addMark("xoxo");
-            zhonghui->addMark("xoxo");
-
-            room->attachSkillToPlayer(gay, "tongmouv");
-        }
-        else if(player != zhonghui && player->getMark("xoxo") > 0 && player->getPhase() == Player::Play){
-            player->tag["flag"] = true;
-        }
-        else if(player != zhonghui && player->getMark("xoxo") > 0 && player->getPhase() == Player::Finish){
-            player->setMark("xoxo", 0);
-            zhonghui->setMark("xoxo", 0);
-            room->detachSkillFromPlayer(player, "tongmouv");
-        }
-        return false;
-    }
-};
-
-class TongmouForbidden: public TriggerSkill{
-public:
-    TongmouForbidden():TriggerSkill("#tmf"){
-        events << CardUsed;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("xoxo") > 0;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *zhonghui, QVariant &dat) const{
-        Room *room = zhonghui->getRoom();
-        CardUseStruct use = dat.value<CardUseStruct>();
-        if(use.from && use.from == zhonghui && use.from->hasFlag("sa_forbidden")
-            && use.card->inherits("SavageAssault")){
-            room->throwCard(use.card);
-            return true;
-        }
-        return false;
-    }
-};
-
-class TongmouClear: public TriggerSkill{
-public:
-    TongmouClear():TriggerSkill("#tmc"){
-        events << Death;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill("tongmou");
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *zhonghui, QVariant &) const{
-        Room *room = zhonghui->getRoom();
-        foreach(ServerPlayer *player, room->getAllPlayers()){
-            player->setMark("xoxo", 0);
-            room->detachSkillFromPlayer(player, "tongmouv");
-        }
-        return false;
-    }
-};
-
-XianhaiCard::XianhaiCard(){
-}
-
-bool XianhaiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(to_select->getJudgingArea().contains(Sanguosha->getCard(this->getSubcards().first())))
-        return false;
-    return targets.isEmpty();
-}
-
-void XianhaiCard::onEffect(const CardEffectStruct &effect) const{
-    effect.from->getRoom()->moveCardTo(Sanguosha->getCard(this->getSubcards().first()), effect.to, Player::Judging);
-    effect.from->drawCards(1);
-}
-
-class Xianhai: public OneCardViewAsSkill{
-public:
-    Xianhai():OneCardViewAsSkill("xianhai"){
-
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getCard()->inherits("Disaster");
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        XianhaiCard *card = new XianhaiCard;
-        card->addSubcard(card_item->getCard()->getId());
-
-        return card;
     }
 };
 
@@ -1251,14 +1095,9 @@ public:
 RedPackage::RedPackage()
     :Package("red")
 {
-    General *redzhonghui = new General(this, "redzhonghui", "wei", 4, true, true);
-    redzhonghui->addSkill(new Tongmou);
-    redzhonghui->addSkill(new TongmouClear);
-    redzhonghui->addSkill(new TongmouForbidden);
-    redzhonghui->addSkill(new Xianhai);
-    related_skills.insertMulti("tongmou", "#tmc");
-    related_skills.insertMulti("tongmou", "#tmf");
-    skills << new TongmouViewAsSkill;
+    General *redzhonghui = new General(this, "redzhonghui", "wei", 3);
+    redzhonghui->addSkill(new Tianhui);
+    redzhonghui->addSkill(new Jifeng);
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
     redxunyou->addSkill(new Baichu);
@@ -1307,8 +1146,6 @@ RedPackage::RedPackage()
     uchihaitachi->addSkill(new MarkAssignSkill("@susa", 1));
     related_skills.insertMulti("Susa", "#@susa-1");
 
-    addMetaObject<TongmouCard>();
-    addMetaObject<XianhaiCard>();
     addMetaObject<BaichuCard>();
     addMetaObject<TongluCard>();
     addMetaObject<XiefangCard>();
