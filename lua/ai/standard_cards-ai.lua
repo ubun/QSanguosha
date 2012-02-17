@@ -15,8 +15,8 @@ function SmartAI:slashProhibit(card,enemy)
 	end
 
 	if self:isFriend(enemy) then
-		if card:inherits("FireSlash") or self.player:hasWeapon("fan") or self.player:hasSkill("zonghuo") then
-			if self:isEquip("Vine", enemy) then return true end
+		if card:inherits("FireSlash") or self.player:hasWeapon("fan") then
+			if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then return true end
 		end
 		if enemy:isChained() and (card:inherits("NatureSlash") or self.player:hasSkill("zonghuo")) and #(self:getChainedFriends())>1 and
 			self:slashIsEffective(card,enemy) then return true end
@@ -36,6 +36,11 @@ end
 function SmartAI:slashIsEffective(slash, to)
 	if to:hasSkill("yizhong") and not to:getArmor() then
 		if slash:isBlack() then
+			return false
+		end
+	end
+	if to:hasSkill("linjia") then
+		if not slash:inherits("NatureSlash") and not self.player:hasWeapon("fan") then
 			return false
 		end
 	end
@@ -59,7 +64,9 @@ function SmartAI:slashIsEffective(slash, to)
 		if armor:objectName() == "renwang_shield" then
 			return not slash:isBlack()
 		elseif armor:objectName() == "vine" then
-			return nature ~= sgs.DamageStruct_Normal or self.player:hasWeapon("fan")
+			return slash:inherits("NatureSlash") or self.player:hasWeapon("fan")
+		elseif armor:objectName() == "kawaii_dress" and to:getHp() == 1 then
+			return false
 		end
 	end
 

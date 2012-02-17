@@ -578,6 +578,9 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
+        ServerPlayer *yunlu = room->findPlayerBySkillName("jinguo");
+        if(!yunlu)
+            return false;
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if(effect.to->getMark("@jin") > 0){
             LogMessage log;
@@ -588,7 +591,9 @@ public:
             room->sendLog(log);
 
             const Card *jink = room->askForCard(effect.to, "slash", "jinguo-jink:" + effect.from->objectName());
-            room->slashResult(effect, jink);
+            yunlu->obtainCard(jink);
+            Card *new_card = Card::Clone(jink);
+            room->slashResult(effect, new_card);
 
             return true;
         }

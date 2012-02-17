@@ -230,8 +230,7 @@ function SmartAI:useCardFireAttack(fire_attack, use)
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if (self:objectiveLevel(enemy) > 3) and not enemy:isKongcheng() and self:hasTrickEffective(fire_attack, enemy) 
-			and self:damageIsEffective(enemy, sgs.DamageStruct_Fire, self.player) then
-
+			and not (self:isEquip("KawaiiDress", enemy) and enemy:getHp() == 1) then
 			local cards = enemy:getHandcards()
 			local success = true
 			for _, card in sgs.qlist(cards) do
@@ -241,8 +240,8 @@ function SmartAI:useCardFireAttack(fire_attack, use)
 				end
 			end
 
-			if success and not (enemy:isChained() and #(self:getChainedFriends()) > #(self:getChainedEnemies())) then
-				if self:isEquip("Vine", enemy) then
+			if success then
+				if self:isEquip("Vine", enemy) or enemy:hasSkill("linjia") then
 					table.insert(targets_succ, 1, enemy)
 					break
 				else

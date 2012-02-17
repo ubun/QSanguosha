@@ -90,6 +90,8 @@ sgs.ai_skill_invoke["jiaozei"] = function(self, data)
 		return max_card and max_card:getNumber() > 11
 	end
 end
+
+-- zhaobing
 sgs.ai_skill_invoke["zhaobing"] = function(self, data)
 	local max_card = self:getMaxCard()
 	if max_card and max_card:getNumber() > 11 then
@@ -97,4 +99,19 @@ sgs.ai_skill_invoke["zhaobing"] = function(self, data)
 	else
 		return true
 	end
+end
+sgs.ai_skill_cardask["@zhaobing-pindian"] = function(self, data, pattern, target)
+	local who = data:toPlayer()
+	local max_card = self:getMaxCard()
+	if self:isFriend(who) and max_card and max_card:getNumber() > 11 then
+		return max_card:getEffectiveId()
+	elseif self:isEnemy(who) then
+		local cards = self.player:getHandcards()
+		for _, card in sgs.qlist(cards) do
+			if card:getNumber() < 4 then
+				return card:getEffectiveId()
+			end
+		end
+	end
+	return "."
 end

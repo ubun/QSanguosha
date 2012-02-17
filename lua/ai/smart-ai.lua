@@ -2395,6 +2395,10 @@ function SmartAI:aoeIsEffective(card, to)
 			return false
 		end
 	end
+	-- ¦Ðtugu's Linjia
+	if to:hasSkill("linjia") then
+		return false
+	end
 	return true
 end
 

@@ -59,6 +59,17 @@ end
 sgs.ai_skill_use_func["BaichuCard"] = function(card, use, self)
 	use.card = card
 end
+sgs.ai_view_as.baichu = function(card, player, card_place)
+	local suit = card:getSuitString()
+	local number = card:getNumberString()
+	local card_id = card:getEffectiveId()
+	local jis = player:getPile("ji")
+	jis = sgs.QList2Table(jis)
+	local baichu_card = sgs.Sanguosha:getCard(jis[1])
+	if card:getNumber() >= baichu_card:getNumber() then
+		return ("jink:baichu[%s:%s]=%d"):format(suit, number, card_id)
+	end
+end
 
 -- tonglu-response
 sgs.ai_skill_choice["tonglu"] = function(self, choices)
@@ -179,6 +190,17 @@ sgs.ai_skill_cardchosen["xiefang"] = function(self, who)
 	end
 end
 
+-- yanyun
+sgs.ai_skill_cardask["@yanyun-slash"] = function(self, data, pattern, target)
+	local cards = self.player:getHandcards()
+	for _, card in sgs.qlist(cards) do
+		if card:inherits("Slash") then
+			return card:getEffectiveId()
+		end
+	end
+	return "."
+end
+
 -- zhubing
 sgs.ai_skill_invoke["zhubing"] = sgs.ai_skill_invoke["zaiqi"]
 sgs.ai_skill_invoke["super_zaiqi"] = sgs.ai_skill_invoke["zaiqi"]
@@ -193,6 +215,18 @@ end
 sgs.ai_skill_invoke["xujiu"] = function(self, data)
 	local damage = data:toDamage()
 	return self:isEnemy(damage.to)
+end
+sgs.ai_skill_cardask["@xujiu-ask"] = function(self, data, pattern, target)
+	local jiu = self.player:getPile("niangA"):length() + self.player:getPile("niangB"):length()
+	if jiu < 3 then
+		local cards = self.player:getHandcards()
+		for _, card in sgs.qlist(cards) do
+			if card:isBlack() then
+				return card:getEffectiveId()
+			end
+		end
+	end
+	return "."
 end
 
 -- goulian
