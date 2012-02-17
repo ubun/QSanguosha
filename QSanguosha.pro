@@ -61,6 +61,7 @@ SOURCES += src/main.cpp \
 	src/package/shineway/red.cpp \
 	src/package/shineway/cyan.cpp \
 	src/package/shineway/green.cpp \
+	src/package/shineway/purple.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/fancheng-scenario.cpp \
@@ -179,6 +180,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/shineway/red.h \ 
 	src/package/shineway/cyan.h \ 
 	src/package/shineway/green.h \
+	src/package/shineway/purple.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
 	src/scenario/fancheng-scenario.h \
