@@ -2302,6 +2302,11 @@ RoomThread *Room::getThread() const{
 }
 
 void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, bool open){
+    if(place == Player::Equip && to->getMark("@noequip") > 0){
+        to = NULL;
+        place = Player::DiscardedPile;
+        open = true;
+    }
     QSet<ServerPlayer *> scope;
 
     if(!open){

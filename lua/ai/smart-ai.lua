@@ -2082,6 +2082,10 @@ function SmartAI:damageIsEffective(player, nature, source)
 	if player:getMark("@fog") > 0 and nature ~= sgs.DamageStruct_Thunder then
 		return false
 	end
+	
+	if (self:isEquip("KawaiiDress", player) and player:getHp() == 1) then
+		return false
+	end
 	return true
 end
 

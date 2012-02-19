@@ -4,16 +4,7 @@
 #include "package.h"
 #include "card.h"
 #include "standard.h"
-
-class PearCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE PearCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
-};
-
+/*
 class ZhongshuCard: public SkillCard{
     Q_OBJECT
 
@@ -44,7 +35,7 @@ public:
     virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-
+*/
 class PurplePackage: public Package{
     Q_OBJECT
 

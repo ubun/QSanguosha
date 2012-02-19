@@ -76,8 +76,9 @@ Engine::Engine()
                   << "Red"
                   << "Cyan"
                   << "Green"
+                  << "Purple"
                   << "Kuso"
-				  << "Technology"
+                  << "Technology"
                   << "Test"
 
                   << "StandardCard"
