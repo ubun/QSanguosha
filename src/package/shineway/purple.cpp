@@ -18,6 +18,7 @@ public:
                 player->gainAnExtraTurn();
             else
                 player->turnOver();
+            yelai->turnOver();
         }
     }
 };
@@ -64,6 +65,79 @@ public:
 
         if(killer && killer != player)
             killer->gainMark("@noequip");
+        return false;
+    }
+};
+
+class Wuxian: public TriggerSkill{
+public:
+    Wuxian():TriggerSkill("wuxian"){
+        events << CardGotDone;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *nichang = room->findPlayerBySkillName(objectName());
+        if(nichang == player){
+            if(nichang->getHandcardNum() > 5){
+                int n = nichang->getHandcardNum() - nichang->getMaxHP();
+                if(n > 0)
+                    room->askForDiscard(nichang, objectName(), n);
+            }
+            return false;
+        }
+        if(room->getCurrent() == player)
+            return false;
+        if(nichang && nichang->askForSkillInvoke(objectName()))
+            nichang->drawCards(1);
+        return false;
+    }
+};
+
+class Xianming: public TriggerSkill{
+public:
+    Xianming():TriggerSkill("xianming"){
+        events << CardEffected << CardEffect;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *miug, QVariant &data) const{
+        //Room *room = miug->getRoom();
+        CardEffectStruct effect = data.value<CardEffectStruct>();
+        if(!effect.card->inherits("Snatch") && !effect.card->inherits("Dismantlement"))
+            return false;
+        if(miug->askForSkillInvoke(objectName())){
+            Card::Suit suit = effect.card->getSuit();
+            int num = effect.card->getNumber();
+            if(effect.card->inherits("Snatch")){
+                Dismantlement *d = new Dismantlement(suit, num);
+                d->setSkillName(objectName());
+                d->addSubcard(effect.card);
+                /*CardUseStruct use;
+                use.card = slash;
+                use.from = jiangwei;
+                use.to << target;
+
+                room->useCard(use);*/
+                effect.card = d;
+            }
+            else{
+                Snatch *s = new Snatch(suit, num);
+                s->setSkillName(objectName());
+                s->addSubcard(effect.card);
+                /*CardUseStruct use;
+                use.card = slash;
+                use.from = jiangwei;
+                use.to << target;
+
+                room->useCard(use);*/
+                effect.card = s;
+            }
+            data = QVariant::fromValue(effect);
+        }
         return false;
     }
 };
@@ -572,6 +646,10 @@ PurplePackage::PurplePackage()
     purpleyelai->addSkill(new Zhuosu);
     purpleyelai->addSkill(new Difu);
     purpleyelai->addSkill(new Bui);
+
+    General *purplesunnichang = new General(this, "purplesunnichang", "wu", 3, false);
+    purplesunnichang->addSkill(new Wuxian);
+    purplesunnichang->addSkill(new Xianming);
 
     General *purplexingcai = new General(this, "purplexingcai", "shu", 4, false);
     purplexingcai->addSkill(new Xiannei);

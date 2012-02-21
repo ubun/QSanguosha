@@ -1,45 +1,7 @@
 -- RedPackage's AI by Ubun.
 
--- tongmou
-sgs.ai_skill_invoke["tongmou"] = true
-sgs.ai_skill_playerchosen["tongmou_tie"] = function(self, targets)
-	for _, player in sgs.qlist(targets) do
-		if self:isEnemy(player) and player:getHandcardNum() > 2 then
-			return player
-		end
-	end
-	return self.enemies[1]
-end
-sgs.ai_skill_invoke["tongmou"] = true
-local tongmou_skill = {}
-tongmou_skill.name = "tongmou"
-table.insert(sgs.ai_skills, tongmou_skill)
-tongmou_skill.getTurnUseCard = function(self)
-	if self.player:hasUsed("TongmouCard") then return end
-	return sgs.Card_Parse("@TongmouCard=.")
-end
-sgs.ai_skill_use_func["TongmouCard"] = function(card, use, self)
-	use.card = card
-end
-
--- xianhai
-sgs.ai_skill_invoke["xianhai"] = true
-local xianhai_skill = {}
-xianhai_skill.name = "xianhai"
-table.insert(sgs.ai_skills, xianhai_skill)
-xianhai_skill.getTurnUseCard = function(self)
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	for _, card in ipairs(cards) do
-		if card:inherits("Disaster") then
-			return sgs.Card_Parse("@XianhaiCard=" .. card:getEffectiveId())
-		end
-	end
-end
-sgs.ai_skill_use_func["XianhaiCard"] = function(card, use, self)
-	use.card = card
-	if use.to then use.to:append(self.enemies[1]) end
-end
+-- tianhui
+-- jifeng
 
 -- baichu
 sgs.ai_skill_invoke["baichu"] = true
