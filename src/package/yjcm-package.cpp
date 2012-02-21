@@ -407,8 +407,23 @@ public:
             log.to << killer;
             room->sendLog(log);
 
-            killer->throwAllHandCards();
-            killer->throwAllEquips();
+            ServerPlayer *duanmeng = room->findPlayerBySkillName("fuchou");
+            if(!duanmeng){
+                killer->throwAllHandCards();
+                killer->throwAllEquips();
+            }
+            else{
+                duanmeng->obtainCard(killer->getWeapon());
+                duanmeng->obtainCard(killer->getArmor());
+                duanmeng->obtainCard(killer->getDefensiveHorse());
+                duanmeng->obtainCard(killer->getOffensiveHorse());
+
+                DummyCard *all_cards = killer->wholeHandCards();
+                if(all_cards){
+                    room->moveCardTo(all_cards, duanmeng, Player::Hand, false);
+                    delete all_cards;
+                }
+            }
 
             QString killer_name = killer->getGeneralName();
             if(killer_name == "zhugeliang" || killer_name == "wolong" || killer_name == "shenzhugeliang")
