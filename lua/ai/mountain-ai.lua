@@ -1,12 +1,12 @@
 local function card_for_qiaobian(self, who, return_prompt)
 	local card, target
 	if self:isFriend(who) then
-		local judges = who:getCards("j")
+		local judges = who:getJudgingArea()
 		if not judges:isEmpty() then
 			for _, judge in sgs.qlist(judges) do
-				card = judge -- Fixme: card = DelayedTrick::CastFrom(judge)
+				card = sgs.Sanguosha:getCard(judge:getEffectiveId())
 				for _, enemy in ipairs(self.enemies) do
-					if not enemy:containsTrick(card:objectName()) and not self:trickProhibit(card, enemy) then
+					if not enemy:containsTrick(judge:objectName()) and not self:trickProhibit(judge, enemy) then
 						target = enemy
 						break
 					end
@@ -517,6 +517,7 @@ sgs.ai_chaofeng.caiwenji = -5
 function sgs.ai_skill_choice.huashen(self, choices)
 	local str = choices
 	choices = str:split("+")
+	if self.player:getHp() < 1 then return "buqu" end
 	if str:match("guixin2") then return "guixin2" end
 	if self.player:getPhase() == sgs.Player_NotActive then
 		if str:match("guixin") and (not self:isWeak() or self:getAllPeachNum() > 0) then return "guixin" end
@@ -525,15 +526,50 @@ function sgs.ai_skill_choice.huashen(self, choices)
 		end
 		if self:isWeak() then
 			if str:match("wuhun") then return "wuhun" end
-			for _, askill in ipairs(("wuhun|duanchang|huilei|beige|buyi|jijiu"):split("|")) do
+			for _, askill in ipairs(("wuhun|duanchang|jijiu|longhun|jiushi|jiuchi|buyi|huilei|dushi|juejing"):split("|")) do
 				if str:match(askill) then return askill end
 			end
 		end
+		if self.player:isKongcheng() then
+			if str:match("kongcheng") then return "kongcheng" end
+		end
+		for _, askill in ipairs(("yizhong|bazhen|wuyan|weimu|kanpo|liuli|qingguo|longdan|xiangle|jiang|" ..
+		"danlao|qianxun|juxiang|huoshou|zhichi|jilei|feiying|yicong|wusheng|wushuang|tianxiang|leiji|" ..
+		"xuanfeng|luoying|guhuo|guidao|guicai|lianying|xiaoji|hongyan|tiandu|guzheng|xingshang|weidi"):split("|")) do
+			if str:match(askill) then return askill end
+		end
+	else
+		assert(self.player:getPhase() == sgs.Player_Start)
+		if self.player:getHp() < 1 then return "buqu" end
+		if (self.player:getHandcardNum() < 20 and not self:isWeak()) or self.player:isSkipped(sgs.Player_Play) then
+			if str:match("keji") then return "keji" end
+		end
+		if self.player:getHandcardNum() > 10 then
+			for _, askill in ipairs(("shuangxiong|tianyi|xianzhen|paoxiao|huoji|luanji|qixi|duanliang|guose"):split("|")) do
+				if str:match(askill) then return askill end
+			end
+		end
+		if self:isWeak() then
+			for _, askill in ipairs(("qingnang|jieyin|zaiqi|longhun|kuanggu|caizhaoji_hujia|jushou|buqu"):split("|")) do
+				if str:match(askill) then return askill end
+			end
+		end
+		for _, askill in ipairs(("tuxi|dimeng|haoshi|guanxing|zhiheng|rende|qiaobian|fangquan|" ..
+		"lijian|quhu|fanjian|tieji|liegong|wushuang|shelie|luoshen|yongsi|yingzi|juejing|" ..
+		"gongxin|mingce|ganlu|tiaoxin|xuanhuo|guhuo|roulin|qiangxi|mengjin|lieren|pojun|" ..
+		"jiushi|luoyi|jiuchi|longhun|wusheng|wushen|longdan|shensu|lianhuan|yinghun|jujian|" ..
+		"zhijian|xinzhan|guidao|guicai|lianpo|mashu|yicong|jizhi|lianying|xuanfeng|xiaoji|" ..
+		"qicai|wansha|biyue|hongyan|kurou|qinyin|zonghuo|shaoying|gongmou"):split("|")) do
+			if str:match(askill) then return askill end
+		end
 	end
 	for index = #choices, 1, -1 do
-		if ("qixing|kuangfeng|dawu|kuangbao|wuqian|shenfen|renjie|baiyin|tuntian|benghuai"):match(choices[index]) then
+		if ("qixing|kuangfeng|dawu|kuangbao|wuqian|wumou|shenfen|renjie|tuntian|benghuai|wuling|liqian|lianli|tongxin|shenjun|xunzhi|dongcha")
+		:match(choices[index]) then
 			table.remove(choices,index)
 		end
 	end
-	return choices[math.random(1,#choices)]
+	if #choices > 0 then
+		return choices[math.random(1,#choices)]
+	end
 end
