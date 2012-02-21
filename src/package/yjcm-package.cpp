@@ -413,6 +413,10 @@ public:
                 killer->throwAllEquips();
             }
             else{
+                log.type = "#TriggerSkill";
+                log.from = duanmeng;
+                log.arg = "fuchou";
+                room->sendLog(log);
                 duanmeng->obtainCard(killer->getWeapon());
                 duanmeng->obtainCard(killer->getArmor());
                 duanmeng->obtainCard(killer->getDefensiveHorse());

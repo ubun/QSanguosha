@@ -13,7 +13,7 @@ public:
     virtual void onDamaged(ServerPlayer *yelai, const DamageStruct &damage) const{
         Room *room = yelai->getRoom();
         if(yelai->askForSkillInvoke(objectName())){
-            ServerPlayer *player = room->askForPlayerChosen(yelai, room->getAllPlayers(), objectName());
+            ServerPlayer *player = room->askForPlayerChosen(yelai, room->getOtherPlayers(yelai), objectName());
             if(yelai->faceUp())
                 player->gainAnExtraTurn();
             else
@@ -182,12 +182,16 @@ public:
             if(move->from_place == Player::Hand){
                 Room *room = zous->getRoom();
                 if(room->askForSkillInvoke(zous, objectName())){
+                    QString chs = room->askForChoice(zous, objectName(), "draw+damage");
                     room->playSkillEffect(objectName());
-                    zous->drawCards(2);
-                    DamageStruct damage;
-                    damage.from = zous;
-                    damage.to = room->askForPlayerChosen(zous, room->getAllPlayers(), objectName());
-                    room->damage(damage);
+                    if(chs == "draw")
+                        zous->drawCards(2);
+                    else{
+                        DamageStruct damage;
+                        damage.from = zous;
+                        damage.to = room->askForPlayerChosen(zous, room->getAllPlayers(), objectName());
+                        room->damage(damage);
+                    }
                 }
             }
         }
@@ -331,44 +335,40 @@ public:
     }
 };
 
-/*
-class Guolie: public TriggerSkill{
+class Xiayi: public TriggerSkill{
 public:
-    Guolie():TriggerSkill("guolie"){
-        events << Predamage;
+    Xiayi():TriggerSkill("xiayi"){
+        events << Predamaged;
     }
 
     virtual int getPriority() const{
         return 2;
     }
 
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getGeneral()->isMale();
+    }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         DamageStruct damage = data.value<DamageStruct>();
-        if(player->askForSkillInvoke(objectName(), data)){
-            DummyCard *card1 = damage.to->wholeHandCards();
-            DummyCard *card2 = damage.from->wholeHandCards();
+        ServerPlayer *bao3niang = room->findPlayerBySkillName(objectName());
+        if(!bao3niang || !damage.from || damage.from == damage.to)
+            return false;
+        if(room->askForCard(bao3niang, "slash", "@xiayi")){
+            Slash *slash = new Slash(Card::NoSuit, 0);
+            slash->setSkillName(objectName());
+            CardUseStruct use;
+            use.card = slash;
+            use.from = damage.to;
+            use.to << damage.from;
 
-            if(card1){
-                room->moveCardTo(card1, damage.from, Player::Hand, false);
-                delete card1;
-            }
-            if(card2){
-                room->moveCardTo(card2, damage.to, Player::Hand, false);
-                delete card2;
-            }
-
-            LogMessage log;
-            log.type = "#Guolie";
-            log.from = damage.from;
-            log.to << damage.to;
-            room->sendLog(log);
-            return true;
+            room->useCard(use);
         }
         return false;
     }
 };
-
+/*
 class Qianpan: public TriggerSkill{
 public:
     Qianpan():TriggerSkill("qianpan"){
@@ -515,6 +515,8 @@ PurplePackage::PurplePackage()
 
     General *purpleduanmeng = new General(this, "purpleduanmeng", "shu", 3, false);
     purpleduanmeng->addSkill(new Poxie);
+    purpleduanmeng->addSkill(new PoxieBuff);
+    related_skills.insertMulti("poxie", "#poxie");
     purpleduanmeng->addSkill(new Xiangfeng);
     purpleduanmeng->addSkill(new Skill("fuchou", Skill::Compulsory));
 
@@ -522,6 +524,10 @@ PurplePackage::PurplePackage()
     purplezoushi->addSkill(new Shangjue);
     purplezoushi->addSkill(new Quling);
     skills << new Huoshui;
+
+    General *purplebao3niang = new General(this, "purplebao3niang", "shu", 4, false);
+    purplebao3niang->addSkill(new Xiayi);
+
     //addMetaObject<JunlingCard>();
 }
 
