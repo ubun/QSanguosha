@@ -368,136 +368,88 @@ public:
         return false;
     }
 };
-/*
-class Qianpan: public TriggerSkill{
+
+class Chongguan: public TriggerSkill{
 public:
-    Qianpan():TriggerSkill("qianpan"){
-        events << CardEffected << Damaged << HpRecover;
-        frequency = Compulsory;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        if(event == Damaged || event == HpRecover){
-            QString kingdom;
-            if(event == HpRecover){
-                RecoverStruct recover = data.value<RecoverStruct>();
-                if(!recover.who || recover.who == player)
-                    return false;
-                kingdom = recover.who->getKingdom();
-            }
-            else
-                kingdom = player->getKingdom() == "shu" ? "wu" : "shu";
-            LogMessage log;
-            log.type = "#Qianpan";
-            log.from = player;
-            log.arg = kingdom;
-            log.arg2 = objectName();
-            room->sendLog(log);
-
-            room->setPlayerProperty(player, "kingdom", kingdom);
-            return false;
-        }
-        CardEffectStruct effect = data.value<CardEffectStruct>();
-        if(effect.card->isNDTrick() && effect.from->getKingdom() != effect.to->getKingdom()){
-
-            LogMessage log;
-            log.type = "#QianpanProtect";
-            log.from = effect.to;
-            log.to << effect.from;
-            log.arg = effect.card->objectName();
-            log.arg2 = objectName();
-            room->sendLog(log);
-
-            return true;
-        }
-        return false;
-    }
-};
-
-class Anshi: public TriggerSkill{
-public:
-    Anshi():TriggerSkill("anshi"){
-        events << Dying << PhaseChange;
+    Chongguan():TriggerSkill("chongguan"){
+        events << FinishJudge;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        ServerPlayer *fanzhang = room->findPlayerBySkillName(objectName());
-        if(!fanzhang)
+        ServerPlayer *bulianshi = room->findPlayerBySkillName(objectName());
+        if(!bulianshi)
             return false;
-        if(event == PhaseChange && fanzhang->hasFlag("Anshi") && fanzhang->getPhase() == Player::NotActive){
-            room->detachSkillFromPlayer(fanzhang, "wansha");
-            LogMessage log;
-            log.type = "#AnshiSuicide";
-            log.from = fanzhang;
-            log.arg = objectName();
-            room->sendLog(log);
+        JudgeStar judge = data.value<JudgeStar>();
+        const Card *card = judge->card;
+        if(card->getSuit() == Card::Diamond &&
+           bulianshi->askForSkillInvoke(objectName())){
+            Indulgence *indulgence = new Indulgence(card->getSuit(), card->getNumber());
+            indulgence->setSkillName(objectName());
+            indulgence->addSubcard(card);
+            QList<ServerPlayer *> targets;
+            foreach(ServerPlayer *p, room->getAlivePlayers()){
+                if(bulianshi->isProhibited(p, indulgence))
+                    continue;
+                targets << p;
+            }
+            if(targets.isEmpty())
+                return false;
 
-            room->loseHp(fanzhang, fanzhang->getHp());
-            return false;
+            ServerPlayer *target = room->askForPlayerChosen(bulianshi, targets, objectName());
+            CardUseStruct use;
+            use.card = indulgence;
+            use.from = bulianshi;
+            use.to << target;
+            room->playSkillEffect(objectName());
+            room->useCard(use);
         }
-        if(room->getCurrent() != fanzhang)
-            return false;
-        if(event == Dying && fanzhang->getPhase() == Player::Play){
-            DyingStruct dying = data.value<DyingStruct>();
-            if(dying.who != fanzhang && fanzhang->askForSkillInvoke(objectName(), data)){
-                fanzhang->acquireSkill("wansha");
-                room->setPlayerFlag(fanzhang, "Anshi");
+        if(judge->reason == "indulgence" && bulianshi->askForSkillInvoke(objectName())){
+            ServerPlayer *target = room->askForPlayerChosen(bulianshi, room->getAllPlayers(), objectName());
+            if(target->getGeneral()->isMale()){
+                QString chost = room->askForChoice(bulianshi, objectName(), "draw+play");
+                QList<Player::Phase> phase;
+                if(chost == "draw")
+                    phase << Player::Draw;
+                else
+                    phase << Player::Play;
+                target->play(phase);
             }
         }
         return false;
     }
 };
 
-class Jiaozei: public TriggerSkill{
+class Xianhou: public PhaseChangeSkill{
 public:
-    Jiaozei():TriggerSkill("jiaozei"){
-        events << SlashMissed;
+    Xianhou():PhaseChangeSkill("xianhou"){
     }
 
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(!effect.to->isKongcheng() && !player->isKongcheng() && player->askForSkillInvoke(objectName(), data)){
-            Room *room = player->getRoom();
-            const Card *from_card = NULL;
-            if(player->hasLordSkill("zhaobing") && player->askForSkillInvoke("zhaobing", data)){
-                foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
-                    if(tmp->getKingdom() != "qun")
-                        continue;
-                    from_card = room->askForCard(tmp, ".", "@zhaobing-pindian:" + player->objectName(), QVariant::fromValue(player));
-                    if(from_card){
-                        LogMessage log;
-                        log.type = "$Zhaobing";
-                        log.from = tmp;
-                        log.to << player;
-                        log.card_str = from_card->getEffectIdString();
-                        room->sendLog(log);
-                        break;
-                    }
+    virtual bool onPhaseChange(ServerPlayer *ayumi) const{
+        if(ayumi->getPhase() == Player::Draw ||
+           ayumi->getPhase() == Player::Play){
+            Room *room = ayumi->getRoom();
+            if(room->askForSkillInvoke(ayumi, objectName())){
+                ServerPlayer *target = room->askForPlayerChosen(ayumi, room->getAllPlayers(), objectName());
+                QString chost = room->askForChoice(ayumi, objectName(), "draw+hp");
+                if(chost == "draw")
+                    target->drawCards(2);
+                else{
+                    RecoverStruct d;
+                    d.who = ayumi;
+                    room->recover(target, d);
                 }
-            }
-            if(player->pindian(effect.to, objectName(), from_card)){
-                LogMessage log;
-                log.type = "#Jiaozei";
-                log.from = player;
-                log.to << effect.to;
-                log.arg = objectName();
-                room->sendLog(log);
-
-                room->slashResult(effect, NULL);
                 return true;
             }
         }
-
         return false;
     }
 };
-*/
+
 PurplePackage::PurplePackage()
     :Package("purple")
 {
@@ -524,6 +476,10 @@ PurplePackage::PurplePackage()
     purplezoushi->addSkill(new Shangjue);
     purplezoushi->addSkill(new Quling);
     skills << new Huoshui;
+
+    General *purplesunbushi = new General(this, "purplesunbushi", "wu", 3, false);
+    purplesunbushi->addSkill(new Chongguan);
+    purplesunbushi->addSkill(new Xianhou);
 
     General *purplebao3niang = new General(this, "purplebao3niang", "shu", 4, false);
     purplebao3niang->addSkill(new Xiayi);

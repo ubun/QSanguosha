@@ -45,7 +45,7 @@ return {
 	["fuchou"] = "父仇",
 	[":fuchou"] = "关联技，锁定技，你立即获得任意一名角色因【挥泪】技能弃置的所有牌。",
 
---QUN#06 无称号 4
+--QUN#06 宛城美人 4
 	["purplezoushi"] = "邹氏",
 	["designer:purplezoushi"] = "镝木琉星",
 	["shangjue"] = "伤绝",
@@ -57,13 +57,13 @@ return {
 	["huoshui"] = "祸水",
 	[":huoshui"] = "当你进入濒死状态时，你可以令所有男性角色失去一点体力，然后立即死亡。",
 
---WU#07 大懿皇后 3
-	["purplewangmengru"] = "王贵人",
-	["designer:purplewangmengru"] = "嘻哈绿豆沙",
-	["chongdu"] = "宠妒",
-	[":chongdu"] = "锁定技，当你受到一次伤害，结算后从场上每名男性角色处获得一张牌，然后每名其他女性视为对你使用一张杀。",
-	["chansha"] = "谗杀",
-	[":chansha"] = "锁定技，女性角色对你造成的伤害均视为体力流失。",
+--WU#07 吴之贤后 3
+	["purplesunbushi"] = "孙步氏",
+	["designer:purplesunbushi"] = "暗器大小姐",
+	["chongguan"] = "宠冠",
+	[":chongguan"] = "你可以将场上任意一张方片判定牌当作【乐不思蜀】使用，场上任意一次【乐不思蜀】判定产生效果后，你可以让任意一名男性角色获得一个额外的摸牌或出牌阶段。",
+	["xianhou"] = "贤后",
+	[":xianhou"] = "你可以跳过任意一个你的回合的出牌或摸牌阶段，指定一名角色摸两张牌或回复一点体力。",
 
 --SHU#08 文武双精 4
 	["purplebao3niang"] = "鲍三娘",
