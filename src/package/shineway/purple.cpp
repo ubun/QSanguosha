@@ -379,6 +379,10 @@ public:
         return true;
     }
 
+    virtual int getPriority() const{
+        return -1;
+    }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *bulianshi = room->findPlayerBySkillName(objectName());
@@ -394,6 +398,8 @@ public:
             QList<ServerPlayer *> targets;
             foreach(ServerPlayer *p, room->getAlivePlayers()){
                 if(bulianshi->isProhibited(p, indulgence))
+                    continue;
+                if(p->containsTrick("indulgence"))
                     continue;
                 targets << p;
             }
@@ -450,6 +456,126 @@ public:
     }
 };
 
+class Nvwang: public FilterSkill{
+public:
+    Nvwang():FilterSkill("nvwang"){
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->inherits("Slash");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *c = card_item->getCard();
+        Peach *peach = new Peach(c->getSuit(), c->getNumber());
+        peach->setSkillName(objectName());
+        peach->addSubcard(card_item->getCard());
+        return peach;
+    }
+};
+
+ShouguoCard::ShouguoCard(){
+    once = true;
+}
+
+bool ShouguoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return to_select->getGeneral()->isMale() && to_select->isWounded() &&
+            to_select->getHandcardNum() > 1;
+}
+
+void ShouguoCard::onEffect(const CardEffectStruct &effect) const{
+    effect.from->obtainCard(effect.to->getRandomHandCard());
+    effect.from->obtainCard(effect.to->getRandomHandCard());
+    RecoverStruct rev;
+    rev.card = this;
+    rev.who = effect.from;
+    effect.from->getRoom()->recover(effect.to, rev);
+}
+
+class Shouguo: public ZeroCardViewAsSkill{
+public:
+    Shouguo():ZeroCardViewAsSkill("shouguo"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("ShouguoCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new ShouguoCard;
+    }
+};
+
+YaofaCard::YaofaCard(){
+}
+
+bool YaofaCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return to_select != Self;
+}
+
+void YaofaCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    bool ichi, me;
+
+    JudgeStruct judge;
+    judge.reason = "yaofa1";
+    judge.who = effect.to;
+    room->judge(judge);
+    ichi = judge.card->isRed();
+
+    judge.reason = "yaofa2";
+    judge.pattern = ichi ? QRegExp("(.*):(heart|diamond):(.*)"): QRegExp("(.*):(club|spade):(.*)");
+    judge.good = false;
+    room->judge(judge);
+    me = judge.card->isRed();
+
+    DamageStruct damage;
+    damage.from = effect.from;
+    damage.to = effect.to;
+    if(ichi && me){
+        damage.nature = DamageStruct::Fire;
+        room->damage(damage);
+    }
+    else if(!ichi && !me){
+        damage.nature = DamageStruct::Thunder;
+        room->damage(damage);
+    }
+}
+
+class YaofaViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    YaofaViewAsSkill():ZeroCardViewAsSkill("yaofa"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@yaofa";
+    }
+
+    virtual const Card *viewAs() const{
+        return new YaofaCard;
+    }
+};
+
+class Yaofa: public MasochismSkill{
+public:
+    Yaofa():MasochismSkill("yaofa"){
+        view_as_skill = new YaofaViewAsSkill;
+    }
+
+    virtual void onDamaged(ServerPlayer *qiaodaoq, const DamageStruct &) const{
+        qiaodaoq->getRoom()->askForUseCard(qiaodaoq, "@@yaofa", "@yaofa");
+    }
+};
+
 PurplePackage::PurplePackage()
     :Package("purple")
 {
@@ -484,7 +610,13 @@ PurplePackage::PurplePackage()
     General *purplebao3niang = new General(this, "purplebao3niang", "shu", 4, false);
     purplebao3niang->addSkill(new Xiayi);
 
-    //addMetaObject<JunlingCard>();
+    General *purplebeimihu = new General(this, "purplebeimihu", "qun", 3, false);
+    purplebeimihu->addSkill(new Nvwang);
+    purplebeimihu->addSkill(new Shouguo);
+    purplebeimihu->addSkill(new Yaofa);
+
+    addMetaObject<ShouguoCard>();
+    addMetaObject<YaofaCard>();
 }
 
 ADD_PACKAGE(Purple)
