@@ -55,20 +55,12 @@ public:
             log.arg2 = card->isRed() ? "jifengr" : "jifengb";
             room->sendLog(log);
 
-            //QList<int> cardes = damage.from->handCards();
-            //room->fillAG(cardes, player);
-            //room->askForAG(player, cardes, true, objectName());
-            QList<const Card *> cards = damage.from->getHandcards();
-            //player->invoke("clearAG");
-            foreach(const Card *c, cards){
-                if(c->sameColorWith(card)){
-                    room->showCard(damage.from, card->getEffectiveId());
-                    room->getThread()->delay();
-                }else{
-                    room->showCard(damage.from, card->getEffectiveId());
-                    room->getThread()->delay();
-                    room->throwCard(c);
-                }
+            room->showCard(player, card->getEffectiveId());
+            foreach(const Card *cd, damage.from->getHandcards()){
+                if(card->sameColorWith(cd))
+                    room->throwCard(cd);
+                else
+                    room->showCard(damage.from, cd->getEffectiveId());
             }
         }
     }

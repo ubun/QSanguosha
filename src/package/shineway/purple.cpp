@@ -417,7 +417,7 @@ public:
         if(judge->reason == "indulgence" && bulianshi->askForSkillInvoke(objectName())){
             ServerPlayer *target = room->askForPlayerChosen(bulianshi, room->getAllPlayers(), objectName());
             if(target->getGeneral()->isMale()){
-                QString chost = room->askForChoice(bulianshi, objectName(), "draw+play");
+                QString chost = room->askForChoice(bulianshi, objectName(), "draw+playy");
                 QList<Player::Phase> phase;
                 if(chost == "draw")
                     phase << Player::Draw;
