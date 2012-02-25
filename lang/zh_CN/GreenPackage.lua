@@ -90,4 +90,13 @@ return {
 	["cv:greenchenwu"] = "",
 	["cv:greenmayunlu"] = "",
 	["cv:greenchenqun"] = "",
+
+	["illustrator:greenyanpeng"] = "",
+	["illustrator:greencaozhang"] = "",
+	["illustrator:greenjushou"] = "",
+	["illustrator:greenkanze"] = "",
+	["illustrator:greenwanglang"] = "",
+	["illustrator:greenchenwu"] = "",
+	["illustrator:greenmayunlu"] = "",
+	["illustrator:greenchenqun"] = "",
 }

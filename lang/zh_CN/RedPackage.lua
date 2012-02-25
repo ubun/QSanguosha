@@ -6,7 +6,6 @@ return {
 --WEI#01
 	["redzhonghui"] = "钟会",
 	["designer:redzhonghui"] = "淬毒",
-	["cv:redzhonghui"] = "",
 	["tianhui"] = "天慧",
 	[":tianhui"] = "回合开始阶段，你可展示一张手牌，则本回合内，其他角色不能使用或打出与此牌相同花色的牌。",
 	["#Tianhui"] = "%from 天慧了其他角色的 %arg 牌",
@@ -19,7 +18,6 @@ return {
 --WEI#02
 	["redxunyou"] = "荀攸",
 	["designer:redxunyou"] = "黄书",
-	["cv:redxunyou"] = "",
 	["baichu"] = "百出",
 	[":baichu"] = "游戏开始时，额外发给你一张牌，你须将一张手牌牌置于你的武将牌上之称为“计”。出牌阶段，你可以打出任意一张手牌替换一次“计”。回合内你每使用一张点数小于“计”的牌时可摸一张牌(限五次)；回合外你可将点数不小于“计”的牌当【闪】使用或打出",
 	["@baichu"] = "请选择一张手牌作为“计”",
@@ -28,7 +26,6 @@ return {
 --QUN#01
 	["redhejin"] = "何进",
 	["designer:redhejin"] = "幻象迷宫",
-	["cv:redhejin"] = "",
 	["tonglu"] = "同戮",
 	[":tonglu"] = "出牌阶段，你可以令场上武将牌正面朝上的角色依次选择是否愿意将自己的武将牌翻面。若如此做，你的下一张【杀】造成的伤害+X。X为愿意翻面的武将数量",
 	["liehou"] = "列侯",
@@ -47,7 +44,6 @@ return {
 --SHU#01
 	["redguansuo"] = "关索",
 	["designer:redguansuo"] = "宇文天启、俊逸不凡",
-	["cv:redguansuo"] = "",
 	["xiefang"] = "撷芳",
 	[":xiefang"] = "你可以将其他角色装备区里的武器当【杀】、非武器当【闪】使用或打出",
 	["xiefang:slash"] = "你想发动技能【撷芳·杀】吗？",
@@ -59,14 +55,12 @@ return {
 --WU#01
 	["redyanbaihu"] = "严白虎",
 	["designer:redyanbaihu"] = "俊逸不凡",
-	["cv:redyanbaihu"] = "",
 	["jielue"] = "劫掠",
 	[":jielue"] = "出牌阶段，你使用的【杀】指定目标后，可先附带拼点的效果，若你赢，你获得目标角色的拼点牌",
 
 --SHU#02
 	["redwutugu"] = "兀突骨",
 	["designer:redwutugu"] = "春哥姨妈",
-	["cv:redwutugu"] = "",
 	["chuzhen"] = "出阵",
 	[":chuzhen"] = "觉醒技，回合开始阶段，若你已受伤，你须增加1点体力上限并获得技能“鳞甲”（锁定技，【南蛮入侵】及普通【杀】对你无效；你受到的火焰伤害+1）及“助兵”（摸牌阶段，你可放弃摸牌并展示牌堆顶X张牌，X为你的已损失体力值。其中每有一张黑桃牌，即视为你将此牌当作【南蛮入侵】使用。之后，你获得其余的牌）",
 	["#ChuzhenWake"] = "%from 发现自己已经受伤，大吼一声，正式觉醒！",
@@ -80,7 +74,6 @@ return {
 --QUN#02
 	["redchunyuqiong"] = "淳于琼",
 	["designer:redchunyuqiong"] = "连营",
-	["cv:redchunyuqiong"] = "",
 	["xujiu"] = "酗酒",
 	[":xujiu"] = "回合开始阶段，你可将一张黑色手牌置于武将牌上称之为“酿”，你每次使用【杀】造成伤害时，可将一张正面向上的“酿”翻面，若如此做，该伤害+1",
 	["niangA"] = "酿",
@@ -94,7 +87,6 @@ return {
 --WU#02
 	["redsunluban"] = "孙鲁班",
 	["designer:redsunluban"] = "天狼欧阳杉",
-	["cv:redsunluban"] = "",
 	["jiaochong"] = "骄宠",
 	[":jiaochong"] = "出牌阶段出牌前，你可以弃掉在摸牌阶段获得的所有牌，重新摸取等量的牌，每阶段限用一次",
 	["goulian"] = "媾连",
@@ -107,6 +99,24 @@ return {
 	["#GoulianB"] = "%from 选择了提前摸牌并允许 %to 下回合额外摸一张牌",
 	["#GoulianAdamage"] = "%from 为 %to 承担了本次的全部伤害",
 	["#GoulianBdraw"] = "%from 的技能【%arg】生效，额外摸了两张牌",
+
+	["cv:redzhonghui"] = "",
+	["cv:redxunyou"] = "",
+	["cv:redhejin"] = "",
+	["cv:redguansuo"] = "",
+	["cv:redyanbaihu"] = "",
+	["cv:redwutugu"] = "",
+	["cv:redchunyuqiong"] = "",
+	["cv:redsunluban"] = "",
+
+	["illustrator:redzhonghui"] = "雪君S",
+	["illustrator:redxunyou"] = "",
+	["illustrator:redhejin"] = "",
+	["illustrator:redguansuo"] = "",
+	["illustrator:redyanbaihu"] = "",
+	["illustrator:redwutugu"] = "",
+	["illustrator:redchunyuqiong"] = "",
+	["illustrator:redsunluban"] = "",
 
 --EX#T1
 	["rednanmanwang"] = "南蛮王",

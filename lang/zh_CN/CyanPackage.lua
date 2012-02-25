@@ -121,4 +121,14 @@ return {
 	["cv:cyanliaohua"] = "",
 	["cv:cyanfanqiangzhangda"] = "",
 	["cv:cyanmateng"] = "",
+
+	["illustrator:cyankongrong"] = "",
+	["illustrator:cyanzhangxiu"] = "",
+	["illustrator:cyanyufan"] = "",
+	["illustrator:cyanpuyuan"] = "",
+	["illustrator:cyanlidian"] = "",
+	["illustrator:cyancaochong"] = "",
+	["illustrator:cyanliaohua"] = "",
+	["illustrator:cyanfanqiangzhangda"] = "",
+	["illustrator:cyanmateng"] = "",
 }

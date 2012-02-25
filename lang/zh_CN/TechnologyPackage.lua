@@ -45,6 +45,11 @@ local te = {
 	["cv:zhujianping"] = "",
 	["cv:guanlu"] = "",
 	["cv:dukui"] = "",
+
+	["illustrator:zhouxuan"] = "",
+	["illustrator:zhujianping"] = "",
+	["illustrator:guanlu"] = "",
+	["illustrator:dukui"] = "",
 }
 
 local techer = {"zhouxuan", "zhujianping", "guanlu", "dukui"}

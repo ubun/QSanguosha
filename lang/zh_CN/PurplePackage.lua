@@ -94,7 +94,16 @@ return {
 	["cv:purplexingcai"] = "",
 	["cv:purpleduanmeng"] = "",
 	["cv:purplezoushi"] = "",
-	["cv:purplewangmengru"] = "",
+	["cv:purplesunbushi"] = "",
 	["cv:purplebao3niang"] = "",
 	["cv:purplebeimihu"] = "",
+
+	["illustrator:purpleyelai"] = "",
+	["illustrator:purplesunnichang"] = "",
+	["illustrator:purplexingcai"] = "",
+	["illustrator:purpleduanmeng"] = "",
+	["illustrator:purplezoushi"] = "",
+	["illustrator:purplesunbushi"] = "",
+	["illustrator:purplebao3niang"] = "",
+	["illustrator:purplebeimihu"] = "",
 }
