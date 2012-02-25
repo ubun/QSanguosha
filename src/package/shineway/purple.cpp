@@ -611,7 +611,7 @@ PurplePackage::PurplePackage()
     purplebao3niang->addSkill(new Xiayi);
 
     General *purplebeimihu = new General(this, "purplebeimihu", "qun", 3, false);
-    purplebeimihu->addSkill(new Nvwang);
+    //purplebeimihu->addSkill(new Nvwang);
     purplebeimihu->addSkill(new Shouguo);
     purplebeimihu->addSkill(new Yaofa);
 

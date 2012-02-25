@@ -47,21 +47,19 @@ public:
         if(!damage.from || damage.from->isKongcheng() || !player->askForSkillInvoke(objectName()))
             return;
         const Card *card = room->askForCardShow(player, player, objectName());
-        if(card){
-            LogMessage log;
-            log.type = "#Jifeng";
-            log.from = damage.from;
-            log.arg = objectName();
-            log.arg2 = card->isRed() ? "jifengr" : "jifengb";
-            room->sendLog(log);
+        LogMessage log;
+        log.type = "#Jifeng";
+        log.from = damage.from;
+        log.arg = objectName();
+        log.arg2 = card->isRed() ? "jifengr" : "jifengb";
+        room->sendLog(log);
 
-            room->showCard(player, card->getEffectiveId());
-            foreach(const Card *cd, damage.from->getHandcards()){
-                if(card->sameColorWith(cd))
-                    room->throwCard(cd);
-                else
-                    room->showCard(damage.from, cd->getEffectiveId());
-            }
+        room->showCard(player, card->getEffectiveId());
+        foreach(const Card *cd, damage.from->getHandcards()){
+            if(card->sameColorWith(cd))
+                room->throwCard(cd);
+            else
+                room->showCard(damage.from, cd->getEffectiveId());
         }
     }
 };
