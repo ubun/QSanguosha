@@ -451,6 +451,8 @@ bool ServerPlayer::hasNullification() const{
         }
 
         return count >= n;
+    }else if(hasSkill("yanzheng")){
+        return !getCards("e").isEmpty();
     }else{
         foreach(const Card *card, handcards){
             if(card->objectName() == "nullification")
@@ -523,14 +525,16 @@ void ServerPlayer::turnOver(){
     room->getThread()->trigger(TurnedOver, this);
 }
 
-void ServerPlayer::play(){
-    static QList<Phase> all_phases;
-    if(all_phases.isEmpty()){
-        all_phases << Start << Judge << Draw << Play
-                << Discard << Finish << NotActive;
+void ServerPlayer::play(QList<Player::Phase> set_phases){
+    if(!set_phases.isEmpty()){
+        if(!set_phases.contains(NotActive))
+            set_phases << NotActive;
     }
+    else
+        set_phases << Start << Judge << Draw << Play
+                << Discard << Finish << NotActive;
 
-    phases = all_phases;
+    phases = set_phases;
     while(!phases.isEmpty()){
         Phase phase = phases.takeFirst();
         setPhase(phase);
@@ -584,6 +588,14 @@ void ServerPlayer::skip(Player::Phase phase){
     room->sendLog(log);
 }
 
+void ServerPlayer::skip(){
+    phases.clear();
+
+    LogMessage log;
+    log.type = "#SkipAllPhase";
+    log.from = this;
+    room->sendLog(log);
+}
 
 void ServerPlayer::gainMark(const QString &mark, int n){
     int value = getMark(mark) + n;
@@ -809,11 +821,13 @@ void ServerPlayer::addToPile(const QString &pile_name, int card_id, bool open){
     room->moveCardTo(Sanguosha->getCard(card_id), this, Player::Special, open);
 }
 
-void ServerPlayer::gainAnExtraTurn(){
+void ServerPlayer::gainAnExtraTurn(ServerPlayer *clearflag){
     ServerPlayer *current = room->getCurrent();
 
     room->setCurrent(this);
     room->removeTag("Zhichi");
+    if(clearflag)
+        clearflag->clearFlags();
     room->getThread()->trigger(TurnStart, this);
     room->setCurrent(current);
 }
