@@ -67,7 +67,6 @@ sgs.ai_skill_playerchosen["liehou"] = function(self, targets)
 end
 
 -- xiefang
-sgs.ai_skill_invoke["xiefang"] = true
 local xiefang_skill = {}
 xiefang_skill.name = "xiefang"
 table.insert(sgs.ai_skills, xiefang_skill)
@@ -131,13 +130,22 @@ sgs.ai_skill_invoke["xiefang"] = function(self, data)
 			return true
 		end
 	end
+	if self.player:getHp() < 2 then
+		for _, target in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+			local weapon = target:getWeapon()
+			local armor = target:getArmor() or target:getDefensiveHorse() or target:getOffensiveHorse()
+			if (asked == "slash" and weapon) or (asked == "jink" and armor) then
+				return true
+			end
+		end
+	end
 	return false
 end
 sgs.ai_skill_playerchosen["xiefang"] = function(self, targets)
 	for _, player in sgs.qlist(targets) do
 		if self:isEnemy(player) and not self:hasSkills(sgs.lose_equip_skill, player) then
 			return player
-		elseif self:isFriend(player) and self:hasSkills(sgs.lose_equip_skill, player) then
+		elseif self:isFriend(player) and (self:hasSkills(sgs.lose_equip_skill, player) or self.player:getHp() < 2) then
 			return player
 		end
 	end

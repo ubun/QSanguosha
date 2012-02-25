@@ -348,8 +348,10 @@ bool XiefangCard::targetFilter(const QList<const Player *> &targets, const Playe
         return false;
 }
 
-void XiefangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *target;
+void XiefangCard::onUse(Room *room, const CardUseStruct &card_use) const{
+    QList<ServerPlayer *> targets = card_use.to;
+    PlayerStar target;
+    PlayerStar source = card_use.from;
     if(targets.length() > 1)
         target = targets.at(1);
     else if(targets.length() == 1 && source->canSlash(targets.first())){

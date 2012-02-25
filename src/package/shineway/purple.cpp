@@ -145,7 +145,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *current = room->getCurrent();
         ServerPlayer *xing = room->findPlayerBySkillName(objectName());
-        if(!xing || move->to == player || player->hasFlag("nie"))
+        if(player->isDead() || !xing || move->to == player || player->hasFlag("nie"))
             return false;
         if(move->from_place == Player::Hand || move->from_place == Player::Equip){
             if(!current->hasFlag("nei") && room->askForSkillInvoke(xing, objectName())){
@@ -318,6 +318,7 @@ class Xiangfeng: public TriggerSkill{
 public:
     Xiangfeng():TriggerSkill("xiangfeng"){
         events << SlashMissed;
+        frequency = Frequent;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{

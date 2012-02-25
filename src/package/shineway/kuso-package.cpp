@@ -322,7 +322,7 @@ public:
 
         if(handcard < 4)
             player->drawCards(4 - handcard);
-        else
+        else if(handcard > 4)
             room->askForDiscard(player, objectName(), handcard - 4);
         return false;
     }
