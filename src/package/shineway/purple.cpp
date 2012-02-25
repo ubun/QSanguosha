@@ -355,7 +355,7 @@ public:
         ServerPlayer *bao3niang = room->findPlayerBySkillName(objectName());
         if(!bao3niang || !damage.from || damage.from == damage.to)
             return false;
-        if(room->askForCard(bao3niang, "slash", "@xiayi")){
+        if(room->askForCard(bao3niang, "slash", "@xiayi", QVariant::fromValue((PlayerStar)damage.from))){
             Slash *slash = new Slash(Card::NoSuit, 0);
             slash->setSkillName(objectName());
             CardUseStruct use;
