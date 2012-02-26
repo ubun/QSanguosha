@@ -12,3 +12,11 @@ sgs.ai_skill_cardask["@xiayi"] = function(self, data, pattern, target)
 	end
 	return "."
 end
+
+-- yaofa
+sgs.ai_skill_use["@@yaofa"] = function(self, prompt)
+	self:sort(self.enemies, "hp")
+	local target = self.enemies[1]
+	if target then return "@YaofaCard=.".."->"..target:objectName() end
+	return "."
+end
