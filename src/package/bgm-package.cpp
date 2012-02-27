@@ -162,6 +162,16 @@ public:
         return 3;
     }
 
+    int getWeaponCount(ServerPlayer *caoren) const{
+        int n = 0;
+        foreach(ServerPlayer *p, caoren->getRoom()->getAlivePlayers()){
+            if(p->getWeapon())
+                n ++;
+        }
+
+        return n;
+    }
+
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
 
@@ -169,30 +179,27 @@ public:
             if(!room->askForSkillInvoke(player, objectName(), data))
                 return false;
 
-            int n = 0;
-            foreach(ServerPlayer *p, room->getAlivePlayers()){
-                n += p->getCards("e").length();
-            }
-
+            int n = getWeaponCount(player);
             player->drawCards(n+2);
-            player->setMark(objectName(), n);
             player->turnOver();
+            player->tag[objectName()] = true;
         }
         else if(player->getPhase() == Player::Draw){
-            int n = player->getMark(objectName());
+            if(!player->tag[objectName()].toBool())
+                return false;
+
+            int n = getWeaponCount(player);
             if(n > 0){
                 if(player->getCards("he").length() <= n){
                     player->throwAllEquips();
                     player->throwAllHandCards();
                 }
                 else{
-                    for(int i = 0; i != n; i++){
-                        int card_id = room->askForCardChosen(player, player, "he", objectName());
-                        room->throwCard(card_id);
-                    }
+                    room->askForDiscard(player, objectName(), n, false, true);
                 }
             }
-            player->setMark(objectName(), 0);
+
+            player->tag.remove(objectName());
         }
         return false;
     }
@@ -208,7 +215,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "nullification";
+        return pattern == "nullification" && player->getHandcardNum() > player->getHp();
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{

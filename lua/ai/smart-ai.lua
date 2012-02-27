@@ -67,7 +67,7 @@ function setInitialTables()
 	sgs.masochism_skill = 		"fankui|jieming|yiji|ganglie|enyuan|fangzhu"
 	sgs.wizard_skill = 			"guicai|guidao|jilve|tiandu"
 	sgs.wizard_harm_skill = 	"guicai|guidao|jilve"
-	sgs.priority_skill = 		"dimeng|haoshi|qingnang|jijiu|jizhi|guzheng|qixi|xiaoji|jieyin"
+	sgs.priority_skill = 		"dimeng|haoshi|qingnang|jijiu|jizhi|guzheng|qixi|xiaoji|jieyin|guose"
 	sgs.exclusive_skill = 		"huilei|duanchang|enyuan|wuhun|leiji|buqu|jushou|yiji|ganglie|guixin"
 	
 	for _, aplayer in sgs.qlist(global_room:getAllPlayers()) do
@@ -174,7 +174,7 @@ function SmartAI:updateTarget(player)
 	if #enemies == 0 then return end
 	local priority_target = {}
 	for _, enemy in ipairs(enemies) do	
-		if self:hasSkills(sgs.priority_skill, player) then
+		if player:getRole() ~= enemy:getRole() and self:hasSkills(sgs.priority_skill, player) then
 			table.insert(priority_target, enemy)
 		end
 	end
@@ -187,12 +187,12 @@ function SmartAI:updateTarget(player)
 	
 	self:sort(enemies)
 	for _, enemy in ipairs(self.enemies) do
-		if not self:hasSkills(sgs.exclusive_skill, enemy) then sgs.target[player:getRole()] = enemy return end
+		if not self:hasSkills(sgs.exclusive_skill, enemy) and player:getRole() ~= enemy:getRole() then sgs.target[player:getRole()] = enemy return end
 	end
 	
 	self:sort(enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
-		if self:isWeak(enemy) then sgs.target[player:getRole()] = enemy return end
+		if self:isWeak(enemy) and player:getRole() ~= enemy:getRole() then sgs.target[player:getRole()] = enemy return end
 	end
 	
 	self:sort(enemies, "hp")
@@ -445,9 +445,9 @@ function SmartAI:getDynamicUsePriority(card)
 				end
 				if not probably_hit then
 					probably_hit = dummy_use.probably_hit[1]
-					value = value + 1.5
+					value = value + 12.5
 				else
-					value = value + 3
+					value = value + 14
 				end
 				value = value - (probably_hit:getHp() - 1)/2.0
 
@@ -1143,6 +1143,12 @@ function SmartAI:updateAlivePlayerRoles()
 	sgs.checkMisjudge()
 end
 
+function SmartAI:updateRoleTarget()
+	for _, p in sgs.qlist(self.room:getAllPlayers()) do
+		self:updateTarget(p)
+	end
+end
+
 function SmartAI:updatePlayers()
 	for _, aflag in ipairs(sgs.ai_global_flags) do
 		sgs[aflag] = nil
@@ -1192,31 +1198,19 @@ function SmartAI:updatePlayers()
 		table.insert(self.friends_noself, player)
 	end
 	table.insert(self.friends,self.player)
-	
-	for _, p in sgs.qlist(self.room:getAllPlayers()) do
-		self:updateTarget(p)
-	end
 
-	if self.role == "rebel" then
-		sgs.rebel_target = self.room:getLord()
-		self.retain = 2
-	end
+	if self.role == "rebel" then self.retain = 2 end
 
 	if self.player:getHp() < 2 then self.retain = 0 end
 	self:sortEnemies(players)
 	for _,player in ipairs(players) do
-		if not (self.role == "loyalist" and player:isLord()) then
-			if self:objectiveLevel(player) >= 4 then self.harsh_retain = false end
-			if #elist == 0 then
-				table.insert(elist,player)
-				if self:objectiveLevel(player) < 4 then self.retain = 0 end
-			else
-				if self:objectiveLevel(player) <= 0 then return end
-				table.insert(elist,player)
-
-				if self:objectiveLevel(player) >= 4 then self.harsh_retain = false end
-			end
+		if self:objectiveLevel(player) >= 4 then self.harsh_retain = false end
+		if #elist == 0 then
+			if self:objectiveLevel(player) < 4 then self.retain = 0 end
+		else
+			if self:objectiveLevel(player) <= 0 then return end
 		end
+		table.insert(elist,player)
 	end
 end
 
@@ -1271,18 +1265,16 @@ function SmartAI:filterEvent(event, player, data)
 				end
 			end
 		end
-	elseif event == sgs.CardUsed then
+	elseif event == sgs.CardUsed or event == sgs.CardEffect or event == sgs.GameStart or event == sgs.Death or event == sgs.PhaseChange then
 		self:updatePlayers()
-	elseif event == sgs.CardEffect then
-		self:updatePlayers()
-	elseif event == sgs.Death then
-		self:updatePlayers()
+		self:updateRoleTarget()
+	end
+	
+	if event == sgs.Death then
 		if self == sgs.recorder then self:updateAlivePlayerRoles() end
-	elseif event == sgs.PhaseChange then 
+	end
+	if event == sgs.PhaseChange then
 		if self.room:getCurrent():getPhase() == sgs.Player_NotActive then sgs.modifiedRoleEvaluation() end
-		self:updatePlayers()
-	elseif event == sgs.GameStart then
-		self:updatePlayers()
 	end
 
 	if self ~= sgs.recorder then return end
@@ -2703,6 +2695,7 @@ end
 
 function SmartAI:hasTrickEffective(card, player)
 	if player then
+		if player:isDead() then return false end
 		if (player:hasSkill("zhichi") and self.room:getTag("Zhichi"):toString() == player:objectName()) or player:hasSkill("wuyan") then
 			if card and not (card:inherits("Indulgence") or card:inherits("SupplyShortage")) then return false end
 		end
