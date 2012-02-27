@@ -4,6 +4,7 @@ return {
 	["akatsuki"] = "晓", 
 
 -- Red
+	["#uchihaitachi"] = "永远的哥哥",
 	["uchihaitachi"] = "宇智波鼬",
 	["designer:uchihaitachi"] = "春哥姨妈",
 	["cv:uchihaitachi"] = "",

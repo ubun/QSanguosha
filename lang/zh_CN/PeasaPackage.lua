@@ -86,9 +86,19 @@ return {
 	["fuckmoon"] = "蔽月",
 	[":fuckmoon"] = "回合结束时，你可将手牌补至体力上限的张数。",
 
+	["cv:guanzhang"] = "",
+	["cv:mizhu"] = "",
+	["cv:zhugejin"] = "",
+	["cv:dingfeng"] = "",
+	["cv:yuejin"] = "",
+	["cv:xunyou"] = "",
+	["cv:beimihu"] = "",
+	["cv:wangyun"] = "",
+	["cv:lvlingqi"] = "",
+
 	["illustrator:guanzhang"] = "",
 	["illustrator:mizhu"] = "",
-	["illustrator:zhugejin"] = ""
+	["illustrator:zhugejin"] = "",
 	["illustrator:dingfeng"] = "",
 	["illustrator:yuejin"] = "",
 	["illustrator:xunyou"] = "",

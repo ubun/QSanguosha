@@ -3,7 +3,8 @@
 return {
 	["green"] = "★三台★",
 
---SHU#06 飞羽之首
+--SHU#06
+	["#greenyanpeng"] = "飞羽之首",
 	["greenyanpeng"] = "焉逢",
 	["designer:greenyanpeng"] = "宇文天启",
 	["yabian"] = "压变",
@@ -11,7 +12,8 @@ return {
 ★发动压变后，原角色的限定技标记和七星标记也会随之转移",
 	["yabian:yes"] = "抢夺对方的武将牌",
 
---WEI05 鄢陵侯
+--WEI05
+	["#greencaozhang"] = "鄢陵侯",
 	["greencaozhang"] = "曹彰",
 	["designer:greencaozhang"] = "章鱼哥",
 	["liji"] = "厉击",
@@ -19,7 +21,8 @@ return {
 	["shixian"] = "士先",
 	[":shixian"] = "你可以跳过自己的摸牌，出牌或弃牌阶段并将你的武将牌翻面，每回合限一次",
 
---QUN#05 深远的谋士
+--QUN#05
+	["#greenjushou"] = "深远的谋士",
 	["greenjushou"] = "沮授",
 	["designer:greenjushou"] = "日月小辰",
 	["yuanlv"] = "远虑",
@@ -30,7 +33,8 @@ return {
 	["#Zj_TriggerSkill"] = "%to 即将发动技能【%arg2】，%from 的技能【%arg】生效",
 	["#Zj_SkillCard"] = "%to 发动了技能【%arg2】，%from 的技能【%arg】生效",
 
---WU#04 谍战英豪
+--WU#04
+	["#greenkanze"] = "谍战英豪",
 	["greenkanze"] = "阚泽",
 	["designer:greenkanze"] = "天山路",
 	["diezhi"] = "谍智",
@@ -42,7 +46,8 @@ return {
 --	["fengjue"] = "封绝",
 --	[":fengjue"] = "回合内，指定一名角色，其体力值发生变化时立即复原，直到你下回合开始",
 
---WEI#06 旧朝老臣
+--WEI#06
+	["#greenwanglang"] = "旧朝老臣",
 	["greenwanglang"] = "王朗",
 	["designer:greenwanglang"] = "星空梦幻",
 	["duizheng"] = "对政",
@@ -53,13 +58,15 @@ return {
 	["#ZhuimaForbidden"] = "%from 受到坠马效果影响，对 %to 使用的 %arg 无效",
 	["@zhuima"] = "坠马",
 
---WU#05 江上麒麟
+--WU#0
+	["#greenchenwu"] = "江上麒麟",
 	["greenchenwu"] = "陈武",
 	["designer:greenchenwu"] = "曉ャ絕對",
 	["qilin"] = "麒麟",
 	[":qilin"] = "回合开始阶段，你可令一名其他角色将手牌弃至或补至等同于你当前拥有的手牌数，若补或弃的牌不少于三张，将你的武将牌翻面",
 
---SHU#07 刚柔并济
+--SHU#07
+	["#greenmayunlu"] = "刚柔并济",
 	["greenmayunlu"] = "马云禄",
 	["designer:greenmayunlu"] = "安歧大小姐",
 	["jinguo"] = "巾帼",
@@ -71,7 +78,8 @@ return {
 	["wuqi"] = "武骑",
 	[":wuqi"] = "回合外，任一角色的判定结果为红色时，你可以摸一张牌并对攻击范围内的一名角色使用一张【杀】",
 
---WEI#07 治世之才
+--WEI#07
+	["#greenchenqun"] = "治世之才",
 	["greenchenqun"] = "陈群",
 	["designer:greenchenqun"] = "司马子上",
 	["quanyi"] = "劝议",

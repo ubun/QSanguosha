@@ -4,6 +4,7 @@ return {
 	["red"] = "★朱雀★", 
 
 --WEI#01
+	["#redzhonghui"] = "自闭的野心家",
 	["redzhonghui"] = "钟会",
 	["designer:redzhonghui"] = "淬毒",
 	["tianhui"] = "天慧",
@@ -16,6 +17,7 @@ return {
 	["jifengb"] = "黑色",
 
 --WEI#02
+	["#redxunyou"] = "杰出的战术家",
 	["redxunyou"] = "荀攸",
 	["designer:redxunyou"] = "黄书",
 	["baichu"] = "百出",
@@ -24,6 +26,7 @@ return {
 	["ji"] = "计",
 	
 --QUN#01
+	["#redhejin"] = "谋诛宦竖",
 	["redhejin"] = "何进",
 	["designer:redhejin"] = "幻象迷宫",
 	["tonglu"] = "同戮",
@@ -42,6 +45,7 @@ return {
 	["@wocao"] = "蓄力",
 
 --SHU#01
+	["#redguansuo"] = "万艳同杯",
 	["redguansuo"] = "关索",
 	["designer:redguansuo"] = "宇文天启、俊逸不凡",
 	["xiefang"] = "撷芳",
@@ -53,12 +57,14 @@ return {
 	["@yanyun-slash"] = "您可以再打出一张非“撷芳”【杀】来发动偃云的追杀效果", 
 
 --WU#01
+	["#redyanbaihu"] = "江东贼寇",
 	["redyanbaihu"] = "严白虎",
 	["designer:redyanbaihu"] = "俊逸不凡",
 	["jielue"] = "劫掠",
 	[":jielue"] = "出牌阶段，你使用的【杀】指定目标后，可先附带拼点的效果，若你赢，你获得目标角色的拼点牌",
 
 --SHU#02
+	["#redwutugu"] = "乌戈国王",
 	["redwutugu"] = "兀突骨",
 	["designer:redwutugu"] = "春哥姨妈",
 	["chuzhen"] = "出阵",
@@ -72,6 +78,7 @@ return {
 	["#LinjiaDamage"] = "%from 的锁定技【鳞甲】的负面技能被触发，由 %arg 点火焰伤害增加到 %arg2 点火焰伤害",
 
 --QUN#02
+	["#redchunyuqiong"] = "嗜酒无度",
 	["redchunyuqiong"] = "淳于琼",
 	["designer:redchunyuqiong"] = "连营",
 	["xujiu"] = "酗酒",
@@ -85,6 +92,7 @@ return {
 	["#Xuebi"] = "%from 的锁定技【%arg】被触发，失去了一点体力上限和所有的 %arg2",
 
 --WU#02
+	["#redsunluban"] = "祸乱宫帏",
 	["redsunluban"] = "孙鲁班",
 	["designer:redsunluban"] = "天狼欧阳杉",
 	["jiaochong"] = "骄宠",
@@ -119,6 +127,7 @@ return {
 	["illustrator:redsunluban"] = "",
 
 --EX#T1
+	["#rednanmanwang"] = "王中王",
 	["rednanmanwang"] = "南蛮王",
 	["super_zaiqi"] = "象兵",
 	[":super_zaiqi"] = "摸牌阶段，你可以放弃摸牌并展示牌堆顶的X张牌，X为你已损失的体力值+1，其中每有一张红桃牌，你回复1点体力；每有一张黑桃牌，即视为你将此牌当作【南蛮入侵】使用。然后弃掉这些红桃和黑桃牌，将其余的牌收入手牌。当红桃结果多于黑桃结果时，你的势力为蜀，否则为群",

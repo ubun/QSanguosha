@@ -450,6 +450,12 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *playeR, QVariant &) const{
         Room *room = playeR->getRoom();
+        LogMessage log;
+        log.type = "#ZizhuWake";
+        log.from = playeR;
+        log.arg = objectName();
+        room->sendLog(log);
+
         if(room->askForChoice(playeR, objectName(), "recover+draw") == "recover"){
             RecoverStruct recover;
             recover.who = playeR;

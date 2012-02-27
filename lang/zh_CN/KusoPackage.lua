@@ -3,6 +3,7 @@
 return {
 	["kuso"] = "灌汤包", 
 
+	["#kusoking"] = "唯我独尊",
 	["kusoking"] = "屎皇帝",
 	["designer:kusoking"] = "宇文天启",
 	["cv:kusoking"] = "",
@@ -22,6 +23,7 @@ return {
 	[":liaoting"] = "限定技，出牌阶段，你可以弃掉4张手牌，若均为屎，（在弃掉之前）立即产生以下效果：1、若你为反贼，主公立即死亡；2、若你为主公或忠臣，所有反贼和内奸立即死亡；3、若你为内奸，摸五张牌，所有反贼和忠臣立即死亡。若之后你依然存活且游戏未结束，回复体力至体力上限",
 	["@liaot"] = "Shit",
 
+	["#tianyin"] = "天道之化身",
 	["tianyin"] = "天音",
 	["designer:tianyin"] = "鎏铄天音",
 	["cv:tianyin"] = "",
@@ -36,6 +38,7 @@ return {
 	["#NoqingLoseHp"] = "受到 %from 【%arg】锁定技的影响，%to 流失了一点体力",
 	["#NoqingLoseMaxHp"] = "受到 %from 【%arg】锁定技的影响，%to 流失了一点体力上限",
 
+	["#tenkei"] = "百撕不得骑姐",
 	["tenkei"] = "天启",
 	["designer:tenkei"] = "宇文天启",
 	["cv:tenkei"] = "",
@@ -43,6 +46,7 @@ return {
 	["eatdeath"] = "拾尸",
 	[":eatdeath"] = "当有角色死亡时，你可以失去一个因“拾尸”获得的技能(如果有的话)，然后失去一点体力上限并获得该角色当前的所有武将技",
 
+	["#shenzilong"] = "高达一号",
 	["shenzilong"] = "神子龙",
 	["designer:shenzilong"] = "官方内测第一版",
 	["cv:shenzilong"] = "",

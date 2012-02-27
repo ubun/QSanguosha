@@ -3,7 +3,8 @@
 return {
 	["cyan"] = "★青龙★", 
 
---QUN#03 北海太守
+--QUN#03
+	["#cyankongrong"] = "北海太守",
 	["cyankongrong"] = "孔融",
 	["designer:cyankongrong"] = "宇文天启",
 	["rangli"] = "让梨",
@@ -13,7 +14,8 @@ return {
 	["@pear"] = "梨",
 	["@rangli-ask"] = "%src 向你发动了【让梨】，你必须选择两张手牌给他，否则由他抽取你两张手牌",
 
---WEI#03 邓哀王
+--WEI#03
+	["#cyancaochong"] = "邓哀王",
 	["cyancaochong"] = "曹冲",
 	["designer:cyancaochong"] = "竹影澜轩",
 	["weighing"] = "称象",
@@ -22,7 +24,8 @@ return {
 	[":kuanhou"] = "你每受到一次伤害，若你的武将牌正面朝上，你可将你的武将牌翻面，然后在伤害来源的回合结束时可令一名其他角色进行一个额外的出牌阶段",
 	["#Kuanhou"] = "%from 令 %to 立即进行一个额外的出牌阶段",
 
---SHU#03 中流砥柱
+--SHU#03
+	["#cyanliaohua"] = "中流砥柱",
 	["cyanliaohua"] = "廖化",
 	["designer:cyanliaohua"] = "玩玩百姐",
 	["guolie"] = "果烈",
@@ -31,7 +34,8 @@ return {
 	["zhongshu"] = "终蜀",
 	[":zhongshu"] = "出牌阶段，你的【杀】能攻击到手牌数与你体力差为1的任一角色",
 
---WU#03 性不协俗
+--WU#03
+	["#cyanyufan"] = "性不协俗",
 	["cyanyufan"] = "虞翻",
 	["designer:cyanyufan"] = "游神ViVA",
 	["shuaijin"] = "率进",
@@ -39,8 +43,8 @@ return {
 	["liufang"] = "流放",
 	[":liufang"] = "回合外，每失去一张牌，可进行一次判定，若为黑色基本牌或黑色锦囊牌，你立即获得失去的那张牌",
 
---WEI#04 长者之风
---http://www.qsanguosha.com/forum.php?mod=viewthread&tid=5800
+--WEI#04
+	["#cyanlidian"] = "长者之风",
 	["cyanlidian"] = "李典",
 	["designer:cyanlidian"] = "sailiss",
 	["ruji"] = "儒计",
@@ -53,8 +57,8 @@ return {
 	["ruji_fail"] = "儒计失败",
 	["#RujiSucc"] = "%from 将 %to 的全部手牌示众",
 
---EX#T2 北地枪王
---http://blog.sina.com.cn/s/blog_7d07da460100y0x3.html
+--EX#T2
+	["#cyanzhangxiu"] = "北地枪王",
 	["cyanzhangxiu"] = "张绣",
 	["designer:cyanzhangxiu"] = "浦原秀一",
 	["baiming"] = "百鸣",
@@ -65,7 +69,8 @@ return {
 	[":junling"] = "主公技，出牌阶段，你可以指定任意一名角色对其攻击范围内的另一名角色使用一张【杀】，若该角色不如此做，你从他那里获得一张手牌，每阶段限一次",
 	["junling-slash"] = "%src 发动了技能【军令】，目标是 %dest，请打出一张【杀】以响应", 
 
---SHU#04 天使之艺
+--SHU#04
+	["#cyanpuyuan"] = "天使之艺",
 	["cyanpuyuan"] = "蒲元",
 	["designer:cyanpuyuan"] = "天使之艺",
 	["hunren"] = "魂刃",
@@ -90,7 +95,8 @@ return {
 	["cuihuo"] = "淬火",
 	[":cuihuo"] = "锁定技,当你失去装备区里的武器时,你回复1点体力值;若在你的出牌阶段失去,则每阶段限用一次",
 
---SHU#05 倒戈之悟
+--SHU#05
+	["#cyanfanqiangzhangda"] = "倒戈之悟",
 	["cyanfanqiangzhangda"] = "范彊张达",
 	["designer:cyanfanqiangzhangda"] = "筱音",
 	["qianpan"] = "潜叛",
@@ -101,7 +107,8 @@ return {
 	[":anshi"] = "出牌阶段，若有其他角色处于濒死状态，你可以暂时获得技能“完杀”，若如此做，回合结束时你失去“完杀”和当前的所有体力",
 	["#AnshiSuicide"] = "%from 受到技能【%arg】的影响，失去了<b>【<font color=black>完杀</font>】</b>技能",
 
---QUN#04 伏波之后
+--QUN#04
+	["#cyanmateng"] = "伏波之后",
 	["cyanmateng"] = "马腾",
 	["designer:cyanmateng"] = "曉ャ絕對",
 	["jiaozei"] = "剿贼",
