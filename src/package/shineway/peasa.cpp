@@ -395,37 +395,37 @@ public:
 PeasaPackage::PeasaPackage()
     :Package("peasa")
 {
-    General *guanzhang = new General(this, "guanzhang", "jiang");
+    General *guanzhang = new General(this, "guanzhang", "shu");
     guanzhang->addSkill(new Piaoyong);
     guanzhang->addSkill(new Wuzong);
 
-    General *mizhu = new General(this, "mizhu", "jiang", 3);
+    General *mizhu = new General(this, "mizhu", "shu", 3);
     //zhugejin->addSkill(new Fugui);
     //zhugejin->addSkill(new Zizhu);
 
-    General *zhugejin = new General(this, "zhugejin", "min", 3);
+    General *zhugejin = new General(this, "zhugejin", "wu", 3);
     zhugejin->addSkill(new Qiuhe);
     //zhugejin->addSkill(new Kuanhp);
 
-    General *dingfeng = new General(this, "dingfeng", "min");
+    General *dingfeng = new General(this, "dingfeng", "wu");
     dingfeng->addSkill(new Duanbing);
 
-    General *yuejin = new General(this, "yuejin", "guan");
+    General *yuejin = new General(this, "yuejin", "wei");
     yuejin->addSkill(new Guiou);
     skills << new GuiouPro;
     yuejin->addSkill(new Xiaoguo);
 
-    General *xunyou = new General(this, "xunyou", "guan", 3);
+    General *xunyou = new General(this, "xunyou", "wei", 3);
     xunyou->addSkill(new Huace);
 
     //General *beimihu = new General(this, "beimihu", "qun", 3, false);
 
-    General *wangyun = new General(this, "wangyun", "kou", 3);
+    General *wangyun = new General(this, "wangyun", "qun", 3);
     wangyun->addSkill(new Zhonglian);
     wangyun->addSkill(new Mingwang);
     //wangyun->addSkill(new Lixin);
 
-    General *lvlingqi = new General(this, "lvlingqi", "kou", 3);
+    General *lvlingqi = new General(this, "lvlingqi", "qun", 3);
     lvlingqi->addSkill(new Dancer);
     lvlingqi->addSkill(new Fuckmoon);
 

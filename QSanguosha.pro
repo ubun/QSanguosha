@@ -58,6 +58,7 @@ SOURCES += src/main.cpp \
 	src/package/bgm-package.cpp \
 	src/package/shineway/technology.cpp \
 	src/package/shineway/kuso-package.cpp \
+	src/package/shineway/peasa.cpp \
 	src/package/shineway/red.cpp \
 	src/package/shineway/cyan.cpp \
 	src/package/shineway/green.cpp \
@@ -177,6 +178,7 @@ HEADERS += src/client/aux-skills.h \
 	src/package/bgm-package.h \
 	src/package/shineway/technology.h \
 	src/package/shineway/kuso-package.h \
+	src/package/shineway/peasa.h \
 	src/package/shineway/red.h \ 
 	src/package/shineway/cyan.h \ 
 	src/package/shineway/green.h \
