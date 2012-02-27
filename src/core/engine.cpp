@@ -79,6 +79,7 @@ Engine::Engine()
                   << "Purple"
                   << "Kuso"
                   << "Technology"
+                  << "Peasa"
                   << "Test"
 
                   << "StandardCard"
