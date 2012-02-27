@@ -54,8 +54,66 @@ public:
     }
 };
 
-//fugui
-//zizhu
+class Fugui:public DrawCardsSkill{
+public:
+    Fugui():DrawCardsSkill("fugui"){
+        frequency = Compulsory;
+    }
+
+    virtual int getDrawNum(ServerPlayer *myself, int n) const{
+        Room *room = myself->getRoom();
+        int x = myself->getLostHp();
+        LogMessage log;
+        log.from = myself;
+        log.type = "#TriggerSkill";
+        log.arg = objectName();
+        room->sendLog(log);
+        return n + x;
+    }
+};
+
+class Zizhu: public PhaseChangeSkill{
+public:
+    Zizhu():PhaseChangeSkill("zizhu"){
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getMark("zizhu") == 0
+                && target->getPhase() == Player::Start
+                && target->getHp() > 1;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        bool caninvoke = false;
+        foreach(ServerPlayer *tmp, room->getAlivePlayers()){
+            if(tmp->isKongcheng()){
+                caninvoke = true;
+                break;
+            }
+        }
+        if(!caninvoke)
+            return false;
+
+        LogMessage log;
+        log.type = "#ZizhuWake";
+        log.from = player;
+        log.arg = objectName();
+        room->sendLog(log);
+
+        room->loseHp(player);
+
+        if(room->askForChoice(player, objectName(), "rende+jujian") == "rende")
+            room->acquireSkill(player, "rende");
+        else
+            room->acquireSkill(player, "jujian");
+
+        room->setPlayerMark(player, "zizhu", 1);
+        return false;
+    }
+};
 
 class Qiuhe: public TriggerSkill{
 public:
@@ -230,6 +288,39 @@ public:
     }
 };
 
+class Baiuu: public PhaseChangeSkill{
+public:
+    Baiuu():PhaseChangeSkill("baiuu"){
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getMark("baiuu") == 0
+                && target->getPhase() == Player::Start
+                && target->getEquips().count() >= 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+
+        LogMessage log;
+        log.type = "#ZizhuWake";
+        log.from = player;
+        log.arg = objectName();
+        room->sendLog(log);
+
+        room->throwCard(room->askForCardChosen(player, player, "e", objectName()));
+        room->throwCard(room->askForCardChosen(player, player, "e", objectName()));
+
+        room->acquireSkill(player, "quhu");
+        room->acquireSkill(player, "duanliang");
+
+        room->setPlayerMark(player, "baiuu", 1);
+        return false;
+    }
+};
+
 ZhonglianCard::ZhonglianCard(){
     target_fixed = true;
 }
@@ -345,6 +436,34 @@ public:
     }
 };
 
+class Lixin: public TriggerSkill{
+public:
+    Lixin():TriggerSkill("lixin"){
+        events << AskForPeachesDone;
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("lixin") == 0
+                && target->getHp() > 0;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *playeR, QVariant &) const{
+        Room *room = playeR->getRoom();
+        if(room->askForChoice(playeR, objectName(), "recover+draw") == "recover"){
+            RecoverStruct recover;
+            recover.who = playeR;
+            room->recover(playeR, recover);
+        }else
+            room->drawCards(playeR, 2);
+
+        room->acquireSkill(playeR, "lijian");
+        room->acquireSkill(playeR, "weimu");
+        room->setPlayerMark(playeR, "lixin", 1);
+        return false;
+    }
+};
+
 class Dancer: public TriggerSkill{
 public:
     Dancer():TriggerSkill("dancer"){
@@ -400,12 +519,12 @@ PeasaPackage::PeasaPackage()
     guanzhang->addSkill(new Wuzong);
 
     General *mizhu = new General(this, "mizhu", "shu", 3);
-    //zhugejin->addSkill(new Fugui);
-    //zhugejin->addSkill(new Zizhu);
+    mizhu->addSkill(new Fugui);
+    mizhu->addSkill(new Zizhu);
 
     General *zhugejin = new General(this, "zhugejin", "wu", 3);
     zhugejin->addSkill(new Qiuhe);
-    //zhugejin->addSkill(new Kuanhp);
+    zhugejin->addSkill(new Skill("kuanhp", Skill::Compulsory));
 
     General *dingfeng = new General(this, "dingfeng", "wu");
     dingfeng->addSkill(new Duanbing);
@@ -417,13 +536,15 @@ PeasaPackage::PeasaPackage()
 
     General *xunyou = new General(this, "xunyou", "wei", 3);
     xunyou->addSkill(new Huace);
+    xunyou->addSkill(new Baiuu);
+    xunyou->addSkill(new Skill("shibiao", Skill::Compulsory));
 
     //General *beimihu = new General(this, "beimihu", "qun", 3, false);
 
     General *wangyun = new General(this, "wangyun", "qun", 3);
     wangyun->addSkill(new Zhonglian);
     wangyun->addSkill(new Mingwang);
-    //wangyun->addSkill(new Lixin);
+    wangyun->addSkill(new Lixin);
 
     General *lvlingqi = new General(this, "lvlingqi", "qun", 3);
     lvlingqi->addSkill(new Dancer);
