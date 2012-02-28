@@ -517,6 +517,254 @@ public:
     }
 };
 
+// beimihu edit by player
+
+#include <QCommandLinkButton>
+class Guishu: public GameStartSkill{
+public:
+    Guishu():GameStartSkill("guishu"){
+
+    }
+
+    static void PlayEffect(ServerPlayer *player, const QString &skill_name){
+        int r = qrand() % 2;
+        if(player->getGender() == General::Female)
+            r += 2;
+
+        player->getRoom()->playSkillEffect(skill_name, r);
+    }
+
+    static void AcquireGenerals(ServerPlayer *player, int n){
+        QStringList list = GetAvailableGenerals(player);
+        qShuffle(list);
+
+        QStringList acquired = list.mid(0, n);
+        QVariantList guishus = player->tag["Guipus"].toList();
+        foreach(QString guishu, acquired){
+            guishus << guishu;
+            /*const General *general = Sanguosha->getGeneral(guishu);
+            foreach(const TriggerSkill *skill, general->getTriggerSkills()){
+                player->getRoom()->getThread()->addTriggerSkill(skill);
+            }*/
+        }
+        player->tag["Guipus"] = guishus;
+        player->invoke("animate", "guishu:" + acquired.join(":"));
+
+        LogMessage log;
+        log.type = "#GetGuipu";
+        log.from = player;
+        log.arg = QString::number(n);
+        log.arg2 = QString::number(guishus.length());
+        player->getRoom()->sendLog(log);
+    }
+
+    static QStringList GetAvailableGenerals(ServerPlayer *player){
+        QSet<QString> all = Sanguosha->getLimitedGeneralNames().toSet();
+        QSet<QString> guishu_set, room_set;
+        QVariantList guishus = player->tag["Guipus"].toList();
+        foreach(QVariant guishu, guishus)
+            guishu_set << guishu.toString();
+
+        Room *room = player->getRoom();
+        QList<const ServerPlayer *> players = room->findChildren<const ServerPlayer *>();
+        foreach(const ServerPlayer *player, players){
+            room_set << player->getGeneralName();
+            if(player->getGeneral2())
+                room_set << player->getGeneral2Name();
+        }
+
+        static QSet<QString> banned;
+        if(banned.isEmpty()){
+            banned << "beimihu" << "guzhielai" << "dengshizai" << "caochong";
+        }
+
+        return (all - banned - guishu_set - room_set).toList();
+    }
+
+    static QString SelectGeneral(ServerPlayer *player){
+        Room *room = player->getRoom();
+        PlayEffect(player, "guishu");
+
+        QVariantList guishus = player->tag["Guipus"].toList();
+        if(guishus.isEmpty())
+            return QString();
+
+        QStringList guishu_generals;
+        foreach(QVariant guishu, guishus)
+            guishu_generals << guishu.toString();
+
+        return room->askForGeneral(player, guishu_generals);
+    }
+
+    virtual void onGameStart(ServerPlayer *player) const{
+        AcquireGenerals(player, player->getRoom()->getPlayers().count() + 2);
+    }
+
+    virtual QDialog *getDialog() const{
+        static GuishuDialog *dialog;
+
+        if(dialog == NULL)
+            dialog = new GuishuDialog;
+
+        return dialog;
+    }
+};
+
+GuishuDialog::GuishuDialog()
+{
+    setWindowTitle(tr("Incarnation"));
+}
+
+void GuishuDialog::popup(){
+    QVariantList guishu_list = Self->tag["Guipus"].toList();
+    QList<const General *> guishus;
+    foreach(QVariant guishu, guishu_list)
+        guishus << Sanguosha->getGeneral(guishu.toString());
+
+    fillGenerals(guishus);
+    show();
+}
+
+class GuishuEffect: public TriggerSkill{
+public:
+    GuishuEffect():TriggerSkill("#guishu-effect"){
+        events << Death;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    static void YaojiWake(ServerPlayer *jj){
+        if(jj->hasSkill("yaoji") && jj->getMark("yaoji") == 0){
+            Room *room = jj->getRoom();
+            int guishunum = jj->tag["Guipus"].toList().count();
+            int deadnum = room->getPlayers().count() - room->getAlivePlayers().length();
+            if(guishunum <= deadnum){
+                LogMessage log;
+                log.type = "#ZizhuWake";
+                log.from = jj;
+                log.arg = "yaoji";
+                room->sendLog(log);
+
+                room->acquireSkill(jj, "guicai");
+                room->acquireSkill(jj, "huangtian");
+                room->setPlayerMark(jj, "yaoji", 1);
+            }
+        }
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        DamageStar damage = data.value<DamageStar>();
+        ServerPlayer *killer = damage ? damage->from : NULL;
+
+        if(killer && killer->hasSkill("guishu")){
+            if(killer->askForSkillInvoke("guishu")){
+                QVariantList guishus = killer->tag["Guipus"].toList();
+                qShuffle(guishus);
+                QString guishu = guishus.first().toString();
+                const General* general = Sanguosha->getGeneral(guishu);
+                LogMessage log;
+                log.type = "#Guishu";
+                log.from = killer;
+                log.arg = guishu;
+                Room *room = killer->getRoom();
+                room->sendLog(log);
+
+                foreach(const Skill *skill, general->getVisibleSkillList()){
+                    if(!killer->getVisibleSkillList().contains(skill))
+                        room->acquireSkill(killer, skill->objectName());
+                }
+                guishus.clear();
+                guishus << guishu;
+                log.type = "#GuishuLost";
+                log.arg = guishu;
+                room->sendLog(log);
+
+                killer->tag["Guipus"] = guishus;
+                YaojiWake(killer);
+            }
+        }
+        return false;
+    }
+};
+
+YuguiCard::YuguiCard(){
+}
+
+bool YuguiCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return Slash::targetsFeasible(targets, Self);
+}
+
+bool YuguiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return Slash::targetFilter(targets, to_select, Self);
+}
+
+void YuguiCard::onUse(Room *room, const CardUseStruct &card_use) const{
+    QVariantList guipus = card_use.from->tag["Guipus"].toList();
+    if(guipus.isEmpty())
+        return false;
+    Slash *slash = new Slash(Card::NoSuit, 0);
+    slash->setSkillName("yugui");
+    CardUseStruct use = card_use;
+    use.card = slash;
+    guipus.removeFirst();
+    room->useCard(use);
+    card_use.from->tag["Guipus"] = guipus;
+}
+
+class YuguiViewAsSkill:public ZeroCardViewAsSkill{
+public:
+    YuguiViewAsSkill():ZeroCardViewAsSkill("yugui"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "slash";
+    }
+
+    virtual const Card *viewAs() const{
+        return new YuguiCard;
+    }
+};
+
+class Yugui: public TriggerSkill{
+public:
+    Yugui():TriggerSkill("yugui"){
+        events << CardAsked;
+        view_as_skill = new YuguiViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        QVariantList guipus = player->tag["Guipus"].toList();
+        if(guipus.isEmpty())
+            return false;
+        QString asked = data.toString();
+        if(asked != "slash" && asked != "jink")
+            return false;
+        Room *room = player->getRoom();
+        if(room->askForSkillInvoke(player, objectName(), data)){
+            guipus.removeFirst();
+            if(asked == "slash"){
+                Slash *yugui_card = new Slash(Card::NoSuit, 0);
+                yugui_card->setSkillName(objectName());
+                room->provide(yugui_card);
+            }
+            else if(asked == "jink"){
+                Jink *yugui_card = new Jink(Card::NoSuit, 0);
+                yugui_card->setSkillName(objectName());
+                room->provide(yugui_card);
+            }
+            player->tag["Guipus"] = guipus;
+            return true;
+        }
+        return false;
+    }
+};
+
 PeasaPackage::PeasaPackage()
     :Package("peasa")
 {
@@ -545,7 +793,12 @@ PeasaPackage::PeasaPackage()
     xunyou->addSkill(new Baiuu);
     xunyou->addSkill(new Skill("shibiao", Skill::Compulsory));
 
-    //General *beimihu = new General(this, "beimihu", "qun", 3, false);
+    General *beimihu = new General(this, "beimihu", "qun", 3, false);
+    beimihu->addSkill(new Guishu);
+    beimihu->addSkill(new GuishuEffect);
+    beimihu->addSkill(new Yugui);
+    beimihu->addSkill(new Skill("yaoji", Skill::Wake));
+    related_skills.insertMulti("guishu", "#guishu-effect");
 
     General *wangyun = new General(this, "wangyun", "qun", 3);
     wangyun->addSkill(new Zhonglian);
@@ -559,6 +812,7 @@ PeasaPackage::PeasaPackage()
     addMetaObject<GuiouCard>();
     addMetaObject<ZhonglianCard>();
     addMetaObject<MingwangCard>();
+    addMetaObject<YuguiCard>();
 }
 
 ADD_PACKAGE(Peasa);
