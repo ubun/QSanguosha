@@ -540,15 +540,10 @@ public:
 
         QStringList acquired = list.mid(0, n);
         QVariantList guishus = player->tag["Guipus"].toList();
-        foreach(QString guishu, acquired){
+        foreach(QString guishu, acquired)
             guishus << guishu;
-            /*const General *general = Sanguosha->getGeneral(guishu);
-            foreach(const TriggerSkill *skill, general->getTriggerSkills()){
-                player->getRoom()->getThread()->addTriggerSkill(skill);
-            }*/
-        }
         player->tag["Guipus"] = guishus;
-        player->invoke("animate", "guishu:" + acquired.join(":"));
+        //player->invoke("animate", "guishu:" + acquired.join(":"));
 
         LogMessage log;
         log.type = "#GetGuipu";
@@ -556,6 +551,7 @@ public:
         log.arg = QString::number(n);
         log.arg2 = QString::number(guishus.length());
         player->getRoom()->sendLog(log);
+        player->gainMark("@pu", n);
     }
 
     static QStringList GetAvailableGenerals(ServerPlayer *player){
@@ -575,9 +571,8 @@ public:
 
         static QSet<QString> banned;
         if(banned.isEmpty()){
-            banned << "beimihu" << "guzhielai" << "dengshizai" << "caochong";
+            banned << "beimihu";
         }
-
         return (all - banned - guishu_set - room_set).toList();
     }
 
@@ -654,7 +649,7 @@ public:
         }
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         DamageStar damage = data.value<DamageStar>();
         ServerPlayer *killer = damage ? damage->from : NULL;
 
@@ -682,6 +677,7 @@ public:
                 room->sendLog(log);
 
                 killer->tag["Guipus"] = guishus;
+                killer->loseMark("@pu", killer->getMark("@pu") - 1);
                 YaojiWake(killer);
             }
         }
@@ -689,37 +685,13 @@ public:
     }
 };
 
-YuguiCard::YuguiCard(){
-}
-
-bool YuguiCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    return Slash::targetsFeasible(targets, Self);
-}
-
-bool YuguiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return Slash::targetFilter(targets, to_select, Self);
-}
-
-void YuguiCard::onUse(Room *room, const CardUseStruct &card_use) const{
-    QVariantList guipus = card_use.from->tag["Guipus"].toList();
-    if(guipus.isEmpty())
-        return false;
-    Slash *slash = new Slash(Card::NoSuit, 0);
-    slash->setSkillName("yugui");
-    CardUseStruct use = card_use;
-    use.card = slash;
-    guipus.removeFirst();
-    room->useCard(use);
-    card_use.from->tag["Guipus"] = guipus;
-}
-
 class YuguiViewAsSkill:public ZeroCardViewAsSkill{
 public:
     YuguiViewAsSkill():ZeroCardViewAsSkill("yugui"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return Slash::IsAvailable(player);
+        return Slash::IsAvailable(player) && player->getMark("@pu") > 0;
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
@@ -727,27 +699,41 @@ public:
     }
 
     virtual const Card *viewAs() const{
-        return new YuguiCard;
+        Card *slash = new Slash(Card::NoSuit, 0);
+        slash->setSkillName(objectName());
+        return slash;
     }
 };
 
 class Yugui: public TriggerSkill{
 public:
     Yugui():TriggerSkill("yugui"){
-        events << CardAsked;
+        events << CardAsked << CardUsed;
         view_as_skill = new YuguiViewAsSkill;
     }
 
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         QVariantList guipus = player->tag["Guipus"].toList();
         if(guipus.isEmpty())
             return false;
+        if(event == CardUsed){
+            CardUseStruct use = data.value<CardUseStruct>();
+            if(use.card->getSkillName() != objectName())
+                return false;
+            if(use.card->inherits("Slash") || use.card->inherits("Nullification")){
+                guipus.removeFirst();
+                player->loseMark("@pu");
+                player->tag["Guipus"] = guipus;
+            }
+            return false;
+        }
         QString asked = data.toString();
         if(asked != "slash" && asked != "jink")
             return false;
         Room *room = player->getRoom();
         if(room->askForSkillInvoke(player, objectName(), data)){
             guipus.removeFirst();
+            player->loseMark("@pu");
             if(asked == "slash"){
                 Slash *yugui_card = new Slash(Card::NoSuit, 0);
                 yugui_card->setSkillName(objectName());
@@ -812,7 +798,6 @@ PeasaPackage::PeasaPackage()
     addMetaObject<GuiouCard>();
     addMetaObject<ZhonglianCard>();
     addMetaObject<MingwangCard>();
-    addMetaObject<YuguiCard>();
 }
 
 ADD_PACKAGE(Peasa);
