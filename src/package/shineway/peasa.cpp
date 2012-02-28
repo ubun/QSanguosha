@@ -611,13 +611,15 @@ GuishuDialog::GuishuDialog()
 }
 
 void GuishuDialog::popup(){
-    QVariantList guishu_list = Self->tag["Guipus"].toList();
-    QList<const General *> guishus;
-    foreach(QVariant guishu, guishu_list)
-        guishus << Sanguosha->getGeneral(guishu.toString());
+    if(ServerInfo.FreeChoose){
+        QVariantList guishu_list = Self->tag["Guipus"].toList();
+        QList<const General *> guishus;
+        foreach(QVariant guishu, guishu_list)
+            guishus << Sanguosha->getGeneral(guishu.toString());
 
-    fillGenerals(guishus);
-    show();
+        fillGenerals(guishus);
+        show();
+    }
 }
 
 class GuishuEffect: public TriggerSkill{
@@ -670,6 +672,11 @@ public:
                     if(!killer->getVisibleSkillList().contains(skill))
                         room->acquireSkill(killer, skill->objectName());
                 }
+                QString king = general->getKingdom();
+                if(king == "wei")
+                    room->setPlayerProperty(killer, "kingdom", king);
+                else
+                    room->setPlayerProperty(killer, "kingdom", "qun");
                 guishus.clear();
                 guishus << guishu;
                 log.type = "#GuishuLost";
@@ -704,11 +711,20 @@ public:
 class Yugui: public TriggerSkill{
 public:
     Yugui():TriggerSkill("yugui"){
-        events << CardUsed << CardResponsed << CardAsked;
+        events << CardUsed << CardResponsed << CardAsked << Predamage;
         view_as_skill = new YuguiViewAsSkill;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == Predamage){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(damage.card->inherits("Slash") &&
+               damage.card->getSkillName() == objectName() && damage.to->isAlive()){
+                player->getRoom()->loseHp(damage.to, damage.damage);
+                return true;
+            }
+            return false;
+        }
         QVariantList guipus = player->tag["Guipus"].toList();
         if(guipus.isEmpty())
             return false;

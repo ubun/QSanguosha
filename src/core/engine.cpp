@@ -76,7 +76,7 @@ Engine::Engine()
                   << "Red"
                   << "Cyan"
                   << "Green"
-                  << "Purple"
+                  //<< "Purple"
                   << "Kuso"
                   << "Technology"
                   << "Peasa"
@@ -91,7 +91,7 @@ Engine::Engine()
                   << "Joy"
                   << "Disaster"
                   << "JoyEquip"
-				  << "KusoCard";
+                  << "KusoCard";
 
     foreach(QString name, package_names)
         addPackage(name);
@@ -367,7 +367,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersionNumber() const{
-    return "20120308";
+    return "20120301";
 }
 
 QString Engine::getVersion() const{
@@ -380,7 +380,7 @@ QString Engine::getVersion() const{
 }
 
 QString Engine::getVersionName() const{
-    return tr("ShineWay-Green");
+    return tr("ShineWay-Green-Plus");
 }
 
 QString Engine::getMODName() const{
