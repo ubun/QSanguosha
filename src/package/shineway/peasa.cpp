@@ -631,7 +631,7 @@ public:
     }
 
     static void YaojiWake(ServerPlayer *jj){
-        if(jj->hasSkill("yaoji") && jj->getMark("yaoji") == 0){
+        if(jj->hasLordSkill("yaoji") && jj->getMark("yaoji") == 0){
             Room *room = jj->getRoom();
             int guishunum = jj->tag["Guipus"].toList().count();
             int deadnum = room->getPlayers().count() - room->getAlivePlayers().length();
@@ -694,49 +694,17 @@ public:
         return Slash::IsAvailable(player) && player->getMark("@pu") > 0;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        if(player->getMark("@pu") < 1)
-            return false;
-        return pattern == "slash" ||
-                pattern == "jink" ||
-                pattern == "nullification";
-    }
-
     virtual const Card *viewAs() const{
-        switch(ClientInstance->getStatus()){
-        case Client::Playing:{
-                Card *slash = new Slash(Card::NoSuit, 0);
-                slash->setSkillName("yugui");
-                return slash;
-            }
-        case Client::Responsing:{
-                QString pattern = ClientInstance->getPattern();
-                if(pattern == "slash"){
-                    Card *slash = new Slash(Card::NoSuit, 0);
-                    slash->setSkillName("yugui");
-                    return slash;
-                }
-                else if(pattern == "jink"){
-                    Card *jink = new Jink(Card::NoSuit, 0);
-                    jink->setSkillName("yugui");
-                    return jink;
-                }
-                else if(pattern == "nullification"){
-                    Card *nullification = new Nullification(Card::NoSuit, 0);
-                    nullification->setSkillName("yugui");
-                    return nullification;
-                }
-            }
-        default:
-            return NULL;
-        }
+        Card *slash = new Slash(Card::NoSuit, 0);
+        slash->setSkillName("yugui");
+        return slash;
     }
 };
 
 class Yugui: public TriggerSkill{
 public:
     Yugui():TriggerSkill("yugui"){
-        events << CardUsed << CardResponsed;
+        events << CardUsed << CardResponsed << CardAsked;
         view_as_skill = new YuguiViewAsSkill;
     }
 
@@ -744,6 +712,31 @@ public:
         QVariantList guipus = player->tag["Guipus"].toList();
         if(guipus.isEmpty())
             return false;
+        if(event == CardAsked){
+            QString asked = data.toString();
+            if(asked != "slash" && asked != "jink" && asked != "nullification")
+                return false;
+            Room *room = player->getRoom();
+            if(room->askForSkillInvoke(player, objectName(), data)){
+                if(asked == "slash"){
+                    Slash *yugui_card = new Slash(Card::NoSuit, 0);
+                    yugui_card->setSkillName(objectName());
+                    room->provide(yugui_card);
+                }
+                else if(asked == "jink"){
+                    Jink *yugui_card = new Jink(Card::NoSuit, 0);
+                    yugui_card->setSkillName(objectName());
+                    room->provide(yugui_card);
+                }
+                else if(asked == "nullification"){
+                    Nullification *yugui_card = new Nullification(Card::NoSuit, 0);
+                    yugui_card->setSkillName(objectName());
+                    room->provide(yugui_card);
+                }
+                return true;
+            }
+            return false;
+        }
         CardStar card = NULL;
         if(event == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
@@ -806,7 +799,7 @@ PeasaPackage::PeasaPackage()
     beimihu->addSkill(new Guishu);
     beimihu->addSkill(new GuishuEffect);
     beimihu->addSkill(new Yugui);
-    beimihu->addSkill(new Skill("yaoji", Skill::Wake));
+    beimihu->addSkill(new Skill("yaoji$", Skill::Wake));
     related_skills.insertMulti("guishu", "#guishu-effect");
 
     addMetaObject<GuiouCard>();
