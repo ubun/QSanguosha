@@ -1,7 +1,8 @@
 -- Peasa Package. code by: UbunTenkei
 
-return {
+local t = {
 	["peasa"] = "嘻哈雷霆包",
+	["designer:peasas"] = "嘻哈绿豆沙",
 
 	["#guanzhang"] = "龙骧虎翼",
 	["guanzhang"] = "关兴＆张苞",
@@ -111,3 +112,11 @@ return {
 	["illustrator:wangyun"] = "",
 	["illustrator:lvlingqi"] = "",
 }
+
+local generals = {"guanzhang", "mizhu", "zhugejin", "dingfeng", "yuejin", "xunyou", "wangyun", "lvlingqi", "beimihu"}
+
+for _, general in ipairs(generals) do
+	t["designer:" .. general] = t["designer:peasas"]
+end
+
+return t

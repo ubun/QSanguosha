@@ -695,20 +695,41 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        if(player->getMark("@pu") < 1)
+            return false;
         return pattern == "slash" ||
                 pattern == "jink" ||
                 pattern == "nullification";
     }
 
     virtual const Card *viewAs() const{
-        QString pattern = ClientInstance->getPattern();
-        Card *slashjinknullification = new Slash(Card::NoSuit, 0);
-        if(pattern == "jink")
-            slashjinknullification = new Jink(Card::NoSuit, 0);
-        else if(pattern == "nullification")
-            slashjinknullification = new Nullification(Card::NoSuit, 0);
-        slashjinknullification->setSkillName(objectName());
-        return slashjinknullification;
+        switch(ClientInstance->getStatus()){
+        case Client::Playing:{
+                Card *slash = new Slash(Card::NoSuit, 0);
+                slash->setSkillName("yugui");
+                return slash;
+            }
+        case Client::Responsing:{
+                QString pattern = ClientInstance->getPattern();
+                if(pattern == "slash"){
+                    Card *slash = new Slash(Card::NoSuit, 0);
+                    slash->setSkillName("yugui");
+                    return slash;
+                }
+                else if(pattern == "jink"){
+                    Card *jink = new Jink(Card::NoSuit, 0);
+                    jink->setSkillName("yugui");
+                    return jink;
+                }
+                else if(pattern == "nullification"){
+                    Card *nullification = new Nullification(Card::NoSuit, 0);
+                    nullification->setSkillName("yugui");
+                    return nullification;
+                }
+            }
+        default:
+            return NULL;
+        }
     }
 };
 
@@ -732,6 +753,7 @@ public:
         if(card->getSkillName() == objectName()){
             LogMessage log;
             log.type = "#GuishuRemove";
+            log.from = player;
             log.arg = guipus.first().toString();
             guipus.removeFirst();
             player->loseMark("@pu");
