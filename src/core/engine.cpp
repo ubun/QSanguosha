@@ -99,6 +99,7 @@ Engine::Engine()
     QStringList scene_names;
     scene_names << "GuanduScenario"
                 << "FanchengScenario"
+                << "CoupleScenario"
                 << "ZombieScenario"
                 << "ImpasseScenario"
                 << "CustomScenario";

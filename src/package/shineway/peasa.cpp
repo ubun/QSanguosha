@@ -695,20 +695,27 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "slash";
+        return pattern == "slash" ||
+                pattern == "jink" ||
+                pattern == "nullification";
     }
 
     virtual const Card *viewAs() const{
-        Card *slash = new Slash(Card::NoSuit, 0);
-        slash->setSkillName(objectName());
-        return slash;
+        QString pattern = ClientInstance->getPattern();
+        Card *slashjinknullification = new Slash(Card::NoSuit, 0);
+        if(pattern == "jink")
+            slashjinknullification = new Jink(Card::NoSuit, 0);
+        else if(pattern == "nullification")
+            slashjinknullification = new Nullification(Card::NoSuit, 0);
+        slashjinknullification->setSkillName(objectName());
+        return slashjinknullification;
     }
 };
 
 class Yugui: public TriggerSkill{
 public:
     Yugui():TriggerSkill("yugui"){
-        events << CardAsked << CardUsed;
+        events << CardUsed << CardResponsed;
         view_as_skill = new YuguiViewAsSkill;
     }
 
@@ -716,36 +723,21 @@ public:
         QVariantList guipus = player->tag["Guipus"].toList();
         if(guipus.isEmpty())
             return false;
+        CardStar card = NULL;
         if(event == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
-            if(use.card->getSkillName() != objectName())
-                return false;
-            if(use.card->inherits("Slash") || use.card->inherits("Nullification")){
-                guipus.removeFirst();
-                player->loseMark("@pu");
-                player->tag["Guipus"] = guipus;
-            }
-            return false;
-        }
-        QString asked = data.toString();
-        if(asked != "slash" && asked != "jink")
-            return false;
-        Room *room = player->getRoom();
-        if(room->askForSkillInvoke(player, objectName(), data)){
+            card = use.card;
+        }else if(event == CardResponsed)
+            card = data.value<CardStar>();
+        if(card->getSkillName() == objectName()){
+            LogMessage log;
+            log.type = "#GuishuRemove";
+            log.arg = guipus.first().toString();
             guipus.removeFirst();
             player->loseMark("@pu");
-            if(asked == "slash"){
-                Slash *yugui_card = new Slash(Card::NoSuit, 0);
-                yugui_card->setSkillName(objectName());
-                room->provide(yugui_card);
-            }
-            else if(asked == "jink"){
-                Jink *yugui_card = new Jink(Card::NoSuit, 0);
-                yugui_card->setSkillName(objectName());
-                room->provide(yugui_card);
-            }
+            player->getRoom()->sendLog(log);
+
             player->tag["Guipus"] = guipus;
-            return true;
         }
         return false;
     }
@@ -779,21 +771,21 @@ PeasaPackage::PeasaPackage()
     xunyou->addSkill(new Baiuu);
     xunyou->addSkill(new Skill("shibiao", Skill::Compulsory));
 
+    General *wangyun = new General(this, "wangyun", "qun", 3);
+    wangyun->addSkill(new Zhonglian);
+    wangyun->addSkill(new Mingwang);
+    wangyun->addSkill(new Lixin);
+
+    General *lvlingqi = new General(this, "lvlingqi", "qun", 3, false);
+    lvlingqi->addSkill(new Dancer);
+    lvlingqi->addSkill(new Fuckmoon);
+
     General *beimihu = new General(this, "beimihu", "qun", 3, false);
     beimihu->addSkill(new Guishu);
     beimihu->addSkill(new GuishuEffect);
     beimihu->addSkill(new Yugui);
     beimihu->addSkill(new Skill("yaoji", Skill::Wake));
     related_skills.insertMulti("guishu", "#guishu-effect");
-
-    General *wangyun = new General(this, "wangyun", "qun", 3);
-    wangyun->addSkill(new Zhonglian);
-    wangyun->addSkill(new Mingwang);
-    wangyun->addSkill(new Lixin);
-
-    General *lvlingqi = new General(this, "lvlingqi", "qun", 3);
-    lvlingqi->addSkill(new Dancer);
-    lvlingqi->addSkill(new Fuckmoon);
 
     addMetaObject<GuiouCard>();
     addMetaObject<ZhonglianCard>();

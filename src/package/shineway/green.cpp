@@ -355,20 +355,28 @@ public:
 class Fengjue: public TriggerSkill{
 public:
     Fengjue():TriggerSkill("fengjue"){
-        events << ToDrawNCards;
+        events << ToDrawNCards << PhaseChange;
     }
 
     virtual bool triggerable(const ServerPlayer *player) const{;
         return true;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *kanze = room->findPlayerBySkillName(objectName());
-        if(!kanze || kanze == player || room->getCurrent() == player)
+        if(!kanze)
+            return false;
+        if(event == PhaseChange){
+            if(room->getCurrent() == kanze && kanze->getPhase() == Player::NotActive &&
+               kanze->getMark("fengjue") == 0)
+                kanze->setMark("fengjue", 1);
+            return false;
+        }
+        if(kanze->getMark("fengjue") == 0 || kanze == player || room->getCurrent() == player)
             return false;
         DrawStruct draw_data = data.value<DrawStruct>();
-        if(draw_data.draw > 0 && kanze->askForSkillInvoke(objectName())){
+        if(draw_data.draw > 0 && !kanze->isNude() && kanze->askForSkillInvoke(objectName())){
             room->askForDiscard(kanze, objectName(), 1, false, true);
             return true;
         }

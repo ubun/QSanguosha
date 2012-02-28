@@ -477,6 +477,9 @@ bool ServerPlayer::hasNullification() const{
 
         return getHandcardNum() > getHp() && !getEquips().isEmpty();
     }
+    if(hasSkill("yugui")){
+        return getMark("@pu") > 0;
+    }
 
     foreach(const Card *card, handcards){
         if(card->objectName() == "nullification")
