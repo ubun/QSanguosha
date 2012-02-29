@@ -578,7 +578,7 @@ public:
 };
 
 PurplePackage::PurplePackage()
-    :Package("purple")
+    :Package("Purple")
 {
     General *purpleyelai = new General(this, "purpleyelai", "wei", 3, false);
     purpleyelai->addSkill(new Zhuosu);

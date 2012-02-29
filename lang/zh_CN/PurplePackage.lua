@@ -1,7 +1,7 @@
 -- translation for PurplePackage
 
 return {
-	["purple"] = "★玉女★",
+	["Purple"] = "★玉女★",
 
 --WEI08 纤纤素手 3
 	["purpleyelai"] = "夜来",
@@ -91,10 +91,10 @@ return {
 
 	["cv:purpleyelai"] = "",
 	["cv:purplesunnichang"] = "",
-	["cv:purplexingcai"] = "",
-	["cv:purpleduanmeng"] = "",
+	["cv:purplexingcai"] = "真三国无双5",
+	["cv:purpleduanmeng"] = "轩辕剑外传汉之云",
 	["cv:purplezoushi"] = "",
-	["cv:purplesunbushi"] = "",
+	["cv:purplesunbushi"] = "三国志大战",
 	["cv:purplebao3niang"] = "",
 	["cv:purplebeimihu"] = "",
 

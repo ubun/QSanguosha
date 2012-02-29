@@ -800,7 +800,7 @@ public:
 };
 
 GreenPackage::GreenPackage()
-    :Package("green")
+    :Package("Green")
 {
     General *greenyanpeng = new General(this, "greenyanpeng", "shu");
     greenyanpeng->addSkill(new Yabian);

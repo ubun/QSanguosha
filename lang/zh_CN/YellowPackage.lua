@@ -1,7 +1,7 @@
 -- translation for YellowPackage
 
 return {
-	["yellow"] = "黄包", 
+	["Yellow"] = "黄包",
 
 --QUN#05
 	["yellowwuanguo"] = "武安国",

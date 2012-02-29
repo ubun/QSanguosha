@@ -1,7 +1,7 @@
 -- translation for GreenPackage
 
 return {
-	["green"] = "★三台★",
+	["Green"] = "★三台★",
 
 --SHU#06
 	["#greenyanpeng"] = "飞羽之首",

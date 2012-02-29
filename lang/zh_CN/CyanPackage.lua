@@ -1,7 +1,7 @@
 -- translation for CyanPackage
 
 return {
-	["cyan"] = "★青龙★", 
+	["Cyan"] = "★青龙★",
 
 --QUN#03
 	["#cyankongrong"] = "北海太守",
@@ -67,7 +67,7 @@ return {
 	["#BaimingRechoose"] = "%from 选择了 %to 为【%arg】的目标",
 	["junling"] = "军令",
 	[":junling"] = "主公技，出牌阶段，你可以指定任意一名角色对其攻击范围内的另一名角色使用一张【杀】，若该角色不如此做，你从他那里获得一张手牌，每阶段限一次",
-	["junling-slash"] = "%src 发动了技能【军令】，目标是 %dest，请打出一张【杀】以响应", 
+	["junling-slash"] = "%src 发动了技能【军令】，目标是 %dest，请打出一张【杀】以响应",
 
 --SHU#04
 	["#cyanpuyuan"] = "天使之艺",

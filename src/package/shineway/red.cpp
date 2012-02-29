@@ -1085,7 +1085,7 @@ public:
 };
 
 RedPackage::RedPackage()
-    :Package("red")
+    :Package("Red")
 {
     General *redzhonghui = new General(this, "redzhonghui", "wei", 3);
     redzhonghui->addSkill(new Tianhui);
