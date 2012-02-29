@@ -539,10 +539,10 @@ public:
         qShuffle(list);
 
         QStringList acquired = list.mid(0, n);
-        QVariantList guishus = player->tag["Guipus"].toList();
+        QVariantList guishus = player->property("guipus").toList();
         foreach(QString guishu, acquired)
             guishus << guishu;
-        player->tag["Guipus"] = guishus;
+        player->getRoom()->setPlayerProperty(player, "guipus", guishus);
         //player->invoke("animate", "guishu:" + acquired.join(":"));
 
         LogMessage log;
@@ -557,7 +557,7 @@ public:
     static QStringList GetAvailableGenerals(ServerPlayer *player){
         QSet<QString> all = Sanguosha->getLimitedGeneralNames().toSet();
         QSet<QString> guishu_set, room_set;
-        QVariantList guishus = player->tag["Guipus"].toList();
+        QVariantList guishus = player->property("guipus").toList();
         foreach(QVariant guishu, guishus)
             guishu_set << guishu.toString();
 
@@ -579,7 +579,7 @@ public:
     static QString SelectGeneral(ServerPlayer *player){
         if(player->getMark("@pu") < 1)
             return QString();
-        QVariantList guishus = player->tag["Guipus"].toList();
+        QVariantList guishus = player->property("guipus").toList();
 
         Room *room = player->getRoom();
         PlayEffect(player, "guishu");
@@ -611,7 +611,7 @@ GuishuDialog::GuishuDialog()
 
 void GuishuDialog::popup(){
     if(ServerInfo.FreeChoose){
-        QVariantList guishu_list = Self->tag["Guipus"].toList();
+        QVariantList guishu_list = Self->property("guipus").toList();
         QList<const General *> guishus;
         foreach(QVariant guishu, guishu_list)
             guishus << Sanguosha->getGeneral(guishu.toString());
@@ -634,7 +634,7 @@ public:
     static void YaojiWake(ServerPlayer *jj){
         if(jj->hasLordSkill("yaoji") && jj->getMark("yaoji") == 0){
             Room *room = jj->getRoom();
-            int guishunum = jj->tag["Guipus"].toList().count();
+            int guishunum = jj->property("guipus").toList().count();
             int deadnum = room->getPlayers().count() - room->getAlivePlayers().length();
             if(guishunum <= deadnum){
                 LogMessage log;
@@ -659,7 +659,7 @@ public:
 
         if(killer && killer->hasSkill("guishu")){
             if(killer->getMark("@pu") > 0 && killer->askForSkillInvoke("guishu")){
-                QVariantList guishus = killer->tag["Guipus"].toList();
+                QVariantList guishus = killer->property("guipus").toList();
                 qShuffle(guishus);
                 QString guishu = guishus.first().toString();
                 const General* general = Sanguosha->getGeneral(guishu);
@@ -685,7 +685,7 @@ public:
                 log.arg = guishu;
                 room->sendLog(log);
 
-                killer->tag["Guipus"] = guishus;
+                room->setPlayerProperty(killer, "guipus", guishus);
                 killer->loseMark("@pu", killer->getMark("@pu") - 1);
                 YaojiWake(killer);
             }
@@ -729,7 +729,7 @@ public:
         }
         if(player->getMark("@pu") < 1)
             return false;
-        QVariantList guipus = player->tag["Guipus"].toList();
+        QVariantList guipus = player->property("guipus").toList();
         if(event == CardAsked){
             QString asked = data.toString();
             if(asked != "slash" && asked != "jink" && asked != "nullification")
@@ -770,7 +770,7 @@ public:
             player->loseMark("@pu");
             player->getRoom()->sendLog(log);
 
-            player->tag["Guipus"] = guipus;
+            player->getRoom()->setPlayerProperty(player, "guipus", guipus);
             GuishuEffect::YaojiWake(player);
         }
         return false;
