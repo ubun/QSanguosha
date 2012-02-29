@@ -61,13 +61,14 @@ public:
     }
 
     virtual int getDrawNum(ServerPlayer *myself, int n) const{
-        Room *room = myself->getRoom();
         int x = myself->getLostHp();
-        LogMessage log;
-        log.from = myself;
-        log.type = "#TriggerSkill";
-        log.arg = objectName();
-        room->sendLog(log);
+        if(x > 0){
+            LogMessage log;
+            log.from = myself;
+            log.type = "#TriggerSkill";
+            log.arg = objectName();
+            myself->getRoom()->sendLog(log);
+        }
         return n + x;
     }
 };
@@ -646,6 +647,9 @@ public:
 
                 room->acquireSkill(jj, "guicai");
                 room->acquireSkill(jj, "huangtian");
+                const TriggerSkill *skill = Sanguosha->getTriggerSkill("huangtian");
+                QVariant d;
+                skill->trigger(GameStart, jj, d);
                 room->setPlayerMark(jj, "yaoji", 1);
             }
         }
@@ -718,7 +722,7 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(event == Predamage){
             DamageStruct damage = data.value<DamageStruct>();
-            if(damage.card->inherits("Slash") &&
+            if(damage.card && damage.card->inherits("Slash") &&
                damage.card->getSkillName() == objectName() && damage.to->isAlive()){
                 player->getRoom()->loseHp(damage.to, damage.damage);
                 return true;
@@ -769,6 +773,7 @@ public:
             player->getRoom()->sendLog(log);
 
             player->tag["Guipus"] = guipus;
+            GuishuEffect::YaojiWake(player);
         }
         return false;
     }
@@ -811,7 +816,7 @@ PeasaPackage::PeasaPackage()
     lvlingqi->addSkill(new Dancer);
     lvlingqi->addSkill(new Fuckmoon);
 
-    General *beimihu = new General(this, "beimihu", "qun", 3, false);
+    General *beimihu = new General(this, "beimihu$", "qun", 3, false);
     beimihu->addSkill(new Guishu);
     beimihu->addSkill(new GuishuEffect);
     beimihu->addSkill(new Yugui);

@@ -1100,7 +1100,7 @@ RedPackage::RedPackage()
     redhejin->addSkill(new Liehou);
     redhejin->addSkill(new Zide);
 
-    General *redguansuo = new General(this, "redguansuo", "shu", 3);
+    General *redguansuo = new General(this, "redguansuo", "shu", 2);
     redguansuo->addSkill(new Xiefang);
     redguansuo->addSkill(new Yanyun);
 
