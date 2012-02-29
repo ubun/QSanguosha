@@ -613,6 +613,7 @@ void GuishuDialog::popup(){
     if(ServerInfo.FreeChoose){
         QVariantList guishu_list = Self->property("guipus").toList();
         QList<const General *> guishus;
+        guishus << Sanguosha->getGeneral("beimihu");
         foreach(QVariant guishu, guishu_list)
             guishus << Sanguosha->getGeneral(guishu.toString());
 
