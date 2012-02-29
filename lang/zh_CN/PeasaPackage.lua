@@ -1,8 +1,7 @@
 -- Peasa Package. code by: UbunTenkei
 
-local t = {
+return {
 	["peasa"] = "嘻哈雷霆包",
-	["designer:peasas"] = "嘻哈绿豆沙",
 
 	["#guanzhang"] = "龙骧虎翼",
 	["guanzhang"] = "关兴＆张苞",
@@ -94,31 +93,39 @@ local t = {
 	["fuckmoon"] = "蔽月",
 	[":fuckmoon"] = "回合结束时，你可将手牌补至体力上限的张数。",
 
-	["cv:guanzhang"] = "",
-	["cv:mizhu"] = "",
-	["cv:zhugejin"] = "",
-	["cv:dingfeng"] = "",
-	["cv:yuejin"] = "",
-	["cv:xunyou"] = "",
-	["cv:beimihu"] = "",
-	["cv:wangyun"] = "",
-	["cv:lvlingqi"] = "",
-
 	["illustrator:guanzhang"] = "",
+	["designer:guanzhang"] = "斐爺神煞",
+	["cv:guanzhang"] = "",
+
 	["illustrator:mizhu"] = "",
+	["designer:mizhu"] = "小爺綠豆殺",
+	["cv:mizhu"] = "",
+
 	["illustrator:zhugejin"] = "",
+	["designer::zhugejin"] = "小JJ",
+	["cv:zhugejin"] = "",
+
 	["illustrator:dingfeng"] = "",
+	["designer:dingfeng"] = "小JJ&斐爺神煞",
+	["cv:dingfeng"] = "",
+
 	["illustrator:yuejin"] = "",
+	["designer:yuejin"] = "斐爺神煞",
+	["cv:yuejin"] = "",
+
 	["illustrator:xunyou"] = "",
+	["designer::xunyou"] = "茄兒",
+	["cv:xunyou"] = "",
+
 	["illustrator:beimihu"] = "",
+	["designer:beimihu"] = "小爺綠豆殺",
+	["cv:beimihu"] = "",
+
 	["illustrator:wangyun"] = "",
+	["designer:wangyun"] = "茄兒&小JJ",
+	["cv:wangyun"] = "",
+
 	["illustrator:lvlingqi"] = "",
+	["designer:lvlingqi"] = "小爺綠豆殺",
+	["cv:lvlingqi"] = "",
 }
-
-local generals = {"guanzhang", "mizhu", "zhugejin", "dingfeng", "yuejin", "xunyou", "wangyun", "lvlingqi", "beimihu"}
-
-for _, general in ipairs(generals) do
-	t["designer:" .. general] = t["designer:peasas"]
-end
-
-return t
