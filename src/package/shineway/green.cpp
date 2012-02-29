@@ -22,6 +22,8 @@ public:
                     foreach(int card_id, damage.to->getPile("stars"))
                         yanpeng->addToPile("stars", card_id, false);
                 }
+                if(damage.to->getGeneralName() == "beimihu")
+                    yanpeng->tag["Guipus"] = damage.to->tag["Guipus"];
                 //some special generals
                 QList<QString> marks;
                 marks
@@ -32,6 +34,7 @@ public:
                         << "@susa" /*susa*/
                         << "@drig" /*diezhi*/
                         << "@liaot" /*liaoting*/
+                        << "@pu" /*guipu*/
                         ;
                 foreach(QString mark, marks){
                     int mark_num = damage.to->getMark(mark);

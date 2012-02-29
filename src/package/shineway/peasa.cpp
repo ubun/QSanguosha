@@ -524,7 +524,6 @@ public:
 class Guishu: public GameStartSkill{
 public:
     Guishu():GameStartSkill("guishu"){
-
     }
 
     static void PlayEffect(ServerPlayer *player, const QString &skill_name){
@@ -572,19 +571,18 @@ public:
 
         static QSet<QString> banned;
         if(banned.isEmpty()){
-            banned << "beimihu";
+            banned << "beimihu" << "anjiang";
         }
         return (all - banned - guishu_set - room_set).toList();
     }
 
     static QString SelectGeneral(ServerPlayer *player){
+        if(player->getMark("@pu") < 1)
+            return QString();
+        QVariantList guishus = player->tag["Guipus"].toList();
+
         Room *room = player->getRoom();
         PlayEffect(player, "guishu");
-
-        QVariantList guishus = player->tag["Guipus"].toList();
-        if(guishus.isEmpty())
-            return QString();
-
         QStringList guishu_generals;
         foreach(QVariant guishu, guishus)
             guishu_generals << guishu.toString();
@@ -660,7 +658,7 @@ public:
         ServerPlayer *killer = damage ? damage->from : NULL;
 
         if(killer && killer->hasSkill("guishu")){
-            if(killer->askForSkillInvoke("guishu")){
+            if(killer->getMark("@pu") > 0 && killer->askForSkillInvoke("guishu")){
                 QVariantList guishus = killer->tag["Guipus"].toList();
                 qShuffle(guishus);
                 QString guishu = guishus.first().toString();
@@ -729,9 +727,9 @@ public:
             }
             return false;
         }
-        QVariantList guipus = player->tag["Guipus"].toList();
-        if(guipus.isEmpty())
+        if(player->getMark("@pu") < 1)
             return false;
+        QVariantList guipus = player->tag["Guipus"].toList();
         if(event == CardAsked){
             QString asked = data.toString();
             if(asked != "slash" && asked != "jink" && asked != "nullification")
