@@ -97,8 +97,10 @@ QWidget *ServerDialog::createPackageTab(){
     QGroupBox *box1 = new QGroupBox(tr("General package"));
     QGroupBox *box2 = new QGroupBox(tr("Card package"));
 
-    QVBoxLayout *layout1 = new QVBoxLayout;
-    QVBoxLayout *layout2 = new QVBoxLayout;
+    QGridLayout *layout1 = new QGridLayout;
+    int layout1row = 1, layout1column = 1;
+    QGridLayout *layout2 = new QGridLayout;
+    int layout2row = 1, layout2column = 1;
     box1->setLayout(layout1);
     box2->setLayout(layout2);
 
@@ -116,12 +118,22 @@ QWidget *ServerDialog::createPackageTab(){
 
         switch(package->getType()){
         case Package::GeneralPack: {
-                layout1->addWidget(checkbox);
+                layout1->addWidget(checkbox, layout1row, layout1column);
+                layout1column ++;
+                if(layout1column > 3){
+                    layout1column = 1;
+                    layout1row ++;
+                }
                 break;
             }
 
         case Package::CardPack: {
-                layout2->addWidget(checkbox);
+                layout2->addWidget(checkbox, layout2row, layout2column);
+                layout2column ++;
+                if(layout2column > 3){
+                    layout2column = 1;
+                    layout2row ++;
+                }
                 break;
             }
 
@@ -130,11 +142,11 @@ QWidget *ServerDialog::createPackageTab(){
         }
     }
 
-    layout1->addStretch();
-    layout2->addStretch();
+    //layout1->addStretch();
+    //layout2->addStretch();
 
     QWidget *widget = new QWidget;
-    QHBoxLayout *layout = new QHBoxLayout;
+    QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(box1);
     layout->addWidget(box2);
 
