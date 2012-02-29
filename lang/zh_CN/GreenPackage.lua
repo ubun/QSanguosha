@@ -104,7 +104,7 @@ return {
 	["illustrator:greenjushou"] = "",
 	["illustrator:greenkanze"] = "adream",
 	["illustrator:greenwanglang"] = "三国志大战",
-	["illustrator:greenchenwu"] = "",
+	["illustrator:greenchenwu"] = "三国志大战",
 	["illustrator:greenmayunlu"] = "",
 	["illustrator:greenchenqun"] = "",
 }

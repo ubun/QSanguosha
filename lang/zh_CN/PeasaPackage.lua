@@ -93,7 +93,7 @@ return {
 	["fuckmoon"] = "蔽月",
 	[":fuckmoon"] = "回合结束时，你可将手牌补至体力上限的张数。",
 
-	["illustrator:guanzhang"] = "",
+	["illustrator:guanzhang"] = "不详",
 	["designer:guanzhang"] = "斐爺神煞",
 	["cv:guanzhang"] = "",
 
@@ -105,7 +105,7 @@ return {
 	["designer::zhugejin"] = "小JJ",
 	["cv:zhugejin"] = "",
 
-	["illustrator:dingfeng"] = "一将成名作品集",
+	["illustrator:dingfeng"] = "樱花闪乱",
 	["designer:dingfeng"] = "小JJ&斐爺神煞",
 	["cv:dingfeng"] = "",
 

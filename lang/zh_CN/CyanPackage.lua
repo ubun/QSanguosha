@@ -130,12 +130,12 @@ return {
 	["cv:cyanmateng"] = "",
 
 	["illustrator:cyankongrong"] = "",
-	["illustrator:cyanzhangxiu"] = "",
+	["illustrator:cyanzhangxiu"] = "Dog博士",
 	["illustrator:cyanyufan"] = "",
-	["illustrator:cyanpuyuan"] = "",
+	["illustrator:cyanpuyuan"] = "小矮米",
 	["illustrator:cyanlidian"] = "",
 	["illustrator:cyancaochong"] = "",
 	["illustrator:cyanliaohua"] = "",
 	["illustrator:cyanfanqiangzhangda"] = "",
-	["illustrator:cyanmateng"] = "",
+	["illustrator:cyanmateng"] = "鸿仑",
 }

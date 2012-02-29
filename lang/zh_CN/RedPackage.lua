@@ -119,8 +119,8 @@ return {
 
 	["illustrator:redzhonghui"] = "雪君S",
 	["illustrator:redxunyou"] = "",
-	["illustrator:redhejin"] = "",
-	["illustrator:redguansuo"] = "",
+	["illustrator:redhejin"] = "legend",
+	["illustrator:redguansuo"] = "绵绵",
 	["illustrator:redyanbaihu"] = "",
 	["illustrator:redwutugu"] = "",
 	["illustrator:redchunyuqiong"] = "",
