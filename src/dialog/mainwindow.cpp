@@ -9,6 +9,7 @@
 #include "scenario-overview.h"
 #include "window.h"
 #include "halldialog.h"
+#include "pixmapanimation.h"
 
 #include <cmath>
 #include <QGraphicsView>
@@ -31,6 +32,7 @@ class FitView : public QGraphicsView
 public:
     FitView(QGraphicsScene *scene) : QGraphicsView(scene) {
         setSceneRect(Config.Rect);
+        setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
     }
 
 protected:
@@ -39,9 +41,11 @@ protected:
         if(Config.FitInView)
             fitInView(sceneRect(), Qt::KeepAspectRatio);
 
+        if(matrix().m11()>1)setMatrix(QMatrix());
+
         if(scene()->inherits("RoomScene")){
             RoomScene *room_scene = qobject_cast<RoomScene *>(scene());
-            room_scene->adjustItems();
+            room_scene->adjustItems(matrix());
         }
     }
 };
@@ -131,6 +135,32 @@ void MainWindow::gotoScene(QGraphicsScene *scene){
     changeBackground();
 }
 
+void MainWindow::updateLoadingProgress(int progress)
+{
+    QGraphicsScene *scene = view->scene();
+
+    static QGraphicsTextItem *text;
+    if(text==NULL)
+    {
+        text = scene->addText(tr("Loaded %1/100").arg(progress),Config.BigFont);
+        QGraphicsDropShadowEffect *drop = new QGraphicsDropShadowEffect;
+        drop->setBlurRadius(5);
+        drop->setOffset(0);
+        drop->setColor(Qt::yellow);
+        text->setGraphicsEffect(drop);
+        text->moveBy(-text->boundingRect().width()/2,
+                     -text->boundingRect().height()/2);
+    }else text->setPlainText(tr("Loaded %1/100").arg(progress));
+
+    if(progress == 100)
+    {
+        view->setScene(this->scene);
+        RoomScene * scene = qobject_cast<RoomScene*>(this->scene);
+        scene->adjustItems();
+        changeBackground();
+    }
+}
+
 void MainWindow::on_actionExit_triggered()
 {
     QMessageBox::StandardButton result;
@@ -165,12 +195,20 @@ void MainWindow::on_actionStart_Server_triggered()
     StartScene *start_scene = qobject_cast<StartScene *>(scene);
     if(start_scene){
         start_scene->switchToServer(server);
+        if(Config.value("EnableMinimizeDialog", false).toBool())
+            this->on_actionMinimize_to_system_tray_triggered();
     }
 }
 
-void MainWindow::checkVersion(const QString &server_version){
+void MainWindow::checkVersion(const QString &server_version, const QString &server_mod){
+    QString client_mod = Sanguosha->getMODName();
+    if(client_mod != server_mod){
+        QMessageBox::warning(this, tr("Warning"), tr("Client MOD name is not same as the server!"));
+        return;
+    }
+
     Client *client = qobject_cast<Client *>(sender());
-    QString client_version = Sanguosha->getVersion();
+    QString client_version = Sanguosha->getVersionNumber();
 
     if(server_version == client_version){
         client->signup();
@@ -200,7 +238,7 @@ void MainWindow::checkVersion(const QString &server_version){
 void MainWindow::startConnection(){
     Client *client = new Client(this);
 
-    connect(client, SIGNAL(version_checked(QString)), SLOT(checkVersion(QString)));
+    connect(client, SIGNAL(version_checked(QString,QString)), SLOT(checkVersion(QString,QString)));
     connect(client, SIGNAL(error_message(QString)), SLOT(networkError(QString)));
 }
 
@@ -235,6 +273,52 @@ void MainWindow::networkError(const QString &error_msg){
         QMessageBox::warning(this, tr("Network error"), error_msg);
 }
 
+
+BackLoader::BackLoader(QObject * parent)
+    :QThread(parent)
+{
+}
+
+void BackLoader::run()
+{
+    QStringList emotions;
+    emotions << "peach"
+            << "analeptic"
+            << "chain"
+            << "damage"
+            << "fire_slash"
+            << "thunder_slash"
+            << "killer"
+            << "jink"
+            << "no-success"
+            << "slash_black"
+            << "slash_red"
+            << "success";
+
+    double total = 0;
+    foreach(QString emotion, emotions){
+        int n = PixmapAnimation::GetFrameCount(emotion);
+        total += n;
+    }
+
+    int loaded = 0;
+    foreach(QString emotion, emotions){
+        int n = PixmapAnimation::GetFrameCount(emotion);
+        for(int i=0; i<n; i++){
+            QString filename = QString("image/system/emotion/%1/%2.png").arg(emotion).arg(i);
+            PixmapAnimation::GetFrameFromCache(filename);
+
+            loaded ++;
+
+            double process = (loaded / total) * 100;
+            emit completed(static_cast<int>(process));
+        }
+    }
+
+    emit finished();
+}
+
+
 void MainWindow::enterRoom(){
     // add current ip to history
     if(!Config.HistoryIPs.contains(Config.HostAddress)){
@@ -243,8 +327,17 @@ void MainWindow::enterRoom(){
         Config.setValue("HistoryIPs", Config.HistoryIPs);
     }
 
+    QGraphicsScene *loading_scene = new QGraphicsScene;
+    gotoScene(loading_scene);
+
+    BackLoader *loader = new BackLoader(this);
+    loader->start();
+
+    connect(loader,SIGNAL(completed(int)),this,SLOT(updateLoadingProgress(int)));
+
     ui->actionStart_Game->setEnabled(false);
     ui->actionStart_Server->setEnabled(false);
+	ui->actionAI_Melee->setEnabled(false);
 
     RoomScene *room_scene = new RoomScene(this);
 
@@ -270,11 +363,43 @@ void MainWindow::enterRoom(){
         connect(ui->actionDeath_note, SIGNAL(triggered()), room_scene, SLOT(makeKilling()));
         connect(ui->actionDamage_maker, SIGNAL(triggered()), room_scene, SLOT(makeDamage()));
         connect(ui->actionRevive_wand, SIGNAL(triggered()), room_scene, SLOT(makeReviving()));
+        connect(ui->actionExecute_script_at_server_side, SIGNAL(triggered()), room_scene, SLOT(doScript()));
     }
 
     connect(room_scene, SIGNAL(restart()), this, SLOT(startConnection()));
+    connect(room_scene, SIGNAL(return_to_start()), this, SLOT(gotoStartScene()));
+    this->scene = room_scene;
+}
 
-    gotoScene(room_scene);
+void MainWindow::gotoStartScene(){
+    StartScene *start_scene = new StartScene;
+
+    QList<QAction*> actions;
+    actions << ui->actionStart_Game
+            << ui->actionStart_Server
+            << ui->actionPC_Console_Start
+            << ui->actionReplay
+            << ui->actionConfigure
+            << ui->actionGeneral_Overview
+            << ui->actionCard_Overview
+            << ui->actionScenario_Overview
+            << ui->actionAbout
+            << ui->actionAcknowledgement;
+
+    foreach(QAction *action, actions)
+        start_scene->addButton(action);
+
+    setCentralWidget(view);
+    restoreFromConfig();
+
+    gotoScene(start_scene);
+
+    addAction(ui->actionShow_Hide_Menu);
+    addAction(ui->actionFullscreen);
+    addAction(ui->actionMinimize_to_system_tray);
+
+    systray = NULL;
+    delete ClientInstance;
 }
 
 void MainWindow::startGameInAnotherInstance(){
@@ -290,7 +415,7 @@ void MainWindow::on_actionGeneral_Overview_triggered()
 
 void MainWindow::on_actionCard_Overview_triggered()
 {
-    CardOverview *overview = new CardOverview(this);
+    CardOverview *overview = CardOverview::GetInstance(this);
     overview->loadFromAll();
     overview->show();
 }
@@ -316,9 +441,13 @@ void MainWindow::on_actionAbout_triggered()
     QString signature = tr("\"A Short Song\" by Cao Cao");
     content.append(QString("<p align='right'><i>%1</i></p>").arg(signature));
 
+    QString email = "moligaloo@gmail.com";
     content.append(tr("This is the open source clone of the popular <b>Sanguosha</b> game,"
                       "totally written in C++ Qt GUI framework <br />"
-                      "My Email: moligaloo@gmail.com <br/>"));
+                      "My Email: <a href='mailto:%1' style = \"color:#0072c1; \">%1</a> <br/>"
+                      "My QQ: 365840793 <br/>"
+                      "My Weibo: http://weibo.com/moligaloo <br/>"
+                      ).arg(email));
 
     QString config;
 
@@ -338,13 +467,14 @@ void MainWindow::on_actionAbout_triggered()
     content.append(tr("Compilation time: %1 %2 <br/>").arg(date).arg(time));
 
     QString project_url = "http://github.com/Moligaloo/QSanguosha";
-    content.append(tr("Project home: <a href='%1'>%1</a> <br/>").arg(project_url));
+    content.append(tr("Source code: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(project_url));
 
     QString forum_url = "http://qsanguosha.com";
-    content.append(tr("Forum: <a href='%1'>%1</a> <br/>").arg(forum_url));
+    content.append(tr("Forum: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(forum_url));
 
-    Window *window = new Window(tr("About QSanguosha"), QSize(365, 411));
+    Window *window = new Window(tr("About QSanguosha"), QSize(420, 450));
     scene->addItem(window);
+    window->setZValue(9.0);
 
     window->addContent(content);
     window->addCloseButton(tr("OK"));
@@ -359,10 +489,14 @@ void MainWindow::changeBackground(){
         QBrush brush(pixmap);
 
         if(pixmap.width() > 100 && pixmap.height() > 100){
-            qreal dx = -width()/2.0;
-            qreal dy = -height()/2.0;
-            qreal sx = width() / qreal(pixmap.width());
-            qreal sy = height() / qreal(pixmap.height());
+            qreal _width = width()/view->matrix().m11();
+            qreal _height= height()/view->matrix().m22();
+
+            qreal dx = -_width/2.0;
+            qreal dy = -_height/2.0;
+            qreal sx = _width / qreal(pixmap.width());
+            qreal sy = _height / qreal(pixmap.height());
+
 
             QTransform transform;
             transform.translate(dx, dy);
@@ -394,28 +528,6 @@ void MainWindow::on_actionShow_Hide_Menu_triggered()
 {
     QMenuBar *menu_bar = menuBar();
     menu_bar->setVisible(! menu_bar->isVisible());
-}
-
-void MainWindow::on_actionAbout_irrKlang_triggered()
-{
-    QString content = tr("irrKlang is a cross platform sound library for C++, C# and all .NET languages. <br />");
-    content.append("<p align='center'> <img src='image/system/irrklang.png' /> </p> <br/>");
-
-    QString address = "http://www.ambiera.com/irrklang/";
-    content.append(tr("Official site: <a href='%1'>%1</a> <br/>").arg(address));
-
-#ifdef AUDIO_SUPPORT
-    content.append(tr("Current versionn %1 <br/>").arg(IRR_KLANG_VERSION));
-#endif
-
-    Window *window = new Window(tr("About irrKlang"), QSize(500, 259));
-    scene->addItem(window);
-
-    window->addContent(content);
-    window->addCloseButton(tr("OK"));
-    window->shift();
-
-    window->appear();
 }
 
 void MainWindow::on_actionMinimize_to_system_tray_triggered()
@@ -479,7 +591,7 @@ void MainWindow::on_actionRole_assign_table_triggered()
 
     content = QString("<table border='1'>%1</table").arg(content);
 
-    Window *window = new Window(tr("Role assign table"), QSize(232, 342));
+    Window *window = new Window(tr("Role assign table"), QSize(280, 380));
     scene->addItem(window);
 
     window->addContent(content);
@@ -539,7 +651,9 @@ void MainWindow::on_actionBroadcast_triggered()
 
 void MainWindow::on_actionAcknowledgement_triggered()
 {
-
+    AcknowledgementScene* ack = new AcknowledgementScene;
+    connect(ack,SIGNAL(go_back()),this,SLOT(gotoStartScene()));
+    gotoScene(ack);
 }
 
 void MainWindow::on_actionPC_Console_Start_triggered()
@@ -575,10 +689,16 @@ void MainWindow::on_actionScript_editor_triggered()
 MeleeDialog::MeleeDialog(QWidget *parent)
     :QDialog(parent)
 {
+    server=NULL;    
+    room_count=0;
+
     setWindowTitle(tr("AI Melee"));
 
-    QGroupBox *general_box = createGeneralBox();
-    QGroupBox *result_box = createResultBox();
+//    QGroupBox *general_box = createGeneralBox();
+//    QGroupBox *result_box = createResultBox();
+    general_box = createGeneralBox();
+    result_box = createResultBox();
+    server_log = new QTextEdit;
     QGraphicsView *record_view = new QGraphicsView;
     record_view->setMinimumWidth(500);
 
@@ -587,6 +707,11 @@ MeleeDialog::MeleeDialog(QWidget *parent)
 
     general_box->setMaximumWidth(250);
     result_box->setMaximumWidth(250);
+    server_log->setMinimumWidth(400);
+    server_log->setReadOnly(true);
+    server_log->setFrameStyle(QFrame::Box);
+    server_log->setProperty("description", true);
+    server_log->setFont(QFont("Verdana", 12));
 
     QVBoxLayout *vlayout = new QVBoxLayout;
     vlayout->addWidget(general_box);
@@ -595,6 +720,7 @@ MeleeDialog::MeleeDialog(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addLayout(vlayout);
     layout->addWidget(record_view);
+    layout->addWidget(server_log);
     setLayout(layout);
 
     setGeneral(Config.value("MeleeGeneral", "zhangliao").toString());
@@ -610,15 +736,21 @@ QGroupBox *MeleeDialog::createGeneralBox(){
     connect(avatar_button, SIGNAL(clicked()), this, SLOT(selectGeneral()));
 
     QFormLayout *form_layout = new QFormLayout;
-    QSpinBox *spinbox = new QSpinBox;
-    spinbox->setRange(1, 2000);
-    spinbox->setValue(10);
+    spinbox = new QSpinBox;
+    spinbox->setRange(1, 50);
+    spinbox->setValue(1);
 
-    QPushButton *start_button = new QPushButton(tr("Start"));
+    start_button = new QPushButton(tr("Start"));
     connect(start_button, SIGNAL(clicked()), this, SLOT(startTest()));
 
-    form_layout->addRow(tr("Test times"), spinbox);
-    form_layout->addWidget(start_button);
+    loop_checkbox = new QCheckBox(tr("LOOP"));
+    loop_checkbox->setObjectName("loop_checkbox");
+    loop_checkbox->setChecked(true);
+
+    form_layout->addRow(tr("Num of rooms"), spinbox);
+    form_layout->addRow(loop_checkbox, start_button);
+    // form_layout->addWidget(start_button);
+    // form_layout->addWidget(loop_checkbox);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(avatar_button);
@@ -627,19 +759,6 @@ QGroupBox *MeleeDialog::createGeneralBox(){
     box->setLayout(layout);
 
     return box;
-}
-
-void MeleeDialog::startTest(){
-    Server *server = new Server(this);
-    server->listen();
-
-    Config.AIDelay = 0;
-
-    Room *room = server->createNewRoom();
-    connect(room, SIGNAL(game_start()), this, SLOT(onGameStart()));
-    connect(room, SIGNAL(game_over(QString)), this, SLOT(onGameOver(QString)));
-
-    room->startTest(avatar_button->property("to_test").toString());
 }
 
 class RoomItem: public Pixmap{
@@ -684,12 +803,38 @@ public:
 typedef RoomItem *RoomItemStar;
 Q_DECLARE_METATYPE(RoomItemStar);
 
+void MeleeDialog::startTest(){
+    foreach(RoomItemStar room_item, room_items){
+        if(room_item) delete room_item;
+    }
+    room_items.clear();
+
+    if(server){
+        server->gamesOver();
+    }else{
+        server = new Server(this->parentWidget());
+        server->listen();
+        connect(server, SIGNAL(server_message(QString)), server_log,SLOT(append(QString)));
+    }
+    Config.AIDelay = 0;
+    room_count = spinbox->value();
+    for(int i=0;i<room_count;i++){
+        Room *room = server->createNewRoom();
+        connect(room, SIGNAL(game_start()), this, SLOT(onGameStart()));
+        connect(room, SIGNAL(game_over(QString)), this, SLOT(onGameOver(QString)));
+
+        room->startTest(avatar_button->property("to_test").toString());
+    }
+}
+
 void MeleeDialog::onGameStart(){
+    if(room_count>10) return;
     Room *room = qobject_cast<Room *>(sender());
 
     RoomItemStar room_item = new RoomItem(room);
     room->setTag("RoomItem", QVariant::fromValue(room_item));
 
+    room_items << room_item;
     record_scene->addItem(room_item);
 }
 
@@ -710,10 +855,14 @@ void MeleeDialog::onGameOver(const QString &winner){
 
         if(p->getGeneralName() == to_test){
 
-            if(won)
-                room_item->changePixmap("image/system/frog/good.png");
-            else
-                room_item->changePixmap("image/system/frog/bad.png");
+            if(won){
+                if(room_item) room_item->changePixmap("image/system/frog/good.png");
+                updateResultBox(p->getRole(),1);
+            }
+            else{
+                if(room_item) room_item->changePixmap("image/system/frog/bad.png");
+                updateResultBox(p->getRole(),0);
+            }
         }
     }
 
@@ -722,7 +871,18 @@ void MeleeDialog::onGameOver(const QString &winner){
                       .arg(losers.join(","))
                       .arg(room->getTag("SwapPile").toInt());
 
-    room_item->setToolTip(tooltip);
+    if(room_item) room_item->setToolTip(tooltip);
+    if(loop_checkbox->isChecked()){
+        if(room_item){
+            room_items.removeOne(room_item);
+            delete room_item;
+        }
+        Room *room = server->createNewRoom();
+        connect(room, SIGNAL(game_start()), this, SLOT(onGameStart()));
+        connect(room, SIGNAL(game_over(QString)), this, SLOT(onGameOver(QString)));
+
+        room->startTest(avatar_button->property("to_test").toString());
+    }
 }
 
 QGroupBox *MeleeDialog::createResultBox(){
@@ -741,6 +901,12 @@ QGroupBox *MeleeDialog::createResultBox(){
     rebel_edit->setReadOnly(true);
     renegade_edit->setReadOnly(true);
     total_edit->setReadOnly(true);
+
+    lord_edit->setObjectName("lord_edit");;
+    loyalist_edit->setObjectName("loyalist_edit");
+    rebel_edit->setObjectName("rebel_edit");
+    renegade_edit->setObjectName("renegade_edit");
+    total_edit->setObjectName("total_edit");
 
     layout->addRow(tr("Lord"), lord_edit);
     layout->addRow(tr("Loyalist"), loyalist_edit);
@@ -771,6 +937,21 @@ void MeleeDialog::setGeneral(const QString &general_name){
         avatar_button->setProperty("to_test", general_name);
     }
 }
+
+AcknowledgementScene::AcknowledgementScene(QObject *parent) :
+    QGraphicsScene(parent)
+{
+    view = new QDeclarativeView;
+    view->setSource(QUrl::fromLocalFile("acknowledgement/main.qml"));
+    addWidget(view);
+    view->move( - width()/2, - height()/2);
+    view->setStyleSheet(QString("background: transparent"));
+
+    QObject *item = view->rootObject();
+
+    connect(item,SIGNAL(go_back()),this,SIGNAL(go_back()));
+}
+
 
 void MainWindow::on_actionAI_Melee_triggered()
 {
@@ -819,4 +1000,78 @@ void MainWindow::on_actionSend_lowlevel_command_triggered()
     QString command = QInputDialog::getText(this, tr("Send low level command"), tr("Please input the raw low level command"));
     if(!command.isEmpty())
         ClientInstance->request(command);
+}
+
+void MeleeDialog::updateResultBox(QString role, int win){    
+    QLineEdit *edit = result_box->findChild<QLineEdit *>(role + "_edit");
+    double roleCount = ++(this->roleCount[role]);
+    double winCount = (this->winCount[role] += win);
+    double rate = winCount / roleCount * 100;
+    edit->setText(QString("%1 / %2 = %3 %").arg(winCount).arg(roleCount).arg(rate));
+
+    double totalCount = 0, totalWinCount = 0;
+
+    foreach(int count, this->roleCount.values())
+        totalCount += count;
+
+    foreach(int count, this->winCount.values())
+        totalWinCount += count;
+
+    QLineEdit *total_edit = result_box->findChild<QLineEdit *>("total_edit");
+    total_edit->setText(QString("%1 / %2 = %3 %").arg(totalWinCount).arg(totalCount).arg(totalWinCount/totalCount*100));
+
+    server_log->append(tr("End of game %1").arg(totalCount));
+}
+
+void MainWindow::on_actionView_ban_list_triggered()
+{
+    BanlistDialog *dialog = new BanlistDialog(this, true);
+    dialog->exec();
+}
+
+#include "audio.h"
+
+void MainWindow::on_actionAbout_fmod_triggered()
+{
+    QString content = tr("FMOD is a proprietary audio library made by Firelight Technologies");
+    content.append("<p align='center'> <img src='image/system/fmod.png' /> </p> <br/>");
+
+    QString address = "http://www.fmod.org";
+    content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));
+
+#ifdef AUDIO_SUPPORT
+    content.append(tr("Current versionn %1 <br/>").arg(Audio::getVersion()));
+#endif
+
+    Window *window = new Window(tr("About fmod"), QSize(500, 259));
+    scene->addItem(window);
+
+    window->addContent(content);
+    window->addCloseButton(tr("OK"));
+    window->shift();
+
+    window->appear();
+}
+
+#include "lua.hpp"
+
+void MainWindow::on_actionAbout_Lua_triggered()
+{
+    QString content = tr("Lua is a powerful, fast, lightweight, embeddable scripting language.");
+    content.append("<p align='center'> <img src='image/system/lua.png' /> </p> <br/>");
+
+    QString address = "http://www.lua.org";
+    content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));
+
+    content.append(tr("Current versionn %1 <br/>").arg(LUA_RELEASE));
+    content.append(LUA_COPYRIGHT);
+
+    Window *window = new Window(tr("About Lua"), QSize(500, 500));
+    scene->addItem(window);
+
+    window->addContent(content);
+    window->addCloseButton(tr("OK"));
+    window->shift();
+
+    window->appear();
 }

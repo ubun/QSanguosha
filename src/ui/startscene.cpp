@@ -1,5 +1,6 @@
 #include "startscene.h"
 #include "engine.h"
+#include "audio.h"
 
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
@@ -52,27 +53,11 @@ void StartScene::setServerLogBackground(){
     }
 }
 
-#ifdef AUDIO_SUPPORT
-#ifdef  Q_OS_WIN32
-    extern irrklang::ISoundEngine *SoundEngine;
-#else
-    #include <phonon/MediaObject>
-    #include <phonon/AudioOutput>
-    extern Phonon::MediaObject *SoundEngine;
-    extern Phonon::AudioOutput *SoundOutput;
-#endif
-#endif
-
 void StartScene::switchToServer(Server *server){    
 #ifdef AUDIO_SUPPORT
-    if(SoundEngine) {
-#ifdef  Q_OS_WIN32
-        SoundEngine->drop();
-        SoundEngine = NULL;
-#else
-        delete SoundEngine;
-#endif
-    }
+
+    Audio::quit();
+
 #endif
 
     // performs leaving animation
@@ -161,6 +146,14 @@ void StartScene::printServerInfo(){
         server_log->append(tr("Scene Mode is enabled"));
     else
         server_log->append(tr("Scene Mode is disabled"));
+
+    server_log->append( Config.EnableBasara ?
+                        tr("Basara Mode is enabled") :
+                        tr("Basara Mode is disabled"));
+
+    server_log->append( Config.EnableHegemony ?
+                        tr("Hegemony Mode is enabled") :
+                        tr("Hegemony Mode is disabled"));
 
     if(Config.EnableAI){
         server_log->append(tr("This server is AI enabled, AI delay is %1 milliseconds").arg(Config.AIDelay));

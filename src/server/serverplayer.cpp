@@ -5,6 +5,7 @@
 #include "ai.h"
 #include "settings.h"
 #include "recorder.h"
+#include "banpair.h"
 
 ServerPlayer::ServerPlayer(Room *room)
     : Player(room), socket(NULL), room(room),
@@ -25,9 +26,13 @@ void ServerPlayer::playCardEffect(const Card *card){
         QString skill_name = card->getSkillName();
         const Skill *skill = Sanguosha->getSkill(skill_name);
         int index = -1;
-        if(skill)
+        if(skill){
+            if(skill->useCardSoundEffect()){
+                room->playCardEffect(card->objectName(), getGeneral()->isMale());
+                return;
+            }
             index = skill->getEffectIndex(this, card);
-
+        }
         room->playSkillEffect(skill_name, index);
     }else
         room->playCardEffect(card->objectName(), getGeneral()->isMale());
@@ -191,6 +196,15 @@ void ServerPlayer::unicast(const QString &message) const{
         recorder->recordLine(message);
 }
 
+void ServerPlayer::startNetworkDelayTest(){
+    test_time = QDateTime::currentDateTime();
+    invoke("networkDelayTest");
+}
+
+qint64 ServerPlayer::endNetworkDelayTest(){
+    return test_time.msecsTo(QDateTime::currentDateTime());
+}
+
 void ServerPlayer::startRecord(){
     recorder = new Recorder(this);
 }
@@ -208,20 +222,52 @@ QStringList ServerPlayer::getSelected() const{
     return selected;
 }
 
-#include "banpairdialog.h"
+QString ServerPlayer::findReasonable(const QStringList &generals, bool no_unreasonable){
 
-QString ServerPlayer::findReasonable(const QStringList &generals){
-    if(Config.Enable2ndGeneral){
-        foreach(QString name, generals){
+    foreach(QString name, generals){
+        if(Config.Enable2ndGeneral){
             if(getGeneral()){
-                if(!BanPair::isBanned(getGeneralName(), name))
-                    return name;
+                if(BanPair::isBanned(getGeneralName(), name))
+                    continue;
             }else{
-                if(!BanPair::isBanned(name))
-                    return name;
+                if(BanPair::isBanned(name))
+                    continue;
+            }
+
+            if(Config.EnableHegemony)
+            {
+                if(getGeneral())
+                    if(getGeneral()->getKingdom()
+                            != Sanguosha->getGeneral(name)->getKingdom())
+                        continue;
             }
         }
+        if(Config.EnableBasara)
+        {
+            QStringList ban_list = Config.value("Banlist/Basara").toStringList();
+
+            if(ban_list.contains(name))continue;
+        }
+        if(Config.GameMode == "zombie_mode")
+        {
+            QStringList ban_list = Config.value("Banlist/Zombie").toStringList();
+
+            if(ban_list.contains(name))continue;
+        }
+        if((Config.GameMode.endsWith("p") ||
+            Config.GameMode.endsWith("pd")))
+        {
+            QStringList ban_list = Config.value("Banlist/Roles").toStringList();
+
+            if(ban_list.contains(name))continue;
+        }
+
+        return name;
     }
+
+
+    if(no_unreasonable)
+        return NULL;
 
     return generals.first();
 }
@@ -377,14 +423,17 @@ bool ServerPlayer::hasNullification() const{
             if(card->isBlack() || card->objectName() == "nullification")
                 return true;
         }
-    }else if(hasSkill("wushen")){
+    }
+    if(hasSkill("wushen")){
         foreach(const Card *card, handcards){
             if(card->objectName() == "nullification" && card->getSuit() != Card::Heart)
                 return true;
         }
-    }else if(hasSkill("guhuo")){
+    }
+    if(hasSkill("guhuo")){
         return !isKongcheng();
-    }else if(hasFlag("lexue")){
+    }
+    if(hasFlag("lexue")){
         int card_id = getMark("lexue");
         const Card *card = Sanguosha->getCard(card_id);
         if(card->objectName() == "nullification"){
@@ -393,7 +442,8 @@ bool ServerPlayer::hasNullification() const{
                     return true;
             }
         }
-    }else if(hasSkill("longhun")){
+    }
+    if(hasSkill("longhun")){
         int n = qMax(1, getHp());
         int count = 0;
         foreach(const Card *card, handcards + getEquips()){
@@ -405,11 +455,19 @@ bool ServerPlayer::hasNullification() const{
         }
 
         return count >= n;
-    }else{
+    }
+    if(hasSkill("yanzheng")){
         foreach(const Card *card, handcards){
             if(card->objectName() == "nullification")
                 return true;
         }
+
+        return getHandcardNum() > getHp() && !getEquips().isEmpty();
+    }
+
+    foreach(const Card *card, handcards){
+        if(card->objectName() == "nullification")
+            return true;
     }
 
     return false;
@@ -473,16 +531,20 @@ void ServerPlayer::turnOver(){
     log.from = this;
     log.arg = faceUp() ? "face_up" : "face_down";
     room->sendLog(log);
+
+    room->getThread()->trigger(TurnedOver, this);
 }
 
-void ServerPlayer::play(){
-    static QList<Phase> all_phases;
-    if(all_phases.isEmpty()){
-        all_phases << Start << Judge << Draw << Play
-                << Discard << Finish << NotActive;
+void ServerPlayer::play(QList<Player::Phase> set_phases){
+    if(!set_phases.isEmpty()){
+        if(!set_phases.contains(NotActive))
+            set_phases << NotActive;
     }
+    else
+        set_phases << Start << Judge << Draw << Play
+                << Discard << Finish << NotActive;
 
-    phases = all_phases;
+    phases = set_phases;
     while(!phases.isEmpty()){
         Phase phase = phases.takeFirst();
         setPhase(phase);
@@ -518,6 +580,14 @@ void ServerPlayer::skip(Player::Phase phase){
     room->sendLog(log);
 }
 
+void ServerPlayer::skip(){
+    phases.clear();
+
+    LogMessage log;
+    log.type = "#SkipAllPhase";
+    log.from = this;
+    room->sendLog(log);
+}
 
 void ServerPlayer::gainMark(const QString &mark, int n){
     int value = getMark(mark) + n;
@@ -605,7 +675,10 @@ int ServerPlayer::getGeneralMaxHP() const{
         int first = getGeneral()->getMaxHp();
         int second = getGeneral2()->getMaxHp();
 
-        switch(Config.MaxHpScheme){
+        int plan = Config.MaxHpScheme;
+        if(Config.GameMode.contains("_mini_"))plan = 1;
+
+        switch(plan){
         case 2: max_hp = (first + second)/2; break;
         case 1: max_hp = qMin(first, second); break;
         case 0:
@@ -740,10 +813,13 @@ void ServerPlayer::addToPile(const QString &pile_name, int card_id, bool open){
     room->moveCardTo(Sanguosha->getCard(card_id), this, Player::Special, open);
 }
 
-void ServerPlayer::gainAnExtraTurn(){
+void ServerPlayer::gainAnExtraTurn(ServerPlayer *clearflag){
     ServerPlayer *current = room->getCurrent();
 
     room->setCurrent(this);
+    room->removeTag("Zhichi");
+    if(clearflag)
+        clearflag->clearFlags();
     room->getThread()->trigger(TurnStart, this);
     room->setCurrent(current);
 }

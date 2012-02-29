@@ -15,6 +15,7 @@ class Skill : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Frequency);
+    Q_ENUMS(Location);
 
 public:
     enum Frequency{
@@ -25,6 +26,11 @@ public:
         Wake
     };
 
+    enum Location{
+        Left,
+        Right
+    };
+
     explicit Skill(const QString &name, Frequency frequent = NotFrequent);
     bool isLordSkill() const;
     QString getDescription() const;
@@ -33,7 +39,10 @@ public:
 
     virtual QString getDefaultChoice(ServerPlayer *player) const;
     virtual int getEffectIndex(ServerPlayer *player, const Card *card) const;
+    virtual bool useCardSoundEffect() const;
     virtual QDialog *getDialog() const;
+
+    virtual Location getLocation() const;
 
     void initMediaSource();
     void playEffect(int index = -1) const;
@@ -181,13 +190,14 @@ class SPConvertSkill: public GameStartSkill{
     Q_OBJECT
 
 public:
-    SPConvertSkill(const QString &name, const QString &from, const QString &to);
+    SPConvertSkill(const QString &name, const QString &from, const QString &to, bool transfigure = false);
 
     virtual bool triggerable(const ServerPlayer *target) const;
     virtual void onGameStart(ServerPlayer *player) const;
 
 private:
     QString from, to;
+    bool transfigure;
 };
 
 class ProhibitSkill: public Skill{

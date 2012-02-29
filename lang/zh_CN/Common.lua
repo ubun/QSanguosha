@@ -1,4 +1,6 @@
 return {
+	["Pairs"] = "双将",
+
 	["spade"] = "黑桃",
 	["club"] = "梅花",
 	["heart"] = "红桃",
@@ -6,6 +8,7 @@ return {
 	["basic"] = "基本牌",
 	["trick"] = "锦囊牌",
 	["equip"] = "装备牌",
+	["ndtrick"] = "非延时锦囊",
 
 	["lord"] = "主公",
 	["loyalist"] = "忠臣",
@@ -27,8 +30,12 @@ return {
 	["robot"] = "电脑",
 	["trust"] = "托管",
 	["cheat"] = "作弊",
+	["change"] = "变身",
+	["free-discard"] = "自由弃牌",
 	["yes"] = "是",
 	["no"] = "否",
+	["male"] = "男性",
+	["female"] = "女性",
 
 	["attack_card"] = "进攻牌",
 	["defense_card"] = "防御牌",
@@ -49,10 +56,6 @@ return {
 	["shu"] = "蜀",
 	["wu"] = "吴",
 	["qun"] = "群",
-
-	["test"] = "测试",
-	["sujiang"] = "素将",
-	["sujiangf"] = "素将(女)",
 
 	["#Murder"] = "%to【%arg】 挂了，凶手是 %from",
 	["#Suicide"] = "%to【%arg】 自杀身亡",
@@ -99,9 +102,13 @@ return {
 	["face_up"] = "面朝上",
 	["face_down"] = "面朝下",
 	["#SkipPhase"] = "%from 跳过了 %arg 阶段",
+	["#SkipAllPhase"] = "%from 中止了当前回合",
 	["#IronChainDamage"] = "%from 处于铁锁连环状态，将受到铁锁的传导伤害",
 	["#LoseHp"] = "%from 流失了 %arg 点体力",
 	["#ChangeKingdom"] = "%from 把 %to 的国籍由原来的 %arg 改成了 %arg2",
+	["#AnalepticBuff"] = "%from 喝了【酒】，对 %to 造成的杀伤害 +1",
+	["#GetMark"] = "%from 得到了 %arg2 枚 %arg 标记",
+	["#LoseMark"] = "%from 失去了 %arg2 枚 %arg 标记",
 	["@askforslash"] = "你可以对你攻击范围内的一名角色使用一张【杀】",
 
 	["3v3:cw"] = "顺时针",
@@ -109,4 +116,7 @@ return {
 	["cw"] = "顺时针",
 	["ccw"] = "逆时针",
 	["#TrickDirection"] = "%from 选择了 %arg 作为锦囊的顺序",
+	["custom"] = "自定义模式",
+	["UnknowNick"] = "无称号",
+	["DefaultIllustrator"] = "KayaK",
 }
