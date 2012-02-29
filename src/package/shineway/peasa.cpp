@@ -606,7 +606,7 @@ public:
 
 GuishuDialog::GuishuDialog()
 {
-    setWindowTitle(tr("Incarnation"));
+    setWindowTitle(Sanguosha->translate("guishu"));
 }
 
 void GuishuDialog::popup(){
