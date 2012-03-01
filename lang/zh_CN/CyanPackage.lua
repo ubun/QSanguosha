@@ -135,7 +135,7 @@ return {
 	["illustrator:cyanpuyuan"] = "小矮米",
 	["illustrator:cyanlidian"] = "",
 	["illustrator:cyancaochong"] = "",
-	["illustrator:cyanliaohua"] = "",
-	["illustrator:cyanfanqiangzhangda"] = "",
+	["illustrator:cyanliaohua"] = "三国征战",
+	["illustrator:cyanfanqiangzhangda"] = "三国志大战",
 	["illustrator:cyanmateng"] = "鸿仑",
 }
