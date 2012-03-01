@@ -109,6 +109,7 @@ return {
 	["cv:purplesunbushi"] = "",
 	["cv:purplebao3niang"] = "",
 	["cv:purplebeimihu"] = "",
+	["cv:purpleguozhao"] = "",
 
 	["illustrator:purpleyelai"] = "",
 	["illustrator:purplesunnichang"] = "",
