@@ -174,42 +174,6 @@ function sgs.getDefense(player)
 	return defense
 end
 
-function SmartAI:inOneGroup(player)
-	if sgs.evaluatePlayerRole(player) == "unknown" then return true end
-	return sgs.evaluatePlayerRole(player) == sgs.evaluatePlayerRole(self.player)
-end
-
-function SmartAI:updateTarget(player)
-	player = player or self.player
-	local enemies = self:getEnemies(player)
-	if #enemies == 0 then return end
-	local priority_target = {}
-	for _, enemy in ipairs(enemies) do	
-		if not self:inOneGroup(enemy) and self:hasSkills(sgs.priority_skill, player) then
-			table.insert(priority_target, enemy)
-		end
-	end
-	
-	if #priority_target > 0 then
-		self:sort(priority_target, "threat")
-		sgs.target[player:getRole()] = priority_target[1]
-		return
-	end
-	
-	self:sort(enemies)
-	for _, enemy in ipairs(self.enemies) do
-		if not self:hasSkills(sgs.exclusive_skill, enemy) and not self:inOneGroup(enemy) then sgs.target[player:getRole()] = enemy return end
-	end
-	
-	self:sort(enemies, "defense")
-	for _, enemy in ipairs(self.enemies) do
-		if self:isWeak(enemy) and not self:inOneGroup(enemy) then sgs.target[player:getRole()] = enemy return end
-	end
-	
-	self:sort(enemies, "hp")
-	sgs.target[player:getRole()] = enemies[1]
-end
-
 function SmartAI:assignKeep(num,start)
 	if num<=0 then return end
 	if start then 
@@ -654,6 +618,43 @@ function SmartAI:sortByCardNeed(cards)
 	end
 
 	table.sort(cards, compare_func)
+end
+
+function SmartAI:inOneGroup(player)
+	if sgs.evaluatePlayerRole(player) == "unknown" then return true end
+	-- return sgs.evaluatePlayerRole(player) == sgs.evaluatePlayerRole(self.player)
+	return sgs.evaluatePlayerRole(player) == self.player:getRole()
+end
+
+function SmartAI:updateTarget(player)
+	player = player or self.player
+	local enemies = self:getEnemies(player)
+	if #enemies == 0 then return end
+	local priority_target = {}
+	for _, enemy in ipairs(enemies) do	
+		if not self:inOneGroup(enemy) and self:hasSkills(sgs.priority_skill, player) then
+			table.insert(priority_target, enemy)
+		end
+	end
+	
+	if #priority_target > 0 then
+		self:sort(priority_target, "threat")
+		sgs.target[player:getRole()] = priority_target[1]
+		return
+	end
+	
+	self:sort(enemies)
+	for _, enemy in ipairs(self.enemies) do
+		if not self:hasSkills(sgs.exclusive_skill, enemy) and not self:inOneGroup(enemy) then sgs.target[player:getRole()] = enemy return end
+	end
+	
+	self:sort(enemies, "defense")
+	for _, enemy in ipairs(self.enemies) do
+		if self:isWeak(enemy) and not self:inOneGroup(enemy) then sgs.target[player:getRole()] = enemy return end
+	end
+	
+	self:sort(enemies, "hp")
+	sgs.target[player:getRole()] = enemies[1]
 end
 
 function sgs.evaluatePlayerRole(player)
@@ -1804,7 +1805,7 @@ function sgs.ai_skill_cardask.nullfilter(self, data, pattern, target)
 	if not self:damageIsEffective(nil, nil, target) then return "." end
 	if self:getDamagedEffects(self) then return "." end
 	if target and target:getWeapon() and target:getWeapon():inherits("IceSword") and self.player:getCards("he"):length() > 2 then return end
-	if self:needBear()  then return "." end
+	if self:needBear() then return "." end
 	if self.player:hasSkill("tianxiang") then
 		local dmgStr = {damage = 1, nature = 0}
 		local willTianxiang = sgs.ai_skill_use["@tianxiang"](self, dmgStr)
@@ -2618,6 +2619,7 @@ end
 
 function SmartAI:useBasicCard(card, use)
 	if self.player:hasSkill("chengxiang") and self.player:getHandcardNum() < 8 and card:getNumber() < 7 then return end
+	if not (card:inherits("Peach") and self.player:getLostHp() > 1) and self:needBear() then return end
 	self:useCardByClassName(card, use)
 end
 
@@ -2810,6 +2812,7 @@ end
 function SmartAI:hasTrickEffective(card, player)
 	if player then
 		if player:isDead() then return false end
+		if self.room:isProhibited(self.player, player, card) then return false end
 		if (player:hasSkill("zhichi") and self.room:getTag("Zhichi"):toString() == player:objectName()) or player:hasSkill("wuyan") then
 			if card and not (card:inherits("Indulgence") or card:inherits("SupplyShortage")) then return false end
 		end
@@ -2825,19 +2828,9 @@ function SmartAI:hasTrickEffective(card, player)
 	return true
 end
 
-sgs.ai_trick_prohibit = {}
-function SmartAI:trickProhibit(card, to)
-	for _, askill in sgs.qlist(to:getVisibleSkillList()) do
-		local callback = sgs.ai_trick_prohibit[askill:objectName()]
-		if callback and type(callback) == "function" then
-			if callback(card, self, to) then return true end
-		end
-	end
-	return false
-end
-
 function SmartAI:useTrickCard(card, use)
 	if self.player:hasSkill("chengxiang") and self.player:getHandcardNum() < 8 and card:getNumber() < 7 then return end
+	if self:needBear() and not ("amazing_grace|ex_nihilo|snatch|iron_chain"):match(card:objectName()) then return end
 	if card:inherits("AOE") then
 		if self.player:hasSkill("wuyan") then return end
 		if self.role == "renegade" and not self:isWeak(self.room:getLord()) then use.card = card return end
@@ -2967,12 +2960,6 @@ function SmartAI:hasSameEquip(card, player)
 	return false
 end
 
-function SmartAI:needBear(player)
-    if not player then player = self.player end
-    if player:hasSkill("renjie") and not player:hasSkill("jilve") and player:getMark("@bear") < 4 then return true
-	else return false end
-end
-
 function SmartAI:useEquipCard(card, use)
 	if self.player:hasSkill("chengxiang") and self.player:getHandcardNum() < 8 and card:getNumber() < 7 and self:hasSameEquip(card) then return end
 	if self:hasSkills(sgs.lose_equip_skill) and self:evaluateArmor(card)>-5 then
@@ -3040,7 +3027,7 @@ function SmartAI:damageMinusHp(self, enemy, type)
 		end
 		for _, acard in ipairs(cards) do
 			if ((acard:inherits("Duel") or acard:inherits("SavageAssault") or acard:inherits("ArcheryAttack") or acard:inherits("FireAttack")) 
-			   and not self:trickProhibit(acard,enemy)) 
+			   and not self.room:isProhibited(self.player, enemy, acard))
 			   or ((acard:inherits("SavageAssault") or acard:inherits("ArcheryAttack")) and self:aoeIsEffective(acard, enemy)) then
 			     if acard:inherits("FireAttack") then
 				     if not enemy:isKongcheng() then 
