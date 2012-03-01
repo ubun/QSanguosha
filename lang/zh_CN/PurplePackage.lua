@@ -3,7 +3,7 @@
 return {
 	["Purple"] = "★玉女★",
 
---WEI08 纤纤素手 3
+--WEI#08 纤纤素手 3
 	["purpleyelai"] = "夜来",
 	["designer:purpleyelai"] = "安歧大小姐",
 	["zhuosu"] = "擢素",
@@ -33,6 +33,18 @@ return {
 	[":xiannei"] = "当一名手牌数小于手牌上限的角色失去牌后，你可以弃置一张牌，令其回复1点体力或摸两张牌。任意角色回合内限一次。",
 	["xiannei:draw"] = "摸两张牌",
 	["xiannei:hp"] = "回复1点体力",
+
+--WEI#09 魏之女王 3
+	["purpleguozhao"] = "郭照",
+	["designer:purpleguozhao"] = "树神彧",
+	["woxuan"] = "斡旋",
+	[":woxuan"] = "你每受到一次伤害，可选择一项：1、与伤害来源将各自的武将牌翻面；2、与伤害来源交换手牌，牌数差不能超过X，X为你已损失的体力值。",
+	["#Woxuan"] = "%from 发动了【%arg】，选择的是 %arg2",
+	["woxuan:turn"] = "一起翻面",
+	["woxuan:excha"] = "交换手牌",
+	["woxuan:cancel"] = "不发动",
+	["cizhen"] = "赐鸩",
+	[":cizhen"] = "其他角色使用【桃】时，你可以弃一张牌并做一次判定，若为黑色，该【桃】视为无效。",
 
 --SHU#10 墨衣魅影 3
 	["purpleduanmeng"] = "端蒙",
@@ -91,19 +103,20 @@ return {
 
 	["cv:purpleyelai"] = "",
 	["cv:purplesunnichang"] = "",
-	["cv:purplexingcai"] = "真三国无双5",
-	["cv:purpleduanmeng"] = "轩辕剑外传汉之云",
+	["cv:purplexingcai"] = "",
+	["cv:purpleduanmeng"] = "",
 	["cv:purplezoushi"] = "",
-	["cv:purplesunbushi"] = "三国志大战",
+	["cv:purplesunbushi"] = "",
 	["cv:purplebao3niang"] = "",
 	["cv:purplebeimihu"] = "",
 
 	["illustrator:purpleyelai"] = "",
 	["illustrator:purplesunnichang"] = "",
-	["illustrator:purplexingcai"] = "",
-	["illustrator:purpleduanmeng"] = "",
+	["illustrator:purplexingcai"] = "真三国无双5",
+	["illustrator:purpleduanmeng"] = "轩辕剑外传汉之云",
 	["illustrator:purplezoushi"] = "",
-	["illustrator:purplesunbushi"] = "",
+	["illustrator:purplesunbushi"] = "三国志大战",
 	["illustrator:purplebao3niang"] = "",
 	["illustrator:purplebeimihu"] = "",
+	["illustrator:purpleguozhao"] = "Wolfina",
 }

@@ -577,6 +577,91 @@ public:
     }
 };
 
+class Cizhen: public TriggerSkill{
+public:
+    Cizhen():TriggerSkill("cizhen"){
+        events << CardUsed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *sb) const{
+        return !sb->hasSkill(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardUseStruct use = data.value<CardUseStruct>();
+        if(!use.card->inherits("Peach"))
+            return false;
+        Room *room = player->getRoom();
+        ServerPlayer *guos = room->findPlayerBySkillName(objectName());
+        if(guos && !guos->isNude() && guos->askForSkillInvoke(objectName())){
+            room->askForDiscard(guos, objectName(), 1, false, true);
+
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(club|spade):(.*)");
+            judge.good = true;
+            judge.reason = objectName();
+            judge.who = guos;
+
+            room->judge(judge);
+            if(judge.isGood())
+                return true;
+        }
+        return false;
+    }
+};
+
+class Woxuan: public MasochismSkill{
+public:
+    Woxuan():MasochismSkill("woxuan"){
+    }
+
+    virtual void onDamaged(ServerPlayer *guonvwang, const DamageStruct &damage) const{
+        if(!damage.from)
+            return;
+        Room *room = guonvwang->getRoom();
+        int patl = qAbs(guonvwang->getHandcardNum() - damage.from->getHandcardNum()) <= guonvwang->getLostHp() ?
+                   "turn+excha+cancel" : "turn+cancel";
+        QString choice = room->askForChoice(guonvwang, objectName(), patl);
+        if(choice == "cancel")
+            return;
+        LogMessage log;
+        log.from = guonvwang;
+        log.type = "#Woxuan";
+        log.arg = objectName();
+        log.arg2 = choice;
+        room->sendLog(log);
+        if(choice == "turn"){
+            damage.from->turnOver();
+            damage.to->turnOver();
+        }
+        else{
+            int n1 = damage.from->getHandcardNum();
+            int n2 = damage.to->getHandcardNum();
+
+            DummyCard *card1 = damage.from->wholeHandCards();
+            DummyCard *card2 = damage.to->wholeHandCards();
+
+            if(card1){
+                room->moveCardTo(card1, damage.to, Player::Hand, false);
+                delete card1;
+            }
+            room->getThread()->delay();
+
+            if(card2){
+                room->moveCardTo(card2, damage.from, Player::Hand, false);
+                delete card2;
+            }
+            LogMessage log;
+            log.type = "#Dimeng";
+            log.from = damage.from;
+            log.to << damage.to;
+            log.arg = QString::number(n1);
+            log.arg2 = QString::number(n2);
+            room->sendLog(log);
+        }
+    }
+};
+
 PurplePackage::PurplePackage()
     :Package("Purple")
 {
@@ -591,6 +676,10 @@ PurplePackage::PurplePackage()
 
     General *purplexingcai = new General(this, "purplexingcai", "shu", 4, false);
     purplexingcai->addSkill(new Xiannei);
+
+    General *purpleguozhao = new General(this, "purpleguozhao", "wei", 3, false);
+    purpleguozhao->addSkill(new Woxuan);
+    purpleguozhao->addSkill(new Cizhen);
 
     General *purpleduanmeng = new General(this, "purpleduanmeng", "shu", 3, false);
     purpleduanmeng->addSkill(new Poxie);
