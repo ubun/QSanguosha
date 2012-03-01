@@ -619,10 +619,10 @@ public:
         if(!damage.from)
             return;
         Room *room = guonvwang->getRoom();
-        int patl = qAbs(guonvwang->getHandcardNum() - damage.from->getHandcardNum()) <= guonvwang->getLostHp() ?
-                   "turn+excha+cancel" : "turn+cancel";
+        const QString patl = qAbs(guonvwang->getHandcardNum() - damage.from->getHandcardNum()) <= guonvwang->getLostHp() ?
+                   "woturn+woexcha+wocancel" : "woturn+wocancel";
         QString choice = room->askForChoice(guonvwang, objectName(), patl);
-        if(choice == "cancel")
+        if(choice == "wocancel")
             return;
         LogMessage log;
         log.from = guonvwang;
@@ -630,7 +630,7 @@ public:
         log.arg = objectName();
         log.arg2 = choice;
         room->sendLog(log);
-        if(choice == "turn"){
+        if(choice == "woturn"){
             damage.from->turnOver();
             damage.to->turnOver();
         }
