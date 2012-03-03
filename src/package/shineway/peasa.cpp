@@ -181,7 +181,7 @@ bool GuiouCard::targetFilter(const QList<const Player *> &targets, const Player 
 }
 
 void GuiouCard::onEffect(const CardEffectStruct &effect) const{
-    effect.from->getRoom()->acquireSkill(effect.to, "#guioupro");
+    effect.to->gainMark("@gi");
     effect.from->tag["GuiouTarget"] = QVariant::fromValue(effect.to);
 }
 
@@ -215,7 +215,7 @@ public:
     }
 
     virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
-        return card->inherits("TrickCard") && card->isRed();
+        return to->getMark("@gi") > 1 && card->inherits("TrickCard") && card->isRed();
     }
 };
 
@@ -233,7 +233,7 @@ public:
         else if(player->getPhase() == Player::Start){
             PlayerStar taregt = player->tag["GuiouTarget"].value<PlayerStar>();
             if(taregt)
-                room->detachSkillFromPlayer(taregt, "#guioupro");
+                taregt->loseAllMarks("@gi");
         }
         return false;
     }
@@ -797,8 +797,9 @@ PeasaPackage::PeasaPackage()
     dingfeng->addSkill(new Duanbing);
 
     General *yuejin = new General(this, "yuejin", "wei");
+    yuejin->addSkill(new GuiouPro);
     yuejin->addSkill(new Guiou);
-    skills << new GuiouPro;
+    //related_skills.insertMulti("guiou", "#guioupro");
     yuejin->addSkill(new Xiaoguo);
 
     General *xunyou = new General(this, "xunyou", "wei", 3);

@@ -93,8 +93,7 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getPhase() == Player::Draw ||
-           player->getPhase() == Player::Play){
+        if(player->getPhase() == Player::Discard){
             if(!player->hasFlag("veuy") && player->askForSkillInvoke(objectName())){
                 player->turnOver();
                 player->setFlags("veuy");
@@ -601,9 +600,9 @@ public:
             room->sendLog(log);
 
             const Card *jink = room->askForCard(effect.to, "slash", "jinguo-jink:" + effect.from->objectName());
-            yunlu->obtainCard(jink);
-            Card *new_card = Card::Clone(jink);
-            room->slashResult(effect, new_card);
+            if(jink)
+                yunlu->obtainCard(jink);
+            room->slashResult(effect, jink);
 
             return true;
         }

@@ -467,6 +467,7 @@ public:
             LogMessage gitlog;
             gitlog.type = "#Numa_" + word;
             gitlog.from = miheng;
+            gitlog.arg = "numa_notice";
             if(word == "hc"){
                 room->sendLog(gitlog);
                 //womei:recover self
