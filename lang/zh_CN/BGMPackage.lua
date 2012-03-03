@@ -9,8 +9,6 @@ return {
 	["designer:bgm_zhaoyun"] = "桌游志",
 	["chongzhen"] = "冲阵",
 	[":chongzhen"] = "每当你发动“龙胆”使用或打出一张手牌时，你可以立即获得对方的一张手牌。",
-	["huantong"] = "还童",
-	[":huantong"] = "赵云变身为SP赵云",
 
 	["#bgm_diaochan"] = "暗黑的傀儡师",
 	["bgm_diaochan"] = "SP貂蝉",
@@ -28,4 +26,6 @@ return {
 	[":kuiwei"] = "回合结束阶段开始时，你可以摸2+X张牌，然后将你的武将牌翻面。在你的下个摸牌阶段开始时，你须弃置X张牌。X等于当时场上装备区内的武器牌的数量。",
 	["yanzheng"] = "严整",
 	[":yanzheng"] = "若你的手牌数大于你的体力值，你可以将你装备区内的牌当【无懈可击】使用。",
+	["@kuiwei"] = "溃围",
+	["#KuiweiDiscard"] = "%from 的【溃围】技能被触发，需要弃掉 %arg 张牌";
 }

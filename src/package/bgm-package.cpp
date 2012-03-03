@@ -172,34 +172,42 @@ public:
         return n;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
+    virtual bool trigger(TriggerEvent , ServerPlayer *caoren, QVariant &) const{
+        Room *room = caoren->getRoom();
 
-        if(player->getPhase() == Player::Finish){
-            if(!room->askForSkillInvoke(player, objectName(), data))
+        if(caoren->getPhase() == Player::Finish){
+            if(!caoren->askForSkillInvoke(objectName()))
                 return false;
 
-            int n = getWeaponCount(player);
-            player->drawCards(n+2);
-            player->turnOver();
-            player->tag[objectName()] = true;
+            int n = getWeaponCount(caoren);
+            caoren->drawCards(n+2);
+            caoren->turnOver();
+
+            if(caoren->getMark("@kuiwei") == 0)
+                caoren->gainMark("@kuiwei");
         }
-        else if(player->getPhase() == Player::Draw){
-            if(!player->tag[objectName()].toBool())
+        else if(caoren->getPhase() == Player::Draw){
+            if(caoren->getMark("@kuiwei") == 0)
                 return false;
 
-            int n = getWeaponCount(player);
+            int n = getWeaponCount(caoren);
             if(n > 0){
-                if(player->getCards("he").length() <= n){
-                    player->throwAllEquips();
-                    player->throwAllHandCards();
+                LogMessage log;
+                log.type = "#KuiweiDiscard";
+                log.from = caoren;
+                log.arg = QString::number(n);
+                room->sendLog(log);
+
+                if(caoren->getCards("he").length() <= n){
+                    caoren->throwAllEquips();
+                    caoren->throwAllHandCards();
                 }
                 else{
-                    room->askForDiscard(player, objectName(), n, false, true);
+                    room->askForDiscard(caoren, objectName(), n, false, true);
                 }
             }
 
-            player->tag.remove(objectName());
+            caoren->loseMark("@kuiwei");
         }
         return false;
     }
@@ -233,11 +241,11 @@ public:
 };
 
 BGMPackage::BGMPackage():Package("BGM"){
-    General *bgm_zhaoyun = new General(this, "bgm_zhaoyun", "qun", 3, true, true);
+    General *bgm_zhaoyun = new General(this, "bgm_zhaoyun", "qun", 3);
     bgm_zhaoyun->addSkill("longdan");
     bgm_zhaoyun->addSkill(new ChongZhen);
 
-    General *bgm_diaochan = new General(this, "bgm_diaochan", "qun", 3, false, true);
+    General *bgm_diaochan = new General(this, "bgm_diaochan", "qun", 3, false);
     bgm_diaochan->addSkill(new Lihun);
     bgm_diaochan->addSkill("biyue");
 

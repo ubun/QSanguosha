@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "recorder.h"
 #include "banpair.h"
+#include "lua-wrapper.h"
 
 ServerPlayer::ServerPlayer(Room *room)
     : Player(room), socket(NULL), room(room),
@@ -470,6 +471,13 @@ bool ServerPlayer::hasNullification() const{
             return true;
     }
 
+    foreach(const Skill* skill, getVisibleSkillList()){
+        if(skill->inherits("LuaViewAsSkill")){
+            const LuaViewAsSkill* luaskill = qobject_cast<const LuaViewAsSkill*>(skill);
+            if(luaskill->isEnabledAtNullification(this)) return true;
+        }
+    }
+
     return false;
 }
 
@@ -695,6 +703,9 @@ int ServerPlayer::getGeneralMaxHP() const{
     return max_hp;
 }
 
+int ServerPlayer::getGeneralMaxHp() const{
+    return getGeneralMaxHP();
+}
 QString ServerPlayer::getGameMode() const{
     return room->getMode();
 }
