@@ -44,22 +44,24 @@ public:
 
     virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
         Room *room = player->getRoom();
-        if(!damage.from || damage.from->isKongcheng() || !player->askForSkillInvoke(objectName()))
+        if(!damage.from || damage.from->isKongcheng())
             return;
-        const Card *card = room->askForCardShow(player, player, objectName());
-        LogMessage log;
-        log.type = "#Jifeng";
-        log.from = damage.from;
-        log.arg = objectName();
-        log.arg2 = card->isRed() ? "jifengr" : "jifengb";
-        room->sendLog(log);
+        if(!player->isKongcheng() && player->askForSkillInvoke(objectName())){
+            const Card *card = room->askForCardShow(player, player, objectName());
+            LogMessage log;
+            log.type = "#Jifeng";
+            log.from = damage.from;
+            log.arg = objectName();
+            log.arg2 = card->isRed() ? "jifengr" : "jifengb";
+            room->sendLog(log);
 
-        room->showCard(player, card->getEffectiveId());
-        foreach(const Card *cd, damage.from->getHandcards()){
-            if(card->sameColorWith(cd))
-                room->throwCard(cd);
-            else
-                room->showCard(damage.from, cd->getEffectiveId());
+            room->showCard(player, card->getEffectiveId());
+            foreach(const Card *cd, damage.from->getHandcards()){
+                if(card->sameColorWith(cd))
+                    room->throwCard(cd);
+                else
+                    room->showCard(damage.from, cd->getEffectiveId());
+            }
         }
     }
 };

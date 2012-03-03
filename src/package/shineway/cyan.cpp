@@ -249,13 +249,16 @@ public:
 class Weighing: public TriggerSkill{
 public:
     Weighing():TriggerSkill("weighing"){
-        events << CardGotDone << CardLostDone << HpChanged;
+        events << CardGotDone << CardLostDone << HpChanged << PhaseChange;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *cc, QVariant &) const{
+    virtual bool trigger(TriggerEvent e, ServerPlayer *cc, QVariant &) const{
         Room *room = cc->getRoom();
-        if(room->getCurrent() && room->getCurrent() != cc){
+        if(e == PhaseChange && cc->getPhase() != Player::NotActive)
+            return false;
+        if((e == PhaseChange && cc->getPhase() == Player::NotActive) ||
+           (room->getCurrent() && room->getCurrent() != cc)){
            int handcard = cc->getHandcardNum();
            int hp = cc->getHp();
            if(handcard != hp){

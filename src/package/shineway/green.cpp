@@ -94,8 +94,7 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         if(player->getPhase() == Player::Draw ||
-           player->getPhase() == Player::Play ||
-           player->getPhase() == Player::Discard){
+           player->getPhase() == Player::Play){
             if(!player->hasFlag("veuy") && player->askForSkillInvoke(objectName())){
                 player->turnOver();
                 player->setFlags("veuy");
