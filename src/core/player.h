@@ -62,7 +62,9 @@ public:
     // property setters/getters
     int getHp() const;
     void setHp(int hp);
+    int getMaxHp() const;
     int getMaxHP() const;
+    void setMaxHp(int max_hp);
     void setMaxHP(int max_hp);
     int getLostHp() const;
     bool isWounded() const;
@@ -176,6 +178,7 @@ public:
     int getCardCount(bool include_equip) const;
 
     QList<int> getPile(const QString &pile_name) const;
+    QStringList getPileNames() const;
     QString getPileName(int card_id) const;
 
     void addHistory(const QString &name, int times = 1);
@@ -232,7 +235,7 @@ private:
     QList<const DelayedTrick *> delayed_tricks;
     QHash<const Player *, int> fixed_distance;
 
-    QSet<Card::CardType> jilei_set;
+    QSet<QString> jilei_set;
 
 signals:
     void general_changed();

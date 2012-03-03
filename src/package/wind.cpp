@@ -5,12 +5,14 @@
 #include "carditem.h"
 #include "engine.h"
 #include "ai.h"
+#include "general.h"
 
 // skill cards
 
 GuidaoCard::GuidaoCard(){
     target_fixed = true;
     will_throw = false;
+    can_jilei = true;
 }
 
 void GuidaoCard::use(Room *room, ServerPlayer *zhangjiao, const QList<ServerPlayer *> &targets) const{
@@ -59,7 +61,7 @@ HuangtianCard::HuangtianCard(){
 
 void HuangtianCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
     ServerPlayer *zhangjiao = targets.first();
-    if(zhangjiao->hasSkill("huangtian")){
+    if(zhangjiao->hasLordSkill("huangtian")){
         zhangjiao->obtainCard(this);
         room->setEmotion(zhangjiao, "good");
     }
@@ -131,8 +133,6 @@ public:
         prompt_list << "@guidao-card" << judge->who->objectName()
                 << "" << judge->reason << judge->card->getEffectIdString();
         QString prompt = prompt_list.join(":");
-
-        player->tag["Judge"] = data;
         const Card *card = room->askForCard(player, "@guidao", prompt, data);
 
         if(card){
@@ -752,7 +752,7 @@ GuhuoDialog *GuhuoDialog::GetInstance(){
 
 GuhuoDialog::GuhuoDialog()
 {
-    setWindowTitle(tr("Guhuo"));
+    setWindowTitle(Sanguosha->translate("guhuo"));
 
     group = new QButtonGroup(this);
 
@@ -786,7 +786,7 @@ void GuhuoDialog::selectCard(QAbstractButton *button){
 
 QGroupBox *GuhuoDialog::createLeft(){
     QGroupBox *box = new QGroupBox;
-    box->setTitle(tr("Basic cards"));
+    box->setTitle(Sanguosha->translate("basic"));
 
     QVBoxLayout *layout = new QVBoxLayout;
 
@@ -807,13 +807,13 @@ QGroupBox *GuhuoDialog::createLeft(){
 }
 
 QGroupBox *GuhuoDialog::createRight(){
-    QGroupBox *box = new QGroupBox(tr("Non delayed tricks"));
+    QGroupBox *box = new QGroupBox(Sanguosha->translate("ndtrick"));
     QHBoxLayout *layout = new QHBoxLayout;
 
-    QGroupBox *box1 = new QGroupBox(tr("Single target"));
+    QGroupBox *box1 = new QGroupBox(Sanguosha->translate("single_target"));
     QVBoxLayout *layout1 = new QVBoxLayout;
 
-    QGroupBox *box2 = new QGroupBox(tr("Multiple targets"));
+    QGroupBox *box2 = new QGroupBox(Sanguosha->translate("multiple_targets"));
     QVBoxLayout *layout2 = new QVBoxLayout;
 
 
@@ -886,7 +886,7 @@ const Card *GuhuoCard::validate(const CardUseStruct *card_use) const{
         const Card *card = Sanguosha->getCard(subcards.first());
         Card *use_card = Sanguosha->cloneCard(user_string, card->getSuit(), card->getNumber());
         use_card->setSkillName("guhuo");
-        use_card->addSubcard(this);
+        room->throwCard(this);
 
         return use_card;
     }else
@@ -915,7 +915,7 @@ const Card *GuhuoCard::validateInResposing(ServerPlayer *yuji, bool *continuable
         const Card *card = Sanguosha->getCard(subcards.first());
         Card *use_card = Sanguosha->cloneCard(to_guhuo, card->getSuit(), card->getNumber());
         use_card->setSkillName("guhuo");
-        use_card->addSubcard(this);
+        room->throwCard(this);
 
         return use_card;
     }else

@@ -75,6 +75,7 @@ public:
 
     void checkVersion(const QString &server_version);
     void setup(const QString &setup_str);
+    void networkDelayTest(const QString&);
     void addPlayer(const QString &player_info);
     void removePlayer(const QString &player_name);
     void drawCards(const QString &cards_str);
@@ -96,6 +97,7 @@ public:
     void revivePlayer(const QString &player_name);
     void warn(const QString &);
     void setMark(const QString &mark_str);
+    void doFilter(const QString &);
     void showCard(const QString &show_str);
     void doGuanxing(const QString &guanxing_str);
     void doGongxin(const QString &gongxin_str);
@@ -162,6 +164,7 @@ public:
     bool refusable;
     bool include_equip;
     int discard_num;
+    QString skill_name;
     QList<const Card*> discarded_list;
     QDialog *ask_dialog;
     QStringList players_to_choose;   
@@ -174,6 +177,7 @@ public slots:
     void choosePlayer(const Player *player);
     void trust();
     void requestCard(int card_id);
+    void changeGeneral(QString name);
     void addRobot();
     void fillRobots();
     void arrange(const QStringList &order);
@@ -213,7 +217,7 @@ private slots:
     void selectRole();
 
 signals:
-    void version_checked(const QString &server_version);
+    void version_checked(const QString &version_number, const QString &mod_name);
     void server_connected();
     void error_message(const QString &msg);
     void player_added(ClientPlayer *new_player);
@@ -238,6 +242,7 @@ signals:
     void text_spoken(const QString &text);
     void line_spoken(const QString &line);
     void judge_result(const QString &who, const QString &result);
+    void card_used();
 
     void game_started();
     void game_over();
@@ -251,6 +256,7 @@ signals:
 
     void skill_attached(const QString &skill_name, bool from_left);
     void skill_detached(const QString &skill_name);
+    void do_filter();
 
     void ag_filled(const QList<int> &card_ids);
     void ag_taken(const ClientPlayer *taker, int card_id);
@@ -266,6 +272,7 @@ signals:
     void role_state_changed(const QString & state_str);
 
     void assign_asked();
+    void start_in_xs();
 };
 
 extern Client *ClientInstance;

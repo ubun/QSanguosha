@@ -4,6 +4,7 @@
 #include "carditem.h"
 #include "settings.h"
 #include "maneuvering.h"
+#include "general.h"
 
 GongxinCard::GongxinCard(){
     once = true;
@@ -524,7 +525,7 @@ void WuqianCard::onEffect(const CardEffectStruct &effect) const{
     room->acquireSkill(effect.from, "wushuang", false);
     effect.from->setFlags("wuqian_used");
 
-    effect.to->addMark("wuqian");
+    room->setTag("WuqianTarget", QVariant::fromValue(effect.to));
 }
 
 class WuqianViewAsSkill: public ZeroCardViewAsSkill{
@@ -542,30 +543,45 @@ public:
     }
 };
 
-class Wuqian: public PhaseChangeSkill{
+class Wuqian: public TriggerSkill{
 public:
-    Wuqian():PhaseChangeSkill("wuqian"){
+    Wuqian():TriggerSkill("wuqian"){
+        events << CardUsed << CardFinished << PhaseChange << Death;
         view_as_skill = new WuqianViewAsSkill;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *shenlubu) const{
-        if(shenlubu->getPhase() == Player::NotActive){
-            Room *room = shenlubu->getRoom();
-            if(shenlubu->hasFlag("wuqian_used")){
-                shenlubu->setFlags("-wuqian_used");
-                QList<ServerPlayer *> players = room->getAllPlayers();
-                foreach(ServerPlayer *player, players){
-                    player->removeMark("wuqian");
-                }
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
 
-                if(!shenlubu->hasInnateSkill("wushuang"))
-                    shenlubu->loseSkill("wushuang");
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *target = room->getTag("WuqianTarget").value<PlayerStar>();
+        if(!target)
+            return false;
+
+        if(event == PhaseChange || event == Death){
+            if(player->hasSkill(objectName()) && (event == Death || player->getPhase() == Player::NotActive)){
+                room->removeTag("WuqianTarget");
+
+                if(!player->hasInnateSkill("wushuang"))
+                    player->loseSkill("wushuang");
+            }
+        }
+        else{
+            CardUseStruct use = data.value<CardUseStruct>();
+            if(use.to.contains(target)){
+                if(event == CardUsed)
+                    target->addMark("qinggang");
+                else
+                    target->removeMark("qinggang");
             }
         }
 
         return false;
     }
 };
+
 
 WushenSlash::WushenSlash(Card::Suit suit, int number)
     :Slash(suit, number)
@@ -613,6 +629,7 @@ public:
             return;
 
         Room *room = shenzhuge->getRoom();
+        room->playSkillEffect("qixing");
         room->fillAG(stars, shenzhuge);
 
         int ai_delay = Config.AIDelay;
@@ -1063,6 +1080,10 @@ public:
 
         return false;
     }
+
+    virtual Location getLocation() const{
+        return Right;
+    }
 };
 
 class JilveClear: public PhaseChangeSkill{
@@ -1115,7 +1136,7 @@ public:
         log.arg = QString::number(n);
         room->sendLog(log);
 
-        shensimayi->gainAnExtraTurn();
+        shensimayi->gainAnExtraTurn(player);
 
         return false;
     }
@@ -1231,6 +1252,10 @@ public:
         }
 
         return new_card;
+    }
+
+    virtual bool useCardSoundEffect() const{
+        return true;
     }
 };
 

@@ -10,6 +10,7 @@ class Recorder;
 #include "socket.h"
 
 #include <QMutex>
+#include <QDateTime>
 
 class ServerPlayer : public Player
 {
@@ -48,11 +49,11 @@ public:
     void kick();
     bool pindian(ServerPlayer *target, const QString &reason, const Card *card1 = NULL);
     void turnOver();
-    void play();
-    void play(QList<Player::Phase> &set_phases);
+    void play(QList<Player::Phase> set_phases = QList<Player::Phase>());
 
     QList<Player::Phase> &getPhases();
     void skip(Player::Phase phase);
+    void skip();
 
     void gainMark(const QString &mark, int n = 1);
     void loseMark(const QString &mark, int n = 1);
@@ -81,10 +82,11 @@ public:
     // 3v3 methods
     void addToSelected(const QString &general);
     QStringList getSelected() const;
-    QString findReasonable(const QStringList &generals);
+    QString findReasonable(const QStringList &generals, bool no_unreasonable = false);
     void clearSelected();
 
     int getGeneralMaxHP() const;
+    int getGeneralMaxHp() const;
     virtual QString getGameMode() const;
 
     QString getIp() const;
@@ -92,9 +94,12 @@ public:
     void marshal(ServerPlayer *player) const;
 
     void addToPile(const QString &pile_name, int card_id, bool open = true);
-    void gainAnExtraTurn();
+    void gainAnExtraTurn(ServerPlayer *clearflag = NULL);
 
     void copyFrom(ServerPlayer* sp);
+
+    void startNetworkDelayTest();
+    qint64 endNetworkDelayTest();
 
 private:
     ClientSocket *socket;
@@ -107,6 +112,7 @@ private:
     QList<Phase> phases;
     ServerPlayer *next;
     QStringList selected; // 3v3 mode use only
+    QDateTime test_time;
 
 private slots:
     void getMessage(char *message);

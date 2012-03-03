@@ -17,19 +17,23 @@ MagatamaWidget::MagatamaWidget(int hp, Qt::Orientation orientation)
         layout = new QHBoxLayout;
 
     QPixmap pixmap = *GetMagatama(qMin(5, hp));
+    if(!pixmap.isNull()){
+        int i;
+        for(i=0; i<hp; i++){
+            QLabel *label = new QLabel;
+            label->setPixmap(pixmap);
 
-    int i;
-    for(i=0; i<hp; i++){
-        QLabel *label = new QLabel;
-        label->setPixmap(pixmap);
-
-        layout->addWidget(label);
+            layout->addWidget(label);
+        }
     }
 
     setLayout(layout);
 }
 
 QPixmap *MagatamaWidget::GetMagatama(int index){
+    if(index < 0)
+        return new QPixmap();
+
     static QPixmap magatamas[6];
     if(magatamas[0].isNull()){
         int i;
@@ -94,7 +98,7 @@ QWidget *PlayerCardDialog::createAvatar(){
 }
 
 QWidget *PlayerCardDialog::createHandcardButton(){
-    if(Self->hasSkill("dongcha") && player->hasFlag("dongchaee") && !player->isKongcheng()){
+    if(!player->isKongcheng() && ((Self->hasSkill("dongcha") && player->hasFlag("dongchaee")) || Self == player)){
         QGroupBox *area = new QGroupBox(tr("Handcard area"));
         QVBoxLayout *layout =  new QVBoxLayout;
         QList<const Card *> cards = player->getCards();
@@ -112,6 +116,7 @@ QWidget *PlayerCardDialog::createHandcardButton(){
     }
 
     QCommandLinkButton *button = new QCommandLinkButton(tr("Handcard"));
+    button->setObjectName("handcard_button");
     int num = player->getHandcardNum();
     if(num == 0){
         button->setDescription(tr("This guy has no any hand cards"));
@@ -173,6 +178,7 @@ QWidget *PlayerCardDialog::createEquipArea(){
     if(layout->count() == 0){
         QCommandLinkButton *no_equip = new QCommandLinkButton(tr("No equip"));
         no_equip->setEnabled(false);
+        no_equip->setObjectName("noequip_button");
         return no_equip;
     }else{
         area->setLayout(layout);
@@ -196,6 +202,7 @@ QWidget *PlayerCardDialog::createJudgingArea(){
     if(layout->count() == 0){
         QCommandLinkButton *button = new QCommandLinkButton(tr("No judging cards"));
         button->setEnabled(false);
+        button->setObjectName("nojuding_button");
         return button;
     }else{
         area->setLayout(layout);

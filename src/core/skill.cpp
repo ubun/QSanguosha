@@ -79,6 +79,10 @@ void Skill::initMediaSource(){
     }
 }
 
+Skill::Location Skill::getLocation() const{
+    return parent() ? Right : Left;
+}
+
 void Skill::playEffect(int index) const{
     if(!sources.isEmpty()){
         if(index == -1)
@@ -97,6 +101,10 @@ void Skill::playEffect(int index) const{
         if(ClientInstance)
             ClientInstance->setLines(filename);
     }
+}
+
+bool Skill::useCardSoundEffect() const{
+    return false;
 }
 
 void Skill::setFlag(ServerPlayer *player) const{
@@ -303,6 +311,8 @@ SPConvertSkill::SPConvertSkill(const QString &name, const QString &from, const Q
 }
 
 bool SPConvertSkill::triggerable(const ServerPlayer *target) const{
+    QString package = Sanguosha->getGeneral(to)->getPackage();
+    if(Sanguosha->getBanPackages().contains(package)) return false;
     return GameStartSkill::triggerable(target) && target->getGeneralName() == from;
 }
 
@@ -315,6 +325,7 @@ void SPConvertSkill::onGameStart(ServerPlayer *player) const{
         const QString kingdom = general->getKingdom();
         if(kingdom != player->getKingdom())
             room->setPlayerProperty(player, "kingdom", kingdom);
+
     }
 }
 

@@ -46,7 +46,7 @@ QString Analeptic::getEffectPath(bool ) const{
 }
 
 bool Analeptic::IsAvailable(const Player *player){
-    return !player->hasUsed("Analeptic") && !player->hasUsed("WeidaiCard");
+    return !player->hasUsed("Analeptic");
 }
 
 bool Analeptic::isAvailable(const Player *player) const{
@@ -66,10 +66,9 @@ void Analeptic::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
 
     // do animation
-    room->setAnimate("analeptic", effect.to);
-    //QString who = effect.to->objectName();
-    //QString animation_str = QString("analeptic:%1:%2").arg(who).arg(who);
-    //room->broadcastInvoke("animate", animation_str);
+    QString who = effect.to->objectName();
+    QString animation_str = QString("analeptic:%1:%2").arg(who).arg(who);
+    room->broadcastInvoke("animate", animation_str);
 
     if(effect.to->hasFlag("dying")){
         // recover hp
@@ -95,6 +94,9 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(!effect.slash->getSkillName().isEmpty() && effect.slash->getSubcards().length() > 0)
+            return false;
+
         if(effect.nature == DamageStruct::Normal){
             if(player->getRoom()->askForSkillInvoke(player, objectName(), data)){
                 effect.nature = DamageStruct::Fire;
@@ -330,6 +332,7 @@ void IronChain::onEffect(const CardEffectStruct &effect) const{
     effect.to->setChained(chained);
 
     effect.to->getRoom()->broadcastProperty(effect.to, "chained");
+    effect.to->getRoom()->setEmotion(effect.to, "chain");
 }
 
 SupplyShortage::SupplyShortage(Card::Suit suit, int number)

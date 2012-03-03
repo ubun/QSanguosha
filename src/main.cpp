@@ -8,20 +8,9 @@
 
 #include "mainwindow.h"
 #include "settings.h"
-#include "banpairdialog.h"
+#include "banpair.h"
 #include "server.h"
-
-#ifdef AUDIO_SUPPORT
-#ifdef  Q_OS_WIN32
-    #include "irrKlang.h"
-    irrklang::ISoundEngine *SoundEngine;
-#else
-    #include <phonon/MediaObject>
-    #include <phonon/AudioOutput>
-    Phonon::MediaObject *SoundEngine;
-    Phonon::AudioOutput *SoundOutput;
-#endif
-#endif
+#include "audio.h"
 
 int main(int argc, char *argv[])
 {
@@ -44,8 +33,8 @@ int main(int argc, char *argv[])
     qApp->installTranslator(&qt_translator);
     qApp->installTranslator(&translator);
 
-    Config.init();
     Sanguosha = new Engine;
+    Config.init();
     BanPair::loadBanPairs();
 
     if(qApp->arguments().contains("-server")){
@@ -68,15 +57,7 @@ int main(int argc, char *argv[])
 
 #ifdef AUDIO_SUPPORT
 
-#ifdef  Q_OS_WIN32
-    SoundEngine = irrklang::createIrrKlangDevice();
-    if(SoundEngine)
-        SoundEngine->setSoundVolume(Config.Volume);
-#else
-    SoundEngine = new Phonon::MediaObject(qApp);
-    SoundOutput = new Phonon::AudioOutput(Phonon::GameCategory, qApp);
-    Phonon::createPath(SoundEngine, SoundOutput);
-#endif
+    Audio::init();
 
 #endif
 
@@ -84,6 +65,18 @@ int main(int argc, char *argv[])
 
     Sanguosha->setParent(main_window);
     main_window->show();
+
+    foreach(QString arg, qApp->arguments()){
+        if(arg.startsWith("-connect:")){
+            arg.remove("-connect:");
+            Config.HostAddress = arg;
+            Config.setValue("HostAddress", arg);
+
+            main_window->startConnection();
+
+            break;
+        }
+    }
 
     return qApp->exec();
 }

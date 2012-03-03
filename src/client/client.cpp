@@ -7,6 +7,7 @@
 #include "nativesocket.h"
 #include "recorder.h"
 
+#include <QApplication>
 #include <QCryptographicHash>
 #include <QMessageBox>
 #include <QCheckBox>
@@ -36,6 +37,7 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["hallEntered"] = &Client::hallEntered;
 
     callbacks["setup"] = &Client::setup;
+    callbacks["networkDelayTest"] = &Client::networkDelayTest;
     callbacks["addPlayer"] = &Client::addPlayer;
     callbacks["removePlayer"] = &Client::removePlayer;
     callbacks["startInXs"] = &Client::startInXs;
@@ -50,6 +52,7 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["revivePlayer"] = &Client::revivePlayer;
     callbacks["showCard"] = &Client::showCard;
     callbacks["setMark"] = &Client::setMark;
+    callbacks["doFilter"] = &Client::doFilter;
     callbacks["log"] = &Client::log;
     callbacks["speak"] = &Client::speak;
     callbacks["acquireSkill"] = &Client::acquireSkill;
@@ -176,13 +179,27 @@ void Client::signup(){
     }
 }
 
+void Client::networkDelayTest(const QString &){
+    request("networkDelayTest .");
+}
+
 void Client::request(const QString &message){
     if(socket)
         socket->send(message);
 }
 
 void Client::checkVersion(const QString &server_version){
-    emit version_checked(server_version);
+    QString version_number, mod_name;
+    if(server_version.contains(QChar(':'))){
+        QStringList texts = server_version.split(QChar(':'));
+        version_number = texts.value(0);
+        mod_name = texts.value(1);
+    }else{
+        version_number = server_version;
+        mod_name = "official";
+    }
+
+    emit version_checked(version_number, mod_name);
 }
 
 void Client::setup(const QString &setup_str){
@@ -346,6 +363,11 @@ void Client::requestCard(int card_id){
     request(QString("useCard @CheatCard=%1->.").arg(card_id));
 }
 
+void Client::changeGeneral(QString name){
+    Self->tag["GeneralName"] = name;
+    request(QString("useCard @ChangeCard=.->."));
+}
+
 void Client::addRobot(){
     request("addRobot .");
 }
@@ -384,6 +406,7 @@ void Client::startInXs(const QString &left_seconds){
     int seconds = left_seconds.toInt();
     lines_doc->setHtml(tr("Game will start in <b>%1</b> seconds").arg(left_seconds));
 
+    emit start_in_xs();
     if(seconds == 0 && Sanguosha->getScenario(ServerInfo.GameMode) == NULL){
         emit avatars_hiden();
     }
@@ -523,7 +546,7 @@ void Client::hpChange(const QString &change_str){
 }
 
 void Client::setStatus(Status status){
-    if(this->status != status){
+    if(this->status != status||status == NotActive){
         this->status = status;
         emit status_changed(status);
     }
@@ -560,7 +583,7 @@ QString Client::getPlayerName(const QString &str){
         ClientPlayer *player = getPlayer(str);
         general_name = player->getGeneralName();
         general_name = Sanguosha->translate(general_name);
-        if(ServerInfo.GameMode == "08same")
+        if(ServerInfo.GameMode == "08same" || player->getGeneralName() == "anjiang")
             general_name = QString("%1[%2]").arg(general_name).arg(player->getSeat());
         return general_name;
 
@@ -598,6 +621,11 @@ void Client::setPromptList(const QStringList &texts){
         prompt.replace("%arg", arg);
     }
 
+    if(texts.length() >= 5){
+        QString arg2 = Sanguosha->translate(texts.at(4));
+        prompt.replace("%2arg", arg2);
+    }
+
     prompt_doc->setHtml(prompt);
 }
 
@@ -629,7 +657,7 @@ void Client::askForCardOrUseCard(const QString &request_str){
         const Skill *skill = Sanguosha->getSkill(skill_name);
         if(skill){
             QString text = prompt_doc->toHtml();
-            text.append(tr("<br/><br/> <b>Notice</b>: %1<br/>").arg(skill->getDescription()));
+            text.append(tr("<br/> <b>Notice</b>: %1<br/>").arg(skill->getDescription()));
             prompt_doc->setHtml(text);
         }
     }
@@ -665,7 +693,7 @@ void Client::askForSkillInvoke(const QString &invoke_str){
 
     const Skill *skill = Sanguosha->getSkill(skill_name);
     if(skill){
-        text.append(tr("<br/><br/> <b>Notice</b>: %1<br/>").arg(skill->getDescription()));
+        text.append(tr("<br/> <b>Notice</b>: %1<br/>").arg(skill->getDescription()));
     }
 
     prompt_doc->setHtml(text);
@@ -862,6 +890,12 @@ void Client::speakToServer(const QString &text){
 }
 
 void Client::addHistory(const QString &add_str){
+    if(add_str == "pushPile")
+    {
+        emit card_used();
+        return;
+    }
+
     QRegExp rx("(.+)(#\\d+)?");
     if(rx.exactMatch(add_str)){
         QStringList texts = rx.capturedTexts();
@@ -1044,7 +1078,18 @@ void Client::killPlayer(const QString &player_name){
     if(!Self->hasFlag("marshalling")){
         QString general_name = player->getGeneralName();
         QString last_word = Sanguosha->translate(QString("~%1").arg(general_name));
+        if(last_word.startsWith("~")){
+            QStringList origin_generals = general_name.split("_");
+            if(origin_generals.length()>1)
+                last_word = Sanguosha->translate(("~") +  origin_generals.at(1));
+        }
 
+        if(last_word.startsWith("~") && general_name.endsWith("f")){
+            QString origin_general = general_name;
+            origin_general.chop(1);
+            if(Sanguosha->getGeneral(origin_general))
+                last_word = Sanguosha->translate(("~") + origin_general);
+        }
         skill_title = tr("%1[dead]").arg(Sanguosha->translate(general_name));
         skill_line = last_word;
 
@@ -1164,6 +1209,10 @@ void Client::setMark(const QString &mark_str){
     player->setMark(mark, value);
 }
 
+void Client::doFilter(const QString &){
+    emit do_filter();
+}
+
 void Client::chooseSuit(){
     request("chooseSuit " + sender()->objectName());
 
@@ -1270,6 +1319,7 @@ void Client::clearTurnTag(){
     switch(Self->getPhase()){
     case Player::Start:{
             Sanguosha->playAudio("your-turn");
+            QApplication::alert(QApplication::focusWidget());
             break;
     }
 
@@ -1404,7 +1454,9 @@ void Client::askForYiji(const QString &card_list){
 }
 
 void Client::askForPlayerChosen(const QString &players){
-    players_to_choose = players.split("+");
+    skill_name = players.split(":").at(1);
+    QString player_list = players.split(":").at(0);
+    players_to_choose = player_list.split("+");
 
     Q_ASSERT(!players_to_choose.isEmpty());
 
@@ -1453,7 +1505,7 @@ void Client::speak(const QString &speak_data){
 
     if(who == "."){
         QString line = tr("<font color='red'>System: %1</font>").arg(text);
-        emit line_spoken(line);
+        emit line_spoken(QString("<p style=\"margin:3px 2px;\">%1</p>").arg(line));
         return;
     }
 
@@ -1471,7 +1523,7 @@ void Client::speak(const QString &speak_data){
     QString line = tr("<font color='%1'>[%2] said: %3 </font>")
                    .arg(Config.TextEditColor.name()).arg(title).arg(text);
 
-    emit line_spoken(line);
+    emit line_spoken(QString("<p style=\"margin:3px 2px;\">%1</p>").arg(line));
 }
 
 void Client::moveFocus(const QString &focus){
@@ -1566,11 +1618,11 @@ void Client::transfigure(const QString &transfigure_tr){
         const General *furui = Sanguosha->getGeneral(generals.first());
         const General *atarashi = Sanguosha->getGeneral(generals.last());
 
-        foreach(const Skill *skill, furui->getVisibleSkills()){
+        if(furui)foreach(const Skill *skill, furui->getVisibleSkills()){
             emit skill_detached(skill->objectName());
         }
 
-        foreach(const Skill *skill, atarashi->getVisibleSkills()){
+        if(atarashi)foreach(const Skill *skill, atarashi->getVisibleSkills()){
             emit skill_attached(skill->objectName(), false);
         }
     }

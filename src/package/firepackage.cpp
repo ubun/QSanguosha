@@ -413,7 +413,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && !target->getArmor() && target->getMark("qinggang") == 0 && target->getMark("wuqian") == 0;
+        return TriggerSkill::triggerable(target) && !target->getArmor() && target->getMark("qinggang") == 0;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *wolong, QVariant &data) const{
@@ -570,6 +570,7 @@ FirePackage::FirePackage()
     pangde = new General(this, "pangde", "qun");
     pangde->addSkill(new Mengjin);
     pangde->addSkill("mashu");
+    pangde->addSkill(new SPConvertSkill("pangde_guiwei", "pangde", "sp_pangde"));
 
     addMetaObject<QuhuCard>();
     addMetaObject<JiemingCard>();

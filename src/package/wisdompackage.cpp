@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "room.h"
 #include "maneuvering.h"
+#include "general.h"
 
 JuaoCard::JuaoCard(){
     once = true;
@@ -355,6 +356,8 @@ public:
             if(room->askForSkillInvoke(sunce, objectName(), data)){
                 bool success = sunce->pindian(effect.to, objectName(), NULL);
                 if(success){
+                    if(sunce->hasFlag("drank"))
+                        room->setPlayerFlag(sunce, "-drank");
                     room->askForUseCard(sunce, "@@bawang", "@bawang");
                 }
             }
@@ -377,7 +380,7 @@ void WeidaiCard::use(Room *room, ServerPlayer *sunce, const QList<ServerPlayer *
             return;
         QVariant tohelp = QVariant::fromValue((PlayerStar)sunce);
         QString prompt = QString("@weidai-analeptic:%1").arg(sunce->objectName());
-        const Card *analeptic = room->askForCard(liege, ".S29", prompt, tohelp);
+        const Card *analeptic = room->askForCard(liege, ".|spade|2~9|hand", prompt, tohelp);
         if(analeptic){
             LogMessage log;
             log.type = "$DiscardCard";
@@ -398,14 +401,6 @@ void WeidaiCard::use(Room *room, ServerPlayer *sunce, const QList<ServerPlayer *
         }
     }
 }
-
-class SpatwoninePattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->getSuit() == Card::Spade
-                && card->getNumber() > 1 && card->getNumber() < 10;
-    }
-};
 
 class WeidaiViewAsSkill:public ZeroCardViewAsSkill{
 public:
@@ -493,8 +488,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        ServerPlayer *zhangzhao = target->getRoom()->findPlayerBySkillName("fuzuo");
-        return zhangzhao;
+        return true;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
@@ -521,7 +515,7 @@ public:
         QString choice = room->askForChoice(zhangzhao, objectName(), choices.join("+"));
         if(choice == "cancel")
             return false;
-        const Card *intervention = room->askForCard(zhangzhao, ".K8", "@fuzuo_card");
+        const Card *intervention = room->askForCard(zhangzhao, ".|.|~7|hand", "@fuzuo_card");
         if(intervention){
             log.type = "$Fuzuo";
             log.to.clear();
@@ -547,13 +541,6 @@ public:
             data = QVariant::fromValue(pindian);
         }
         return false;
-    }
-};
-
-class EightPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->getNumber() < 8;
     }
 };
 
@@ -663,13 +650,16 @@ public:
         if(player->getPhase() != Player::Judge || player->getJudgingArea().length() == 0)
             return false;
         Room *room = player->getRoom();
-        ServerPlayer *tianfeng = room->findPlayerBySkillName(objectName());
-        if(tianfeng && tianfeng->getCardCount(true)>=2
-           && room->askForSkillInvoke(tianfeng, objectName(), QVariant::fromValue(player))
-            && room->askForDiscard(tianfeng, objectName(),2,false,true)){
+        QList<ServerPlayer *> tians = room->findPlayersBySkillName(objectName());
+        foreach(ServerPlayer *tianfeng, tians){
+            if(tianfeng->getCardCount(true)>=2
+               && room->askForSkillInvoke(tianfeng, objectName(), QVariant::fromValue(player))
+                && room->askForDiscard(tianfeng, objectName(), 2, false, true)){
 
-            foreach(const Card *jcd, player->getJudgingArea())
-                tianfeng->obtainCard(jcd);
+                foreach(const Card *jcd, player->getJudgingArea())
+                    tianfeng->obtainCard(jcd);
+                break;
+            }
         }
         return false;
     }
@@ -683,6 +673,9 @@ public:
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *tianfeng, QVariant &data) const{
+        Room *room = tianfeng->getRoom();
+        if(room->getCurrent() == tianfeng)
+            return false;
         CardStar card = NULL;
         if(event == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
@@ -690,8 +683,7 @@ public:
         }else if(event == CardResponsed)
             card = data.value<CardStar>();
 
-        if(card->inherits("Jink")){
-            Room *room = tianfeng->getRoom();
+        if(card->inherits("BasicCard")){
             if(room->askForSkillInvoke(tianfeng, objectName(), data)){
                 room->playSkillEffect(objectName());
                 tianfeng->drawCards(1);
@@ -757,7 +749,7 @@ bool ShouyeCard::targetFilter(const QList<const Player *> &targets, const Player
 void ShouyeCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->drawCards(1);
     if(effect.from->getMark("jiehuo") == 0)
-        effect.from->addMark("shouye");
+        effect.from->gainMark("@shouye");
 }
 
 class Shouye: public OneCardViewAsSkill{
@@ -794,7 +786,7 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return target->getMark("jiehuo") == 0
-                && target->getMark("shouye") > 6;
+                && target->getMark("@shouye") > 6;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
@@ -803,12 +795,12 @@ public:
         LogMessage log;
         log.type = "#JiehuoWake";
         log.from = player;
-        log.arg = objectName();
+        log.arg = "jiehuo";
         log.arg2 = "shouye";
         room->sendLog(log);
 
         room->setPlayerMark(player, "jiehuo", 1);
-        room->setPlayerMark(player, "shouye", 0);
+        player->loseAllMarks("@shouye");
         room->setPlayerMark(player, "shouyeonce", 1);
         room->acquireSkill(player, "shien");
 
@@ -901,8 +893,6 @@ WisdomPackage::WisdomPackage()
         wisshuijing->addSkill(new Jiehuo);
 
         skills << new Shien;
-        patterns[".K8"] = new EightPattern;
-        patterns[".S29"] = new SpatwoninePattern;
 
         addMetaObject<JuaoCard>();
         addMetaObject<BawangCard>();

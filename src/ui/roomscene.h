@@ -7,6 +7,8 @@
 #include "client.h"
 #include "aux-skills.h"
 #include "clientlogbox.h"
+#include "sprite.h"
+#include "chatwidget.h"
 
 class Window;
 class Button;
@@ -29,6 +31,16 @@ class QGroupBox;
 #include <QGraphicsProxyWidget>
 #include <QThread>
 #include <QHBoxLayout>
+
+class ScriptExecutor: public QDialog{
+    Q_OBJECT
+
+public:
+    ScriptExecutor(QWidget *parent);
+
+public slots:
+    void doScript();
+};
 
 class DeathNoteDialog: public QDialog{
     Q_OBJECT
@@ -124,7 +136,7 @@ class RoomScene : public QGraphicsScene{
 public:
     RoomScene(QMainWindow *main_window);
     void changeTextEditBackground();
-    void adjustItems();
+    void adjustItems(QMatrix transform = QMatrix());
     void showIndicator(const QString &from, const QString &to);
 
     static void FillPlayerNames(QComboBox *combobox, bool add_none);
@@ -149,6 +161,9 @@ public slots:
     void makeDamage();
     void makeKilling();
     void makeReviving();
+    void doScript();
+
+    EffectAnimation * getEA() const{return animations;}
 
 protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -158,6 +173,7 @@ protected:
     virtual void timerEvent(QTimerEvent *event);
 
 private:
+    Button* add_robot, *fill_robots;
     QList<Photo*> photos;
     QMap<QString, Photo*> name2photo;
     Photo *focused;
@@ -166,17 +182,17 @@ private:
     Dashboard *dashboard;
     Pixmap *avatar;
     QQueue<CardItem*> discarded_queue;
+    QQueue<CardItem*> piled_discards;
     QMainWindow *main_window;
     QComboBox *role_combobox;
     QPushButton *trust_button, *untrust_button;
     QPushButton *ok_button, *cancel_button, *discard_button;
-    QPushButton *reverse_button;
+    QPushButton *reverse_button, *free_discard;
     QMenu *known_cards_menu, *change_general_menu;
     Window *prompt_box;
     QGraphicsItem *control_panel;
     QMap<QGraphicsItem *, const ClientPlayer *> item2player;
     QComboBox *sort_combobox;
-
 
     QProgressBar *progress_bar;
     int timer_id;
@@ -204,6 +220,8 @@ private:
     ClientLogBox *log_box;
     QTextEdit *chat_box;
     QLineEdit *chat_edit;
+    QGraphicsProxyWidget *chat_box_widget;
+    ChatWidget *chat_widget;
 
 #ifdef AUDIO_SUPPORT
     QSharedMemory *memory;
@@ -219,18 +237,17 @@ private:
     KOFOrderBox *enemy_box, *self_box;
 
     CardItem *takeCardItem(ClientPlayer *src, Player::Place src_place, int card_id);
-    void putCardItem(const ClientPlayer *dest, Player::Place dest_place, CardItem *card_item);
+    void putCardItem(const ClientPlayer *dest, Player::Place dest_place, CardItem *card_item, QString show_name = "");
     void useCard(const Card *card);
     void fillTable(QTableWidget *table, const QList<const ClientPlayer *> &players);
     void chooseSkillButton();
 
-    void viewDiscards();
-    void hideDiscards();
+    void putToDiscard(CardItem* item);
 
     void selectTarget(int order, bool multiple);
     void selectNextTarget(bool multiple);
     void unselectAllTargets(const QGraphicsItem *except = NULL);
-    void updateTargetsEnablity(const Card *card);
+    void updateTargetsEnablity(const Card *card = NULL);
 
     void callViewAsSkill();
     void cancelViewAsSkill();
@@ -258,6 +275,19 @@ private:
     void doHuashen(const QString &name, const QStringList &args);
     void doIndicate(const QString &name, const QStringList &args);
 
+    void animateHpChange(const QString &name, const QStringList &args);
+    void animatePopup(const QString &name, const QStringList &args);
+    EffectAnimation *animations;
+    Pixmap *drawPile;
+
+    //re-layout attempts
+    bool game_started;
+    QMatrix view_transform;
+    void reLayout(QMatrix matrix = QMatrix());
+    void alignTo(Pixmap *object, QPoint pos, const QString &flags);
+    void alignTo(QWidget *object, QPoint pos, const QString &flags);
+    void alignTo(QGraphicsItem *object, QPoint pos, const QString &flags);
+
 private slots:
     void updateSkillButtons();
     void acquireSkill(const ClientPlayer *player, const QString &skill_name);
@@ -270,10 +300,11 @@ private slots:
     void doCancelButton();
     void doDiscardButton();
     void doTimeout();
+    void startInXs();
     void hideAvatars();
     void changeHp(const QString &who, int delta, DamageStruct::Nature nature);
     void moveFocus(const QString &who);
-    void setEmotion(const QString &who, const QString &emotion);
+    void setEmotion(const QString &who, const QString &emotion,bool permanent = false);
     void showSkillInvocation(const QString &who, const QString &skill_name);
     void doAnimation(const QString &name, const QStringList &args);
     void adjustDashboard();
@@ -281,6 +312,7 @@ private slots:
     void showJudgeResult(const QString &who, const QString &result);
     void showPlayerCards();
     void updateStateItem(const QString &roles);
+    void adjustPrompt();
 
     void clearPile();
     void removeLightBox();
@@ -288,17 +320,21 @@ private slots:
     void showCard(const QString &player_name, int card_id);
     void viewDistance();
 
+    void viewDiscards();
+    void hideDiscards();
+
     void speak();
 
     void onGameStart();
     void onGameOver();
     void onStandoff();
 
-#ifdef AUDIO_SUPPORT
-#ifndef  Q_OS_WIN32
-    void onMusicFinish();
-#endif
-#endif
+    void appendChatEdit(QString txt);
+    void appendChatBox(QString txt);
+
+    //animations
+    void onSelectChange();
+    void onEnabledChange();
 
 #ifdef JOYSTICK_SUPPORT
     void onJoyButtonClicked(int bit);
@@ -331,6 +367,7 @@ private slots:
 
 signals:
     void restart();
+    void return_to_start();
 };
 
 extern RoomScene *RoomSceneInstance;

@@ -6,6 +6,7 @@
 #include "carditem.h"
 #include "engine.h"
 #include "ai.h"
+#include "general.h"
 
 class Yizhong: public TriggerSkill{
 public:
@@ -44,6 +45,7 @@ public:
     Luoying():TriggerSkill("luoying"){
         events << CardDiscarded << CardUsed << FinishJudge;
         frequency = Frequent;
+        default_choice = "no";
     }
 
     virtual int getPriority() const{
@@ -96,10 +98,15 @@ public:
                clubs << judge->card;
         }
 
+        ServerPlayer *caozhi = room->findPlayerBySkillName(objectName());
+        foreach(const Card* card, clubs)
+            if(card->objectName() == "shit")
+                if(caozhi && room->askForChoice(caozhi, objectName(), "yes+no") == "no")
+                    clubs.removeOne(card);
+
         if(clubs.isEmpty())
             return false;
 
-        ServerPlayer *caozhi = room->findPlayerBySkillName(objectName());
         if(caozhi && caozhi->askForSkillInvoke(objectName(), data)){
             if(player->getGeneralName() == "zhenji")
                 room->playSkillEffect("luoying", 2);
@@ -400,8 +407,8 @@ public:
             log.to << killer;
             room->sendLog(log);
 
-            killer->throwAllEquips();
             killer->throwAllHandCards();
+            killer->throwAllEquips();
 
             QString killer_name = killer->getGeneralName();
             if(killer_name == "zhugeliang" || killer_name == "wolong" || killer_name == "shenzhugeliang")
@@ -525,6 +532,7 @@ void XianzhenCard::onEffect(const CardEffectStruct &effect) const{
 
 XianzhenSlashCard::XianzhenSlashCard(){
     target_fixed = true;
+    can_jilei = true;
 }
 
 void XianzhenSlashCard::onUse(Room *room, const CardUseStruct &card_use) const{
@@ -826,30 +834,30 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        ServerPlayer *wuguotai = room->findPlayerBySkillName(objectName());
+        QList<ServerPlayer *> wuguots = room->findPlayersBySkillName(objectName());
+        foreach(ServerPlayer *wuguotai, wuguots){
+            if(player->getHp() < 1 && wuguotai->askForSkillInvoke(objectName(), data)){
+                const Card *card = NULL;
+                if(player == wuguotai)
+                    card = room->askForCardShow(player, wuguotai, objectName());
+                else{
+                    int card_id = room->askForCardChosen(wuguotai, player, "h", "buyi");
+                    card = Sanguosha->getCard(card_id);
+                }
 
-        if(wuguotai && wuguotai->askForSkillInvoke(objectName(), data)){
-            const Card *card = NULL;
-            if(player == wuguotai)
-                card = room->askForCardShow(player, wuguotai, objectName());
-            else{
-                int card_id = room->askForCardChosen(wuguotai, player, "h", "buyi");
-                card = Sanguosha->getCard(card_id);
-            }
+                room->showCard(player, card->getEffectiveId());
 
-            room->showCard(player, card->getEffectiveId());
+                if(card->getTypeId() != Card::Basic){
+                    room->throwCard(card);
 
-            if(card->getTypeId() != Card::Basic){
-                room->throwCard(card);
+                    room->playSkillEffect(objectName());
 
-                room->playSkillEffect(objectName());
-
-                RecoverStruct recover;
-                recover.who = wuguotai;
-                room->recover(player, recover);
+                    RecoverStruct recover;
+                    recover.who = wuguotai;
+                    room->recover(player, recover);
+                }
             }
         }
-
         return false;
     }
 };
