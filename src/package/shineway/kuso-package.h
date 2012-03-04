@@ -89,6 +89,16 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
+class Locust: public Disaster{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Locust(Card::Suit suit, int number);
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
+    virtual void takeEffect(ServerPlayer *target) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class UFO:public Armor{
     Q_OBJECT
 

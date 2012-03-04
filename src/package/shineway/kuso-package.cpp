@@ -1132,6 +1132,53 @@ void Emigration::takeEffect(ServerPlayer *target) const{
     target->skip(Player::Discard);
 }
 
+Locust::Locust(Card::Suit suit, int number)
+    :Disaster(suit, number)
+{
+    setObjectName("locust");
+
+    judge.pattern = QRegExp("(.*):(.*):([JQ])");
+    judge.good = true;
+    judge.reason = objectName();
+}
+
+void Locust::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    room->moveCardTo(this, source->getNextAlive(), Player::Judging);
+}
+
+void Locust::takeEffect(ServerPlayer *target) const{
+    Room *room = target->getRoom();
+    if(target->isKongcheng())
+        room->loseHp(target);
+    else room->askForDiscard(target,objectName(),1);
+    onNullified(target);
+//    room->moveCardTo(this, target->getNextAlive(), Player::Judging);
+}
+
+void Locust::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.to->getRoom();
+
+    LogMessage log;
+    log.from = effect.to;
+    log.type = "#DelayedTrick";
+    log.arg = effect.card->objectName();
+    room->sendLog(log);
+
+    JudgeStruct judge_struct = judge;
+    judge_struct.who = effect.to;
+    room->judge(judge_struct);
+
+    if(judge_struct.isBad()){
+        takeEffect(effect.to);
+    }else {
+        if(room->askForChoice(effect.to,objectName(),"move+throw")=="throw")
+            room->throwCard(this);
+        else
+//        room->moveCardTo(this, effect.to->getNextAlive(), Player::Judging);
+        onNullified(effect.to);
+    }
+}
+
 class UFOSkill: public ArmorSkill{
 public:
     UFOSkill():ArmorSkill("ufo"){
