@@ -72,15 +72,22 @@ public:
 class Wuxian: public TriggerSkill{
 public:
     Wuxian():TriggerSkill("wuxian"){
-        events << CardGotDone;
+        events << CardGotDone << CardDrawnDone << PhaseChange;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent e, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
+        if(e == PhaseChange){
+            if(!room->getTag("Wuxian").toBool() && player->getPhase() == Player::Judge)
+                room->setTag("Wuxian", true);
+            return false;
+        }
+        if(!room->getTag("Wuxian").toBool())
+            return false;
         ServerPlayer *nichang = room->findPlayerBySkillName(objectName());
         if(nichang == player){
             if(nichang->getHandcardNum() > 5){
@@ -109,7 +116,7 @@ public:
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if(!effect.card->inherits("Snatch") && !effect.card->inherits("Dismantlement"))
             return false;
-        if(miug->askForSkillInvoke(objectName())){
+        if(miug->askForSkillInvoke(objectName(), QVariant::fromValue(effect.card->objectName()))){
             Card::Suit suit = effect.card->getSuit();
             int num = effect.card->getNumber();
             if(effect.card->inherits("Snatch")){
@@ -148,10 +155,10 @@ public:
         if(player->isDead() || !xing || move->to == player || player->hasFlag("nie"))
             return false;
         if(move->from_place == Player::Hand || move->from_place == Player::Equip){
-            if(!current->hasFlag("nei") && room->askForSkillInvoke(xing, objectName())){
+            if(!current->hasFlag("nei") && !xing->isNude() && room->askForSkillInvoke(xing, objectName(), QVariant::fromValue((PlayerStar)player))){
                 room->playSkillEffect(objectName());
                 xing->setFlags("nie");
-                if(room->askForDiscard(xing, objectName(), 1, true, true)){
+                if(room->askForDiscard(xing, objectName(), 1, false, true)){
                     QString ch = !player->isWounded()? "draw":
                                  room->askForChoice(xing, objectName(), "draw+hp");
                     if(ch == "draw")
@@ -416,7 +423,9 @@ public:
             room->useCard(use);
         }
         if(judge->reason == "indulgence" && bulianshi->askForSkillInvoke(objectName())){
+            room->setPlayerFlag(bulianshi, "fre");
             ServerPlayer *target = room->askForPlayerChosen(bulianshi, room->getAllPlayers(), objectName());
+            room->setPlayerFlag(bulianshi, "-fre");
             if(target->getGeneral()->isMale()){
                 QString chost = room->askForChoice(bulianshi, objectName(), "draw+playy");
                 QList<Player::Phase> phase;
@@ -440,7 +449,7 @@ public:
         if(ayumi->getPhase() == Player::Draw ||
            ayumi->getPhase() == Player::Play){
             Room *room = ayumi->getRoom();
-            if(room->askForSkillInvoke(ayumi, objectName())){
+            if(!ayumi->hasFlag("xianh") && room->askForSkillInvoke(ayumi, objectName())){
                 ServerPlayer *target = room->askForPlayerChosen(ayumi, room->getAllPlayers(), objectName());
                 QString chost = room->askForChoice(ayumi, objectName(), "draw+hp");
                 if(chost == "draw")
@@ -450,6 +459,7 @@ public:
                     d.who = ayumi;
                     room->recover(target, d);
                 }
+                ayumi->setFlags("xianh");
                 return true;
             }
         }
@@ -593,7 +603,7 @@ public:
             return false;
         Room *room = player->getRoom();
         ServerPlayer *guos = room->findPlayerBySkillName(objectName());
-        if(guos && !guos->isNude() && guos->askForSkillInvoke(objectName())){
+        if(guos && !guos->isNude() && guos->askForSkillInvoke(objectName(), data)){
             room->askForDiscard(guos, objectName(), 1, false, true);
 
             JudgeStruct judge;
@@ -700,7 +710,7 @@ PurplePackage::PurplePackage()
     General *purplebao3niang = new General(this, "purplebao3niang", "shu", 4, false);
     purplebao3niang->addSkill(new Xiayi);
 
-    General *purplebeimihu = new General(this, "purplebeimihu", "qun", 3, false);
+    General *purplebeimihu = new General(this, "purplebeimihu", "qun", 3, false, true);
     //purplebeimihu->addSkill(new Nvwang);
     purplebeimihu->addSkill(new Shouguo);
     purplebeimihu->addSkill(new Yaofa);
