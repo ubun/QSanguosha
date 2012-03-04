@@ -684,13 +684,22 @@ public:
             else if(word == "dshc"){
                 room->sendLog(gitlog);
                 //niriwomei:kill-self
-                if(Config.FreeChoose && room->askForChoice(miheng, "numat", "kno+kyes") == "kno"){
+                /*if(Config.FreeChoose && room->askForChoice(miheng, "numat", "kno+kyes") == "kno"){
                     gitlog.type = "#Numa_tequan";
                     gitlog.from = miheng;
                     room->sendLog(gitlog);
                 }
-                else{
+                else{*/
                     room->killPlayer(miheng);
+                //}
+            }
+            else if(word == "hhhhh"){
+                room->sendLog(gitlog);
+                //niriwomei:goto dengai
+                room->transfigure(miheng, "dengai", true);
+                foreach(int i, miheng->getPile("word")){
+                    room->throwCard(i);
+                    miheng->addToPile("field", i);
                 }
             }
             else if(word == "dshcc"){
@@ -794,37 +803,37 @@ public:
                 gitlog.from = miheng;
                 room->sendLog(gitlog);
                 //worinimeimei:Wake-Skill, lost all skills
-                if(Config.FreeChoose && room->askForChoice(miheng, "numat", "suno+suyes") == "suno"){
+                /*if(Config.FreeChoose && room->askForChoice(miheng, "numat", "suno+suyes") == "suno"){
                     gitlog.type = "#Numa_tequan";
                     gitlog.from = miheng;
                     room->sendLog(gitlog);
                 }
-                else{
+                else{*/
                     QList<const Skill *> skills = miheng->getVisibleSkillList();
                     foreach(const Skill *skill, skills)
                         room->detachSkillFromPlayer(miheng, skill->objectName());
                     room->setPlayerProperty(miheng, "general", "sujiang");
                     room->setPlayerProperty(miheng, "general2", "sujiangf");
                     room->setPlayerProperty(miheng, "maxhp", miheng->getMaxHP() + 2);
-                }
+                //}
             }
             else if(word.length() == 5 && miheng->getMark("fivewd") == 0){
                 gitlog.type = "#Numa_5wd";
                 gitlog.from = miheng;
                 room->sendLog(gitlog);
                 //worinimeimei:Wake-Skill, learn longhun
-                if(Config.FreeChoose && room->askForChoice(miheng, "numat", "lhno+lhyes") == "lhno"){
+                /*if(Config.FreeChoose && room->askForChoice(miheng, "numat", "lhno+lhyes") == "lhno"){
                     gitlog.type = "#Numa_tequan";
                     gitlog.from = miheng;
                     room->sendLog(gitlog);
                 }
-                else{
+                else{*/
                     room->loseMaxHp(miheng);
                     if(miheng->isAlive()){
                         room->acquireSkill(miheng, "longhun");
                         miheng->addMark("fivewd");
                     }
-                }
+                //}
             }
             else if(word.length() > 5 && miheng->getMark("othwd") == 0){
                 gitlog.type = "#Numa_wds";

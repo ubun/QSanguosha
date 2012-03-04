@@ -16,10 +16,14 @@ public:
             return false;
         Room *room = player->getRoom();
         player->skip(Player::Judge);
-        if(room->askForChoice(player, objectName(), "first+second") == "first")
+        if(room->askForChoice(player, objectName(), "first+second") == "first"){
+            room->playSkillEffect(objectName(), 1);
             player->skip(Player::Draw);
-        else
+        }
+        else{
+            room->playSkillEffect(objectName(), 2);
             player->skip(Player::Play);
+        }
         foreach(const Card *card, player->getJudgingArea())
             room->throwCard(card);
         ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), objectName());
@@ -44,6 +48,7 @@ public:
         if(player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
             player->drawCards(3);
             room->acquireSkill(player, "wusheng");
+            room->playSkillEffect(objectName());
             room->acquireSkill(player, "paoxiao");
             room->setPlayerFlag(player, "wuzong");
             return false;
@@ -103,6 +108,7 @@ public:
         log.from = player;
         log.arg = objectName();
         room->sendLog(log);
+        room->playSkillEffect(objectName());
 
         room->loseHp(player);
 
@@ -126,7 +132,10 @@ public:
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if(!effect.from || (!effect.card->inherits("Slash") && !effect.card->isNDTrick()))
             return false;
+        Room *room = player->getRoom();
         if(!effect.from->hasFlag("qiuhe") && player->askForSkillInvoke(objectName())){
+            int index = effect.card->inherits("Slash") ? 1: 2;
+            room->playSkillEffect(objectName(), index);
             effect.from->setFlags("qiuhe");
             effect.from->drawCards(1);
             player->obtainCard(effect.card);
@@ -145,14 +154,17 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        Room *room = player->getRoom();
         if(event == SlashEffect){
-            if(!player->getWeapon())
+            if(!player->getWeapon()){
+                room->playSkillEffect(objectName(), 1);
                 effect.to->addMark("qinggang");
+            }
         }
         else{
             if(player->getArmor())
                 return false;
-            Room *room = player->getRoom();
+            room->playSkillEffect(objectName(), 2);
             QString slasher = player->objectName();
 
             const Card *first_jink = NULL, *second_jink = NULL;
@@ -174,6 +186,7 @@ public:
 };
 
 GuiouCard::GuiouCard(){
+    mute = true;
 }
 
 bool GuiouCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
@@ -181,6 +194,8 @@ bool GuiouCard::targetFilter(const QList<const Player *> &targets, const Player 
 }
 
 void GuiouCard::onEffect(const CardEffectStruct &effect) const{
+    int index = effect.to->hasSkill("guiou") ? 2: 1;
+    effect.from->getRoom()->playSkillEffect("guiou", index);
     effect.to->gainMark("@gi");
     effect.from->tag["GuiouTarget"] = QVariant::fromValue(effect.to);
 }
@@ -209,13 +224,21 @@ public:
     }
 };
 
-class GuiouPro: public ProhibitSkill{
+class GuiouPro: public TriggerSkill{
 public:
-    GuiouPro():ProhibitSkill("#guioupro"){
+    GuiouPro():TriggerSkill("#guioupro"){
+        events << CardEffected;
     }
 
-    virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
-        return to->getMark("@gi") > 1 && card->inherits("TrickCard") && card->isRed();
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("@gi") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardEffectStruct effect = data.value<CardEffectStruct>();
+        if(effect.card && effect.card->inherits("TrickCard") && effect.card->isRed())
+            return true;
+        return false;
     }
 };
 
@@ -259,10 +282,14 @@ public:
 
             room->judge(judge);
             if(judge.isGood()){
-                if(judge.card->getSuit() == Card::Spade)
+                if(judge.card->getSuit() == Card::Spade){
+                    room->playSkillEffect(objectName(), 1);
                     player->obtainCard(judge.card);
-                else
+                }
+                else{
+                    room->playSkillEffect(objectName(), 2);
                     room->askForUseCard(player, "slash", "@xiaoguo");
+                }
             }
         }
         return false;
@@ -280,6 +307,7 @@ public:
             return;
         for(int i = 0; i < damage.damage; i ++){
             if(player->askForSkillInvoke(objectName())){
+                room->playSkillEffect(objectName());
                 ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), objectName());
                 target->drawCards(target->getLostHp());
             }
@@ -310,6 +338,7 @@ public:
         log.from = player;
         log.arg = objectName();
         room->sendLog(log);
+        room->playSkillEffect(objectName());
 
         room->throwCard(room->askForCardChosen(player, player, "e", objectName()));
         room->throwCard(room->askForCardChosen(player, player, "e", objectName()));
@@ -394,6 +423,7 @@ public:
 MingwangCard::MingwangCard(){
     once = true;
     will_throw = false;
+    mute = true;
 }
 
 void MingwangCard::onEffect(const CardEffectStruct &effect) const{
@@ -409,6 +439,8 @@ void MingwangCard::onEffect(const CardEffectStruct &effect) const{
     }
     if(!targets.isEmpty()){
         ServerPlayer *target = room->askForPlayerChosen(effect.from, targets, "mingwang");
+        int index = target->getHp() > effect.from->getHp() ? 1: 2;
+        room->playSkillEffect("mingwang", index);
         DamageStruct damage;
         damage.from = effect.to;
         damage.to = target;
@@ -445,7 +477,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("lixin") == 0
+        return target->hasSkill(objectName()) && target->getMark("lixin") == 0
                 && target->getHp() > 0;
     }
 
@@ -456,6 +488,7 @@ public:
         log.from = playeR;
         log.arg = objectName();
         room->sendLog(log);
+        room->playSkillEffect(objectName());
 
         if(room->askForChoice(playeR, objectName(), "recover+draw") == "recover"){
             RecoverStruct recover;
@@ -643,6 +676,7 @@ public:
                 log.from = jj;
                 log.arg = "yaoji";
                 room->sendLog(log);
+                room->playSkillEffect("yaoji");
 
                 room->acquireSkill(jj, "guicai");
                 room->acquireSkill(jj, "huangtian");
@@ -676,10 +710,14 @@ public:
                         room->acquireSkill(killer, skill->objectName());
                 }
                 QString king = general->getKingdom();
-                if(king == "wei")
+                if(king == "wei"){
+                    room->playSkillEffect("guishu", 2);
                     room->setPlayerProperty(killer, "kingdom", king);
-                else
+                }
+                else{
+                    room->playSkillEffect("guishu", 1);
                     room->setPlayerProperty(killer, "kingdom", "qun");
+                }
                 guishus.clear();
                 guishus << guishu;
                 log.type = "#GuishuLost";
@@ -797,10 +835,10 @@ PeasaPackage::PeasaPackage()
     dingfeng->addSkill(new Duanbing);
 
     General *yuejin = new General(this, "yuejin", "wei");
-    yuejin->addSkill(new GuiouPro);
     yuejin->addSkill(new Guiou);
-    //related_skills.insertMulti("guiou", "#guioupro");
+    yuejin->addSkill(new GuiouPro);
     yuejin->addSkill(new Xiaoguo);
+    related_skills.insertMulti("guiou", "#guioupro");
 
     General *xunyou = new General(this, "xunyou", "wei", 3);
     xunyou->addSkill(new Huace);
