@@ -293,7 +293,8 @@ public:
 class SuperJuejing: public TriggerSkill{
 public:
     SuperJuejing():TriggerSkill("super_juejing"){
-        events << GameStart << PhaseChange << CardLostDone << CardGotDone;
+        events << GameStart << PhaseChange
+                << CardLostDone << CardDrawnDone << CardGotDone;
         frequency = Compulsory;
     }
 
@@ -1271,6 +1272,7 @@ KusoCardPackage::KusoCardPackage()
             << new Fiveline(Card::Heart, 5)
             << new Emigration(Card::Spade, 9)
             << new Emigration(Card::Heart, 13)
+            << new Locust(Card::Diamond, 2)
             << new UFO(Card::Club, 11)
             /*<< new Castrate(Card::Heart, 2)*/;
 

@@ -132,5 +132,5 @@ return {
 	["super_zaiqi"] = "象兵",
 	[":super_zaiqi"] = "摸牌阶段，你可以放弃摸牌并展示牌堆顶的X张牌，X为你已损失的体力值+1，其中每有一张红桃牌，你回复1点体力；每有一张黑桃牌，即视为你将此牌当作【南蛮入侵】使用。然后弃掉这些红桃和黑桃牌，将其余的牌收入手牌。当红桃结果多于黑桃结果时，你的势力为蜀，否则为群",
 	["cv:rednanmanwang"] = "墨染の飞猫",
-	["illustrator:rednanmanwang"] = "十月天宫",
+	["illustrator:rednanmanwang"] = "马同",
 }
