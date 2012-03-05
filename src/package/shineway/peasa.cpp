@@ -16,14 +16,10 @@ public:
             return false;
         Room *room = player->getRoom();
         player->skip(Player::Judge);
-        if(room->askForChoice(player, objectName(), "first+second") == "first"){
-            room->playSkillEffect(objectName(), 1);
+        if(room->askForChoice(player, objectName(), "first+second") == "first")
             player->skip(Player::Draw);
-        }
-        else{
-            room->playSkillEffect(objectName(), 2);
+        else
             player->skip(Player::Play);
-        }
         foreach(const Card *card, player->getJudgingArea())
             room->throwCard(card);
         ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), objectName());
@@ -426,27 +422,33 @@ MingwangCard::MingwangCard(){
     mute = true;
 }
 
-void MingwangCard::onEffect(const CardEffectStruct &effect) const{
-    effect.to->obtainCard(this);
+bool MingwangCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() == 2;
+}
 
-    Room *room = effect.to->getRoom();
-    QList<ServerPlayer *> targets;
-    foreach(ServerPlayer *player, room->getOtherPlayers(effect.to)){
-        if(player->getHandcardNum() > effect.from->getHandcardNum())
-            targets << player;
-        if(player->getHp() > effect.from->getHp())
-            targets << player;
-    }
-    if(!targets.isEmpty()){
-        ServerPlayer *target = room->askForPlayerChosen(effect.from, targets, "mingwang");
-        int index = target->getHp() > effect.from->getHp() ? 1: 2;
-        room->playSkillEffect("mingwang", index);
-        DamageStruct damage;
-        damage.from = effect.to;
-        damage.to = target;
-        damage.card = this;
-        room->damage(damage);
-    }
+bool MingwangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty()){
+        return to_select != Self;
+    }else if(targets.length() == 1){
+        const Player *first = targets.first();
+        return to_select != Self && to_select != first &&
+                (to_select->getHandcardNum() > Self->getHandcardNum() ||
+                 to_select->getHp() > Self->getHp());
+    }else
+        return false;
+}
+
+void MingwangCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *target = targets.first();
+    ServerPlayer *targeT = targets.last();
+    target->obtainCard(this);
+    int index = targeT->getHp() > source->getHp() ? 1: 2;
+    room->playSkillEffect("mingwang", index);
+    DamageStruct damage;
+    damage.from = target;
+    damage.to = targeT;
+    damage.card = this;
+    room->damage(damage);
 }
 
 class Mingwang: public OneCardViewAsSkill{
@@ -849,11 +851,11 @@ PeasaPackage::PeasaPackage()
     wangyun->addSkill(new Zhonglian);
     wangyun->addSkill(new Mingwang);
     wangyun->addSkill(new Lixin);
-
+/*
     General *lvlingqi = new General(this, "lvlingqi", "qun", 3, false);
     lvlingqi->addSkill(new Dancer);
     lvlingqi->addSkill(new Fuckmoon);
-
+*/
     General *beimihu = new General(this, "beimihu$", "qun", 3, false);
     beimihu->addSkill(new Guishu);
     beimihu->addSkill(new GuishuEffect);

@@ -122,9 +122,9 @@ return {
 	["illustrator:redhejin"] = "legend",
 	["illustrator:redguansuo"] = "绵绵",
 	["illustrator:redyanbaihu"] = "",
-	["illustrator:redwutugu"] = "",
+	["illustrator:redwutugu"] = "三国无双4",
 	["illustrator:redchunyuqiong"] = "",
-	["illustrator:redsunluban"] = "",
+	["illustrator:redsunluban"] = "无双大蛇",
 
 --EX#T1
 	["#rednanmanwang"] = "王中王",

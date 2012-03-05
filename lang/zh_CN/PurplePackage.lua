@@ -3,7 +3,8 @@
 return {
 	["Purple"] = "★玉女★",
 
---WEI#08 纤纤素手 3
+--WEI#08  3
+	["#purpleyelai"] = "纤纤素手",
 	["purpleyelai"] = "夜来",
 	["designer:purpleyelai"] = "安歧大小姐",
 	["zhuosu"] = "擢素",
@@ -17,7 +18,8 @@ return {
 	[":bui"] = "锁定技，杀死你的角色失去装备区直到游戏结束。",
 	["@noequip"] = "不衣",
 
---WU#06 美姿容颜 3
+--WU#06  3
+	["#purplesunnichang"] = "美姿容颜",
 	["purplesunnichang"] = "孙霓裳",
 	["designer:purplesunnichang"] = "Dean",
 	["wuxian"] = "五弦",
@@ -26,7 +28,8 @@ return {
 	[":xianming"] = "每当你使用【过河拆桥】或【顺手牵羊】或成为该锦囊目标时，（在结算前），你可以将两种效果互换。\
 ★即过拆变顺牵，顺牵变过拆。因为目标已指定，所以可破谦逊。",
 
---SHU#09 将门皇后 4
+--SHU#09  4
+	["#purplexingcai"] = "将门皇后",
 	["purplexingcai"] = "星彩",
 	["designer:purplexingcai"] = "sailiss",
 	["xiannei"] = "贤内",
@@ -34,7 +37,8 @@ return {
 	["xiannei:draw"] = "摸两张牌",
 	["xiannei:hp"] = "回复1点体力",
 
---WEI#09 魏之女王 3
+--WEI#09  3
+	["#purpleguozhao"] = "魏之女王",
 	["purpleguozhao"] = "郭照",
 	["designer:purpleguozhao"] = "树神彧",
 	["woxuan"] = "斡旋",
@@ -46,7 +50,8 @@ return {
 	["cizhen"] = "赐鸩",
 	[":cizhen"] = "其他角色使用【桃】时，你可以弃一张牌并做一次判定，若为黑色，该【桃】视为无效。",
 
---SHU#10 墨衣魅影 3
+--SHU#10  3
+	["#purpleduanmeng"] = "墨衣魅影",
 	["purpleduanmeng"] = "端蒙",
 	["designer:purpleduanmeng"] = "安岐大小姐",
 	["poxie"] = "破邪",
@@ -57,7 +62,8 @@ return {
 	["fuchou"] = "父仇",
 	[":fuchou"] = "关联技，锁定技，你立即获得任意一名角色因【挥泪】技能弃置的所有牌。",
 
---QUN#06 宛城美人 4
+--QUN#06  4
+	["#purplezoushi"] = "宛城美人",
 	["purplezoushi"] = "邹氏",
 	["designer:purplezoushi"] = "镝木琉星",
 	["shangjue"] = "伤绝",
@@ -69,7 +75,8 @@ return {
 	["huoshui"] = "祸水",
 	[":huoshui"] = "当你进入濒死状态时，你可以令所有男性角色失去一点体力，然后立即死亡。",
 
---WU#07 吴之贤后 3
+--WU#07  3
+	["#purplesunbushi"] = "吴之贤后",
 	["purplesunbushi"] = "孙步氏",
 	["designer:purplesunbushi"] = "暗器大小姐",
 	["chongguan"] = "宠冠",
@@ -81,14 +88,16 @@ return {
 	["xianhou:draw"] = "摸两张牌",
 	["xianhou:hp"] = "回复1点体力",
 
---SHU#08 文武双精 4
+--SHU#08  4
+	["#purplebao3niang"] = "文武双精",
 	["purplebao3niang"] = "鲍三娘",
 	["designer:purplebao3niang"] = "Dave杰",
 	["xiayi"] = "侠义",
 	[":xiayi"] = "每当一名男性角色受到其他角色造成的伤害时，你可以弃置一张【杀】，视为该角色对伤害来源使用了一张【杀】。",
 	["@xiayi"] = "你可以弃置一张【杀】，视为伤害目标对伤害来源使用了一张【杀】。",
 
---QUN#07 东瀛夷主 3
+--QUN#07  3
+	["#purplebeimihu"] = "东瀛夷主",
 	["purplebeimihu"] = "卑弥呼",
 	["designer:purplebeimihu"] = "幻象迷宫&烨子",
 	["nvwang"] = "女王",
