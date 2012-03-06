@@ -1267,12 +1267,12 @@ KusoCardPackage::KusoCardPackage()
     QList<Card *> kusos;
     kusos
             << new Sacrifice(Card::Diamond, 7)
-            << new ClearShirt(Card::Club, 3)
+            << new ClearShirt(Card::Diamond, 3)
             << new KawaiiDress(Card::Spade, 2)
             << new Fiveline(Card::Heart, 5)
             << new Emigration(Card::Spade, 9)
             << new Emigration(Card::Heart, 13)
-            << new Locust(Card::Diamond, 2)
+            << new Locust(Card::Club, 2)
             << new UFO(Card::Club, 11)
             /*<< new Castrate(Card::Heart, 2)*/;
 

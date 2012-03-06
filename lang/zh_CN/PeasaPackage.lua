@@ -120,7 +120,14 @@ return {
 
 	["illustrator:beimihu"] = "战国大战",
 	["designer:beimihu"] = "小爺綠豆殺",
-	["cv:beimihu"] = "",
+	["cv:beimihu"] = "绿豆沙",
+	["$guishu1"] = "太高兴了，那么谢谢啦~",
+	["$guishu2"] = "舒服吗?求着做我的奴隶吧~快点啊...",
+	["$yugui1"] = "死吧，死吧，死吧！",
+	["$yugui2"] = "嗯哼哼，我高估你了~",
+	["$yugui3"] = "啊哈哈哈哈!",
+	["$yaoji"] = "啊哈哈哈哈哈！让我送你去死吧~",
+	["~beimihu"] = "啊~啊啊啊啊啊啊！！！！！！",
 
 	["illustrator:wangyun"] = "三国志大战",
 	["designer:wangyun"] = "茄兒&小JJ",
