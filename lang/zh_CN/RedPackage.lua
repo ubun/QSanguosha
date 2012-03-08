@@ -118,7 +118,7 @@ return {
 	["cv:redsunluban"] = "",
 
 	["illustrator:redzhonghui"] = "雪君S",
-	["illustrator:redxunyou"] = "",
+	["illustrator:redxunyou"] = "三国智",
 	["illustrator:redhejin"] = "legend",
 	["illustrator:redguansuo"] = "绵绵",
 	["illustrator:redyanbaihu"] = "",

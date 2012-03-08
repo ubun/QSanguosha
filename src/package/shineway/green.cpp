@@ -702,7 +702,7 @@ public:
 class QuanyiEffect:public TriggerSkill{
 public:
     QuanyiEffect():TriggerSkill("#quanyi_effect"){
-        events << CardUsed;
+        events << CardEffect;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -710,10 +710,10 @@ public:
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *, QVariant &data) const{
-        CardUseStruct use = data.value<CardUseStruct>();
+        CardEffectStruct use = data.value<CardEffectStruct>();
         if(use.card->inherits("Slash") || use.card->isNDTrick()){
-            if(use.to.length() == 1 && use.to.first()->property("quanyi").toInt() == 2)
-                    return true;
+            if(!use.multiple && use.to->property("quanyi").toInt() == 2)
+                return true;
         }
         return false;
     }

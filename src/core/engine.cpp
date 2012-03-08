@@ -76,7 +76,7 @@ Engine::Engine()
                   << "Red"
                   << "Cyan"
                   << "Green"
-                  //<< "Purple"
+                  << "Purple"
                   << "Kuso"
                   << "Technology"
                   << "Peasa"

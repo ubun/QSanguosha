@@ -277,6 +277,8 @@ public:
             room->loseMaxHp(tenkei);
             QList<const Skill *> skills = player->getVisibleSkillList();
             foreach(const Skill *skill, skills){
+                if(skill->isLordSkill() && !player->isLord())
+                    continue;
                 if(skill->parent()){
                     QString sk = skill->objectName();
                     room->acquireSkill(tenkei, sk);

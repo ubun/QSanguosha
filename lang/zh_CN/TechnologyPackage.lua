@@ -3,6 +3,7 @@
 local te = {
 	["technology"] = "方技传",
 	["designer:technology"] = "淬毒",
+	["illustrator:technology"] = "诹访原宽幸",
 
 	["#guanlu"] = "卜筮天机",
 	["guanlu"] = "管辂",
@@ -49,17 +50,13 @@ local te = {
 	["cv:zhujianping"] = "",
 	["cv:guanlu"] = "",
 	["cv:dukui"] = "",
-
-	["illustrator:zhouxuan"] = "",
-	["illustrator:zhujianping"] = "",
-	["illustrator:guanlu"] = "",
-	["illustrator:dukui"] = "",
 }
 
 local techer = {"zhouxuan", "zhujianping", "guanlu", "dukui"}
 
 for _, player in ipairs(techer) do
 	te["designer:" .. player] = te["designer:technology"]
+	te["illustrator:" .. player] = te["illustrator:technology"]
 end
 
 return te
