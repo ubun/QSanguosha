@@ -123,7 +123,7 @@ return {
 	["illustrator:redguansuo"] = "绵绵",
 	["illustrator:redyanbaihu"] = "",
 	["illustrator:redwutugu"] = "三国无双4",
-	["illustrator:redchunyuqiong"] = "",
+	["illustrator:redchunyuqiong"] = "刀剑·英雄之烽火楚天",
 	["illustrator:redsunluban"] = "战国无双2",
 
 --EX#T1

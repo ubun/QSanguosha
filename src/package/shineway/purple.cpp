@@ -613,8 +613,10 @@ public:
             judge.who = guos;
 
             room->judge(judge);
-            if(judge.isGood())
+            if(judge.isGood()){
+                room->throwCard(use.card);
                 return true;
+            }
         }
         return false;
     }

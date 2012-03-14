@@ -27,7 +27,7 @@ return {
 	["tianyin"] = "天音",
 	["designer:tianyin"] = "鎏铄天音",
 	["cv:tianyin"] = "",
-	["illustrator:tianyin"] = "",
+	["illustrator:tianyin"] = "帕秋丽同人",
 	["skydao"] = "天道",
 	[":skydao"] = "锁定技，你的回合外，你每受到一次伤害，增加1点体力上限",
 	["#SkydaoMAXHP"] = "%from 的锁定技【%arg2】被触发，增加了一点体力上限，目前体力上限是 %arg",

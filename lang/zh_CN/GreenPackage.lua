@@ -101,7 +101,7 @@ return {
 
 	["illustrator:greenyanpeng"] = "轩辕剑",
 	["illustrator:greencaozhang"] = "火凤燎原",
-	["illustrator:greenjushou"] = "",
+	["illustrator:greenjushou"] = "三国志大战",
 	["illustrator:greenkanze"] = "adream",
 	["illustrator:greenwanglang"] = "三国志大战",
 	["illustrator:greenchenwu"] = "三国志大战",
