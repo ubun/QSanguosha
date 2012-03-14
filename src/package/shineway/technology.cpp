@@ -415,42 +415,6 @@ public:
     }
 };
 
-class Meiyu: public TriggerSkill{
-public:
-    Meiyu():TriggerSkill("meiyu"){
-        events << Predamage;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        DamageStruct damage = data.value<DamageStruct>();
-
-        if(player->distanceTo(damage.to) == 1 && damage.card && damage.card->inherits("Slash") &&
-           player->askForSkillInvoke(objectName(), data)){
-            player->getRoom()->playSkillEffect(objectName());
-            JudgeStruct judge;
-            judge.pattern = QRegExp("(.*):(heart):(.*)");
-            judge.good = false;
-            judge.who = player;
-            judge.reason = objectName();
-
-            room->judge(judge);
-            if(judge.isGood()){
-                LogMessage log;
-                log.type = "#Meiyu";
-                log.from = player;
-                log.to << damage.to;
-                room->sendLog(log);
-                room->loseMaxHp(damage.to);
-                return true;
-            }
-        }
-        return false;
-    }
-};
-
-//当你使用【杀】对距离为1的角色造成一次伤害时，你可以进行一次判定，若判定结果为不是红桃，你防止此伤害，改为扣减其1点体力上限。
-
 TechnologyPackage::TechnologyPackage()
     :Package("technology")
 {
@@ -462,7 +426,6 @@ TechnologyPackage::TechnologyPackage()
 
     General *dukui = new General(this, "dukui", "god");
     dukui->addSkill(new Yueli);
-    dukui->addSkill(new Meiyu);
 
     General *zhouxuan = new General(this, "zhouxuan", "god", 3);
     zhouxuan->addSkill(new Mengjie);
