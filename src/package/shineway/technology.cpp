@@ -415,6 +415,45 @@ public:
     }
 };
 
+class Meiyu: public TriggerSkill{
+public:
+    Meiyu():TriggerSkill("meiyu"){
+        events << Predamage;
+
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        DamageStruct damage = data.value<DamageStruct>();
+
+        if(player->distanceTo(damage.to) == 1&&damage.card && damage.card->inherits("Slash")&&
+           player->askForSkillInvoke(objectName(), data))
+
+         {
+             player->getRoom()->playSkillEffect(objectName());
+
+
+                        LogMessage log;
+                        log.type = "#Meiyu";
+                        log.from = player;
+                        log.to << damage.to;
+                        room->sendLog(log);
+                         room->loseMaxHp(damage.to);
+            return true;
+        }
+        return false;
+    }
+};
+
+
+这段代码的技能是：没羽-你使用的杀对距离为1的角色造成的伤害可以改为扣体力上限。
+
+
+
+最新的技能是：当你使用【杀】对距离为1的角色造成一次伤害时，你可以进行一次判定，若判定结果为不是红桃，你防止此伤害，改为扣减其1点体力上限。
+
+上面的程序我实现了对杀的判断，但是时机不是造成伤害时。需要改成造成伤害时发动，卖血技依然不能发动。另外，哪怕之前是酒杀，造成伤害如果判出来不是红桃，也是只扣1点上限，而且是必须扣1点上限，不能选择掉血了。
+
 TechnologyPackage::TechnologyPackage()
     :Package("technology")
 {
@@ -426,6 +465,7 @@ TechnologyPackage::TechnologyPackage()
 
     General *dukui = new General(this, "dukui", "god");
     dukui->addSkill(new Yueli);
+    dukui->addSkill(new Meiyu);
 
     General *zhouxuan = new General(this, "zhouxuan", "god", 3);
     zhouxuan->addSkill(new Mengjie);
