@@ -13,7 +13,6 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QDir>
-#include <QLibrary>
 #include <QApplication>
 
 Engine *Sanguosha = NULL;
@@ -22,32 +21,19 @@ extern "C" {
     int luaopen_sgs(lua_State *);
 }
 
-template<typename T>
-static inline T GetSymbol(QLibrary *lib, const char *name){
-    char buffer[255] = "New";
-    strcat(buffer, name);
-
-    void *func = lib->resolve(buffer);
-    return reinterpret_cast<T>(func);
-}
-
 void Engine::addPackage(const QString &name){
-    typedef Package * (*package_creator)();
-    package_creator creator = GetSymbol<package_creator>(lib, name.toAscii());
-
-    if(creator){
-        addPackage(creator());
-    }else
+    Package *pack = PackageAdder::packages()[name];
+    if(pack)
+        addPackage(pack);
+    else
         qWarning("Package %s cannot be loaded!", qPrintable(name));
 }
 
 void Engine::addScenario(const QString &name){
-    typedef Scenario * (*scenario_creator)();
-    scenario_creator creator = GetSymbol<scenario_creator>(lib, name.toAscii());
-
-    if(creator){
-        addScenario(creator());
-    }else
+    Scenario *scenario = ScenarioAdder::scenarios()[name];
+    if(scenario)
+        addScenario(scenario);
+    else
         qWarning("Scenario %s cannot be loaded!", qPrintable(name));
 }
 
@@ -55,61 +41,62 @@ Engine::Engine()
 {
     Sanguosha = this;
 
-    lib = new QLibrary(qApp->applicationFilePath(), this);
-    if(!lib->load()){
-        qWarning("Package can not be loaded \n Error string: %s", qPrintable(lib->errorString()));
-        exit(1);
-    }
-
     QStringList package_names;
-    package_names << "Standard"
-                  << "Wind"
-                  << "Fire"
-                  << "Thicket"
-                  << "Mountain"
-                  << "God"
-                  << "YJCM"
-                  << "SP"
-                  << "BGM"
-                  << "Yitian"
-                  << "Wisdom"
-                  << "Red"
-                  << "Cyan"
-                  << "Green"
-                  << "Purple"
-                  << "Kuso"
-                  << "Technology"
-                  << "Peasa"
-                  << "Test"
+    package_names << "StandardCard"
+            << "StandardExCard"
+            << "Maneuvering"
+            << "SPCard"
+            << "YitianCard"
+            << "Nostalgia"
+            << "Joy"
+            << "Disaster"
+            << "JoyEquip"
+            << "KusoCard"
 
-                  << "StandardCard"
-                  << "StandardExCard"
-                  << "Maneuvering"
-                  << "SPCard"
-                  << "YitianCard"
-                  << "Nostalgia"
-                  << "Joy"
-                  << "Disaster"
-                  << "JoyEquip"
-                  << "KusoCard";
+            << "Standard"
+            << "Wind"
+            << "Fire"
+            << "Thicket"
+            << "Mountain"
+            << "God"
+            << "SP"
+            << "YJCM"
+            << "YJCM2012"
+            << "Special3v3"
+            << "BGM"
+            << "Yitian"
+            << "Wisdom"
+            << "Red"
+            << "Cyan"
+            << "Green"
+            << "Purple"
+            << "Kuso"
+            << "Technology"
+            << "Peasa"
+            << "Test";
 
     foreach(QString name, package_names)
         addPackage(name);
 
     QStringList scene_names;
-    scene_names << "GuanduScenario"
-                << "FanchengScenario"
-                << "CoupleScenario"
-                << "ZombieScenario"
-                << "ImpasseScenario"
-                << "CustomScenario";
+    scene_names << "Guandu"
+                << "Fancheng"
+                << "Couple"
+                << "Zombie"
+                << "Impasse"
+                << "Custom";
 
-    for(int i=1; i<=20; i++){
+    for(int i=1; i<=21; i++){
         scene_names << QString("MiniScene_%1").arg(i, 2, 10, QChar('0'));
     }
 
     foreach(QString name, scene_names)
         addScenario(name);
+
+    foreach(const Skill *skill, skills.values()){
+        Skill *mutable_skill = const_cast<Skill *>(skill);
+        mutable_skill->initMediaSource();
+    }
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -125,9 +112,12 @@ Engine::Engine()
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
+    modes["08pz"] = tr("8 players (0 renegade)");
     modes["08same"] = tr("8 players (same mode)");
     modes["09p"] = tr("9 players");
-    modes["10p"] = tr("10 players");
+    modes["10pd"] = tr("10 players");
+    modes["10p"] = tr("10 players (1 renegade)");
+    modes["10pz"] = tr("10 players (0 renegade)");
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
@@ -391,7 +381,7 @@ QStringList Engine::getExtensions() const{
     QStringList extensions;
     QList<const Package *> packages = findChildren<const Package *>();
     foreach(const Package *package, packages){
-        if(package->inherits("Scenario"))
+        if(package->inherits("Scenario")||package->objectName()=="Special3v3")
             continue;
 
         extensions << package->objectName();
@@ -492,24 +482,6 @@ void Engine::getRoles(const QString &mode, char *roles) const{
     }else if(mode == "04_1v3"){
         qstrcpy(roles, "ZFFF");
         return;
-    }else if(Config.EnableHegemony){
-        static const char *table[] = {
-            "",
-            "",
-
-            "ZN", // 2
-            "ZNN", // 3
-            "ZNNN", // 4
-            "ZNNNN", // 5
-            "ZNNNNN", // 6
-            "ZNNNNNN", // 7
-            "ZNNNNNNN", // 8
-            "ZNNNNNNNN", // 9
-            "ZNNNNNNNNN" // 10
-        };
-
-        qstrcpy(roles, table[n]);
-        return;
     }
 
     if(modes.contains(mode)){
@@ -525,7 +497,7 @@ void Engine::getRoles(const QString &mode, char *roles) const{
             "ZCCFFFN", // 7
             "ZCCFFFFN", // 8
             "ZCCCFFFFN", // 9
-            "ZCCCFFFFNN" // 10
+            "ZCCCFFFFFN" // 10
         };
 
         static const char *table2[] = {
@@ -544,7 +516,15 @@ void Engine::getRoles(const QString &mode, char *roles) const{
         };
 
         const char **table = mode.endsWith("d") ? table2 : table1;
-        qstrcpy(roles, table[n]);
+        QString rolechar = table[n];
+        if(mode.endsWith("z"))
+            rolechar.replace("N", "C");
+        else if(Config.EnableHegemony){
+            rolechar.replace("F", "N");
+            rolechar.replace("C", "N");
+        }
+
+        qstrcpy(roles, rolechar.toStdString().c_str());
     }else if(mode.startsWith("@")){
         if(n == 8)
             qstrcpy(roles, "ZCCCNFFF");
@@ -682,10 +662,12 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set) c
 }
 
 QList<int> Engine::getRandomCards() const{
-    bool exclude_disaters = false;
+    bool exclude_disaters = false, using_new_3v3 = false;
 
-    if(Config.GameMode == "06_3v3")
+    if(Config.GameMode == "06_3v3"){
         exclude_disaters = Config.value("3v3/ExcludeDisasters", true).toBool();
+        using_new_3v3 = Config.value("3v3/UsingNewMode", false).toBool();
+    }
 
     if(Config.GameMode == "04_1v3")
         exclude_disaters = true;
@@ -696,6 +678,8 @@ QList<int> Engine::getRandomCards() const{
             continue;
 
         if(!ban_package.contains(card->getPackage()))
+            list << card->getId();
+        else if(card->getPackage() == "Special3v3" && using_new_3v3)
             list << card->getId();
     }
 
@@ -748,6 +732,10 @@ void Engine::playCardEffect(const QString &card_name, bool is_male) const{
 
 const Skill *Engine::getSkill(const QString &skill_name) const{
     return skills.value(skill_name, NULL);
+}
+
+QStringList Engine::getSkillNames() const{
+    return skills.keys();
 }
 
 const TriggerSkill *Engine::getTriggerSkill(const QString &skill_name) const{

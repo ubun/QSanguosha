@@ -79,6 +79,9 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
         slash_targets ++;
     }
 
+    if(Self->hasSkill("lihuo") && inherits("FireSlash"))
+        slash_targets ++;
+
     if(Self->hasSkill("shenji") && Self->getWeapon() == NULL)
         slash_targets = 3;
 
@@ -297,10 +300,6 @@ public:
 
         return slash;
     }
-
-    virtual bool useCardSoundEffect() const{
-        return true;
-    }
 };
 
 Spear::Spear(Suit suit, int number)
@@ -371,6 +370,7 @@ public:
             log.type = "#AxeSkill";
             log.from = player;
             log.to << effect.to;
+            log.arg = objectName();
             room->sendLog(log);
 
             room->slashResult(effect, NULL);
@@ -474,7 +474,6 @@ public:
                     jink->setSkillName(objectName());
                     room->provide(jink);
                     room->setEmotion(player, "good");
-                    room->broadcastInvoke("playAudio", objectName());
 
                     return true;
                 }else

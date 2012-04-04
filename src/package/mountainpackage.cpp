@@ -132,6 +132,7 @@ public:
         Room *room = zhanghe->getRoom();
 
         switch(zhanghe->getPhase()){
+        case Player::RoundStart:
         case Player::Start:
         case Player::Finish:
         case Player::NotActive: return false;
@@ -348,9 +349,10 @@ public:
         log.type = "#ZaoxianWake";
         log.from = dengai;
         log.arg = QString::number(dengai->getPile("field").length());
+        log.arg2 = objectName();
         room->sendLog(log);
 
-        room->playSkillEffect("zaoxian", 1);
+        room->playSkillEffect("zaoxian");
         room->broadcastInvoke("animate", "lightbox:$zaoxian1:4000");
         room->getThread()->delay(4000);
 
@@ -362,7 +364,6 @@ public:
 
 JixiCard::JixiCard(){
     target_fixed = true;
-    mute = true;
 }
 
 void JixiCard::onUse(Room *room, const CardUseStruct &card_use) const{
@@ -411,7 +412,6 @@ void JixiCard::onUse(Room *room, const CardUseStruct &card_use) const{
     use.from = dengai;
     use.to << target;
 
-    room->playSkillEffect("zaoxian", qrand() % 2 + 2);
     room->useCard(use);
 }
 
@@ -482,6 +482,7 @@ public:
         LogMessage log;
         log.type = "#HunziWake";
         log.from = sunce;
+        log.arg = objectName();
         room->sendLog(log);
 
         room->loseMaxHp(sunce);
@@ -639,6 +640,7 @@ public:
         LogMessage log;
         log.type = "#ZhijiWake";
         log.from = jiangwei;
+        log.arg = objectName();
         room->sendLog(log);
 
         room->playSkillEffect("zhiji");
@@ -804,6 +806,7 @@ public:
             log.type = "#Xiangle";
             log.from = effect.from;
             log.to << effect.to;
+            log.arg = objectName();
             room->sendLog(log);
 
             return !room->askForCard(effect.from, "BasicCard", "@xiangle-discard", data);
@@ -900,6 +903,7 @@ public:
             log.type = "#RuoyuWake";
             log.from = liushan;
             log.arg = QString::number(liushan->getHp());
+            log.arg2 = objectName();
             room->sendLog(log);
 
             room->setPlayerMark(liushan, "ruoyu", 1);
@@ -973,7 +977,7 @@ public:
 
         static QSet<QString> banned;
         if(banned.isEmpty()){
-            banned << "zuoci" << "zuocif" << "guzhielai" << "dengshizai" << "caochong";
+            banned << "zuoci" << "zuocif" << "guzhielai" << "dengshizai" << "caochong" << "jiangboyue";
         }
 
         return (all - banned - huashen_set - room_set).toList();
@@ -1108,14 +1112,15 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Start;
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::RoundStart;
     }
 
     virtual bool onPhaseChange(ServerPlayer *zuoci) const{
-        QString skill_name = Huashen::SelectSkill(zuoci, false);
-        if(!skill_name.isEmpty())
-            zuoci->getRoom()->acquireSkill(zuoci, skill_name);
-
+        if(zuoci->askForSkillInvoke("huashen")){
+            QString skill_name = Huashen::SelectSkill(zuoci, false);
+            if(!skill_name.isEmpty())
+                zuoci->getRoom()->acquireSkill(zuoci, skill_name);
+        }
         return false;
     }
 };
@@ -1135,6 +1140,7 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *zuoci) const{
+        if(zuoci->askForSkillInvoke("huashen"))
         Huashen::SelectSkill(zuoci);
 
         return false;
@@ -1169,6 +1175,8 @@ MountainPackage::MountainPackage()
     dengai->addSkill(new Tuntian);
     dengai->addSkill(new TuntianGet);
     dengai->addSkill(new Zaoxian);
+
+    dengai->addRelateSkill("jixi");
 
     related_skills.insertMulti("tuntian", "#tuntian-get");
 

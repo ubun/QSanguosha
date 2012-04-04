@@ -235,7 +235,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "@guicai";
+        return pattern == "@guicai";
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -269,7 +269,7 @@ public:
 
         QStringList prompt_list;
         prompt_list << "@guicai-card" << judge->who->objectName()
-                << "" << judge->reason << judge->card->getEffectIdString();
+                << objectName() << judge->reason << judge->card->getEffectIdString();
         QString prompt = prompt_list.join(":");
         const Card *card = room->askForCard(player, "@guicai", prompt, data);
 
@@ -365,6 +365,7 @@ public:
                 judge.good = true;
                 judge.reason = objectName();
                 judge.who = zhenji;
+                judge.time_consuming = true;
 
                 room->judge(judge);
                 if(judge.isBad())
@@ -509,7 +510,7 @@ public:
         return false;
     }
 
-    virtual int getEffectIndex(ServerPlayer *player, const Card *) const{
+    virtual int getEffectIndex(const ServerPlayer *player, const Card *) const{
         int r = 1 + qrand() % 2;
         if(player->getGeneralName() == "liushan" || player->getGeneral2Name() == "liushan")
             r += 2;
@@ -778,6 +779,7 @@ public:
                     log.type = "#JiuyuanExtraRecover";
                     log.from = sunquan;
                     log.to << effect.from;
+                    log.arg = objectName();
                     room->sendLog(log);
 
                     RecoverStruct recover;
@@ -967,7 +969,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "@liuli";
+        return pattern == "@@liuli";
     }
 
     virtual bool viewFilter(const CardItem *) const{
@@ -1130,6 +1132,10 @@ public:
         lijian_card->addSubcard(card_item->getCard()->getId());
 
         return lijian_card;
+    }
+
+    virtual int getEffectIndex(const ServerPlayer *, const Card *) const{
+        return 0;
     }
 };
 

@@ -190,7 +190,7 @@ private:
 class Huoshou: public TriggerSkill{
 public:
     Huoshou():TriggerSkill("huoshou"){
-        events << Predamage << CardEffected;
+        events << Predamage;
         frequency = Compulsory;
     }
 
@@ -209,6 +209,7 @@ public:
                 log.from = menghuo;
                 log.to << damage.to;
                 log.arg = player->getGeneralName();
+                log.arg2 = objectName();
                 room->sendLog(log);
 
                 room->playSkillEffect(objectName());
@@ -318,7 +319,11 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
-        if(use.card->inherits("SavageAssault")){
+        if(use.card->inherits("SavageAssault") &&
+                ((!use.card->isVirtualCard()) ||
+                 (use.card->isVirtualCard() &&
+                  use.card->getSubcards().length() == 1 &&
+                  Sanguosha->getCard(use.card->getSubcards().first())->inherits("SavageAssault")))){
             Room *room = player->getRoom();
             if(room->getCardPlace(use.card->getEffectiveId()) == Player::DiscardedPile){
                 // finding zhurong;
@@ -419,6 +424,7 @@ public:
 
 HaoshiCard::HaoshiCard(){
     will_throw = false;
+    mute = true;
 }
 
 bool HaoshiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
@@ -485,10 +491,8 @@ public:
             lusu->setFlags("-haoshi");
 
             Room *room = lusu->getRoom();
-            if(lusu->getHandcardNum() <= 5){
-                room->playSkillEffect("haoshi");
-                return false;
-            }
+            if(lusu->getHandcardNum() <= 5)
+                return false;            
 
             QList<ServerPlayer *> other_players = room->getOtherPlayers(lusu);
             int least = 1000;
@@ -532,6 +536,7 @@ public:
     virtual int getDrawNum(ServerPlayer *lusu, int n) const{
         Room *room = lusu->getRoom();
         if(room->askForSkillInvoke(lusu, "haoshi")){
+            room->playSkillEffect("haoshi");
             lusu->setFlags("haoshi");
             return n + 2;
         }else
@@ -770,7 +775,8 @@ public:
             ServerPlayer *dongzhuo = effect.to;
             Room *room = female->getRoom();
 
-            room->playSkillEffect(objectName(), 2);
+            int index = effect.drank ? 3 : 2;
+            room->playSkillEffect(objectName(), index);
             room->slashResult(effect, askForDoubleJink(dongzhuo, "roulin2"));
 
             return true;
@@ -810,20 +816,19 @@ public:
         if(trigger_this){
             QString result = room->askForChoice(dongzhuo, "benghuai", "hp+maxhp");
 
-            room->playSkillEffect(objectName());
+            int index = dongzhuo->getGeneral()->isFemale() ? 2: 1;
+            room->playSkillEffect(objectName(), index);
             room->setEmotion(dongzhuo, "bad");
 
             LogMessage log;
             log.from = dongzhuo;
-            if(result == "hp"){
-                log.type = "#BenghuaiLoseHp";
-                room->sendLog(log);
+            log.arg = objectName();
+            log.type = "#TriggerSkill";
+            room->sendLog(log);
+            if(result == "hp")
                 room->loseHp(dongzhuo);
-            }else{
-                log.type = "#BenghuaiLoseMaxHp";
-                room->sendLog(log);
+            else
                 room->loseMaxHp(dongzhuo);
-            }
         }
 
         return false;

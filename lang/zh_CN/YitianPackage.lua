@@ -39,7 +39,7 @@ return {
 	["#zhangjunyi"] = "计谋巧变",
 	["zhangjunyi"] = "张儁乂",
 	["jueji"] = "绝汲",
-	[":jueji"] = "你可以跳过你的出牌阶段并和一名角色拼点。若你赢，你获得对方的拼点牌，并可立即再次与其拼点，如此反复，直到你没赢或不愿意继续拼点为止",
+	[":jueji"] = "出牌阶段，你可以跳过你的并和一名角色拼点：若你赢，你获得对方的拼点牌，并可立即再次与其拼点，如此反复，直到你没赢或不愿意继续拼点为止。每阶段限一次。",
 	["@jueji"] = "绝汲",
 	["@jueji-pindian"] = "你可以发动【绝汲】与一名角色拼点",
 
@@ -67,7 +67,7 @@ return {
 	["tongxin"] = "同心",
 	[":tongxin"] = "处于连理状态的两名角色，每受到一点伤害，你可以令你们两人各摸一张牌",
 	["liqian"] = "离迁",
-	[":liqian"] = "<b>锁定技</b>，当你处于连理状态时，势力为蜀；当你处于未连理状态时，势力为魏",
+	[":liqian"] = "<b>锁定技</b>，当你处于连理状态时，势力与连理对象的势力相同；当你处于未连理状态时，势力为魏",
 	["qiaocai"] = "樵采",
 	[":qiaocai"] = "当你处于未连理状态时，出牌阶段，你可以获得一名角色判定区的所有牌，每阶段限一次",
 	["lianli-slash"] = "连理（杀）",
@@ -78,7 +78,7 @@ return {
 	["@lianli-slash"] = "请提供一张杀给你的连理对象",
 	["@lianli-jink"] = "请提供一张闪给你的连理对象",
 	[":lianli-slash"] = "与你处于连理状态的女性角色可以替你出杀",
-	["@@lianli-card"] = "请选择一名要连理的对象",
+	["@lianli-card"] = "请选择一名要连理的对象",
 	["#LianliConnection"] = "%from 与 %to 结为连理",
 	["@tied"] = "连理",
 
@@ -125,13 +125,13 @@ return {
 	["shenjun"] = "神君",
 	[":shenjun"] = "<b>锁定技</b>，游戏开始时，你必须选择自己的性别。回合开始阶段开始时，你必须倒转性别，异性角色对你造成的非雷电属性伤害无效",
 	["shaoying"] = "烧营",
-	[":shaoying"] = "当你对一名不处于连环状态的角色造成一次火焰伤害时，你可进行一次判定：若判定结果为红色，则你对其下家造成一点火焰伤害",
+	[":shaoying"] = "当你对一名不处于连环状态的角色造成一次火焰伤害时，你可选择一名其距离为1的另外一名角色并进行一次判定：若判定结果为红色，则你对选择的角色造成一点火焰伤害",
 	["zonghuo"] = "纵火",
 	[":zonghuo"] = "<b>锁定技</b>，你的杀始终带有火焰属性",
 	["#ShenjunChoose"] = "%from 选择了 %arg 作为初始性别",
-	["#ShenjunProtect"] = "%to 的【神君】锁定技被触发，异性(%from)的非雷电属性伤害无效",
-	["#ShenjunFlip"] = "%from 的【神君】锁定技被触发，性别倒置",
-	["#Zonghuo"] = "%from 的锁定技【纵火】技能被触发，【杀】变为火焰属性",
+	["#ShenjunProtect"] = "%to 的【%arg】锁定技被触发，异性(%from)的非雷电属性伤害无效",
+	["#ShenjunFlip"] = "%from 的【%arg】锁定技被触发，性别倒置",
+	["#Zonghuo"] = "%from 的锁定技【%arg】技能被触发，【杀】变为火焰属性",
 
 	-- 钟会
 	["#zhongshiji"] = "狠毒的野心家",
@@ -139,7 +139,7 @@ return {
 	["gongmou"] = "共谋",
 	["@conspiracy"] = "共谋",
 	[":gongmou"] = "回合结束阶段开始时，可指定一名其他角色：其在摸牌阶段摸牌后，须给你X张手牌（X为你手牌数与对方手牌数的较小值），然后你须选择X张手牌交给对方",
-	["#GongmouExchange"] = "%from 发动了【共谋】技能，与 %to 交换了 %arg 张手牌",
+	["#GongmouExchange"] = "%from 发动了【%arg2】技能，与 %to 交换了 %arg 张手牌",
 
 	-- 姜维
 	["#jiangboyue"] = "赤胆的贤将",
@@ -165,8 +165,8 @@ return {
 	[":sizhan"] = "<b>锁定技</b>，当你受到伤害时，防止该伤害并获得与伤害点数等量的死战标记；你的回合结束阶段开始时，你须弃掉所有的X个死战标记并流失X点体力",
 	["shenli"] = "神力",
 	[":shenli"] = "<b>锁定技</b>，出牌阶段，你使用【杀】造成的<font color='red'>第一次伤害</font>+X，X为当前死战标记数且最大为3",
-	["#SizhanPrevent"] = "%from 的锁定技【死战】被触发，防止了当前的 %arg 点伤害",
-	["#SizhanLoseHP"] = "%from 的锁定技【死战】被触发，流失了 %arg 点体力",
+	["#SizhanPrevent"] = "%from 的锁定技【%arg2】被触发，防止了当前的 %arg 点伤害",
+	["#SizhanLoseHP"] = "%from 的锁定技【%arg2】被触发，流失了 %arg 点体力",
 	["#ShenliBuff"] = "%from 的锁定技【神力】被触发，【杀】的伤害增加了 %arg, 达到了 %arg2 点",
 	["@struggle"] = "死战",
 
@@ -245,9 +245,9 @@ return {
 	["designer:xiahoujuan"] = "宇文天启，艾艾艾",
 	["illustrator:xiahoujuan"] = "三国志大战",
 	["cv:xiahoujuan"] = "妙妙",
-	["$lianli"] = "连理并蒂，比翼不移",
+	["$lianli1"] = "连理并蒂，比翼不移",
+	["$lianli2"] = "陟彼南山，言采其樵。未见君子，忧心惙惙",
 	["$tongxin"] = "执子之手，与子偕老",
-	["$qiaocai"] = "陟彼南山，言采其樵。未见君子，忧心惙惙",
 	["~xiahoujuan"] = "行与子逝兮，归于其室",
 
 	["designer:caizhaoji"] = "冢冢的青藤",
@@ -259,10 +259,14 @@ return {
 
 	["designer:luboyan"] = "太阳神上、冢冢的青藤",
 	["illustrator:luboyan"] = "真三国无双5",
-	["cv:luboyan"] = "",
+	["cv:luboyan"] = "水浒杀神火将魏定国",
 	["designer:luboyanf"] = "太阳神上、冢冢的青藤",
 	["illustrator:luboyanf"] = "阿摸",
 	["cv:luboyanf"] = "",
+	["$shaoying1"] = "烈焰升腾，万物尽毁！",
+	["$shaoying2"] = "以火应敌，贼人何处逃窜？！",
+	["$zonghuo"] = "（燃烧声）",
+	["~luboyan"] = "玩火自焚啊！",
 
 	["designer:zhongshiji"] = "Jr. Wakaran",
 	["illustrator:zhongshiji"] = "战国无双3",

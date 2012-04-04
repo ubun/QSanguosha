@@ -98,12 +98,12 @@ QWidget *ServerDialog::createPackageTab(){
     QGroupBox *box2 = new QGroupBox(tr("Card package"));
 
     QGridLayout *layout1 = new QGridLayout;
-    int layout1row = 1, layout1column = 1;
     QGridLayout *layout2 = new QGridLayout;
-    int layout2row = 1, layout2column = 1;
     box1->setLayout(layout1);
     box2->setLayout(layout2);
 
+    int i = 0, j = 0;
+    int row = 0, column = 0;
     foreach(QString extension, extensions){
         const Package *package = Sanguosha->findChild<const Package *>(extension);
         if(package == NULL)
@@ -118,22 +118,20 @@ QWidget *ServerDialog::createPackageTab(){
 
         switch(package->getType()){
         case Package::GeneralPack: {
-                layout1->addWidget(checkbox, layout1row, layout1column);
-                layout1column ++;
-                if(layout1column > 3){
-                    layout1column = 1;
-                    layout1row ++;
-                }
+                row = i / 5;
+                column = i % 5;
+                i++;
+
+                layout1->addWidget(checkbox, row, column+1);
                 break;
             }
 
         case Package::CardPack: {
-                layout2->addWidget(checkbox, layout2row, layout2column);
-                layout2column ++;
-                if(layout2column > 3){
-                    layout2column = 1;
-                    layout2row ++;
-                }
+                row = j / 5;
+                column = j % 5;
+                j++;
+
+                layout2->addWidget(checkbox, row, column+1);
                 break;
             }
 
@@ -141,9 +139,6 @@ QWidget *ServerDialog::createPackageTab(){
             break;
         }
     }
-
-    //layout1->addStretch();
-    //layout2->addStretch();
 
     QWidget *widget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
@@ -504,6 +499,7 @@ QGroupBox *ServerDialog::create3v3Box(){
     QVBoxLayout *vlayout = new QVBoxLayout;
 
     standard_3v3_radiobutton = new QRadioButton(tr("Standard mode"));
+    new_3v3_radiobutton = new QRadioButton(tr("New Mode"));
     QRadioButton *extend = new QRadioButton(tr("Extension mode"));
     QPushButton *extend_edit_button = new QPushButton(tr("General selection ..."));
     extend_edit_button->setEnabled(false);
@@ -529,14 +525,18 @@ QGroupBox *ServerDialog::create3v3Box(){
     }
 
     vlayout->addWidget(standard_3v3_radiobutton);
+    vlayout->addWidget(new_3v3_radiobutton);
     vlayout->addLayout(HLay(extend, extend_edit_button));
     vlayout->addWidget(exclude_disaster_checkbox);
     vlayout->addLayout(HLay(new QLabel(tr("Role choose")), role_choose_combobox));
     box->setLayout(vlayout);
 
     bool using_extension = Config.value("3v3/UsingExtension", false).toBool();
+    bool using_new_mode = Config.value("3v3/UsingNewMode", false).toBool();
     if(using_extension)
         extend->setChecked(true);
+    else if(using_new_mode)
+        new_3v3_radiobutton->setChecked(true);
     else
         standard_3v3_radiobutton->setChecked(true);
 
@@ -648,7 +648,7 @@ QGroupBox *ServerDialog::createGameModeBox(){
     for(int i=0; i<item_list.length(); i++){
         QObject *item = item_list.at(i);
 
-        QVBoxLayout *side = i < item_list.length()/2 ? left : right;
+        QVBoxLayout *side = i < item_list.length()/2 - 2 ? left : right;
 
         if(item->isWidgetType()){
             QWidget *widget = qobject_cast<QWidget *>(item);
@@ -915,9 +915,10 @@ bool ServerDialog::config(){
     Config.setValue("Address", Config.Address);
 
     Config.beginGroup("3v3");
-    Config.setValue("UsingExtension", ! standard_3v3_radiobutton->isChecked());
+    Config.setValue("UsingExtension", !standard_3v3_radiobutton->isChecked() && !new_3v3_radiobutton->isChecked());
     Config.setValue("RoleChoose", role_choose_combobox->itemData(role_choose_combobox->currentIndex()).toString());
     Config.setValue("ExcludeDisaster", exclude_disaster_checkbox->isChecked());
+    Config.setValue("UsingNewMode", new_3v3_radiobutton->isChecked());
     Config.endGroup();
 
     QSet<QString> ban_packages;
@@ -931,6 +932,7 @@ bool ServerDialog::config(){
     }
 
     Config.BanPackages = ban_packages.toList();
+    Config.BanPackages << "Special3v3";
     Config.setValue("BanPackages", Config.BanPackages);
 
     if(Config.ContestMode){

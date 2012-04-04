@@ -232,6 +232,9 @@ bool MiniSceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &
             QVariant data = QVariant::fromValue(sp);
             room->setTag("Starter", data);
         }
+        if(this->players.at(i)["nationality"] != NULL){
+            room->setPlayerProperty(sp, "kingdom", this->players.at(i)["nationality"]);
+        }
 
         str = this->players.at(i)["draw"];
         if(str == NULL)str = "4";
@@ -329,7 +332,8 @@ void MiniScene::onTagSet(Room *room, const QString &key) const
 {
 
 }
-#define ADD_CUSTOM_SCENARIO(name) extern "C" { Q_DECL_EXPORT Scenario *NewMiniScene_##name() { return new LoadedScenario(#name); } }
+
+#define ADD_CUSTOM_SCENARIO(name) static ScenarioAdder MiniScene##name##ScenarioAdder(QString("MiniScene_") + #name, new LoadedScenario(#name));
 
 ADD_CUSTOM_SCENARIO(01)
 ADD_CUSTOM_SCENARIO(02)
@@ -351,5 +355,6 @@ ADD_CUSTOM_SCENARIO(17)
 ADD_CUSTOM_SCENARIO(18)
 ADD_CUSTOM_SCENARIO(19)
 ADD_CUSTOM_SCENARIO(20)
+ADD_CUSTOM_SCENARIO(21)
 
 ADD_SCENARIO(Custom)

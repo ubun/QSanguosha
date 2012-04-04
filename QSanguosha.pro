@@ -38,6 +38,7 @@ SOURCES += src/main.cpp \
 	src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
 	src/dialog/halldialog.cpp \
+	src/package/package.cpp \
 	src/package/exppattern.cpp \
 	src/package/firepackage.cpp \
 	src/package/god.cpp \
@@ -55,19 +56,20 @@ SOURCES += src/main.cpp \
 	src/package/wisdompackage.cpp \
 	src/package/yitianpackage.cpp \
 	src/package/yjcm-package.cpp \
+	src/package/yjcm2012-package.cpp \
 	src/package/bgm-package.cpp \
+        src/package/special3v3-package.cpp \
 	src/package/shineway/technology.cpp \
 	src/package/shineway/kuso-package.cpp \
 	src/package/shineway/peasa.cpp \
 	src/package/shineway/red.cpp \
 	src/package/shineway/cyan.cpp \
 	src/package/shineway/green.cpp \
-	src/package/shineway/purple.cpp \
+        src/package/shineway/purple.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/fancheng-scenario.cpp \
 	src/scenario/guandu-scenario.cpp \
-	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
 	src/scenario/miniscenarios.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
@@ -128,7 +130,9 @@ SOURCES += src/main.cpp \
 	src/lua/lbaselib.c \
 	src/lua/lauxlib.c \
 	src/lua/lapi.c \
-	swig/sanguosha_wrap.cxx
+	swig/sanguosha_wrap.cxx \
+    src/core/statistics.cpp \
+    src/ui/irregularbutton.cpp
 
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
@@ -175,14 +179,16 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wisdompackage.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
-	src/package/bgm-package.h \
+	src/package/yjcm2012-package.h \
+        src/package/bgm-package.h \
+        src/package/special3v3-package.h \
 	src/package/shineway/technology.h \
 	src/package/shineway/kuso-package.h \
 	src/package/shineway/peasa.h \
 	src/package/shineway/red.h \ 
 	src/package/shineway/cyan.h \ 
 	src/package/shineway/green.h \
-	src/package/shineway/purple.h \
+        src/package/shineway/purple.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
 	src/scenario/fancheng-scenario.h \
@@ -243,7 +249,9 @@ HEADERS += src/client/aux-skills.h \
 	src/lua/ldebug.h \
 	src/lua/lcode.h \
 	src/lua/lauxlib.h \
-	src/lua/lapi.h
+	src/lua/lapi.h \
+    src/core/statistics.h \
+    src/ui/irregularbutton.h
 	
 FORMS += src/dialog/cardoverview.ui \
 	src/dialog/configdialog.ui \
@@ -266,7 +274,7 @@ win32{
 	RC_FILE += resource/icon.rc
 }
 
-LIBS += -L. -lm
+LIBS += -L.
 
 CONFIG(audio){
 	DEFINES += AUDIO_SUPPORT
@@ -290,3 +298,6 @@ OTHER_FILES += \
 	acknowledgement/main.qml \
 	acknowledgement/list.png \
 	acknowledgement/back.png
+
+
+

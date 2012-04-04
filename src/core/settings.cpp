@@ -53,13 +53,14 @@ void Settings::init(){
         QStringList banlist;
         banlist << "nostalgia" << "yitian" << "wisdom" << "test"
                 << "disaster" << "god" << "YJCM" << "yitian_cards"
-                << "sp" << "sp_cards" << "BGM"
+                << "sp" << "sp_cards" << "BGM" << "YJCM2012" << "Special3v3"
                 << "joy" << "joy_equip";
 
         setValue("BanPackages", banlist);
     }
 
     BanPackages = value("BanPackages").toStringList();
+    BanPackages << "Special3v3";
 
     ContestMode = value("ContestMode", false).toBool();
     FreeChoose = value("FreeChoose", false).toBool();
@@ -109,7 +110,9 @@ void Settings::init(){
 
     BackgroundBrush = value("BackgroundBrush", "backdrop/new-version.jpg").toString();
 
-    QStringList kof_ban, basara_ban, hegemony_ban, pairs_ban;
+    QStringList roles_ban, kof_ban, basara_ban, hegemony_ban, pairs_ban;
+
+    roles_ban << "zhugejin";
 
     kof_ban << "sunquan" << "huatuo" << "zhangliao" << "liubei";
 
@@ -143,7 +146,14 @@ void Settings::init(){
                 << "lukang+zhanggongqi" << "bgm_diaochan+caoren" << "bgm_diaochan+shenlubu"
                 << "bgm_diaochan+caizhaoji" << "caozhi+shenlubu" << "caoren+caozhi";
 
-    QStringList banlist = value("Banlist/1v1").toStringList();
+    QStringList banlist = value("Banlist/Roles").toStringList();
+    foreach(QString ban_general, roles_ban){
+        if(!banlist.contains(ban_general))
+            banlist << ban_general;
+    }
+    setValue("Banlist/Roles", banlist);
+
+    banlist = value("Banlist/1v1").toStringList();
     foreach(QString ban_general, kof_ban){
         if(!banlist.contains(ban_general))
             banlist << ban_general;

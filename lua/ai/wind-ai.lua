@@ -138,7 +138,10 @@ function sgs.ai_skill_invoke.jushou(self, data)
 	return self:isWeak()
 end
 
-sgs.ai_skill_invoke.liegong = sgs.ai_skill_invoke.tieji
+sgs.ai_skill_invoke.liegong = function(self, data)
+	local effect = data:toSlashEffect()
+	return not self:isFriend(effect.to)
+end
 
 sgs.ai_chaofeng.huangzhong = 1
 sgs.ai_chaofeng.weiyan = -2
@@ -185,7 +188,7 @@ sgs.ai_skill_use["@@leiji"]=function(self,prompt)
 	self:sort(self.enemies,"hp")
 	for _,enemy in ipairs(self.enemies) do
 		if not self:isEquip("SilverLion", enemy) and not enemy:hasSkill("hongyan") and
-			self:objectiveLevel(enemy) > 3 then
+			self:objectiveLevel(enemy) > 3 and not (enemy:isChained() and not self:isGoodChainTarget(enemy)) then
 			return "@LeijiCard=.->"..enemy:objectName()
 		end
 	end
@@ -197,8 +200,7 @@ sgs.ai_card_intention.LeijiCard = 80
 function sgs.ai_slash_prohibit.leiji(self, to, card)
 	if self:isFriend(to) then return false end
 	local hcard = to:getHandcardNum()
-	if self.player:hasSkill("tieji") or
-		(self.player:hasSkill("liegong") and (hcard>=self.player:getHp() or hcard<=self.player:getAttackRange())) then return false end
+	if self.player:hasSkill("liegong") and (hcard>=self.player:getHp() or hcard<=self.player:getAttackRange()) then return false end
 
 	if to:getHandcardNum() >= 2 then return true end
 	if self:isEquip("EightDiagram", to) then
@@ -297,7 +299,7 @@ function sgs.ai_filterskill_filter.hongyan(card, card_place)
 	end
 end
 
-sgs.ai_skill_use["@tianxiang"]=function(self, data)
+sgs.ai_skill_use["@@tianxiang"] = function(self, data)
 	local friend_lost_hp = 10
 	local friend_hp = 0
 	local card_id
@@ -305,7 +307,7 @@ sgs.ai_skill_use["@tianxiang"]=function(self, data)
 	local cant_use_skill
 	local dmg
 
-	if data=="@@tianxiang-card" then
+	if data == "@tianxiang-card" then
 		dmg = self.player:getTag("TianxiangDamage"):toDamage()
 	else
 		dmg = data
@@ -374,14 +376,16 @@ table.insert(sgs.ai_global_flags, "questioner")
 local guhuo_filter = function(player, carduse)
 	if carduse.card:inherits("GuhuoCard") then
 		sgs.questioner = nil
-		sgs.guhuotype = carduse.card:toString():split(":")[2]
+		local guhuocard = sgs.Sanguosha:cloneCard(carduse.card:toString():split(":")[2], carduse.card:getSuit(), carduse.card:getNumber())
+		sgs.guhuotype = guhuocard:className()
 	end
 end
 
 table.insert(sgs.ai_choicemade_filter.cardUsed, guhuo_filter)
 
 sgs.ai_skill_choice.guhuo = function(self, choices)
-	if sgs.guhuotype and (sgs.guhuotype == "shit" or sgs.guhuotype == "amazing_grace") then return "noquestion" end
+	if sgs.guhuotype and self:getRestCardsNum(sgs.guhuotype) == 0 and self.player:getHp() > 0 then return "question" end
+	if sgs.guhuotype and (sgs.guhuotype == "Shit" or sgs.guhuotype == "AmazingGrace") then return "noquestion" end
 	local players = self.room:getOtherPlayers(self.player)
 	players = sgs.QList2Table(players)
 	local yuji
@@ -399,7 +403,7 @@ sgs.ai_skill_choice.guhuo = function(self, choices)
 	if r==0 then return "noquestion" else return "question" end
 end
 
-sgs.ai_choicemade_filter.skillChoice.guhuo = function(self, promptlist)
+sgs.ai_choicemade_filter.skillChoice.guhuo = function(player, promptlist)
 	if promptlist[#promptlist] == "yes" then
 		sgs.questioner = player
 	end
@@ -436,6 +440,11 @@ guhuo_skill.getTurnUseCard=function(self)
 			break
 		end
 	end
+	for i=1, #guhuos do
+		local forbiden = guhuos[i]
+		forbid = sgs.Sanguosha:cloneCard(forbiden, sgs.Card_NoSuit, 0)
+		if self.player:isLocked(forbid) then table.remove(forbiden, #guhuos) end
+	end
 
 	self:sortByUseValue(cards, true)
 	for _,card in ipairs(cards) do
@@ -446,6 +455,7 @@ guhuo_skill.getTurnUseCard=function(self)
 			for i=1, 10 do
 				local newguhuo = guhuos[math.random(1,#guhuos)]
 				local guhuocard = sgs.Sanguosha:cloneCard(newguhuo, card:getSuit(), card:getNumber())
+				if self:getRestCardsNum(guhuocard:className()) == 0 then return end
 				local dummyuse = {isDummy = true}
 				if newguhuo == "peach" then self:useBasicCard(guhuocard,dummyuse,false) else self:useTrickCard(guhuocard,dummyuse) end
 				if dummyuse.card then

@@ -3,6 +3,7 @@
 
 #include "general.h"
 #include "card.h"
+#include "statistics.h"
 
 #include <QObject>
 #include <QTcpSocket>
@@ -50,7 +51,7 @@ class Player : public QObject
     Q_ENUMS(Role)
 
 public:
-    enum Phase {Start, Judge, Draw, Play, Discard, Finish, NotActive};
+    enum Phase {RoundStart, Start, Judge, Draw, Play, Discard, Finish, NotActive};
     enum Place {Hand, Equip, Judging, Special, DiscardedPile, DrawPile};
     enum Role {Lord, Loyalist, Rebel, Renegade};
 
@@ -62,7 +63,9 @@ public:
     // property setters/getters
     int getHp() const;
     void setHp(int hp);
+    int getMaxHp() const;
     int getMaxHP() const;
+    void setMaxHp(int max_hp);
     void setMaxHP(int max_hp);
     int getLostHp() const;
     bool isWounded() const;
@@ -197,6 +200,13 @@ public:
     void jilei(const QString &type);
     bool isJilei(const Card *card) const;
 
+    void setCardLocked(const QString &name);
+    bool isLocked(const Card *card) const;
+    bool hasCardLock(const QString &card_str) const;
+
+    StatisticsStruct *getStatistics() const;
+    void setStatistics(StatisticsStruct *statistics);
+
     bool isCaoCao() const;
     void copyFrom(Player* p);
 
@@ -234,6 +244,9 @@ private:
     QHash<const Player *, int> fixed_distance;
 
     QSet<QString> jilei_set;
+    QSet<QString> lock_card;
+
+    StatisticsStruct *player_statistics;
 
 signals:
     void general_changed();

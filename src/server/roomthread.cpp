@@ -98,7 +98,7 @@ JudgeStructPattern &JudgeStructPattern::operator =(const QString &str){
 }
 
 JudgeStruct::JudgeStruct()
-    :who(NULL), card(NULL), good(true)
+    :who(NULL), card(NULL), good(true), time_consuming(false)
 {
 
 }
@@ -399,7 +399,7 @@ void RoomThread::addTriggerSkill(const TriggerSkill *skill){
 }
 
 void RoomThread::delay(unsigned long secs){
-    if(room->property("to_test").toString().isEmpty()&&Config.value("AIDelay",1000).toInt()>0)
+    if(room->property("to_test").toString().isEmpty()&& Config.AIDelay>0)
         msleep(secs);
 }
 

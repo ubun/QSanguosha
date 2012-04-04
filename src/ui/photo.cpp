@@ -138,7 +138,7 @@ void Photo::showProcessBar(){
     progress_bar->setValue(0);
     progress_bar->show();
 
-    if(ServerInfo.OperationTimeout != 0);
+    if(ServerInfo.OperationTimeout != 0)
         timer_id = startTimer(500);
 }
 
@@ -561,6 +561,7 @@ void Photo::updatePile(const QString &pile_name){
         }
 
         QMenu *menu = button->menu();
+        menu->setProperty("private_pile","true");
         //menu->clear();
 
         QList<const Card *> cards;
@@ -645,7 +646,7 @@ void Photo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         static QList<QPixmap> phase_pixmaps;
         if(phase_pixmaps.isEmpty()){
             QStringList names;
-            names << "start" << "judge" << "draw"
+            names << "round_start" << "start" << "judge" << "draw"
                     << "play" << "discard" << "finish";
 
             foreach(QString name, names)

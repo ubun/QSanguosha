@@ -1433,6 +1433,25 @@ void RoomScene::removeWidgetFromSkillDock(QWidget *widget){
 }
 
 void RoomScene::acquireSkill(const ClientPlayer *player, const QString &skill_name){
+    QGraphicsObject *dest = getAnimationObject(player->objectName());
+    QGraphicsTextItem *item = new QGraphicsTextItem(Sanguosha->translate(skill_name), NULL, this);
+    item->setFont(Config.BigFont);
+
+    QGraphicsDropShadowEffect *drop = new QGraphicsDropShadowEffect;
+    drop->setBlurRadius(5);
+    drop->setOffset(0);
+    drop->setColor(Qt::yellow);
+    item->setGraphicsEffect(drop);
+
+    QPropertyAnimation *move = new QPropertyAnimation(item, "pos");
+    QRectF rect = item->boundingRect();
+    move->setStartValue(QPointF(- rect.width()/2, - rect.height()/2));
+    move->setEndValue(dest->scenePos());
+    move->setDuration(1500);
+
+    move->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(move, SIGNAL(finished()), item, SLOT(deleteLater()));
+
     QString type = "#AcquireSkill";
     QString from_general = player->getGeneralName();
     QString arg = skill_name;
@@ -1510,7 +1529,7 @@ void RoomScene::updateRoleComboBox(const QString &new_role){
 }
 
 void RoomScene::enableTargets(const Card *card){
-    if(card && Self->isJilei(card)){
+    if(card && (Self->isJilei(card) || Self->isLocked(card))){
         ok_button->setEnabled(false);
         return;
     }
@@ -2347,7 +2366,12 @@ void RoomScene::changeHp(const QString &who, int delta, DamageStruct::Nature nat
     QStringList list = QString("%1:%2").arg(who).arg(delta).split(":");
     doAnimation("hpChange",list);
 
-    if(delta < 0 && !losthp){
+    if(delta < 0){
+        if(losthp){
+            Sanguosha->playAudio("hplost");
+            return;
+        }
+
         QString damage_effect;
         switch(delta){
         case -1: {
@@ -2385,7 +2409,7 @@ void RoomScene::changeHp(const QString &who, int delta, DamageStruct::Nature nat
         else if(nature == DamageStruct::Thunder)
             doAnimation("lightning", QStringList() << who);
 
-    }else if(delta > 0){
+    }else{
         QString type = "#Recover";
         QString from_general = ClientInstance->getPlayer(who)->getGeneralName();
         QString n = QString::number(delta);
@@ -2744,6 +2768,7 @@ void RoomScene::doScript(){
 }
 
 void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *> &players){
+   // table->setColumnCount(9);
     table->setColumnCount(4);
     table->setRowCount(players.length());
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -2755,6 +2780,8 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
             labels << tr("Nationality");
         else
             labels << tr("Role");
+
+    //    labels << tr("Designation") << tr("Kill") << tr("Damage") << tr("Save") << tr("Recover");
     }
     table->setHorizontalHeaderLabels(labels);
 
@@ -2793,6 +2820,32 @@ void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *>
         if(!player->isAlive())
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
         table->setItem(i, 3, item);
+/*
+        StatisticsStruct *statistics = player->getStatistics();
+        item = new QTableWidgetItem;
+        QString designations;
+        foreach(QString designation, statistics->designation){
+            designations.append(Sanguosha->translate(designation) + ", ");
+        }
+        designations.remove(designations.length()-3, 2);
+        table->setItem(i, 4, item);
+
+        item = new QTableWidgetItem;
+        item->setText(QString::number(statistics->kill));
+        table->setItem(i, 5, item);
+
+        item = new QTableWidgetItem;
+        item->setText(QString::number(statistics->damage));
+        table->setItem(i, 6, item);
+
+        item = new QTableWidgetItem;
+        item->setText(QString::number(statistics->save));
+        table->setItem(i, 7, item);
+
+        item = new QTableWidgetItem;
+        item->setText(QString::number(statistics->recover));
+        table->setItem(i, 8, item);
+*/
     }
 }
 

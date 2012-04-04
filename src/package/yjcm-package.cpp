@@ -142,7 +142,7 @@ public:
         return analeptic;
     }
 
-    virtual int getEffectIndex(ServerPlayer *, const Card *) const{
+    virtual int getEffectIndex(const ServerPlayer *, const Card *) const{
         return qrand() % 2 + 1;
     }
 
@@ -201,6 +201,7 @@ public:
                 log.from = effect.from;
                 log.to << effect.to;
                 log.arg = effect.card->objectName();
+                log.arg2 = objectName();
 
                 room->sendLog(log);
 
@@ -215,6 +216,7 @@ public:
                 log.from = effect.to;
                 log.to << effect.from;
                 log.arg = effect.card->objectName();
+                log.arg2 = objectName();
 
                 room->sendLog(log);
 
@@ -317,6 +319,7 @@ public:
                 log.from = player;
                 log.to << recover.who;
                 log.arg = QString::number(recover.recover);
+                log.arg2 = objectName();
 
                 room->sendLog(log);
 
@@ -405,6 +408,7 @@ public:
             log.type = "#HuileiThrow";
             log.from = player;
             log.to << killer;
+            log.arg = objectName();
             room->sendLog(log);
 
             ServerPlayer *duanmeng = room->findPlayerBySkillName("fuchou");
@@ -763,6 +767,7 @@ public:
                 LogMessage log;
                 log.type = "#ZhichiAvoid";
                 log.from = player;
+                log.arg = objectName();
                 room->sendLog(log);
 
                 return true;

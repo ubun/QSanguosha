@@ -70,8 +70,9 @@ sgs.ai_skill_use_func.LihunCard = function(card,use,self)
 		for _, enemy in ipairs(self.enemies) do
 			if enemy:getGeneral():isMale() and not enemy:hasSkill("kongcheng") then
 			    if (enemy:hasSkill("lianying") and self:damageMinusHp(self, enemy, 1) > 0) or
-				   (enemy:getHp() < 3 and self:damageMinusHp(self, enemy, 0) > 0 ) or
-				   (enemy:getHandcardNum() >= enemy:getHp() and enemy:getHp() > 2 and self:damageMinusHp(self, enemy, 0) >= -1) then
+				   (enemy:getHp() < 3 and self:damageMinusHp(self, enemy, 0) > 0  and enemy:getHandcardNum() > 0) or
+				   (enemy:getHandcardNum() >= enemy:getHp() and enemy:getHp() > 2 and self:damageMinusHp(self, enemy, 0) >= -1) or
+				   (enemy:getHandcardNum() - enemy:getHp() > 4) then
 					target = enemy
 					break
 				end
@@ -127,4 +128,39 @@ sgs.ai_view_as.yanzheng = function(card, player, card_place)
 	if card_place == sgs.Player_Equip then
 	    return ("nullification:yanzheng[%s:%s]=%d"):format(suit, number, card_id)
 	end
+end
+
+-- AI for bgm_pangong
+
+sgs.ai_skill_invoke.manjuan = true
+sgs.ai_skill_invoke.zuixiang = true
+
+sgs.ai_skill_askforag.manjuan = function(self, card_ids)
+	local cards = {}
+	for _, card_id in ipairs(card_ids) do
+		table.insert(cards, sgs.Sanguosha:getCard(card_id))
+	end
+	for _, card in ipairs(cards) do
+		if card:inherits("ExNihilo") then return card:getEffectiveId() end
+	end
+	for _, card in ipairs(cards) do
+		if card:inherits("Snatch") then
+			self:sort(self.enemies,"defense")
+			if sgs.getDefense(self.enemies[1]) >= 8 then self:sort(self.enemies, "threat") end
+			local enemies = self:exclude(self.enemies, card)
+			for _,enemy in ipairs(enemies) do
+				if self:hasTrickEffective(card, enemy) then
+					return card:getEffectiveId()
+				end
+			end
+		end
+	end
+	for _, card in ipairs(cards) do
+		if card:inherits("Peach") and self.player:isWounded() and self:getCardsNum("Peach") < self.player:getLostHp() then return card:getEffectiveId() end
+	end
+	for _, card in ipairs(cards) do
+		if card:inherits("AOE") and self:getAoeValue(card) > 0 then return card:getEffectiveId() end
+	end
+	self:sortByCardNeed(cards)
+	return cards[#cards]:getEffectiveId()
 end
