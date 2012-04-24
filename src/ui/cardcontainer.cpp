@@ -13,7 +13,9 @@ GrabCardItem::GrabCardItem(const Card *card)
 }
 
 void GrabCardItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *){
-    emit grabbed();
+    if(!isFrozen())
+        emit grabbed();
+
     goBack();
 }
 
@@ -78,6 +80,12 @@ void CardContainer::clear(){
     items.clear();
     close_button->hide();
     hide();
+}
+
+void CardContainer::freezeCards(bool is_frozen){
+    foreach(GrabCardItem *item, items){
+        item->setFrozen(is_frozen);
+    }
 }
 
 CardItem *CardContainer::take(const ClientPlayer *taker, int card_id){

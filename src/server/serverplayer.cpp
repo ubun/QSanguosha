@@ -492,6 +492,15 @@ bool ServerPlayer::hasNullification() const{
         return true;
     }*/
 
+    if(hasSkill("qice")){
+        foreach(const Card *card, handcards){
+            if(card->objectName() == "nullification")
+                return true;
+        }
+
+        return !hasFlag("QiceUsed") && !isKongcheng() && getPhase() == Player::Play ;
+    }
+
     foreach(const Card *card, handcards){
         if(card->objectName() == "nullification")
             return true;

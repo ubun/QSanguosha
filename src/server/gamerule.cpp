@@ -12,7 +12,7 @@ GameRule::GameRule(QObject *parent)
 {
     setParent(parent);
 
-    events << GameStart << TurnStart << PhaseChange << CardUsed
+    events << GameStart << TurnStart << PhaseChange << CardUsed << CardFinished
             << CardEffected << HpRecover << HpLost << AskForPeachesDone
             << AskForPeaches << Death << Dying << GameOverJudge
             << SlashHit << SlashMissed << SlashEffected << SlashProceed
@@ -202,6 +202,13 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             break;
         }
 
+    case CardFinished: {
+            CardUseStruct use = data.value<CardUseStruct>();
+            use.card->setFlags(".");
+
+            break;
+    }
+
     case HpRecover:{
             RecoverStruct recover_struct = data.value<RecoverStruct>();
             int recover = recover_struct.recover;
@@ -381,7 +388,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
             QString slasher = effect.from->objectName();
-            const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher);
+            const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher, data);
             room->slashResult(effect, jink);
 
             break;
@@ -822,7 +829,7 @@ QString BasaraMode::getMappedRole(const QString &role){
 }
 
 int BasaraMode::getPriority() const{
-    return 1;
+    return 5;
 }
 
 void BasaraMode::playerShowed(ServerPlayer *player) const{

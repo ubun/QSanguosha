@@ -156,7 +156,6 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/customassigndialog.h \
 	src/dialog/distanceviewdialog.h \
 	src/dialog/generaloverview.h \
-	src/dialog/generalselector.h \
 	src/dialog/halldialog.h \
 	src/dialog/mainwindow.h \
 	src/dialog/packagingeditor.h \
@@ -201,6 +200,7 @@ HEADERS += src/client/aux-skills.h \
 	src/server/ai.h \
 	src/server/contestdb.h \
 	src/server/gamerule.h \
+	src/server/generalselector.h \
 	src/server/room.h \
 	src/server/roomthread.h \
 	src/server/roomthread1v1.h \
@@ -274,6 +274,11 @@ win32{
 	RC_FILE += resource/icon.rc
 }
 
+macx{
+    ICON = resource/icon/sgs.icns
+}
+
+
 LIBS += -L.
 
 CONFIG(audio){
@@ -298,6 +303,3 @@ OTHER_FILES += \
 	acknowledgement/main.qml \
 	acknowledgement/list.png \
 	acknowledgement/back.png
-
-
-

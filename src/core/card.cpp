@@ -470,7 +470,7 @@ void Card::onMove(const CardMoveStruct &move) const{
 
 void Card::addSubcard(int card_id){
     if(card_id < 0)
-        qWarning(qPrintable(tr("Subcard must not be virtual card!")));
+        qWarning("%s", qPrintable(tr("Subcard must not be virtual card!")));
     else
         subcards << card_id;
 }
@@ -515,6 +515,21 @@ bool Card::willThrow() const{
 
 bool Card::canJilei() const{
     return can_jilei;
+}
+
+void Card::setFlags(const QString &flag) const{
+    static char symbol_c = '-';
+
+    if(flag == ".")
+        flags.clear();
+    if(flag.startsWith(symbol_c))
+        flags.removeOne(flag);
+    else
+        flags << flag;
+}
+
+bool Card::hasFlag(const QString &flag) const{
+    return flags.contains(flag);
 }
 
 // ---------   Skill card     ------------------
