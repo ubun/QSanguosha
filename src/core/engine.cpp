@@ -7,13 +7,14 @@
 #include "lua.hpp"
 #include "banpair.h"
 #include "audio.h"
+#include "protocol.h"
+#include "jsonutils.h"
 
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
 #include <QMessageBox>
 #include <QDir>
-#include <QLibrary>
 #include <QApplication>
 
 Engine *Sanguosha = NULL;
@@ -22,84 +23,80 @@ extern "C" {
     int luaopen_sgs(lua_State *);
 }
 
-template<typename T>
-static inline T GetSymbol(QLibrary *lib, const char *name){
-    char buffer[255] = "New";
-    strcat(buffer, name);
-
-    void *func = lib->resolve(buffer);
-    return reinterpret_cast<T>(func);
-}
-
 void Engine::addPackage(const QString &name){
-    typedef Package * (*package_creator)();
-    package_creator creator = GetSymbol<package_creator>(lib, name.toAscii());
-
-    if(creator){
-        addPackage(creator());
-    }else
+    Package *pack = PackageAdder::packages()[name];
+    if(pack)
+        addPackage(pack);
+    else
         qWarning("Package %s cannot be loaded!", qPrintable(name));
 }
 
 void Engine::addScenario(const QString &name){
-    typedef Scenario * (*scenario_creator)();
-    scenario_creator creator = GetSymbol<scenario_creator>(lib, name.toAscii());
-
-    if(creator){
-        addScenario(creator());
-    }else
+    Scenario *scenario = ScenarioAdder::scenarios()[name];
+    if(scenario)
+        addScenario(scenario);
+    else
         qWarning("Scenario %s cannot be loaded!", qPrintable(name));
 }
+
+
+static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key){
+    lua_getglobal(L, "config");
+    lua_getfield(L, -1, key);
+
+    QVariant data;
+    switch(lua_type(L, -1)){
+    case LUA_TSTRING: {
+        data = QString::fromUtf8(lua_tostring(L, -1));
+        lua_pop(L, 1);
+        break;
+    }
+
+    case LUA_TNUMBER:{
+        data = lua_tonumber(L, -1);
+        lua_pop(L, 1);
+        break;
+    }
+
+    case LUA_TTABLE:{
+        QStringList list;
+
+        size_t size = lua_objlen(L, -1);
+        for(size_t i=0; i<size; i++){
+            lua_rawgeti(L, -1, i+1);
+            QString element = lua_tostring(L, -1);
+            lua_pop(L, 1);
+            list << element;
+        }
+
+        data = list;
+    }
+
+    default:
+        break;
+    }
+
+    lua_pop(L, 1);
+    return data;
+}
+
 
 Engine::Engine()
 {
     Sanguosha = this;
 
-    lib = new QLibrary(qApp->applicationFilePath(), this);
-    if(!lib->load()){
-        qWarning("Package can not be loaded \n Error string: %s", qPrintable(lib->errorString()));
+    QString error_msg;
+    lua = createLuaState(error_msg);
+    if(lua == NULL){
+        QMessageBox::warning(NULL, tr("Lua script error"), error_msg);
         exit(1);
     }
 
-    QStringList package_names;
-    package_names << "Standard"
-                  << "Wind"
-                  << "Fire"
-                  << "Thicket"
-                  << "Mountain"
-                  << "God"
-                  << "SP"
-                  << "YJCM"
-                  << "BGM"
-                  << "Yitian"
-                  << "Wisdom"
-                  << "Test"
-
-                  << "StandardCard"
-                  << "StandardExCard"
-                  << "Maneuvering"
-                  << "SPCard"
-                  << "YitianCard"
-                  << "Nostalgia"
-                  << "Joy"
-                  << "Disaster"
-                  << "JoyEquip";
-
+    QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
     foreach(QString name, package_names)
         addPackage(name);
 
-    QStringList scene_names;
-    scene_names << "GuanduScenario"
-                << "FanchengScenario"
-                << "CoupleScenario"
-                << "ZombieScenario"
-                << "ImpasseScenario"
-                << "CustomScenario";
-
-    for(int i=1; i<=20; i++){
-        scene_names << QString("MiniScene_%1").arg(i, 2, 10, QChar('0'));
-    }
-
+    QStringList scene_names = GetConfigFromLuaState(lua, "scene_names").toStringList();
     foreach(QString name, scene_names)
         addScenario(name);
 
@@ -117,42 +114,52 @@ Engine::Engine()
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
+    modes["08pz"] = tr("8 players (0 renegade)");
     modes["08same"] = tr("8 players (same mode)");
     modes["09p"] = tr("9 players");
-    modes["10p"] = tr("10 players");
+    modes["10pd"] = tr("10 players");
+    modes["10p"] = tr("10 players (1 renegade)");
+    modes["10pz"] = tr("10 players (0 renegade)");
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
-    QString error_msg;
-    lua = createLuaState(false, error_msg);
-    if(lua == NULL){
-        QMessageBox::warning(NULL, tr("Lua script error"), error_msg);
-        exit(1);
-    }
+
 
     foreach(QString ban, getBanPackages()){
         addBanPackage(ban);
     }
+
+    foreach(const Skill *skill, skills.values()){
+        Skill *mutable_skill = const_cast<Skill *>(skill);
+        mutable_skill->initMediaSource();
+    }
 }
 
-lua_State *Engine::createLuaState(bool load_ai, QString &error_msg){
+lua_State *Engine::createLuaState(QString &error_msg){
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
 
     luaopen_sgs(L);
 
-    int error = luaL_dofile(L, "sanguosha.lua");
+    int error = luaL_dofile(L, "lua/sanguosha.lua");
     if(error){
         error_msg = lua_tostring(L, -1);
         return NULL;
     }
 
-    if(load_ai){
-        error = luaL_dofile(L, "lua/ai/smart-ai.lua");
-        if(error){
-            error_msg = lua_tostring(L, -1);
-            return NULL;
-        }
+    return L;
+}
+
+lua_State *Engine::createLuaStateWithAI(QString &error_msg){
+    lua_State *L = createLuaState(error_msg);
+
+    if(L == NULL)
+        return NULL;
+
+    int error = luaL_dofile(L, "lua/ai/smart-ai.lua");
+    if(error){
+        error_msg = lua_tostring(L, -1);
+        return NULL;
     }
 
     return L;
@@ -359,7 +366,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersionNumber() const{
-    return "20120122";
+    return GetConfigFromLuaState(lua, "version").toString();
 }
 
 QString Engine::getVersion() const{
@@ -372,11 +379,11 @@ QString Engine::getVersion() const{
 }
 
 QString Engine::getVersionName() const{
-    return tr("Chuxi");
+    return GetConfigFromLuaState(lua, "version_name").toString();
 }
 
 QString Engine::getMODName() const{
-    return "official";
+    return GetConfigFromLuaState(lua, "mod_name").toString();
 }
 
 QStringList Engine::getExtensions() const{
@@ -392,11 +399,7 @@ QStringList Engine::getExtensions() const{
 }
 
 QStringList Engine::getKingdoms() const{
-    static QStringList kingdoms;
-    if(kingdoms.isEmpty())
-        kingdoms << "wei" << "shu" << "wu" << "qun" << "god";
-
-    return kingdoms;
+    return GetConfigFromLuaState(lua, "kingdoms").toStringList();
 }
 
 QColor Engine::getKingdomColor(const QString &kingdom) const{
@@ -484,24 +487,6 @@ void Engine::getRoles(const QString &mode, char *roles) const{
     }else if(mode == "04_1v3"){
         qstrcpy(roles, "ZFFF");
         return;
-    }else if(Config.EnableHegemony){
-        static const char *table[] = {
-            "",
-            "",
-
-            "ZN", // 2
-            "ZNN", // 3
-            "ZNNN", // 4
-            "ZNNNN", // 5
-            "ZNNNNN", // 6
-            "ZNNNNNN", // 7
-            "ZNNNNNNN", // 8
-            "ZNNNNNNNN", // 9
-            "ZNNNNNNNNN" // 10
-        };
-
-        qstrcpy(roles, table[n]);
-        return;
     }
 
     if(modes.contains(mode)){
@@ -517,7 +502,7 @@ void Engine::getRoles(const QString &mode, char *roles) const{
             "ZCCFFFN", // 7
             "ZCCFFFFN", // 8
             "ZCCCFFFFN", // 9
-            "ZCCCFFFFNN" // 10
+            "ZCCCFFFFFN" // 10
         };
 
         static const char *table2[] = {
@@ -536,7 +521,15 @@ void Engine::getRoles(const QString &mode, char *roles) const{
         };
 
         const char **table = mode.endsWith("d") ? table2 : table1;
-        qstrcpy(roles, table[n]);
+        QString rolechar = table[n];
+        if(mode.endsWith("z"))
+            rolechar.replace("N", "C");
+        else if(Config.EnableHegemony){
+            rolechar.replace("F", "N");
+            rolechar.replace("C", "N");
+        }
+
+        qstrcpy(roles, rolechar.toStdString().c_str());
     }else if(mode.startsWith("@")){
         if(n == 8)
             qstrcpy(roles, "ZCCCNFFF");
@@ -597,6 +590,7 @@ QStringList Engine::getRandomLords() const{
     if(Config.GameMode == "zombie_mode")
         banlist_ban.append(Config.value("Banlist/zombie").toStringList());
     else if((Config.GameMode.endsWith("p") ||
+             Config.GameMode.endsWith("pz") ||
              Config.GameMode.endsWith("pd")))
         banlist_ban.append(Config.value("Banlist/Roles").toStringList());
 
@@ -674,20 +668,29 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set) c
 }
 
 QList<int> Engine::getRandomCards() const{
-    bool exclude_disaters = false;
+    bool exclude_disaters = false, using_new_3v3 = false;
 
-    if(Config.GameMode == "06_3v3")
-        exclude_disaters = Config.value("3v3/ExcludeDisasters", true).toBool();
+    if(Config.GameMode == "06_3v3"){
+        using_new_3v3 = Config.value("3v3/UsingNewMode", false).toBool();
+        exclude_disaters = Config.value("3v3/ExcludeDisasters", true).toBool() ||
+                            using_new_3v3;
+    }
 
     if(Config.GameMode == "04_1v3")
         exclude_disaters = true;
 
     QList<int> list;
     foreach(Card *card, cards){
+        card->clearFlags();
+
         if(exclude_disaters && card->inherits("Disaster"))
             continue;
 
-        if(!ban_package.contains(card->getPackage()))
+        if(card->getPackage() == "Special3v3" && using_new_3v3){
+            list << card->getId();
+            list.removeOne(98);
+        }
+        else if(!ban_package.contains(card->getPackage()))
             list << card->getId();
     }
 
@@ -740,6 +743,10 @@ void Engine::playCardEffect(const QString &card_name, bool is_male) const{
 
 const Skill *Engine::getSkill(const QString &skill_name) const{
     return skills.value(skill_name, NULL);
+}
+
+QStringList Engine::getSkillNames() const{
+    return skills.keys();
 }
 
 const TriggerSkill *Engine::getTriggerSkill(const QString &skill_name) const{

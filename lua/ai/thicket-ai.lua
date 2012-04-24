@@ -19,12 +19,15 @@ sgs.ai_skill_use["@@fangzhu"] = function(self, prompt)
 	self:sort(self.friends_noself)
 	local target
 	for _, friend in ipairs(self.friends_noself) do
+		if self.player:getLostHp() > 1 and friend:hasSkill("jijiu") then
+			target = friend
+			break
+		end
 		if not friend:faceUp() then
 			target = friend
 			break
 		end
-
-		if friend:hasSkill("jushou") and friend:getPhase() == sgs.Player_Play then
+		if (friend:hasSkill("jushou") or friend:hasSkill("kuiwei")) and friend:getPhase() == sgs.Player_Play then
 			target = friend
 			break
 		end
@@ -37,7 +40,7 @@ sgs.ai_skill_use["@@fangzhu"] = function(self, prompt)
 		else
 			self:sort(self.enemies)
 			for _, enemy in ipairs(self.enemies) do
-				if enemy:faceUp() and not  ((enemy:hasSkill("jushou") or enemy:hasSkill("kuiwei")) and enemy:getPhase() == sgs.Player_Play) then
+				if enemy:faceUp() and not (((enemy:hasSkill("jushou") or enemy:hasSkill("kuiwei")) and enemy:getPhase() == sgs.Player_Play) or enemy:hasSkill("jijiu")) then
 					target = enemy
 					break
 				end
@@ -54,7 +57,13 @@ end
 
 sgs.ai_skill_invoke.songwei = function(self, data)
 	local who = data:toPlayer()
-	return self:isFriend(who)
+	return self:isFriend(who) and self.player:isAlive()
+end
+
+sgs.ai_card_intention.FangzhuCard = function(card, from, tos)
+	if from:getLostHp() < 3 then
+		sgs.updateIntention(from, tos[1], 80/from:getLostHp())
+	end
 end
 
 sgs.ai_chaofeng.caopi = -3
@@ -71,7 +80,7 @@ duanliang_skill.getTurnUseCard=function(self)
 	self:sortByUseValue(cards,true)
 
 	for _,acard in ipairs(cards)  do
-		if (acard:isBlack()) and (acard:inherits("BasicCard") or acard:inherits("EquipCard")) then
+		if (acard:isBlack()) and (acard:inherits("BasicCard") or acard:inherits("EquipCard")) and (self:getDynamicUsePriority(acard)<sgs.ai_use_value.SupplyShortage)then
 			card = acard
 			break
 		end
@@ -125,22 +134,22 @@ sgs.ai_skill_use["@@yinghun"] = function(self, prompt)
 
 	if #self.friends > 1 then
 		for _, friend in ipairs(self.friends_noself) do
-			if self:hasSkills(sgs.lose_equip_skill, friend) and friend:getEquips():length() > x/2 then
+			if self:hasSkills(sgs.lose_equip_skill, friend) then
 				self.yinghun = friend
-				self.yinghunchoice = "d1tx"
+				self.yinghunchoice = "dxt1"
 				break
 			end
 		end
 		self:sort(self.friends_noself, "chaofeng")
 		for _, afriend in ipairs(self.friends_noself) do
-			if not afriend:isNude() then self.yinghun = afriend end
+			if not afriend:hasSkill("manjuan") then self.yinghun = afriend end
 		end
 		if self.yinghun and not self.yinghunchoice then self.yinghunchoice = "dxt1" end
 	else
 		self:sort(self.enemies, "handcard")
 		for index = #self.enemies, 1, -1 do
 			local enemy = self.enemies[index]
-			if not self:hasSkills(sgs.lose_equip_skill, enemy) or enemy:getEquips():length()<x/2 then
+			if not self:hasSkills(sgs.lose_equip_skill, enemy) or not enemy:isNude() then
 				self.yinghun = enemy
 				self.yinghunchoice = "d1tx"
 				break
@@ -188,7 +197,7 @@ sgs.ai_skill_invoke.haoshi = function(self, data)
 	end
 
 	local beggar = getBeggar(self)
-	return self:isFriend(beggar)
+	return self:isFriend(beggar) and not beggar:hasSkill("manjuan")
 end
 
 sgs.ai_skill_use["@@haoshi!"] = function(self, prompt)
@@ -221,9 +230,15 @@ sgs.ai_skill_use_func.DimengCard=function(card,use,self)
 	local cardNum=self.player:getHandcardNum()
 
 	self:sort(self.enemies,"handcard")
-	self:sort(self.friends_noself,"handcard")
+	local friends={}
+	for _,player in ipairs(self.friends_noself) do
+		if not player:hasSkill("manjuan") then
+			table.insert(friends, player)
+		end
+	end
+	self:sort(friends,"handcard")
 
-	local lowest_friend=self.friends_noself[1]
+	local lowest_friend=friends[1]
 
 	self:sort(self.enemies,"defense")
 	if lowest_friend then
@@ -261,10 +276,6 @@ sgs.ai_use_priority.DimengCard = 2.3
 sgs.dynamic_value.control_card.DimengCard = true
 
 sgs.ai_chaofeng.lusu = 4
-
-function sgs.ai_trick_prohibit.weimu(card)
-	return card:isBlack()
-end
 
 luanwu_skill={}
 luanwu_skill.name="luanwu"

@@ -10,7 +10,7 @@ Player::Player(QObject *parent)
     hp(-1), max_hp(-1), state("online"), seat(0), alive(true),
     phase(NotActive),
     weapon(NULL), armor(NULL), defensive_horse(NULL), offensive_horse(NULL),
-    face_up(true), chained(false)
+    face_up(true), chained(false), player_statistics(new StatisticsStruct())
 {
 }
 
@@ -59,6 +59,10 @@ int Player::getMaxHP() const{
     return max_hp;
 }
 
+int Player::getMaxHp() const{
+    return getMaxHP();
+}
+
 void Player::setMaxHP(int max_hp){
     if(this->max_hp == max_hp)
         return;
@@ -68,6 +72,10 @@ void Player::setMaxHP(int max_hp){
         hp = max_hp;
 
     emit state_changed();
+}
+
+void Player::setMaxHp(int max_hp){
+    setMaxHP(max_hp);
 }
 
 int Player::getLostHp() const{
@@ -136,7 +144,7 @@ void Player::clearFlags(){
 }
 
 int Player::getAttackRange() const{
-    if(hasFlag("tianyi_success"))
+    if(hasFlag("tianyi_success") || hasFlag("jiangchi_invoke"))
         return 1000;
 
     if(weapon)
@@ -198,7 +206,7 @@ QString Player::getGeneralName() const{
     if(general)
         return general->objectName();
     else
-        return "";
+        return QString();
 }
 
 void Player::setGeneral2Name(const QString &general_name){
@@ -323,6 +331,7 @@ void Player::loseAllSkills(){
 
 QString Player::getPhaseString() const{
     switch(phase){
+    case RoundStart: return "round_start";
     case Start: return "start";
     case Judge: return "judge";
     case Draw: return "draw";
@@ -338,6 +347,7 @@ QString Player::getPhaseString() const{
 void Player::setPhaseString(const QString &phase_str){
     static QMap<QString, Phase> phase_map;
     if(phase_map.isEmpty()){
+        phase_map.insert("round_start", RoundStart);
         phase_map.insert("start",Start);
         phase_map.insert("judge", Judge);
         phase_map.insert("draw", Draw);
@@ -454,9 +464,9 @@ void Player::setFaceUp(bool face_up){
 }
 
 int Player::getMaxCards() const{
-    int extra = 0;
+    int extra = 0, total = 0;
     if(Config.MaxHpScheme == 2 && general2){
-        int total = general->getMaxHp() + general2->getMaxHp();
+        total = general->getMaxHp() + general2->getMaxHp();
         if(total % 2 != 0)
             extra = 1;
     }
@@ -476,7 +486,23 @@ int Player::getMaxCards() const{
     if(hasSkill("shenwei"))
         shenwei = 2;
 
-    return qMax(hp,0) + extra + juejing + xueyi + shenwei;
+    int zongshi = 0;
+    if(hasSkill("zongshi")){
+        QSet<QString> kingdom_set;
+        if(parent()){
+            foreach(const Player *player, parent()->findChildren<const Player *>()){
+                if(player->isAlive()){
+                    kingdom_set << player->getKingdom();
+                }
+            }
+        }
+
+        zongshi = kingdom_set.size();
+    }
+
+    total = qMax(hp,0) + extra + juejing + xueyi + shenwei + zongshi;
+
+    return total;
 }
 
 QString Player::getKingdom() const{
@@ -709,10 +735,12 @@ bool Player::canSlashWithoutCrossbow() const{
         return true;
 
     int slash_count = getSlashCount();
+    int valid_slash_count = 1;
     if(hasFlag("tianyi_success"))
-        return slash_count < 2;
-    else
-        return slash_count < 1;
+        valid_slash_count++;
+    if(hasFlag("jiangchi_invoke"))
+        valid_slash_count++;
+    return slash_count < valid_slash_count;
 }
 
 void Player::jilei(const QString &type){
@@ -759,6 +787,43 @@ bool Player::isJilei(const Card *card) const{
     }
 
     return false;
+}
+
+void Player::setCardLocked(const QString &name){
+    static QChar unset_symbol('-');
+    if(name.isEmpty())
+        return;
+    else if(name == ".")
+        lock_card.clear();
+    else if(name.startsWith(unset_symbol)){
+        QString copy = name;
+        copy.remove(unset_symbol);
+        lock_card.remove(copy);
+    }
+    else if(!lock_card.contains(name))
+        lock_card << name;
+}
+
+bool Player::isLocked(const Card *card) const{
+    foreach(QString card_name, lock_card){
+        if(card->inherits(card_name.toStdString().c_str())){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Player::hasCardLock(const QString &card_str) const{
+    return lock_card.contains(card_str);
+}
+
+StatisticsStruct *Player::getStatistics() const{
+    return player_statistics;
+}
+
+void Player::setStatistics(StatisticsStruct *statistics){
+    player_statistics = statistics;
 }
 
 bool Player::isCaoCao() const{

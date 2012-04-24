@@ -68,17 +68,24 @@ table.insert(sgs.ai_choicemade_filter.cardUsed, quhu_filter)
 
 sgs.ai_cardneed.quhu = sgs.ai_cardneed.bignumber
 sgs.ai_skill_playerchosen.quhu = sgs.ai_skill_playerchosen.damage
+sgs.ai_playerchosen_intention.quhu = 80
 
 sgs.ai_card_intention.QuhuCard = 30
 
 sgs.dynamic_value.control_card.QuhuCard = true
 
 sgs.ai_skill_use["@@jieming"] = function(self, prompt)
-	self:sort(self.friends)
+	local friends = {}
+	for _,player in ipairs(self.friends) do
+		if not player:hasSkill("manjuan") then
+			table.insert(friends, player)
+		end
+	end
+	self:sort(friends)
 	
 	local max_x = 0
 	local target
-	for _, friend in ipairs(self.friends) do
+	for _, friend in ipairs(friends) do
 		local x = math.min(friend:getMaxHP(), 5) - friend:getHandcardNum()
 
 		if x > max_x then
@@ -120,30 +127,34 @@ sgs.ai_skill_use_func.QiangxiCard = function(card, use, self)
 		end
 		self:sort(self.enemies)
 		for _, enemy in ipairs(self.enemies) do
-			if hand_weapon and self.player:inMyAttackRange(enemy) then
-				use.card = sgs.Card_Parse("@QiangxiCard=" .. hand_weapon:getId())
-				if use.to then
-					use.to:append(enemy)
+			if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 then
+				if hand_weapon and self.player:inMyAttackRange(enemy) then
+					use.card = sgs.Card_Parse("@QiangxiCard=" .. hand_weapon:getId())
+					if use.to then
+						use.to:append(enemy)
+					end
+					break
 				end
-				break
-			end
-			if self.player:distanceTo(enemy) <= 1 then
-				use.card = sgs.Card_Parse("@QiangxiCard=" .. weapon:getId())
-				if use.to then
-					use.to:append(enemy)
+				if self.player:distanceTo(enemy) <= 1 then
+					use.card = sgs.Card_Parse("@QiangxiCard=" .. weapon:getId())
+					if use.to then
+						use.to:append(enemy)
+					end
+					return
 				end
-				return
 			end
 		end
 	else
 		self:sort(self.enemies, "hp")
 		for _, enemy in ipairs(self.enemies) do
-			if self.player:inMyAttackRange(enemy) and self.player:getHp() > enemy:getHp() and self.player:getHp() > 2 then
-				use.card = sgs.Card_Parse("@QiangxiCard=.")
-				if use.to then
-					use.to:append(enemy)
+			if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 then
+				if self.player:inMyAttackRange(enemy) and self.player:getHp() > enemy:getHp() and self.player:getHp() > 2 then
+					use.card = sgs.Card_Parse("@QiangxiCard=.")
+					if use.to then
+						use.to:append(enemy)
+					end
+					return
 				end
-				return
 			end
 		end
 	end
@@ -169,7 +180,7 @@ huoji_skill.getTurnUseCard=function(self)
 	self:sortByUseValue(cards,true)
 
 	for _,acard in ipairs(cards)  do
-		if (acard:isRed()) and not acard:inherits("Peach") then--and (self:getUseValue(acard)<sgs.ai_use_value.FireAttack) then
+		if (acard:isRed()) and not acard:inherits("Peach") and (self:getDynamicUsePriority(acard)<sgs.ai_use_value.FireAttack or self:getOverflow() > 0) then
 			card = acard
 			break
 		end
@@ -400,7 +411,7 @@ sgs.ai_skill_invoke.shuangxiong=function(self,data)
 	if self.player:isSkipped(sgs.Player_Play) or self.player:getHp() < 2 then
 		return false
 	end
-
+	local target = 0
 	local cards=self.player:getCards("h")
 	cards=sgs.QList2Table(cards)
 
@@ -415,10 +426,11 @@ sgs.ai_skill_invoke.shuangxiong=function(self,data)
 	handnum=handnum/2
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
-		if (self:getCardsNum("Slash", enemy)+enemy:getHp()<=handnum) and (self:getCardsNum("Slash")>=self:getCardsNum("Slash", enemy)) then return true end
+		if (self:getCardsNum("Slash", enemy)+enemy:getHp()<=handnum) and (self:getCardsNum("Slash")>=self:getCardsNum("Slash", enemy)) 
+			and self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 then target = target + 1 end
 	end
-
-	return self.player:getHandcardNum()>=self.player:getHp()
+	
+	return self.player:getHandcardNum()>=self.player:getHp() and target > 0
 end
 
 local shuangxiong_skill={}

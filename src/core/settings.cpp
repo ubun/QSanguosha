@@ -16,9 +16,20 @@ Settings Config;
 static const qreal ViewWidth = 1280 * 0.8;
 static const qreal ViewHeight = 800 * 0.8;
 
+//consts
+const int Settings::S_CHOOSE_GENERAL_TIMEOUT = 15;
+const int Settings::S_GUANXING_TIMEOUT = 20;
+const int Settings::S_SURRNDER_REQUEST_MIN_INTERVAL = 60;
+
 Settings::Settings()
-    :QSettings("config.ini", QSettings::IniFormat),
-    Rect(-ViewWidth/2, -ViewHeight/2, ViewWidth, ViewHeight)
+
+#ifdef Q_OS_WIN32
+    :QSettings("config.ini", QSettings::IniFormat)
+#else
+    :QSettings("QSanguosha.com", "QSanguosha")
+#endif
+
+     ,Rect(-ViewWidth/2, -ViewHeight/2, ViewWidth, ViewHeight)
 {
 }
 
@@ -53,12 +64,11 @@ void Settings::init(){
         QStringList banlist;
         banlist << "nostalgia" << "yitian" << "wisdom" << "test"
                 << "disaster" << "god" << "YJCM" << "yitian_cards"
-                << "sp" << "sp_cards"
-                << "joy" << "joy_equip";
+                << "sp" << "sp_cards" << "BGM" << "YJCM2012" << "Special3v3"
+                << "joy" << "joy_equip" ;
 
         setValue("BanPackages", banlist);
     }
-
     BanPackages = value("BanPackages").toStringList();
 
     ContestMode = value("ContestMode", false).toBool();
@@ -109,23 +119,25 @@ void Settings::init(){
 
     BackgroundBrush = value("BackgroundBrush", "backdrop/new-version.jpg").toString();
 
-    QStringList kof_ban, basara_ban, hegemony_ban, pairs_ban;
+    QStringList roles_ban, kof_ban, basara_ban, hegemony_ban, pairs_ban;
 
-    kof_ban << "sunquan" << "huatuo" << "zhangliao" << "liubei";
+    roles_ban << "zhugejin";
 
-    basara_ban << "dongzhuo" << "zuoci" << "shenzhugeliang" << "shenlubu";
+    kof_ban << "sunquan" << "huatuo" << "zhangliao" << "liubei" << "zhugejin";
+
+    basara_ban << "dongzhuo" << "zuoci" << "shenzhugeliang" << "shenlvbu" << "zhanggongqi" << "zhugejin";
 
     hegemony_ban.append(basara_ban);
-    hegemony_ban << "xiahoujuan";
+    hegemony_ban << "xiahoujuan" << "zhugejin";
     foreach(QString general, Sanguosha->getLimitedGeneralNames()){
         if(Sanguosha->getGeneral(general)->getKingdom() == "god" && !hegemony_ban.contains(general))
             hegemony_ban << general;
     }
 
-    pairs_ban << "shencaocao" << "dongzhuo" << "zuoci" << "zhoutai" << "+luboyan"
+    pairs_ban << "shencaocao" << "dongzhuo" << "zuoci" << "zhoutai" << "+luboyan" << "liaohua"
               << "caocao+caochong" << "xushu+zhugeliang" << "simayi+caizhaoji" << "wisjiangwei+zhanggongqi"
                 << "zhenji+zhangjiao" << "zhenji+simayi" << "huanggai+yuanshao"
-                << "huanggai+wuguotai" << "dengshizai+caoren" << "dengshizai+shenlubu" << "dengshizai+bgm_diaochan"
+                << "huanggai+wuguotai" << "dengshizai+caoren" << "dengshizai+shenlvbu" << "dengshizai+bgm_diaochan"
                 << "luxun+liubei" << "luxun+wolong" << "luxun+yuji" << "luxun+daqiao"
                 << "huangyueying+wolong" << "huangyueying+yuanshao" << "huangyueying+ganning"
                 << "shuangxiong+sunce" << "shuangxiong+huanggai" << "shuangxiong+huangyueying"
@@ -133,17 +145,28 @@ void Settings::init(){
                 << "dengai+shenzhugeliang" << "dengai+shensimayi"
                 << "jiangboyue+huangyueying" << "jiangboyue+wolong" << "jiangboyue+yuanshao"
                 << "jiangboyue+shuangxiong" << "jiangboyue+ganning" << "jiangboyue+luxun" << "jiangboyue+zhanggongqi"
-                << "weiyan+huanggai" << "jiangwei+zhangjiao" << "caoren+shenlubu"
+                << "weiyan+huanggai" << "caoren+shenlvbu" << "bgm_pangtong+huanggai"
                 << "fazheng+xiahoudun" << "luxun+zhanggongqi" << "sunquan+lingtong"
                 << "sunquan+sunshangxiang" << "wuguotai+guojia" << "wuguotai+xunyu"
-                << "caizhaoji+caoren" << "caizhaoji+dengshizai" << "yuanshu+zhanghe" << "caizhaoji+caozhi" << "caizhaoji+shenlubu"
-                << "yuanshu+lumeng" << "yuanshu+caochong" << "huatuo+guojia"
+                << "caizhaoji+caoren" << "caizhaoji+dengshizai" << "yuanshu+zhanghe" << "caizhaoji+caozhi" << "caizhaoji+shenlvbu"
+                << "yuanshu+lvmeng" << "yuanshu+caochong" << "huatuo+guojia"
                 << "huatuo+xunyu" << "huatuo+xiahoujuan" << "huatuo+zhanggongqi"
                 << "lukang+liubei" << "lukang+wolong" << "lukang+yuji" << "jiangboyue+lukang"
-                << "lukang+zhanggongqi" << "bgm_diaochan+caoren" << "bgm_diaochan+shenlubu"
-                << "bgm_diaochan+caizhaoji" << "caozhi+shenlubu" << "caoren+caozhi";
+                << "lukang+zhanggongqi" << "bgm_diaochan+caoren" << "bgm_diaochan+shenlvbu"
+                << "bgm_diaochan+caizhaoji" << "caozhi+shenlvbu" << "caoren+caozhi"
+                << "guanxingzhangbao+luxun" << "guanxingzhangbao+sunce" << "bgm_caoren+caoren"
+                << "bgm_caoren+caozhi" << "bgm_caoren+shenlvbu" << "bgm_caoren+bgm_diaochan"
+                << "bgm_caoren+dengshizai" << "bgm_caoren+caizhaoji" << "bgm_pangtong+huanggai"
+                << "huanggai+guanxingzhangbao";
 
-    QStringList banlist = value("Banlist/1v1").toStringList();
+    QStringList banlist = value("Banlist/Roles").toStringList();
+    foreach(QString ban_general, roles_ban){
+        if(!banlist.contains(ban_general))
+            banlist << ban_general;
+    }
+    setValue("Banlist/Roles", banlist);
+
+    banlist = value("Banlist/1v1").toStringList();
     foreach(QString ban_general, kof_ban){
         if(!banlist.contains(ban_general))
             banlist << ban_general;
@@ -170,4 +193,8 @@ void Settings::init(){
                 banlist << ban_general;
     }
     setValue("Banlist/Pairs", banlist);
+
+    QStringList forbid_packages;
+    forbid_packages << "Special3v3";
+    setValue("ForbidPackages", forbid_packages.join("+"));
 }

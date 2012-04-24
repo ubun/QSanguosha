@@ -74,17 +74,6 @@ private:
     QList<RoomItem*> room_items;
 };
 
-class BackLoader: public QThread
-{
-    Q_OBJECT
-public:
-    BackLoader(QObject *parent =0 );
-signals:
-    void completed(int progress);
-protected:
-    virtual void run();
-};
-
 class AcknowledgementScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -123,7 +112,6 @@ public slots:
 private slots:
     void on_actionAbout_Lua_triggered();
     void on_actionAbout_fmod_triggered();
-    void on_actionSend_lowlevel_command_triggered();
     void on_actionReplay_file_convert_triggered();
     void on_actionAI_Melee_triggered();
     void on_actionPackaging_triggered();
@@ -149,8 +137,8 @@ private slots:
     void networkError(const QString &error_msg);
     void enterRoom();
     void gotoScene(QGraphicsScene *scene);
-    void updateLoadingProgress(int progress);
     void gotoStartScene();
+    void sendLowLevelCommand();
     void startGameInAnotherInstance();
     void changeBackground();
     void on_actionView_ban_list_triggered();

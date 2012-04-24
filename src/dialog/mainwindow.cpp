@@ -135,32 +135,6 @@ void MainWindow::gotoScene(QGraphicsScene *scene){
     changeBackground();
 }
 
-void MainWindow::updateLoadingProgress(int progress)
-{
-    QGraphicsScene *scene = view->scene();
-
-    static QGraphicsTextItem *text;
-    if(text==NULL)
-    {
-        text = scene->addText(tr("Loaded %1/100").arg(progress),Config.BigFont);
-        QGraphicsDropShadowEffect *drop = new QGraphicsDropShadowEffect;
-        drop->setBlurRadius(5);
-        drop->setOffset(0);
-        drop->setColor(Qt::yellow);
-        text->setGraphicsEffect(drop);
-        text->moveBy(-text->boundingRect().width()/2,
-                     -text->boundingRect().height()/2);
-    }else text->setPlainText(tr("Loaded %1/100").arg(progress));
-
-    if(progress == 100)
-    {
-        view->setScene(this->scene);
-        RoomScene * scene = qobject_cast<RoomScene*>(this->scene);
-        scene->adjustItems();
-        changeBackground();
-    }
-}
-
 void MainWindow::on_actionExit_triggered()
 {
     QMessageBox::StandardButton result;
@@ -273,52 +247,6 @@ void MainWindow::networkError(const QString &error_msg){
         QMessageBox::warning(this, tr("Network error"), error_msg);
 }
 
-
-BackLoader::BackLoader(QObject * parent)
-    :QThread(parent)
-{
-}
-
-void BackLoader::run()
-{
-    QStringList emotions;
-    emotions << "peach"
-            << "analeptic"
-            << "chain"
-            << "damage"
-            << "fire_slash"
-            << "thunder_slash"
-            << "killer"
-            << "jink"
-            << "no-success"
-            << "slash_black"
-            << "slash_red"
-            << "success";
-
-    double total = 0;
-    foreach(QString emotion, emotions){
-        int n = PixmapAnimation::GetFrameCount(emotion);
-        total += n;
-    }
-
-    int loaded = 0;
-    foreach(QString emotion, emotions){
-        int n = PixmapAnimation::GetFrameCount(emotion);
-        for(int i=0; i<n; i++){
-            QString filename = QString("image/system/emotion/%1/%2.png").arg(emotion).arg(i);
-            PixmapAnimation::GetFrameFromCache(filename);
-
-            loaded ++;
-
-            double process = (loaded / total) * 100;
-            emit completed(static_cast<int>(process));
-        }
-    }
-
-    emit finished();
-}
-
-
 void MainWindow::enterRoom(){
     // add current ip to history
     if(!Config.HistoryIPs.contains(Config.HostAddress)){
@@ -326,14 +254,6 @@ void MainWindow::enterRoom(){
         Config.HistoryIPs.sort();
         Config.setValue("HistoryIPs", Config.HistoryIPs);
     }
-
-    QGraphicsScene *loading_scene = new QGraphicsScene;
-    gotoScene(loading_scene);
-
-    BackLoader *loader = new BackLoader(this);
-    loader->start();
-
-    connect(loader,SIGNAL(completed(int)),this,SLOT(updateLoadingProgress(int)));
 
     ui->actionStart_Game->setEnabled(false);
     ui->actionStart_Server->setEnabled(false);
@@ -354,7 +274,10 @@ void MainWindow::enterRoom(){
     connect(ui->actionKick, SIGNAL(triggered()), room_scene, SLOT(kick()));
     connect(ui->actionSurrender, SIGNAL(triggered()), room_scene, SLOT(surrender()));
     connect(ui->actionSaveRecord, SIGNAL(triggered()), room_scene, SLOT(saveReplayRecord()));
-    connect(ui->actionExpand_dashboard, SIGNAL(triggered()), room_scene, SLOT(adjustDashboard()));
+    connect(ui->actionExpand_dashboard, SIGNAL(toggled(bool)), room_scene, SLOT(adjustDashboard(bool)));
+
+    if(Config.value("UI/ExpandDashboard").toBool())
+        ui->actionExpand_dashboard->toggle();
 
     if(ServerInfo.FreeChoose){
         ui->menuCheat->setEnabled(true);
@@ -363,12 +286,24 @@ void MainWindow::enterRoom(){
         connect(ui->actionDeath_note, SIGNAL(triggered()), room_scene, SLOT(makeKilling()));
         connect(ui->actionDamage_maker, SIGNAL(triggered()), room_scene, SLOT(makeDamage()));
         connect(ui->actionRevive_wand, SIGNAL(triggered()), room_scene, SLOT(makeReviving()));
+        connect(ui->actionSend_lowlevel_command, SIGNAL(triggered()), this, SLOT(sendLowLevelCommand()));
         connect(ui->actionExecute_script_at_server_side, SIGNAL(triggered()), room_scene, SLOT(doScript()));
+    }
+    else{
+        ui->menuCheat->setEnabled(false);
+        ui->actionGet_card->disconnect();
+        ui->actionDeath_note->disconnect();
+        ui->actionDamage_maker->disconnect();
+        ui->actionRevive_wand->disconnect();
+        ui->actionSend_lowlevel_command->disconnect();
+        ui->actionExecute_script_at_server_side->disconnect();
     }
 
     connect(room_scene, SIGNAL(restart()), this, SLOT(startConnection()));
     connect(room_scene, SIGNAL(return_to_start()), this, SLOT(gotoStartScene()));
-    this->scene = room_scene;
+
+    room_scene->adjustItems();
+    gotoScene(room_scene);
 }
 
 void MainWindow::gotoStartScene(){
@@ -392,6 +327,13 @@ void MainWindow::gotoStartScene(){
     setCentralWidget(view);
     restoreFromConfig();
 
+    ui->menuCheat->setEnabled(false);
+    ui->actionGet_card->disconnect();
+    ui->actionDeath_note->disconnect();
+    ui->actionDamage_maker->disconnect();
+    ui->actionRevive_wand->disconnect();
+    ui->actionSend_lowlevel_command->disconnect();
+    ui->actionExecute_script_at_server_side->disconnect();
     gotoScene(start_scene);
 
     addAction(ui->actionShow_Hide_Menu);
@@ -793,7 +735,7 @@ public:
         setFlag(ItemIsMovable);
     }
 
-    virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
+    virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *){
         foreach(QGraphicsItem *item, childItems()){
             item->setVisible(! item->isVisible());
         }
@@ -995,7 +937,7 @@ void MainWindow::on_actionReplay_file_convert_triggered()
     }
 }
 
-void MainWindow::on_actionSend_lowlevel_command_triggered()
+void MainWindow::sendLowLevelCommand()
 {
     QString command = QInputDialog::getText(this, tr("Send low level command"), tr("Please input the raw low level command"));
     if(!command.isEmpty())
@@ -1034,7 +976,7 @@ void MainWindow::on_actionView_ban_list_triggered()
 void MainWindow::on_actionAbout_fmod_triggered()
 {
     QString content = tr("FMOD is a proprietary audio library made by Firelight Technologies");
-    content.append("<p align='center'> <img src='image/system/fmod.png' /> </p> <br/>");
+    content.append("<p align='center'> <img src='image/logo/fmod.png' /> </p> <br/>");
 
     QString address = "http://www.fmod.org";
     content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));
@@ -1058,7 +1000,7 @@ void MainWindow::on_actionAbout_fmod_triggered()
 void MainWindow::on_actionAbout_Lua_triggered()
 {
     QString content = tr("Lua is a powerful, fast, lightweight, embeddable scripting language.");
-    content.append("<p align='center'> <img src='image/system/lua.png' /> </p> <br/>");
+    content.append("<p align='center'> <img src='image/logo/lua.png' /> </p> <br/>");
 
     QString address = "http://www.lua.org";
     content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));

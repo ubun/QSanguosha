@@ -11,14 +11,15 @@ sgs.ai_skill_invoke.sp_moonspear = function(self, data)
 end
 
 sgs.ai_skill_playerchosen.sp_moonspear = sgs.ai_skill_playerchosen.zero_card_as_slash
+sgs.ai_playerchosen_intention.sp_moonspaer = 80
 
 function sgs.ai_slash_prohibit.weidi(self, to, card)
 	if to:isLord() then return false end
 	local lord = self.room:getLord()
 	for _, askill in sgs.qlist(lord:getVisibleSkillList()) do
-		if askill:objectName() ~= "weidi" then
+		if askill:objectName() ~= "weidi" and askill:isLordSkill() then
 			local filter = sgs.ai_slash_prohibit[askill:objectName()]
-			if to:hasLordSkill(askill:objectName()) and filter and type(filter) == "function" and filter(self, to, card) then return true end
+			if  type(filter) == "function" and filter(self, to, card) then return true end
 		end
 	end
 end
@@ -26,8 +27,12 @@ end
 sgs.ai_chaofeng.yuanshu = 3
 
 sgs.ai_skill_invoke.danlao = function(self, data)
-	local effect = data:toCardEffect()
+	local effect = data:toCardUse()
+	local current = self.room:getCurrent()
 	if effect.card:inherits("GodSalvation") and self.player:isWounded() then
+		return false
+	elseif effect.card:inherits("AmazingGrace") and
+		(self.player:getSeat() - current:getSeat()) % (global_room:alivePlayerCount()) < global_room:alivePlayerCount()/2 then
 		return false
 	else
 		return true
@@ -42,7 +47,9 @@ sgs.ai_skill_invoke.jilei = function(self, data)
 end	
 
 sgs.ai_skill_choice.jilei = function(self, choices)
-	if self:isEquip("Crossbow",self.jilei_source) and self.jilei_source:inMyAttackRange(self.player) then
+	local tmptrick = sgs.Sanguosha:cloneCard("ex_nihilo", sgs.Card_NoSuit, 0)
+	if (self:isEquip("Crossbow",self.jilei_source) and self.jilei_source:inMyAttackRange(self.player)) or
+		 self.jilei_source:isJilei(tmptrick) then
 		return "basic"
 	else
 		return "trick"

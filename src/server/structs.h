@@ -11,6 +11,7 @@ class GameRule;
 #include "player.h"
 
 #include <QVariant>
+#include <json/json.h>
 
 struct DamageStruct{
     DamageStruct();
@@ -18,7 +19,7 @@ struct DamageStruct{
     enum Nature{
         Normal, // normal slash, duel and most damage caused by skill
         Fire,  // fire slash, fire attack and few damage skill (Yeyan, etc)
-        Thunder // lightning, thunder slash, and few damage skill (Leiji, etc)
+        Thunder, // lightning, thunder slash, and few damage skill (Leiji, etc)
     };
 
     ServerPlayer *from;
@@ -58,6 +59,7 @@ struct CardUseStruct{
     CardUseStruct();
     bool isValid() const;
     void parse(const QString &str, Room *room);
+    bool tryParse(const Json::Value&, Room *room);
 
     const Card *card;
     ServerPlayer *from;
@@ -78,6 +80,7 @@ struct DyingStruct{
 
     ServerPlayer *who; // who is ask for help
     DamageStruct *damage; // if it is NULL that means the dying is caused by losing hp
+    QList<ServerPlayer *> savers; // savers are the available players who can use peach for the dying player
 };
 
 struct RecoverStruct{
@@ -121,6 +124,7 @@ struct JudgeStruct{
     JudgeStructPattern pattern;
     bool good;
     QString reason;
+    bool time_consuming;
 };
 
 enum TriggerEvent{
@@ -140,6 +144,8 @@ enum TriggerEvent{
     TurnedOver,
 
     Predamage,
+    DamagedProceed,
+    DamageProceed,
     Predamaged,
     DamageDone,
     Damage,
@@ -162,10 +168,12 @@ enum TriggerEvent{
     CardUsed,
     CardResponsed,
     CardDiscarded,
+    CardMoving,
     CardLost,
     CardLostDone,
     CardGot,
     CardGotDone,
+    CardDrawing,
     CardDrawnDone,
 
     CardEffect,
@@ -184,17 +192,19 @@ typedef DamageStruct *DamageStar;
 typedef PindianStruct *PindianStar;
 typedef const CardMoveStruct *CardMoveStar;
 
-Q_DECLARE_METATYPE(DamageStruct);
-Q_DECLARE_METATYPE(CardEffectStruct);
-Q_DECLARE_METATYPE(SlashEffectStruct);
-Q_DECLARE_METATYPE(CardUseStruct);
-Q_DECLARE_METATYPE(CardMoveStar);
-Q_DECLARE_METATYPE(CardStar);
-Q_DECLARE_METATYPE(PlayerStar);
-Q_DECLARE_METATYPE(DyingStruct);
-Q_DECLARE_METATYPE(RecoverStruct);
-Q_DECLARE_METATYPE(JudgeStar);
-Q_DECLARE_METATYPE(DamageStar);
-Q_DECLARE_METATYPE(PindianStar);
+Q_DECLARE_METATYPE(DamageStruct)
+Q_DECLARE_METATYPE(CardEffectStruct)
+Q_DECLARE_METATYPE(SlashEffectStruct)
+Q_DECLARE_METATYPE(CardUseStruct)
+Q_DECLARE_METATYPE(CardMoveStruct)
+Q_DECLARE_METATYPE(CardMoveStar)
+Q_DECLARE_METATYPE(CardStar)
+Q_DECLARE_METATYPE(PlayerStar)
+Q_DECLARE_METATYPE(DyingStruct)
+Q_DECLARE_METATYPE(RecoverStruct)
+Q_DECLARE_METATYPE(JudgeStar)
+Q_DECLARE_METATYPE(DamageStar)
+Q_DECLARE_METATYPE(PindianStar)
+Q_DECLARE_METATYPE(QList<int>)
 
 #endif // STRUCTS_H

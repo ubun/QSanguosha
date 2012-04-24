@@ -8,7 +8,7 @@ local t = {
 	["wisxuyou"] = "许攸",
 	["juao"] = "倨傲",
 	[":juao"] = "出牌阶段，你可以选择两张手牌背面向上移出游戏，指定一名角色，被指定的角色到下个回合开始阶段时，跳过摸牌阶段，得到你所移出游戏的两张牌。每阶段限一次",
-	["juaocd"] = "倨傲牌",
+	["hautain"] = "倨傲牌",
 	["#JuaoObtain"] = "%from 得到了 %to 发动【%arg】移出游戏的两张牌",
 	["tanlan"] = "贪婪",
 	[":tanlan"] = "每当你受到一次伤害，可与伤害来源进行拼点：若你赢，你获得两张拼点牌",
@@ -72,7 +72,7 @@ local t = {
 	["shipo"] = "识破",
 	[":shipo"] = "任意角色判定阶段判定前，你可以弃置两张牌，获得该角色判定区里的所有牌",
 	["gushou"] = "固守",
-	[":gushou"] = "当你使用或打出一张基本牌时，可以摸一张牌",
+	[":gushou"] = "回合外，当你使用或打出一张基本牌时，可以摸一张牌",
 	["yuwen"] = "狱刎",
 	[":yuwen"] = "<b>锁定技</b>，当你死亡时，凶手视为自己",
 	["#YuwenEffect"] = "%from 的锁定技【%arg】被触发，死亡视为自杀",
@@ -111,12 +111,12 @@ local t = {
 
 	["illustrator:wisxuyou"] = "三国志大战",
 	["illustrator:wisjiangwei"] = "巴萨小马",
-	["illustrator:wisjiangwan"] = "一将优秀作品画册",
+	["illustrator:wisjiangwan"] = "Zero",
 	["illustrator:wissunce"] = "永恒之轮",
 	["illustrator:wiszhangzhao"] = "三国志大战",
 	["illustrator:wishuaxiong"] = "三国志大战",
-	["illustrator:wistianfeng"] = "一将优秀作品画册",
-	["illustrator:wisshuijing"] = "一将优秀作品画册",
+	["illustrator:wistianfeng"] = "小矮米",
+	["illustrator:wisshuijing"] = "小仓",
 }
 
 local generals = {"wisxuyou", "wisjiangwei", "wisjiangwan", "wissunce", "wiszhangzhao", "wishuaxiong", "wistianfeng", "wisshuijing"}

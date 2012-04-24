@@ -13,7 +13,9 @@ GrabCardItem::GrabCardItem(const Card *card)
 }
 
 void GrabCardItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *){
-    emit grabbed();
+    if(!isFrozen())
+        emit grabbed();
+
     goBack();
 }
 
@@ -29,6 +31,15 @@ CardContainer::CardContainer() :
 }
 
 void CardContainer::fillCards(const QList<int> &card_ids){
+    if(card_ids.isEmpty()){
+        show();
+        return;
+    }
+    else if(!items.isEmpty()){
+        items_stack.push(items);
+        items.clear();
+    }
+
     static const QPointF pos1(30, 40);
     static const QPointF pos2(30, 184);
     static const int card_width = 93;
@@ -76,8 +87,20 @@ void CardContainer::clear(){
     }
 
     items.clear();
-    close_button->hide();
-    hide();
+    if(!items_stack.isEmpty()){
+        items = items_stack.pop();
+        fillCards();
+    }
+    else{
+        close_button->hide();
+        hide();
+    }
+}
+
+void CardContainer::freezeCards(bool is_frozen){
+    foreach(GrabCardItem *item, items){
+        item->setFrozen(is_frozen);
+    }
 }
 
 CardItem *CardContainer::take(const ClientPlayer *taker, int card_id){
@@ -296,7 +319,7 @@ void GuanxingBox::reply(){
     foreach(CardItem *card_item, down_items)
         down_cards << card_item->getCard()->getId();
 
-    ClientInstance->replyGuanxing(up_cards, down_cards);
+    ClientInstance->onPlayerReplyGuanxing(up_cards, down_cards);
     clear();
 }
 

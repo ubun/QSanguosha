@@ -7,6 +7,7 @@ sgs.ai_skill_invoke.yitian_lost = function(self, data)
 end
 
 sgs.ai_skill_playerchosen.yitian_lost = sgs.ai_skill_playerchosen.damage
+sgs.ai_playerchosen_intention.yitian_lost = 80
 
 sgs.ai_skill_invoke.yitian_sword = function(self, targets)
 	local slash=self:getCard("Slash")
@@ -25,15 +26,17 @@ local function findPlayerForModifyKingdom(self, players)
 	local isGood = self:isFriend(lord)
 
 	for _, player in sgs.qlist(players) do
-		if  sgs.evaluateRoleTrends(player) == "loyalist" then
-			local sameKingdom = player:getKingdom() == lord:getKingdom()
-			if isGood ~= sameKingdom then
-				return player
-			end
-		elseif lord:hasLordSkill("xueyi") and not player:isLord() then
-			local isQun = player:getKingdom() == "qun"
-			if isGood ~= isQun then
-				return player
+		if not player:isLord() or player:hasLordSkill("weidai") then
+			if  sgs.evaluateRoleTrends(player) == "loyalist" then
+				local sameKingdom = player:getKingdom() == lord:getKingdom() 
+				if isGood ~= sameKingdom then
+					return player
+				end
+			elseif lord:hasLordSkill("xueyi") and not player:isLord() then
+				local isQun = player:getKingdom() == "qun"
+				if isGood ~= isQun then
+					return player
+				end
 			end
 		end
 	end
@@ -256,7 +259,7 @@ sgs.ai_skill_choice.wuling = function(self, choices)
 	return choices_table[math.random(1, #choices_table)]
 end
 
-sgs.ai_skill_use["@lianli"] = function(self, prompt)
+sgs.ai_skill_use["@@lianli"] = function(self, prompt)
 	self:sort(self.friends)
 	
 	for _, friend in ipairs(self.friends) do
@@ -292,7 +295,10 @@ end
 
 sgs.ai_choicemade_filter.cardResponsed["@lianli-jink"] = function(player, promptlist)
 	if promptlist[#promptlist] ~= "_nil_" then
-		sgs.updateIntention(player, sgs.lianlisource, -80)
+		-- sgs.updateIntention(player, sgs.lianlisource, -80)
+		local xiahoujuan = player:getRoom():findPlayerBySkillName("lianli")
+		assert(xiahoujuan)
+		sgs.updateIntention(player, xiahoujuan, -80)
 		sgs.lianlisource = nil
 	end
 end
@@ -347,25 +353,6 @@ end
 
 sgs.ai_skill_invoke.tongxin = true
 
-local qiaocai_skill = {name = "qiaocai"}
-table.insert(sgs.ai_skills, qiaocai_skill)
-function qiaocai_skill.getTurnUseCard(self)
-	if self.player:getMark("@tied")>0 or self.player:hasUsed("QiaocaiCard") then return end
-	return sgs.Card_Parse("@QiaocaiCard=.")
-end
-
-function sgs.ai_skill_use_func.QiaocaiCard(card, use, self)
-	local function compare_func(a,b)
-		return a:getCards("j"):length() > b:getCards("j"):length()
-	end
-	table.sort(self.friends, compare_func)
-	if not self.friends[1]:getCards("j"):isEmpty() then
-		use.card = card
-		if use.to then use.to:append(self.friends[1]) end
-	end
-end
-
-sgs.ai_card_intention.QiaocaiCard = -70
 
 local guihan_skill = {name = "guihan"}
 table.insert(sgs.ai_skills, guihan_skill)
@@ -450,7 +437,13 @@ end
 
 function sgs.ai_skill_invoke.shaoying(self, data)
 	local damage = data:toDamage()
-	if not self:isEnemy(damage.to:getNextAlive()) then return false end
+	local enemynum = 0
+	for _, p in sgs.qlist(self.room:getOtherPlayers(damage.to)) do
+		if damage.to:distanceTo(p) <= 1 and self:isEnemy(p) then
+			enemynum = enemynum + 1
+		end
+	end
+	if enemynum < 1 then return false end
 	local zhangjiao = self.room:findPlayerBySkillName("guidao")
 	if not zhangjiao or self:isFriend(zhangjiao) then return true end
 	if not zhangjiao:getCards("e"):isEmpty() then
@@ -459,6 +452,18 @@ function sgs.ai_skill_invoke.shaoying(self, data)
 		end
 	end
 	return zhangjiao:getHandcardNum() <= 1
+end
+
+sgs.ai_skill_playerchosen.shaoying = function(self, targets)
+	local tos = {}
+	for _, target in sgs.qlist(targets) do
+		if self:isEnemy(target) then table.insert(tos, target) end
+	end 
+	
+	if #tos > 0 then
+		self:sort(tos, "hp")
+		return tos[1]
+	end
 end
 
 sgs.ai_skill_invoke.gongmou = true

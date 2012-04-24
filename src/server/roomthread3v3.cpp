@@ -8,11 +8,11 @@
 
 #include <QDateTime>
 
+//@todo: setParent here is illegitimate in QT and is equivalent to calling
+// setParent(NULL). Find another way to do it if we really need a parent.
 RoomThread3v3::RoomThread3v3(Room *room)
-    :QThread(room), room(room)
-{
-
-}
+    :room(room)
+{}
 
 QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
     QList<const General *> generals;
@@ -20,8 +20,8 @@ QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
     const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
     const Package *windpack = Sanguosha->findChild<const Package *>("wind");
 
-    generals = stdpack->findChildren<const General *>();
-    generals << windpack->findChildren<const General *>();
+    generals << stdpack->findChildren<const General *>()
+             << windpack->findChildren<const General *>();
 
     // remove hidden generals
     QMutableListIterator<const General *> itor(generals);
@@ -34,7 +34,15 @@ QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
 
     generals.removeOne(Sanguosha->getGeneral("yuji"));
 
-    Q_ASSERT(generals.length() == 32);
+    if(Config.value("3v3/UsingNewMode", false).toBool()){
+          QStringList list_remove, list_add;
+          list_remove << "zhangjiao" << "caoren" << "lvmeng" << "xiahoudun" << "weiyan";
+          list_add << "sunjian" << "menghuo" << "xuhuang" << "pangde" << "zhugejin";
+          foreach(QString general_name, list_remove)
+              generals.removeOne(Sanguosha->getGeneral(general_name));
+          foreach(QString general_name, list_add)
+              generals << Sanguosha->getGeneral(general_name);
+    }
 
     QStringList general_names;
     foreach(const General *general, generals)
@@ -52,7 +60,7 @@ void RoomThread3v3::run()
     assignRoles(scheme);
     room->adjustSeats();
 
-    foreach(ServerPlayer *player, room->players){
+    foreach(ServerPlayer *player, room->m_players){
         switch(player->getRoleEnum()){
         case Player::Lord: warm_leader = player; break;
         case Player::Renegade: cool_leader = player; break;
@@ -136,19 +144,19 @@ void RoomThread3v3::arrange(ServerPlayer *player, const QStringList &arranged){
     Q_ASSERT(arranged.length() == 3);
 
     if(player->isLord()){
-        room->players.at(5)->setGeneralName(arranged.at(0));
-        room->players.at(0)->setGeneralName(arranged.at(1));
-        room->players.at(1)->setGeneralName(arranged.at(2));
-        room->setTag(room->players.at(5)->objectName(),QStringList(arranged.at(0)));
-        room->setTag(room->players.at(0)->objectName(),QStringList(arranged.at(1)));
-        room->setTag(room->players.at(1)->objectName(),QStringList(arranged.at(2)));
+        room->m_players.at(5)->setGeneralName(arranged.at(0));
+        room->m_players.at(0)->setGeneralName(arranged.at(1));
+        room->m_players.at(1)->setGeneralName(arranged.at(2));
+        room->setTag(room->m_players.at(5)->objectName(),QStringList(arranged.at(0)));
+        room->setTag(room->m_players.at(0)->objectName(),QStringList(arranged.at(1)));
+        room->setTag(room->m_players.at(1)->objectName(),QStringList(arranged.at(2)));
     }else{
-        room->players.at(2)->setGeneralName(arranged.at(0));
-        room->players.at(3)->setGeneralName(arranged.at(1));
-        room->players.at(4)->setGeneralName(arranged.at(2));
-        room->setTag(room->players.at(2)->objectName(),QStringList(arranged.at(0)));
-        room->setTag(room->players.at(3)->objectName(),QStringList(arranged.at(1)));
-        room->setTag(room->players.at(4)->objectName(),QStringList(arranged.at(2)));
+        room->m_players.at(2)->setGeneralName(arranged.at(0));
+        room->m_players.at(3)->setGeneralName(arranged.at(1));
+        room->m_players.at(4)->setGeneralName(arranged.at(2));
+        room->setTag(room->m_players.at(2)->objectName(),QStringList(arranged.at(0)));
+        room->setTag(room->m_players.at(3)->objectName(),QStringList(arranged.at(1)));
+        room->setTag(room->m_players.at(4)->objectName(),QStringList(arranged.at(2)));
     }
 
     room->sem->release();
@@ -161,7 +169,7 @@ void RoomThread3v3::assignRoles(const QStringList &roles, const QString &scheme)
     for(i=0; i<6; i++)
         new_players << NULL;
 
-    foreach(ServerPlayer *player, room->players){
+    foreach(ServerPlayer *player, room->m_players){
         if(player->getState() == "online"){
             QString role = room->askForRole(player, all_roles, scheme);
             if(role != "abstain"){
@@ -193,7 +201,7 @@ void RoomThread3v3::assignRoles(const QStringList &roles, const QString &scheme)
         }
     }
 
-    room->players = new_players;
+    room->m_players = new_players;
 }
 
 // there are 3 scheme
@@ -206,12 +214,12 @@ void RoomThread3v3::assignRoles(const QString &scheme){
             << "renegade"  << "rebel" << "loyalist";
 
     if(scheme == "Random"){
-        // the easiest way
-        qShuffle(room->players);
+        // the easiest way        
+        qShuffle(room->m_players);
 
         int i;
         for(i=0; i<roles.length(); i++)
-            room->setPlayerProperty(room->players.at(i), "role", roles.at(i));
+            room->setPlayerProperty(room->m_players.at(i), "role", roles.at(i));
     }else if(scheme == "AllRoles"){
         assignRoles(roles, scheme);
     }else{
@@ -232,16 +240,16 @@ void RoomThread3v3::assignRoles(const QString &scheme){
             map["leader2"] = "lord";
             map["guard2"] = "loyalist";
 
-            room->players.swap(0, 3);
-            room->players.swap(1, 4);
-            room->players.swap(2, 5);
+            room->m_players.swap(0, 3);
+            room->m_players.swap(1, 4);
+            room->m_players.swap(2, 5);
         }
 
-        foreach(ServerPlayer *player, room->players){
+        foreach(ServerPlayer *player, room->m_players){
             player->setRole(map[player->getRole()]);
         }
     }
 
-    foreach(ServerPlayer *player, room->players)
+    foreach(ServerPlayer *player, room->m_players)
         room->broadcastProperty(player, "role");
 }

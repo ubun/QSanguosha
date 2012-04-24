@@ -82,14 +82,14 @@ public:
         if(event == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
             const SkillCard *skill_card = qobject_cast<const SkillCard *>(use.card);
-            if(skill_card && skill_card->subcardsLength() > 0 && skill_card->willThrow()){
+            if(skill_card &&
+                    skill_card->subcardsLength() > 0 &&
+                    skill_card->willThrow() &&
+                    !skill_card->isOwnerDiscarded()){
                 clubs = getClubs(skill_card);
             }
         }else if(event == CardDiscarded){
             const Card *card = data.value<CardStar>();
-            if(card->subcardsLength() == 0)
-                return false;
-
             clubs = getClubs(card);
         }else if(event == FinishJudge){
             JudgeStar judge = data.value<JudgeStar>();
@@ -142,7 +142,7 @@ public:
         return analeptic;
     }
 
-    virtual int getEffectIndex(ServerPlayer *, const Card *) const{
+    virtual int getEffectIndex(const ServerPlayer *, const Card *) const{
         return qrand() % 2 + 1;
     }
 
@@ -201,6 +201,7 @@ public:
                 log.from = effect.from;
                 log.to << effect.to;
                 log.arg = effect.card->objectName();
+                log.arg2 = objectName();
 
                 room->sendLog(log);
 
@@ -215,6 +216,7 @@ public:
                 log.from = effect.to;
                 log.to << effect.from;
                 log.arg = effect.card->objectName();
+                log.arg2 = objectName();
 
                 room->sendLog(log);
 
@@ -230,6 +232,7 @@ public:
 
 JujianCard::JujianCard(){
     once = true;
+    owner_discarded = true;
 }
 
 void JujianCard::onEffect(const CardEffectStruct &effect) const{
@@ -317,6 +320,7 @@ public:
                 log.from = player;
                 log.to << recover.who;
                 log.arg = QString::number(recover.recover);
+                log.arg2 = objectName();
 
                 room->sendLog(log);
 
@@ -405,6 +409,7 @@ public:
             log.type = "#HuileiThrow";
             log.from = player;
             log.to << killer;
+            log.arg = objectName();
             room->sendLog(log);
 
             killer->throwAllHandCards();
@@ -744,6 +749,7 @@ public:
                 LogMessage log;
                 log.type = "#ZhichiAvoid";
                 log.from = player;
+                log.arg = objectName();
                 room->sendLog(log);
 
                 return true;
@@ -758,20 +764,31 @@ GanluCard::GanluCard(){
     once = true;
 }
 
-void GanluCard::swapEquip(ServerPlayer *first, ServerPlayer *second, int index) const{
-    const EquipCard *e1 = first->getEquip(index);
-    const EquipCard *e2 = second->getEquip(index);
-
+void GanluCard::swapEquip(ServerPlayer *first, ServerPlayer *second) const{
     Room *room = first->getRoom();
+    DummyCard *equips1 = new DummyCard, *equips2 = new DummyCard;
+    foreach(const Card *equip, first->getEquips())
+        equips1->addSubcard(equip->getId());
+    foreach(const Card *equip, second->getEquips())
+        equips2->addSubcard(equip->getId());
 
-    if(e1)
-        first->obtainCard(e1);
+    if(!equips1->getSubcards().isEmpty())
+        second->addToPile("#ganlu", equips1);
+    if(!equips2->getSubcards().isEmpty())
+        first->addToPile("#ganlu", equips2);
 
-    if(e2)
-        room->moveCardTo(e2, first, Player::Equip);
-
-    if(e1)
-        room->moveCardTo(e1, second, Player::Equip);
+    if(!equips2->getSubcards().isEmpty()){
+        foreach(int equip_id, equips2->getSubcards()){
+            const Card *equip = Sanguosha->getCard(equip_id);
+            room->moveCardTo(equip, first, Player::Equip);
+        }
+    }
+    if(!equips1->getSubcards().isEmpty()){
+        foreach(int equip_id, equips1->getSubcards()){
+            const Card *equip = Sanguosha->getCard(equip_id);
+            room->moveCardTo(equip, second, Player::Equip);
+        }
+    }
 }
 
 bool GanluCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
@@ -796,9 +813,7 @@ void GanluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
     ServerPlayer *first = targets.first();
     ServerPlayer *second = targets.at(1);
 
-    int i;
-    for(i=0; i<4; i++)
-        swapEquip(first, second, i);
+    swapEquip(first, second);
 
     LogMessage log;
     log.type = "#GanluSwap";
@@ -848,7 +863,7 @@ public:
                 room->showCard(player, card->getEffectiveId());
 
                 if(card->getTypeId() != Card::Basic){
-                    room->throwCard(card);
+                    room->throwCard(card, player);
 
                     room->playSkillEffect(objectName());
 
@@ -900,7 +915,7 @@ void XinzhanCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
     }
 
     if(!left.isEmpty())
-        room->doGuanxing(source, left, true);
+        room->askForGuanxing(source, left, true);
  }
 
 class Xinzhan: public ZeroCardViewAsSkill{

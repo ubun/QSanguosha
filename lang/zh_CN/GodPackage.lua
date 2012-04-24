@@ -10,10 +10,10 @@ return {
 	["wuhun"] = "武魂",
 	[":wuhun"] = "<b>锁定技</b>，任意角色每对你造成1点伤害，获得一个梦魇标记，你死亡时，令持有最多该标记的一名角色判定，除非结果为【桃】或【桃园结义】，否则该角色立即死亡。",
 	["@nightmare"] = "梦魇",
-	["#WuhunRevenge"] = "%from 的锁定技【武魂】被触发，持有最多梦魇标记的角色 %to(%arg个)将立即死亡",
+	["#WuhunRevenge"] = "%from 的锁定技【%arg2】被触发，持有最多梦魇标记的角色 %to(%arg个)将立即死亡",
 
-	["#shenlumeng"] = "圣光之国士",
-	["shenlumeng"] = "神吕蒙",
+	["#shenlvmeng"] = "圣光之国士",
+	["shenlvmeng"] = "神吕蒙",
 	["shelie"] = "涉猎",
 	[":shelie"] = "摸牌阶段开始时，你可以选择执行以下行动来取代摸牌：从牌堆顶亮出五张牌，拿走不同花色的牌各一张，然后将其余的置入弃牌堆",
 	["gongxin"] = "攻心",
@@ -59,9 +59,9 @@ return {
 ★大雾不能防止失去体力",
 	["@fog"] = "大雾",
 	["@qixing-exchange"] = "请选择 %arg 张用以交换的手牌",
-	["@@kuangfeng-card"] = "请选择一名角色，直到你的下回合开始，该角色每次受到的火焰伤害+1",
-	["@@dawu-card"] = "你可以弃掉X枚“星”指定X名角色：直到你的下回合开始，防止他们受到的除雷电伤害外的一切伤害",
-	["#QixingExchange"] = "%from 使用了【七星】，交换了 %arg 张手牌",
+	["@kuangfeng-card"] = "请选择一名角色，直到你的下回合开始，该角色每次受到的火焰伤害+1",
+	["@dawu-card"] = "你可以弃掉X枚“星”指定X名角色：直到你的下回合开始，防止他们受到的除雷电伤害外的一切伤害",
+	["#QixingExchange"] = "%from 使用了【%arg2】，交换了 %arg 张手牌",
 	["#FogProtect"] = "%from 受到大雾保护，防止了 %arg 点伤害[%arg2]",
 	["#GalePower"] = "由于狂风的影响，%from 的伤害从 %arg 点火焰伤害增加到 %arg2 点火焰伤害",
 
@@ -73,8 +73,8 @@ return {
 	[":feiying"] = "<b>锁定技</b>，当其他角色计算与你的距离时，始终+1",
 	["guixin:yes"] = "你可分别从每名其他角色区域处取得一张牌，然后将你的武将牌翻面",
 
-	["#shenlubu"] = "修罗之道",
-	["shenlubu"] = "神吕布",
+	["#shenlvbu"] = "修罗之道",
+	["shenlvbu"] = "神吕布",
 	["kuangbao"] = "狂暴",
 	[":kuangbao"] = "游戏开始时你获得2个暴怒标记，游戏中你每受到或造成1点伤害，获得1个暴怒标记",
 	["@wrath"] = "暴怒",
@@ -84,8 +84,8 @@ return {
 	[":wuqian"] = "出牌阶段你可以弃掉两个暴怒标记并指定一名角色，这名角色的防具无效且你获得“无双”的技能，直到回合结束",
 	["shenfen"] = "神愤",
 	[":shenfen"] = "出牌阶段，弃掉六个暴怒标记，你对每名其他角色各造成一点伤害，其他角色先弃置各自装备区里所有的牌，再各弃置四张手牌，然后将你的武将牌反面，每阶段限一次",
-	["#KuangbaoDamage"] = "%from 的锁定技【狂暴】被触发，造成 %arg 点伤害获得 %arg 枚暴怒标记",
-	["#KuangbaoDamaged"] = "%from 的锁定技【狂暴】被触发，受到 %arg 点伤害获得 %arg 枚暴怒标记",
+	["#KuangbaoDamage"] = "%from 的锁定技【%arg2】被触发，造成 %arg 点伤害获得 %arg 枚暴怒标记",
+	["#KuangbaoDamaged"] = "%from 的锁定技【%arg2】被触发，受到 %arg 点伤害获得 %arg 枚暴怒标记",
 	["wumou:discard"] = "弃掉一个“暴怒”标记",
 	["wumou:losehp"] = "失去一点体力",
 
@@ -109,7 +109,7 @@ return {
 	["lianpo"] = "连破",
 	[":lianpo"] = "若你于一回合内杀死至少一名角色，可于此回合结束后，进行一个额外的回合",
 	["@jilve-zhiheng"] = "请发动【制衡】技能",
-	["#LianpoCanInvoke"] = "%from 在本回合内杀死了 %arg 名角色，达成【连破】的发动条件",
+	["#LianpoCanInvoke"] = "%from 在本回合内杀死了 %arg 名角色，达成【%arg2】的发动条件",
 	["#LianpoRecord"] = "%from 在 %arg 的回合内杀死了 %to，将可在 %arg 回合结束后进行一个额外的回合",
 
 -- CV
@@ -121,12 +121,12 @@ return {
 	["$wuhun3"] = "桃园之梦，再也不会回来了……",
 	["~shenguanyu"] = "吾一世英名，竟葬于小人之手！",
 
-	["cv:shenlumeng"] = "宇文天启",
+	["cv:shenlvmeng"] = "宇文天启",
 	["$shelie1"] = "但当涉猎，见往事耳",
 	["$shelie2"] = "涉猎阅旧闻，暂使心魂澄",
 	["$gongxin1"] = "用兵之道，攻心为上，攻城为下",
 	["$gongxin2"] = "心战为上，兵战为下",
-	["~shenlumeng"] = "死去方知万事空……",
+	["~shenlvmeng"] = "死去方知万事空……",
 
 	["cv:shenzhouyu"] = "血桜の涙",
 	["$qinyin1"] = "捻指勾弦，气破万军",
@@ -148,22 +148,31 @@ return {
 	["$guixin"] = "山不厌高，海不厌深，周公吐哺，天下归心",
 	["~shencaocao"] = "神龟虽寿，犹有竟时。腾蛇乘雾，终为土灰",
 
-	["cv:shenlubu"] = "笑傲糨糊",
+	["cv:shenlvbu"] = "笑傲糨糊",
 	["$kuangbao"] = "(嚎叫声)",
 	["$wumou"] = "武可定天下，计谋何足道？",
 	["$wuqian1"] = "战神一出，天下无双！",
 	["$wuqian2"] = "顺我者生，逆我者死",
 	["$shenfen1"] = "颤抖着滚开吧杂鱼们！这天下还有谁能满足我？！",
 	["$shenfen2"] = "战神之怒，神挡杀神，佛挡杀佛！",
-	["~shenlubu"] = "大耳贼最叵信……啊！",
+	["~shenlvbu"] = "大耳贼最叵信……啊！",
 
-	["cv:shenzhaoyun"] = "",
+	["cv:shenzhaoyun"] = "猎狐",
 	["$juejing"] = "龙战于野,其血玄黄",
 	["$longhun1"] = "金甲映日,驱邪祛秽", -- spade
 	["$longhun2"] = "腾龙行云,首尾不见", -- club
 	["$longhun3"] = "潜龙于渊,涉灵愈伤", -- heart
 	["$longhun4"] = "千里一怒,红莲灿世", -- diamond
-	["~shenzhaoyun"] = "血染鳞甲,龙堕九天",
+	["~shenzhaoyun"] = "血染鳞甲,龙坠九天",
 
 	["cv:shensimayi"] = "",
+	["$renjie"] = "韬光养晦，静待时机。",
+	["$baiyin"] = "是可忍，孰不可忍！",
+	["$jilve1"] = "天意如何，我命由我。", -- guicai
+	["$jilve2"] = "远逐敌雠，拔除异己。", -- fangzhu
+	["$jilve3"] = "心狠手毒，方能成事。", -- wansha
+	["$jilve4"] = "且暂思量，再作打算。", -- zhiheng
+	["$jilve5"] = "此计即成，彼计亦得。", -- jizhi
+	["$lianpo"] = "敌军已乱，乘胜追击。",
+	["~shensimayi"] = "我已谋划至此，奈何……",
 }

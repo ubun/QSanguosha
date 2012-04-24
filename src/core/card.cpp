@@ -15,7 +15,8 @@ const Card::Suit Card::AllSuits[4] = {
 };
 
 Card::Card(Suit suit, int number, bool target_fixed)
-    :target_fixed(target_fixed), once(false), mute(false), will_throw(true), suit(suit), number(number), id(-1)
+    :target_fixed(target_fixed), once(false), mute(false), will_throw(true), owner_discarded(false)
+    , suit(suit), number(number), id(-1)
 {
     can_jilei = will_throw;
 
@@ -117,7 +118,18 @@ void Card::setSuit(Suit suit){
 }
 
 bool Card::sameColorWith(const Card *other) const{
-    return isBlack() == other->isBlack();
+    return getColor() == other->getColor();
+}
+
+Card::Color Card::getColor() const{
+    switch(suit){
+    case Spade:
+    case Club: return Black;
+    case Heart:
+    case Diamond: return Red;
+    default:
+        return Colorless;
+    }
 }
 
 bool Card::isEquipped() const{
@@ -383,7 +395,7 @@ bool Card::targetFixed() const{
     return target_fixed;
 }
 
-bool Card::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+bool Card::targetsFeasible(const QList<const Player *> &targets, const Player *) const{
     if(target_fixed)
         return true;
     else
@@ -419,7 +431,7 @@ void Card::onUse(Room *room, const CardUseStruct &card_use) const{
 
 void Card::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     if(will_throw){
-        room->throwCard(this);
+        room->throwCard(this, owner_discarded ? source : NULL);
     }
 
     if(targets.length() == 1){
@@ -459,7 +471,7 @@ void Card::onMove(const CardMoveStruct &move) const{
 
 void Card::addSubcard(int card_id){
     if(card_id < 0)
-        qWarning(qPrintable(tr("Subcard must not be virtual card!")));
+        qWarning("%s", qPrintable(tr("Subcard must not be virtual card!")));
     else
         subcards << card_id;
 }
@@ -476,8 +488,8 @@ void Card::clearSubcards(){
     subcards.clear();
 }
 
-bool Card::isAvailable(const Player *) const{
-    return true;
+bool Card::isAvailable(const Player *player) const{
+    return !player->isJilei(this) && !player->isLocked(this);
 }
 
 const Card *Card::validate(const CardUseStruct *) const{
@@ -504,6 +516,34 @@ bool Card::willThrow() const{
 
 bool Card::canJilei() const{
     return can_jilei;
+}
+
+bool Card::isOwnerDiscarded() const{
+    return owner_discarded;
+}
+
+void Card::setFlags(const QString &flag) const{
+    static char symbol_c = '-';
+
+    if(flag.isEmpty())
+        return;
+    else if(flag == ".")
+        flags.clear();
+    else if(flag.startsWith(symbol_c)){
+        QString copy = flag;
+        copy.remove(symbol_c);
+        flags.removeOne(copy);
+    }
+    else
+        flags << flag;
+}
+
+bool Card::hasFlag(const QString &flag) const{
+    return flags.contains(flag);
+}
+
+void Card::clearFlags() const{
+    flags.clear();
 }
 
 // ---------   Skill card     ------------------

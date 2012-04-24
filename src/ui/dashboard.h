@@ -18,7 +18,7 @@ class Dashboard : public Pixmap
     Q_OBJECT
 
 public:
-    Dashboard();
+    Dashboard(QGraphicsItem *button_widget);
     virtual QRectF boundingRect() const;
     void setWidth(int width);
     QGraphicsProxyWidget *addWidget(QWidget *widget, int x, bool from_left);
@@ -58,12 +58,14 @@ public:
 
     int getRightPosition();
     int getMidPosition();
+    int getButtonWidgetWidth() const;
 
 public slots:
     void updateAvatar();
     void updateSmallAvatar();
     void updateReadyItem(bool visible);
     void refresh();
+    void doFilter();
     void sortCards(int sort_type);
     void reverseSelection();
 
@@ -74,7 +76,7 @@ protected:
 private:
     QPixmap left_pixmap, right_pixmap;
     QGraphicsRectItem *left, *middle, *right;
-    int min_width;
+    QGraphicsItem *button_widget;
 
     QList<CardItem*> card_items;
     CardItem *selected;
