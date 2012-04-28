@@ -79,7 +79,7 @@ void LihunCard::onEffect(const CardEffectStruct &effect) const{
     }
     if (!effect.to->isKongcheng())
         room->moveCardTo(dummy_card, effect.from, Player::Hand, false);
-    room->setTag("LihunTarget", QVariant::fromValue(effect.to));
+    effect.to->setFlags("LihunTarget");
 }
 
 class LihunSelect: public OneCardViewAsSkill{
@@ -122,7 +122,15 @@ public:
         Room *room = diaochan->getRoom();
 
         if(event == PhaseChange && diaochan->getPhase() == Player::Discard){
-            ServerPlayer *target = room->getTag("LihunTarget").value<PlayerStar>();
+            ServerPlayer *target = NULL;
+            foreach(ServerPlayer *other, room->getOtherPlayers(diaochan)){
+                if(other->hasFlag("LihunTarget")){
+                    other->setFlags("-LihunTarget");
+                    target = other;
+                    break;
+                }
+            }
+
             if(!target || target->isDead())
                 return false;
 
@@ -250,6 +258,10 @@ public:
     Manjuan(): TriggerSkill("manjuan"){
         events << CardGot << CardDrawing;
         frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return 2;
     }
 
     void doManjuan(ServerPlayer *sp_pangtong, int card_id) const{

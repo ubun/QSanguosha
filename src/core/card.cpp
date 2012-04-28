@@ -394,7 +394,7 @@ bool Card::targetFixed() const{
     return target_fixed;
 }
 
-bool Card::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+bool Card::targetsFeasible(const QList<const Player *> &targets, const Player *) const{
     if(target_fixed)
         return true;
     else
@@ -520,16 +520,25 @@ bool Card::canJilei() const{
 void Card::setFlags(const QString &flag) const{
     static char symbol_c = '-';
 
-    if(flag == ".")
+    if(flag.isEmpty())
+        return;
+    else if(flag == ".")
         flags.clear();
-    if(flag.startsWith(symbol_c))
-        flags.removeOne(flag);
+    else if(flag.startsWith(symbol_c)){
+        QString copy = flag;
+        copy.remove(symbol_c);
+        flags.removeOne(copy);
+    }
     else
         flags << flag;
 }
 
 bool Card::hasFlag(const QString &flag) const{
     return flags.contains(flag);
+}
+
+void Card::clearFlags() const{
+    flags.clear();
 }
 
 // ---------   Skill card     ------------------

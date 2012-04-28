@@ -8,10 +8,16 @@
 #include "banpair.h"
 #include "lua-wrapper.h"
 
+const int ServerPlayer::S_NUM_SEMAPHORES = 4;
+
 ServerPlayer::ServerPlayer(Room *room)
     : Player(room), socket(NULL), room(room),
     ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL), next(NULL)
 {
+    semas = new QSemaphore*[S_NUM_SEMAPHORES];
+    for(int i=0; i< S_NUM_SEMAPHORES; i++){
+        semas[i] = new QSemaphore(0);
+    }        
 }
 
 void ServerPlayer::drawCard(const Card *card){
@@ -121,6 +127,8 @@ void ServerPlayer::clearPrivatePiles(){
 }
 
 void ServerPlayer::bury(){
+    clearFlags();
+    clearHistory();
     throwAllCards();
     throwAllMarks();
     clearPrivatePiles();
@@ -135,8 +143,8 @@ void ServerPlayer::throwAllCards(){
         room->throwCard(trick);
 }
 
-void ServerPlayer::drawCards(int n, bool set_emotion){
-    room->drawCards(this, n);
+void ServerPlayer::drawCards(int n, bool set_emotion, const QString &reason){
+    room->drawCards(this, n, reason);
 
     if(set_emotion)
         room->setEmotion(this, "draw-card");
@@ -346,9 +354,10 @@ void ServerPlayer::removeCard(const Card *card, Place place){
     case Special:{
             int card_id = card->getEffectiveId();
             QString pile_name = getPileName(card_id);
-            Q_ASSERT(!pile_name.isEmpty());
-
-            piles[pile_name].removeOne(card_id);
+            
+            //@todo: sanity check required
+            if (!pile_name.isEmpty())
+                piles[pile_name].removeOne(card_id);
 
             break;
         }
@@ -510,6 +519,13 @@ bool ServerPlayer::hasNullification() const{
         if(skill->inherits("LuaViewAsSkill")){
             const LuaViewAsSkill* luaskill = qobject_cast<const LuaViewAsSkill*>(skill);
             if(luaskill->isEnabledAtNullification(this)) return true;
+        }else if(skill->inherits("TriggerSkill")){
+            const TriggerSkill* trigger_skill = qobject_cast<const TriggerSkill*>(skill);
+            if(trigger_skill && trigger_skill->getViewAsSkill()
+                    && trigger_skill->getViewAsSkill()->inherits("LuaViewAsSkill")){
+                const LuaViewAsSkill* luaskill = qobject_cast<const LuaViewAsSkill*>(trigger_skill->getViewAsSkill());
+                if(luaskill && luaskill->isEnabledAtNullification(this)) return true;
+            }
         }
     }
 
@@ -859,6 +875,18 @@ void ServerPlayer::marshal(ServerPlayer *player) const{
         if(value > 0)
             player->invoke("addHistory", QString("%1#%2").arg(item).arg(value));
     }
+}
+
+void ServerPlayer::addToPile(const QString &pile_name, const Card *card, bool open){
+    if(card->isVirtualCard()){
+        QList<int> cards_id = card->getSubcards();
+        foreach(int card_id, cards_id)
+            piles[pile_name] << card_id;
+    }
+    else
+        piles[pile_name] << card->getEffectiveId();
+
+    room->moveCardTo(card, this, Player::Special, open);
 }
 
 void ServerPlayer::addToPile(const QString &pile_name, int card_id, bool open){

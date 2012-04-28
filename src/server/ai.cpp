@@ -168,7 +168,7 @@ QList<ServerPlayer *> AI::getFriends() const{
     return friends;
 }
 
-void AI::filterEvent(TriggerEvent event, ServerPlayer *player, const QVariant &data){
+void AI::filterEvent(TriggerEvent , ServerPlayer *, const QVariant &){
     // dummy
 }
 
@@ -237,21 +237,23 @@ QString TrustAI::askForKingdom(){
     return role;
 }
 
-bool TrustAI::askForSkillInvoke(const QString &skill_name, const QVariant &data){
+bool TrustAI::askForSkillInvoke(const QString &, const QVariant &){
     return false;
 }
 
 QString TrustAI::askForChoice(const QString &skill_name, const QString &choice){
     const Skill *skill = Sanguosha->getSkill(skill_name);
-    if(skill)
-        return skill->getDefaultChoice(self);
-    else{
-        QStringList choices = choice.split("+");
-        return choices.at(qrand() % choices.length());
+    if(skill){
+        QString default_choice = skill->getDefaultChoice(self);
+        if(choice.contains(default_choice))
+            return default_choice;
     }
+
+    QStringList choices = choice.split("+");
+    return choices.at(qrand() % choices.length());
 }
 
-QList<int> TrustAI::askForDiscard(const QString &reason, int discard_num, bool optional, bool include_equip){
+QList<int> TrustAI::askForDiscard(const QString &, int discard_num, bool optional, bool include_equip){
     QList<int> to_discard;
 
     if(optional)
@@ -292,6 +294,9 @@ int TrustAI::askForCardChosen(ServerPlayer *who, const QString &flags, const QSt
 }
 
 const Card *TrustAI::askForCard(const QString &pattern, const QString &prompt, const QVariant &data){
+    Q_UNUSED(prompt);
+    Q_UNUSED(data);
+
     response_skill->setPattern(pattern);
     QList<const Card *> cards = self->getHandcards();
     foreach(const Card *card, cards){
@@ -337,6 +342,8 @@ const Card *TrustAI::askForPindian(ServerPlayer *requestor, const QString &reaso
 }
 
 ServerPlayer *TrustAI::askForPlayerChosen(const QList<ServerPlayer *> &targets, const QString &reason){
+    Q_UNUSED(reason);
+
     int r = qrand() % targets.length();
     return targets.at(r);
 }
@@ -412,12 +419,8 @@ QString LuaAI::askForUseCard(const QString &pattern, const QString &prompt){
 
     lua_State *L = room->getLuaState();
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callback);
-
-    lua_pushstring(L, __FUNCTION__);
-
+    pushCallback(L, __FUNCTION__);
     lua_pushstring(L, pattern.toAscii());
-
     lua_pushstring(L, prompt.toAscii());
 
     int error = lua_pcall(L, 3, 1, 0);

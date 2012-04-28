@@ -757,7 +757,7 @@ public:
     Kuangfeng():TriggerSkill("kuangfeng"){
         view_as_skill = new KuangfengViewAsSkill;
 
-        events << Predamaged;
+        events << DamagedProceed;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -874,7 +874,7 @@ public:
     Dawu():TriggerSkill("dawu"){
         view_as_skill = new DawuViewAsSkill;
 
-        events << Predamaged;
+        events << DamagedProceed;
     }
 
     virtual int getPriority() const{
@@ -1154,7 +1154,8 @@ public:
     }
 
     virtual int getDrawNum(ServerPlayer *player, int n) const{
-        player->getRoom()->playSkillEffect(objectName());
+        if(player->isWounded())
+            player->getRoom()->playSkillEffect(objectName());
         return n + player->getLostHp();
     }
 };

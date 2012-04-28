@@ -10,7 +10,10 @@ static GeneralSelector *Selector;
 GeneralSelector *GeneralSelector::GetInstance(){
     if(Selector == NULL){
         Selector = new GeneralSelector;
-        Selector->setParent(Sanguosha);
+        //@todo: this setParent is illegitimate in QT and is equivalent to calling
+        // setParent(NULL). So taking it off at the moment until we figure out
+        // a way to do it.
+        //Selector->setParent(Sanguosha);
     }
 
     return Selector;
@@ -88,7 +91,7 @@ QString GeneralSelector::selectSecond(ServerPlayer *player, const QStringList &c
     return max_general;
 }
 
-QString GeneralSelector::select3v3(ServerPlayer *player, const QStringList &candidates){
+QString GeneralSelector::select3v3(ServerPlayer *, const QStringList &candidates){
     return selectHighest(priority_3v3_table, candidates, 0);
 }
 

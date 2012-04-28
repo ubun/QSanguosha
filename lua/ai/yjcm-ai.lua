@@ -1,4 +1,4 @@
-function sgs.ai_zerocardview.jiushi(class_name, player)
+function sgs.ai_cardsview.jiushi(class_name, player)
 	if class_name == "Analeptic" then
 		if player:hasSkill("jiushi") and player:faceUp() then
 			return ("analeptic:jiushi[no_suit:0]=.")
@@ -128,6 +128,7 @@ sgs.ai_use_value.XinzhanCard = 4.4
 sgs.ai_use_priority.XinzhanCard = 9.2
 
 function sgs.ai_slash_prohibit.huilei(self, to)
+	if self.player:hasSkill("qianxi") then return false end
 	if self:isFriend(to) and self:isWeak(to) then return true end
 	return #self.enemies>1 and self:isWeak(to) and (self.player:getHandcardNum()>3 or self:getCardsNum("Shit")>0)
 end
@@ -459,20 +460,17 @@ xianzhen_skill.getTurnUseCard=function(self)
 	cards=sgs.QList2Table(cards)
 
 	local max_card = self:getMaxCard()
-	if not max_card then return end
-	local max_point = max_card:getNumber()
-
 	local slashNum=self:getCardsNum("Slash")
-	if max_card:inherits("Slash") then slashNum=slashNum-1 end
-
-	if slashNum<2 then return end
+	if max_card then 
+		local max_point = max_card:getNumber()
+		if max_card:inherits("Slash") then slashNum=slashNum-1 end
+	end
 
 	self:sort(self.enemies, "hp")
 
 	for _, enemy in ipairs(self.enemies) do
-
 		local enemy_max_card = self:getMaxCard(enemy)
-		if enemy_max_card and max_point > enemy_max_card:getNumber() then
+		if enemy_max_card and max_point and max_point > enemy_max_card:getNumber() and slashNum > 1 then
 
 			local slash=self:getCard("Slash")
 			local dummy_use={}
@@ -489,7 +487,17 @@ xianzhen_skill.getTurnUseCard=function(self)
 			end
 		end
 	end
-
+	self:sortByUseValue(cards, true)
+	if self:getOverflow()>0	then
+		for _, enemy in ipairs(self.enemies) do
+			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) and not enemy:isKongcheng() and not enemy:hasSkill("tuntian") then
+				local card_id = cards[1]:getEffectiveId()
+				local card_str = "@XianzhenCard=" .. card_id
+				local card = sgs.Card_Parse(card_str)
+				return card
+			end
+		end
+	end
 end
 
 sgs.ai_skill_use_func.XianzhenSlashCard=function(card,use,self)
@@ -511,6 +519,15 @@ sgs.ai_skill_use_func.XianzhenCard=function(card,use,self)
 		local enemy_max_card = self:getMaxCard(enemy)
 		if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1)
 			and (enemy_max_card and max_point > enemy_max_card:getNumber()) then
+			if use.to then
+				use.to:append(enemy)
+			end
+			use.card=card
+			return
+		end
+	end
+	if self:getOverflow()>0	then
+		for _, enemy in ipairs(self.enemies) do
 			if use.to then
 				use.to:append(enemy)
 			end

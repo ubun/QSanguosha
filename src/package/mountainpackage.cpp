@@ -999,7 +999,7 @@ public:
         static QSet<QString> banned;
         if(banned.isEmpty()){
             banned << "zuoci" << "zuocif" << "guzhielai" << "dengshizai" << "caochong"
-                   << "jiangboyue" << "shenzhugeliang" << "shenlubu" << "zhugejin";
+                   << "jiangboyue" << "shenzhugeliang" << "shenlubu" << "huaxiong" << "zhugejin";
         }
 
         return (all - banned - huashen_set - room_set).toList();
@@ -1043,8 +1043,10 @@ public:
                     }
                 }
             }
+            Q_ASSERT(skill_names.length() > 0);
             skill_name = ai->askForChoice("huashen", skill_names.join("+"));
             const General* general = hash[skill_name];
+            Q_ASSERT(general != NULL);
             QString kingdom = general->getKingdom();
             if(zuoci->getKingdom() != kingdom){
                 if(kingdom == "god")

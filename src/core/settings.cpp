@@ -16,6 +16,10 @@ Settings Config;
 static const qreal ViewWidth = 1280 * 0.8;
 static const qreal ViewHeight = 800 * 0.8;
 
+//consts
+const int Settings::S_CHOOSE_GENERAL_TIMEOUT = 15;
+const int Settings::S_GUANXING_TIMEOUT = 20;
+
 Settings::Settings()
 
 #ifdef Q_OS_WIN32

@@ -220,6 +220,10 @@ public:
         view_as_skill = new LeijiViewAsSkill;
     }
 
+    virtual int getPriority() const{
+        return 3;
+    }
+
     virtual bool trigger(TriggerEvent event, ServerPlayer *zhangjiao, QVariant &data) const{
         if(event == CardAsked){
             if(data.toString() == "jink")
@@ -670,8 +674,9 @@ GuhuoCard::GuhuoCard(){
 bool GuhuoCard::guhuo(ServerPlayer* yuji, const QString& message) const{
     Room *room = yuji->getRoom();
     room->setTag("Guhuoing", true);
+    room->setTag("GuhuoType", this->user_string);
 
-    yuji->addToPile("guhuo_pile", this->getEffectiveId(), false);
+    yuji->addToPile("#guhuo_pile", this->getEffectiveId(), false);
     room->moveCardTo(this, yuji, Player::Special, false);
 
     QList<ServerPlayer *> players = room->getOtherPlayers(yuji);
@@ -743,6 +748,7 @@ bool GuhuoCard::guhuo(ServerPlayer* yuji, const QString& message) const{
     room->sendLog(log);
 
     room->setTag("Guhuoing", false);
+    room->removeTag("GuhuoType");
 
     if(!success)
         room->throwCard(this);

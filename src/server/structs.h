@@ -157,6 +157,8 @@ enum TriggerEvent{
     TurnedOver,
 
     Predamage,
+    DamagedProceed,
+    DamageProceed,
     Predamaged,
     DamageDone,
     Damage,
@@ -179,6 +181,7 @@ enum TriggerEvent{
     CardUsed,
     CardResponsed,
     CardDiscarded,
+    CardMoving,
     CardLost,
     CardLostDone,
     CardGot,
@@ -207,6 +210,7 @@ Q_DECLARE_METATYPE(DamageStruct)
 Q_DECLARE_METATYPE(CardEffectStruct)
 Q_DECLARE_METATYPE(SlashEffectStruct)
 Q_DECLARE_METATYPE(CardUseStruct)
+Q_DECLARE_METATYPE(CardMoveStruct)
 Q_DECLARE_METATYPE(CardMoveStar)
 Q_DECLARE_METATYPE(CardStar)
 Q_DECLARE_METATYPE(PlayerStar)

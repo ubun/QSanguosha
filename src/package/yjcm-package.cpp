@@ -43,7 +43,7 @@ public:
 class Luoying: public TriggerSkill{
 public:
     Luoying():TriggerSkill("luoying"){
-        events << CardDiscarded << CardUsed << FinishJudge;
+        events << CardDiscarded << CardUsed << CardLost << FinishJudge;
         frequency = Frequent;
         default_choice = "no";
     }
@@ -91,6 +91,11 @@ public:
                 return false;
 
             clubs = getClubs(card);
+        }else if (event == CardLost){
+                CardMoveStar move = data.value<CardMoveStar>();
+                const Card *card = Sanguosha->getCard(move->card_id);
+                if(move->from_place == Player::Equip && move->to_place == Player::DiscardedPile && card->getSuit() == Card::Club)
+                    clubs << card;
         }else if(event == FinishJudge){
             JudgeStar judge = data.value<JudgeStar>();
             if(room->getCardPlace(judge->card->getEffectiveId()) == Player::DiscardedPile
@@ -791,9 +796,9 @@ void GanluCard::swapEquip(ServerPlayer *first, ServerPlayer *second) const{
         equips2->addSubcard(equip->getId());
 
     if(!equips1->getSubcards().isEmpty())
-        room->moveCardTo(equips1, second, Player::Special);
+        second->addToPile("#ganlu", equips1);
     if(!equips2->getSubcards().isEmpty())
-        room->moveCardTo(equips2, first, Player::Special);
+        first->addToPile("#ganlu", equips2);
 
     if(!equips2->getSubcards().isEmpty()){
         foreach(int equip_id, equips2->getSubcards()){
