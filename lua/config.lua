@@ -17,6 +17,7 @@ config = {
         "Joy",
         "Disaster",
         "JoyEquip",
+	"KusoCard",
 
         "Standard",
         "Wind",
@@ -32,6 +33,16 @@ config = {
 	"NostalGeneral",
         "Yitian",
         "Wisdom",
+
+-- ShineWay
+	"Red",
+	"Cyan",
+	"Green",
+	"Purple",
+	"Kuso",
+	"Technology",
+	"Peasa",
+
         "Test";
 	},
 
