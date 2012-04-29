@@ -372,7 +372,7 @@ struct SlashEffectStruct{
 	SlashEffectStruct();
 
 	const Slash *slash;
-	const Jink *jink;
+	const Card *jink;
 
 	ServerPlayer *from;
 	ServerPlayer *to;
@@ -440,9 +440,17 @@ struct PindianStruct{
 	QString reason;
 };
 
+struct PhaseChangeStruct{
+    PhaseChangeStruct();
+    Player::Phase from;
+    Player::Phase to;
+};
+
 typedef PindianStruct *PindianStar;
 
 enum TriggerEvent{
+	NonTrigger,
+	
     GameStart,
     TurnStart,
     PhaseChange,
@@ -478,11 +486,14 @@ enum TriggerEvent{
     SlashProceed,
     SlashHit,
     SlashMissed,
+	
+	JinkUsed,
 
     CardAsked,
     CardUsed,
     CardResponsed,
     CardDiscarded,
+	CardMoving,
     CardLost,
     CardLostDone,
     CardGot,
@@ -578,6 +589,7 @@ public:
 	bool isMute() const;
 	bool willThrow() const;
 	bool canJilei() const;
+	bool isOwnerDiscarded() const;
 	
     void setFlags(const char *flag) const;
     bool hasFlag(const char *flag) const;
@@ -765,7 +777,6 @@ public:
 class Room : public QThread{
 public:
 	explicit Room(QObject *parent, const char *mode);
-	QString createLuaState();
 	ServerPlayer *addSocket(ClientSocket *socket);
 	bool isFull() const;
 	bool isFinished() const;
@@ -794,6 +805,11 @@ public:
 	void setPlayerFlag(ServerPlayer *player, const char *flag);
 	void setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
 	void setPlayerMark(ServerPlayer *player, const char *mark, int value);
+    void setPlayerStatistics(ServerPlayer *player, const char *property_name, const QVariant &value);
+    void setCardFlag(const Card *card, const char *flag, ServerPlayer *who = NULL);
+    void setCardFlag(int card_id, const char *flag, ServerPlayer *who = NULL);
+    void clearCardFlag(const Card *card, ServerPlayer *who = NULL);
+    void clearCardFlag(int card_id, ServerPlayer *who = NULL);
 	void useCard(const CardUseStruct &card_use, bool add_history = true);
 	void damage(const DamageStruct &data);
 	void sendDamageLog(const DamageStruct &data);
@@ -807,7 +823,7 @@ public:
 	void sendJudgeResult(const JudgeStar judge);
 	QList<int> getNCards(int n, bool update_pile_number = true);
 	ServerPlayer *getLord() const;
-	void doGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only);
+	void askForGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only);
 	void doGongxin(ServerPlayer *shenlumeng, ServerPlayer *target);
 	int drawCard();
 	const Card *peek();
@@ -818,11 +834,6 @@ public:
 	void sendLog(const LogMessage &log);
 	void showCard(ServerPlayer *player, int card_id, ServerPlayer *only_viewer = NULL);
 	void showAllCards(ServerPlayer *player, ServerPlayer *to = NULL);
-	void getResult(const QString &reply_func, ServerPlayer *reply_player, const QString &defaultValue, bool move_focus = true,
-                   bool supply_timeout = false, time_t timeout = 0);
-	void executeCommand(ServerPlayer* player, const char *invokeString, const QString &commandString,
-                   const QString &invokeArg, const QString &defaultValue, bool broadcast = false, bool move_focus = true,
-                   bool supply_timeout = false, time_t timeout = 0);
 	void acquireSkill(ServerPlayer *player, const Skill *skill, bool open = true);
 	void acquireSkill(ServerPlayer *player, const char *skill_name, bool open = true);
 	void adjustSeats();
@@ -869,8 +880,8 @@ public:
 	void obtainCard(ServerPlayer *target, const Card *card);
 	void obtainCard(ServerPlayer *target, int card_id);
 
-	void throwCard(const Card *card);
-	void throwCard(int card_id);
+	void throwCard(const Card *card, ServerPlayer *who = NULL);
+	void throwCard(int card_id, ServerPlayer *who = NULL);
 	void moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, bool open = true);
 	void doMove(const CardMoveStruct &move, const QSet<ServerPlayer *> &scope);
 
@@ -892,7 +903,6 @@ public:
 	bool askForYiji(ServerPlayer *guojia, QList<int> &cards);
 	const Card *askForPindian(ServerPlayer *player, ServerPlayer *from, ServerPlayer *to, const char *reason);
 	ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const char *reason);
-	void askForGeneralAsync(ServerPlayer *player);
 	const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
 };
 
@@ -913,7 +923,7 @@ public:
 
 	void writeToConsole(const char *msg){
 		$self->output(msg);
-		qWarning(msg);
+		qWarning("%s", msg);
 	}
 };
 

@@ -83,7 +83,7 @@ void EquipCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
     }
 
     if(equipped)
-        room->throwCard(equipped);
+        room->throwCard(equipped, source);
 
     LogMessage log;
     log.from = target;
@@ -371,6 +371,10 @@ StandardPackage::StandardPackage()
     patterns["..C"] = new ExpPattern(".|club");
     patterns["..H"] = new ExpPattern(".|heart");
     patterns["..D"] = new ExpPattern(".|diamond");
+
+    patterns[".Basic"] = new ExpPattern("BasicCard");
+    patterns[".Trick"] = new ExpPattern("TrickCard");
+    patterns[".Equip"] = new ExpPattern("EquipCard");
 
     patterns["slash"] = new ExpPattern("Slash");
     patterns["jink"] = new ExpPattern("Jink");

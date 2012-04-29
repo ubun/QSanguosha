@@ -95,9 +95,11 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
                     // show all his cards
                     room->showAllCards(player);
 
+                    DummyCard *dummy_card = new DummyCard;
                     foreach(const Card *card, handcards.toSet() - jilei_cards){
-                        room->throwCard(card);
+                        dummy_card->addSubcard(card);
                     }
+                    room->throwCard(dummy_card, player);
 
                     return;
                 }
@@ -208,7 +210,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
     case CardFinished: {
             CardUseStruct use = data.value<CardUseStruct>();
-            use.card->clearFlags();
+            room->clearCardFlag(use.card);
 
             break;
     }
@@ -392,7 +394,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
             QString slasher = effect.from->objectName();
-            const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher, data);
+            const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher, data, JinkUsed);
             room->slashResult(effect, jink);
 
             break;

@@ -8,6 +8,7 @@ class Recorder;
 
 #include "player.h"
 #include "socket.h"
+#include "protocol.h"
 
 #include <QSemaphore>
 #include <QDateTime>
@@ -22,6 +23,7 @@ public:
     explicit ServerPlayer(Room *room);
 
     void setSocket(ClientSocket *socket);
+    void invoke(const QSanProtocol::QSanPacket* packet);
     void invoke(const char *method, const QString &arg = ".");
     QString reportHeader() const;
     void sendProperty(const char *property_name, const Player *player = NULL) const;
@@ -55,7 +57,7 @@ public:
     QList<Player::Phase> &getPhases();
     void skip(Player::Phase phase);
     void skip();
-
+    
     void gainMark(const QString &mark, int n = 1);
     void loseMark(const QString &mark, int n = 1);
     void loseAllMarks(const QString &mark_name);
@@ -63,6 +65,8 @@ public:
     void setAI(AI *ai);
     AI *getAI() const;
     AI *getSmartAI() const;
+
+    bool isOnline() const;
 
     virtual int aliveCount() const;
     virtual int getHandcardNum() const;
@@ -104,7 +108,10 @@ public:
     qint64 endNetworkDelayTest();
 
     //Synchronization helpers
-    enum SemaphoreType {SEMA_CHOOSE_GENERAL, SEMA_CHOOSE_GENERAL2, SEMA_COMMAND, SEMA_CHOOSE_ROLE};
+    enum SemaphoreType {
+        SEMA_MUTEX, // used to protect mutex access to member variables        
+        SEMA_COMMAND_INTERACTIVE // used to wait for response from client        
+    };
     inline QSemaphore* getSemaphore(SemaphoreType type){ return semas[type]; }
     inline void acquireLock(SemaphoreType type){ semas[type]->acquire(); }
     inline bool tryAcquireLock(SemaphoreType type, int timeout = 0){
@@ -117,6 +124,16 @@ public:
             drainLock((SemaphoreType)i);
         }
     }
+    inline QString getClientReplyString(){return m_clientResponseString;}
+    inline void setClientReplyString(const QString &val){m_clientResponseString = val;}
+    inline Json::Value getClientReply(){return _m_clientResponse;}
+    inline void setClientReply(const Json::Value &val){_m_clientResponse = val;}    
+    int m_expectedReplySerial; // Suggest the acceptable serial number of an expected response.
+    bool m_isClientResponseReady; //Suggest whether a valid player's reponse has been received.
+    bool m_isWaitingReply; // Suggest if the server player is waiting for client's response.
+    Json::Value m_cheatArgs; // Store the cheat code received from client.
+    QSanProtocol::CommandType m_expectedReplyCommand; // Store the command to be sent to the client.
+    Json::Value m_commandArgs; // Store the command args to be sent to the client.
 
 
 protected:    
@@ -136,6 +153,8 @@ private:
     ServerPlayer *next;
     QStringList selected; // 3v3 mode use only
     QDateTime test_time;
+    QString m_clientResponseString;
+    Json::Value _m_clientResponse;    
 
 private slots:
     void getMessage(char *message);

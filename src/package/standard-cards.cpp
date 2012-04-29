@@ -49,7 +49,7 @@ void Slash::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
 void Slash::onEffect(const CardEffectStruct &card_effect) const{
     Room *room = card_effect.from->getRoom();
     if(card_effect.from->hasFlag("drank")){
-        this->setFlags("drank");
+        room->setCardFlag(this, "drank");
         room->setPlayerFlag(card_effect.from, "-drank");
     }
 
@@ -178,7 +178,7 @@ public:
                     draw_card = true;
                 else{
                     QString prompt = "double-sword-card:" + effect.from->getGeneralName();
-                    const Card *card = room->askForCard(effect.to, ".", prompt);
+                    const Card *card = room->askForCard(effect.to, ".", prompt, QVariant(), CardDiscarded);
                     if(card){
                         room->throwCard(card);
                     }else
@@ -240,7 +240,7 @@ public:
             return false;
 
         Room *room = player->getRoom();
-        const Card *card = room->askForCard(player, "slash", "blade-slash:" + effect.to->objectName());
+        const Card *card = room->askForCard(player, "slash", "blade-slash:" + effect.to->objectName(), QVariant(), NonTrigger);
         if(card){
             // if player is drank, unset his flag
             if(player->hasFlag("drank"))
@@ -356,7 +356,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         Room *room = player->getRoom();
-        CardStar card = room->askForCard(player, "@axe", "@axe:" + effect.to->objectName(),data);
+        CardStar card = room->askForCard(player, "@axe", "@axe:" + effect.to->objectName(),data, CardDiscarded);
         if(card){
             QList<int> card_ids = card->getSubcards();
             foreach(int card_id, card_ids){
@@ -426,9 +426,9 @@ public:
             horse_type = horses.first();
 
         if(horse_type == "dhorse")
-            room->throwCard(damage.to->getDefensiveHorse());
+            room->throwCard(damage.to->getDefensiveHorse(), damage.to);
         else if(horse_type == "ohorse")
-            room->throwCard(damage.to->getOffensiveHorse());
+            room->throwCard(damage.to->getOffensiveHorse(), damage.to);
     }
 
         return false;
@@ -680,12 +680,12 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     if(on_effect){
         QString prompt = QString("collateral-slash:%1:%2")
                 .arg(source->objectName()).arg(victims.first()->objectName());
-        const Card *slash = room->askForCard(killer, "slash", prompt);
+        const Card *slash = room->askForCard(killer, "slash", prompt, QVariant(), NonTrigger);
         if (victims.first()->isDead()){
             if (source->isDead()){
                 if(killer->isAlive() && killer->getWeapon()){
                     int card_id = weapon->getId();
-                    room->throwCard(card_id);
+                    room->throwCard(card_id, source);
                 }
             }
             else
@@ -707,7 +707,7 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
                 else{
                     if(killer->getWeapon()){
                         int card_id = weapon->getId();
-                        room->throwCard(card_id);
+                        room->throwCard(card_id, source);
                     }
                 }
             }
@@ -881,7 +881,7 @@ void Dismantlement::onEffect(const CardEffectStruct &effect) const{
 
     Room *room = effect.to->getRoom();
     int card_id = room->askForCardChosen(effect.from, effect.to, "hej", objectName());
-    room->throwCard(card_id);
+    room->throwCard(card_id, room->getCardPlace(card_id) == Player::Judging ? NULL : effect.to);
 
     LogMessage log;
     log.type = "$Dismantlement";
@@ -969,11 +969,11 @@ public:
         if(damage.card && damage.card->inherits("Slash") && !damage.to->isNude()
                 && !damage.chain && player->askForSkillInvoke("ice_sword", data)){
             int card_id = room->askForCardChosen(player, damage.to, "he", "ice_sword");
-            room->throwCard(card_id);
+            room->throwCard(card_id, damage.to);
 
             if(!damage.to->isNude()){
                 card_id = room->askForCardChosen(player, damage.to, "he", "ice_sword");
-                room->throwCard(card_id);
+                room->throwCard(card_id, damage.to);
             }
 
             return true;

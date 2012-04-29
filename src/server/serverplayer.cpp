@@ -8,11 +8,14 @@
 #include "banpair.h"
 #include "lua-wrapper.h"
 
-const int ServerPlayer::S_NUM_SEMAPHORES = 4;
+using namespace QSanProtocol;
+
+const int ServerPlayer::S_NUM_SEMAPHORES = 6;
 
 ServerPlayer::ServerPlayer(Room *room)
-    : Player(room), socket(NULL), room(room),
-    ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL), next(NULL)
+    : Player(room), m_isClientResponseReady(false), m_isWaitingReply(false),
+    socket(NULL), room(room),
+    ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL), next(NULL), _m_clientResponse(Json::nullValue)
 {
     semas = new QSemaphore*[S_NUM_SEMAPHORES];
     for(int i=0; i< S_NUM_SEMAPHORES; i++){
@@ -77,11 +80,7 @@ void ServerPlayer::throwAllEquips(){
     DummyCard *card = new DummyCard;
     foreach(const Card *equip, equips)
         card->addSubcard(equip);
-    room->throwCard(card);
-
-    CardStar card_star = card;
-    QVariant data = QVariant::fromValue(card_star);
-    room->getThread()->trigger(CardDiscarded, this, data);
+    room->throwCard(card, this);
     card->deleteLater();
 }
 
@@ -90,10 +89,7 @@ void ServerPlayer::throwAllHandCards(){
     if(card == NULL)
         return;
 
-    room->throwCard(card);
-    CardStar card_star = card;
-    QVariant data = QVariant::fromValue(card_star);
-    room->getThread()->trigger(CardDiscarded, this, data);
+    room->throwCard(card, this);
     card->deleteLater();
 }
 
@@ -132,6 +128,8 @@ void ServerPlayer::bury(){
     throwAllCards();
     throwAllMarks();
     clearPrivatePiles();
+
+    room->clearPlayerCardLock(this);
 }
 
 void ServerPlayer::throwAllCards(){
@@ -303,6 +301,11 @@ void ServerPlayer::castMessage(const QString &message){
         qDebug("%s: %s", qPrintable(objectName()), qPrintable(message));
 #endif
     }
+}
+
+void ServerPlayer::invoke(const QSanPacket* packet)
+{
+    unicast(QString(packet->toString().c_str()));
 }
 
 void ServerPlayer::invoke(const char *method, const QString &arg){
@@ -613,10 +616,17 @@ void ServerPlayer::play(QList<Player::Phase> set_phases){
 
     phases = set_phases;
     while(!phases.isEmpty()){
+        PhaseChangeStruct phase_change;
+
         Phase phase = phases.takeFirst();
+        phase_change.from = this->getPhase();
+        phase_change.to = phase;
+
         setPhase(phase);
         room->broadcastProperty(this, "phase");
-        room->getThread()->trigger(PhaseChange, this);
+
+        QVariant data = QVariant::fromValue(phase_change);
+        room->getThread()->trigger(PhaseChange, this, data);
 
         if(isDead() && phase != NotActive){
             phases.clear();
@@ -689,6 +699,10 @@ void ServerPlayer::loseAllMarks(const QString &mark_name){
     if(n > 0){
         loseMark(mark_name, n);
     }
+}
+
+bool ServerPlayer::isOnline() const {
+    return getState() == "online";
 }
 
 void ServerPlayer::setAI(AI *ai) {

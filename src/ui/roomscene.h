@@ -17,6 +17,7 @@ class GuanxingBox;
 class IrregularButton;
 class TrustButton;
 class QGroupBox;
+struct RoomLayout;
 
 #include <QGraphicsScene>
 #include <QTableWidget>
@@ -223,6 +224,7 @@ private:
     QLineEdit *chat_edit;
     QGraphicsProxyWidget *chat_box_widget;
     ChatWidget *chat_widget;
+    RoomLayout *room_layout;
 
 #ifdef AUDIO_SUPPORT
     QSharedMemory *memory;
@@ -309,7 +311,7 @@ private slots:
     void setEmotion(const QString &who, const QString &emotion,bool permanent = false);
     void showSkillInvocation(const QString &who, const QString &skill_name);
     void doAnimation(const QString &name, const QStringList &args);
-    void adjustDashboard();
+    void adjustDashboard(bool expand);
     void showOwnerButtons(bool owner);
     void showJudgeResult(const QString &who, const QString &result);
     void showPlayerCards();

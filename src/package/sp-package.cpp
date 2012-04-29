@@ -246,9 +246,11 @@ public:
                     log.arg2 = objectName();
                     room->sendLog(log);
                     yuanshu->throwAllEquips();
+                    DummyCard *dummy_card = new DummyCard;
                     foreach(const Card *card, handcards.toSet() - jilei_cards){
-                        room->throwCard(card);
+                        dummy_card->addSubcard(card);
                     }
+                    room->throwCard(dummy_card, yuanshu);
                 }
             }else{
                 room->askForDiscard(yuanshu, "yongsi", x, false, true);
@@ -374,7 +376,7 @@ public:
             QString suit_str = card->getSuitString();
             QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
             QString prompt = QString("@xiuluo:::%1").arg(suit_str);
-            if(room->askForCard(target, pattern, prompt)){
+            if(room->askForCard(target, pattern, prompt, QVariant(), CardDiscarded)){
                 room->throwCard(card);
                 once_success = true;
             }

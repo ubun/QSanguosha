@@ -75,7 +75,7 @@ function setInitialTables()
 	sgs.masochism_skill = 		"fankui|jieming|yiji|ganglie|enyuan|fangzhu|guixin"
 	sgs.wizard_skill = 			"guicai|guidao|jilve|tiandu"
 	sgs.wizard_harm_skill = 	"guicai|guidao|jilve"
-	sgs.priority_skill = 		"dimeng|haoshi|qingnang|jizhi|guzheng|qixi|jieyin|guose|duanliang|fanjian|lijian|manjuan|lihun"
+	sgs.priority_skill = 		"dimeng|haoshi|qingnang|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|lijian|manjuan|lihun"
 	sgs.save_skill = 			"jijiu|buyi|jiefan|chunlao"
 	sgs.exclusive_skill = 		"huilei|duanchang|enyuan|wuhun|buqu|yiji|ganglie|guixin|jieming|miji"
 	sgs.cardneed_skill =        "paoxiao|tianyi|xianzhen|shuangxiong|jizhi|guose|duanliang|qixi|qingnang|" ..
@@ -250,7 +250,7 @@ function SmartAI:getUseValue(card)
 
 	if card:inherits("GuhuoCard") then
 		local userstring = card:toString()
-		userstring = (userstring:split(":"))[2]
+		userstring = (userstring:split(":"))[3]
 		local guhuocard = sgs.Sanguosha:cloneCard(userstring, card:getSuit(), card:getNumber())
 		local usevalue = self:getUseValue(guhuocard,player) + #self.enemies*0.3
 		if sgs.Sanguosha:getCard(card:getSubcards():first()):objectName() == userstring and card:getSuit() == sgs.Card_Heart then usevalue = usevalue + 3 end
@@ -276,6 +276,8 @@ function SmartAI:getUseValue(card)
 			v = v+self:getCardsNum("Slash")
 		elseif card:inherits("Jink") then
 			if self:getCardsNum("Jink") > 1 then v = v-6 end
+		elseif card:inherits("Peach") then
+			if self.player:isWounded() then v = v + 6 end
 		elseif card:inherits("Shit") and self.player:hasSkill("kuanggu") and card:getSuit()~= sgs.Card_Spade then
 			v = 0.1
 		end
@@ -318,7 +320,7 @@ function SmartAI:getUsePriority(card)
 		if card:inherits("Slash") then
 			v = 4
 
-		elseif card:inherits("Collateral") or card:inherits("Dismantlement") or card:inherits("Snatch") or card:inherits("IronChain") then v = 0
+		elseif card:inherits("Duel") or card:inherits("FireAttack") or card:inherits("ArcheryAttack") or card:inherits("SavageAssault") then v = 0
 		end
 		if v then return v else return sgs.ai_use_priority[class_name] end
 	end
@@ -1238,7 +1240,7 @@ function SmartAI:objectiveLevel(player)
 				if player:isLord() then
 					if not sgs.isLordHealthy() then return 0
 					else return 3 end
-				elseif sgs.evaluatePlayerRole(player) == "renegade" then
+				elseif sgs.evaluatePlayerRole(player) == "renegade" and renegade_num > 1 then
 					return 3
 				else
 					return 5
@@ -1586,7 +1588,7 @@ function SmartAI:filterEvent(event, player, data)
 			end
 		end
 		if card:inherits("Slash") and to:hasSkill("leiji") and 
-			(getCardsNum("Jink", to)>0 or (to:getArmor() and to:getArmor():objectName() == "eight_diagram"))
+			(self:getCardsNum("Jink", to)>0 or (to:getArmor() and to:getArmor():objectName() == "eight_diagram"))
 			and (to:getHandcardNum()>2 or from:getState() == "robot") then
 			sgs.ai_leiji_effect = true
 		end
@@ -1758,6 +1760,7 @@ function SmartAI:askForNullification(trick, from, to, positive)
 	local null_card
 	null_card = self:getCardId("Nullification")
 	local null_num = 0
+	local menghuo = self.room:findPlayerBySkillName("huoshou")
 	for _, acard in ipairs(cards) do
 		if acard:inherits("Nullification") then
 			null_num = null_num + 1
@@ -1777,11 +1780,11 @@ function SmartAI:askForNullification(trick, from, to, positive)
 				else
 					if trick:inherits("Snatch") then return null_card end
 					if trick:inherits("FireAttack") and (self:isEquip("Vine", to) or to:getMark("@kuangfeng") > 0 or (to:isChained() and not self:isGoodChainTarget(to))) 
-						and from:objectName() ~= to:objectName() then return null_card end
+						and from:objectName() ~= to:objectName() and not from:hasSkill("wuyan") then return null_card end
 					if self:isWeak(to)  then 
-						if trick:inherits("Duel") then
+						if trick:inherits("Duel") and not from:hasSkill("wuyan") then
 							return null_card
-						elseif trick:inherits("FireAttack") then
+						elseif trick:inherits("FireAttack") and not from:hasSkill("wuyan") then
 							if from:getHandcardNum() > 2  and from:objectName() ~= to:objectName() then return null_card end
 						end
 					end
@@ -1800,7 +1803,7 @@ function SmartAI:askForNullification(trick, from, to, positive)
 					return null_card
 				end
 			end 
-			if trick:inherits("AOE") then
+			if trick:inherits("AOE") and not (from:hasSkill("wuyan") and not (menghuo and trick:inherits("SavageAssault"))) then
 				local lord = self.room:getLord()
 				local currentplayer = self.room:getCurrent()
 				if self:isFriend(lord) and self:isWeak(lord) and self:aoeIsEffective(trick, lord)and 
@@ -2593,7 +2596,7 @@ function SmartAI:askForSinglePeach(dying)
 	if self:isFriend(dying) then
 		if self:needDeath(dying) then return "." end
 		local buqu = dying:getPile("buqu")
-		local weaklord = false
+		local weaklord = 0
 		if not buqu:isEmpty() then
 			local same = false
 			for i, card_id in sgs.qlist(buqu) do
@@ -2612,12 +2615,12 @@ function SmartAI:askForSinglePeach(dying)
 			card_str = self:getCardId("Peach")
 		else
 			for _, friend in ipairs(self.friends_noself) do
-				if friend:getHp() == 1 and friend:isLord() and not friend:hasSkill("buqu") then  weaklord = true end
+				if friend:getHp() == 1 and friend:isLord() and not friend:hasSkill("buqu") then  weaklord = weaklord + 1 end
 			end
 			for _, enemy in ipairs(self.enemies) do
-				if enemy:getHp() == 1 and enemy:isLord() and not enemy:hasSkill("buqu") and self.player:getRole() == "renegade" then weaklord = true end
+				if enemy:getHp() == 1 and enemy:isLord() and not enemy:hasSkill("buqu") and self.player:getRole() == "renegade" then weaklord = weaklord + 1 end
 			end
-			if not weaklord or self:getAllPeachNum() > 1 then
+			if weaklord < 1 or self:getAllPeachNum() > 1 then
 				card_str = self:getCardId("Peach") 
 			end
 		end
@@ -2783,9 +2786,10 @@ function SmartAI:needRetrial(judge)
 				return judge:isGood()
 			end
 		end
+		if self:hasSkills("wuyan|hongyan",judge.who) then return false end
 	end
 	if self:isFriend(judge.who) then
-		if not self.player:hasSkill("guidao") and judge.reason == "luoshen" and self:getOverflow(judge.who) > 1 and self.player:getHandcardNum() < 3
+		if judge.reason == "luoshen" and self:getOverflow(judge.who) > 1 and self.player:getHandcardNum() < 3
 			and not self:isEquip("Crossbow", judge.who) then return false end
 		return not judge:isGood()
 	elseif self:isEnemy(judge.who) then
@@ -2859,9 +2863,6 @@ function SmartAI:damageIsEffective(player, nature, source)
 	player = player or self.player
 	source = source or self.player
 	nature = nature or sgs.DamageStruct_Normal
-	if player:hasSkill("zhichi") and self.room:getTag("Zhichi"):toString() == player:objectName() then
-		return false
-	end
 
 	if player:hasSkill("shenjun") and player:getGender() ~= source:getGender() and nature ~= sgs.DamageStruct_Thunder then
 		return false
@@ -3261,6 +3262,11 @@ function SmartAI:aoeIsEffective(card, to)
 	if self.player:hasSkill("wuyan") then
 		return false
 	end
+
+	if to:hasSkill("wuyan") then
+		return false
+	end
+
 	if card:inherits("SavageAssault") then
 		if to:hasSkill("huoshou") or to:hasSkill("juxiang") then
 			return false
@@ -3457,16 +3463,19 @@ end
 function SmartAI:hasTrickEffective(card, player)
 	if player then
 		if self.room:isProhibited(self.player, player, card) then return false end
-		if (player:hasSkill("zhichi") and self.room:getTag("Zhichi"):toString() == player:objectName()) or player:hasSkill("wuyan") then
+		if (player:hasSkill("zhichi") and self.room:getTag("Zhichi"):toString() == player:objectName()) then
 			if card and not (card:inherits("Indulgence") or card:inherits("SupplyShortage")) then return false end
+		end
+		if player:hasSkill("wuyan") then
+			if card and (card:inherits("Duel") or card:inherits("FireAttack")) then return false end
 		end
 		if (player:getMark("@fog") > 0 or (player:hasSkill("shenjun") and self.player:getGender() ~= player:getGender())) and
 			sgs.dynamic_value.damage_card[card:className()] then return false end
 		if player:hasSkill("zuixiang") and player:isLocked(card) then return false end
 	else
 		if self.player:hasSkill("wuyan") then
-			if card:inherits("TrickCard") and not
-				(card:inherits("DelayedTrick") or card:inherits("GodSalvation") or card:inherits("AmazingGrace")) then
+			if card:inherits("TrickCard") and 
+				(card:inherits("Duel") or card:inherits("FireAttack") or card:inherits("ArcheryAttack") or card:inherits("SavageAssault")) then
 			return false end
 		end
 	end
