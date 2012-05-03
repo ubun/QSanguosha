@@ -506,53 +506,6 @@ public:
     }
 };
 
-class Dancer: public TriggerSkill{
-public:
-    Dancer():TriggerSkill("dancer"){
-        events << SlashProceed;
-        frequency = Compulsory;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *lubu, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        Room *room = lubu->getRoom();
-        room->playSkillEffect(objectName());
-
-        QString slasher = lubu->objectName();
-
-        const Card *first_jink = NULL, *second_jink = NULL;
-        first_jink = room->askForCard(effect.to, "jink", "@dancer-jink-1:" + slasher);
-        if(first_jink)
-            second_jink = room->askForCard(effect.to, ".", "@dancer-jink-2:" + slasher);
-
-        Card *jink = NULL;
-        if(first_jink && second_jink){
-            jink = new DummyCard;
-            jink->addSubcard(first_jink);
-            jink->addSubcard(second_jink);
-        }
-        room->slashResult(effect, jink);
-        return true;
-    }
-};
-
-class Fuckmoon: public PhaseChangeSkill{
-public:
-    Fuckmoon():PhaseChangeSkill("fuckmoon"){
-        frequency = Frequent;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *player) const{
-        //Room *room = player->getRoom();
-        if(player->getPhase() == Player::NotActive && player->askForSkillInvoke(objectName())){
-            int num = player->getMaxHP() - player->getHandcardNum();
-            if(num > 0)
-                player->drawCards(num);
-        }
-        return false;
-    }
-};
-
 // beimihu edit by player
 
 #include <QCommandLinkButton>
@@ -851,11 +804,7 @@ PeasaPackage::PeasaPackage()
     wangyun->addSkill(new Zhonglian);
     wangyun->addSkill(new Mingwang);
     wangyun->addSkill(new Lixin);
-/*
-    General *lvlingqi = new General(this, "lvlingqi", "qun", 3, false);
-    lvlingqi->addSkill(new Dancer);
-    lvlingqi->addSkill(new Fuckmoon);
-*/
+
     General *beimihu = new General(this, "beimihu$", "qun", 3, false);
     beimihu->addSkill(new Guishu);
     beimihu->addSkill(new GuishuEffect);

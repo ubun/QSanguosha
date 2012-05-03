@@ -83,17 +83,6 @@ return {
 	["lixin:recover"] = "回复1点体力",
 	["lixin:draw"] = "摸两张牌",
 
-	["#lvlingqi"] = "飞将虎女",
-	["lvlingqi"] = "吕玲琦",
-	["dancer"] = "舞双",
-	[":dancer"] = "锁定技，你使用【杀】时，目标角色需弃一张手牌和使用一张【闪】才能抵消。与你进行决斗的角色每次须打出一张【杀】和一张手牌。",
-	["@dancer-jink-1"] = "%src 拥有【舞双】技能，您必须连续出一张【闪】和一张手牌",
-	["@dancer-jink-2"] = "%src 拥有【舞双】技能，你还需出一张手牌",
-	["@dancer-slash-1"] = "%src 向您决斗，由于他有【舞双】技能，您必须打出一张【杀】和一张手牌",
-	["@dancer-slash-2"] = "%src 的决斗有【舞双】效果，请再打出一张手牌",
-	["fuckmoon"] = "蔽月",
-	[":fuckmoon"] = "回合结束时，你可将手牌补至体力上限的张数。",
-
 	["illustrator:guanzhang"] = "不详",
 	["designer:guanzhang"] = "斐爺神煞",
 	["cv:guanzhang"] = "",
@@ -133,7 +122,4 @@ return {
 	["designer:wangyun"] = "茄兒&小JJ",
 	["cv:wangyun"] = "",
 
-	["illustrator:lvlingqi"] = "三国志大战",
-	["designer:lvlingqi"] = "小爺綠豆殺",
-	["cv:lvlingqi"] = "",
 }
