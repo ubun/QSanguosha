@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-06-13T04:26:52
 # -------------------------------------------------
-TARGET = QSanguosha
+TARGET = Colorful
 QT += network sql declarative
 TEMPLATE = app
 CONFIG += warn_on audio
@@ -62,8 +62,14 @@ SOURCES += src/main.cpp \
 	src/package/yjcm-package.cpp \
 	src/package/yjcm2012-package.cpp \
 	src/package/bgm-package.cpp \
-	src/package/special3v3-package.cpp \
-	src/scenario/scenario.cpp \
+        src/package/special3v3-package.cpp \
+	src/package/shineway/technology.cpp \
+	src/package/shineway/kuso-package.cpp \
+	src/package/shineway/peasa.cpp \
+	src/package/shineway/red.cpp \
+	src/package/shineway/cyan.cpp \
+	src/package/shineway/green.cpp \
+        src/package/shineway/purple.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/fancheng-scenario.cpp \
@@ -187,8 +193,15 @@ HEADERS += src/client/aux-skills.h \
 	src/package/yitianpackage.h \
 	src/package/yjcm-package.h \
 	src/package/yjcm2012-package.h \
-	src/package/bgm-package.h \
-	src/package/special3v3-package.h \
+        src/package/bgm-package.h \
+        src/package/special3v3-package.h \
+	src/package/shineway/technology.h \
+	src/package/shineway/kuso-package.h \
+	src/package/shineway/peasa.h \
+	src/package/shineway/red.h \ 
+	src/package/shineway/cyan.h \ 
+	src/package/shineway/green.h \
+        src/package/shineway/purple.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
 	src/scenario/fancheng-scenario.h \

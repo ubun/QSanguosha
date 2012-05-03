@@ -793,8 +793,16 @@ void Duel::onEffect(const CardEffectStruct &effect) const{
             slash = room->askForCard(first, "slash", "@wushuang-slash-2:" + second->objectName());
             if(slash == NULL)
                 break;
-
-        }else{
+        }else if(second->hasSkill("dancer")){
+            //room->playSkillEffect("dancer");
+            const Card *slash = room->askForCard(first, "slash", "@dancer-slash-1:" + second->objectName());
+            if(slash == NULL)
+                break;
+            slash = room->askForCard(first, ".", "@dancer-slash-2:" + second->objectName());
+            if(slash == NULL)
+                break;
+        }
+        else{
             const Card *slash = room->askForCard(first, "slash", "duel-slash:" + second->objectName());
             if(slash == NULL)
                 break;

@@ -464,6 +464,8 @@ void Player::setFaceUp(bool face_up){
 }
 
 int Player::getMaxCards() const{
+    if(hasSkill("fugui"))
+        return 6;
     int extra = 0, total = 0;
     if(Config.MaxHpScheme == 2 && general2){
         total = general->getMaxHp() + general2->getMaxHp();

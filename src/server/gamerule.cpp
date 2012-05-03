@@ -179,7 +179,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 setGameProcess(room);
 
             room->setTag("FirstRound", true);
-            player->drawCards(4, false);
+            int init = !player->hasSkill("fugui") ? 4 : 6;
+            player->drawCards(init, false);
 
             break;
         }

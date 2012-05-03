@@ -174,6 +174,14 @@ void CardUseStruct::parse(const QString &str, Room *room){
     }
 }
 
+DrawStruct::DrawStruct()
+    :draw(2), git(NULL){
+}
+
+SkillInvokeStruct::SkillInvokeStruct()
+    :skillname(""), invoked(false){
+}
+
 QString EventTriplet::toString() const{
     return QString("event = %1, target = %2[%3], data = %4[%5]")
             .arg(event)

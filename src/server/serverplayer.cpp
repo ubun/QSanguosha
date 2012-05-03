@@ -441,6 +441,19 @@ DummyCard *ServerPlayer::wholeHandCards() const{
 }
 
 bool ServerPlayer::hasNullification() const{
+    if(hasSkill("kuanhp")){
+        foreach(const Card *card, handcards){
+            if(card->inherits("Nullification")){
+                LogMessage log;
+                log.type = "#Kuanhp";
+                log.from = (PlayerStar)this;
+                log.arg = "kuanhp";
+                room->sendLog(log);
+                break;
+            }
+        }
+        return false;
+    }
     if(hasSkill("kanpo")){
         foreach(const Card *card, handcards){
             if(card->isBlack() || card->objectName() == "nullification")
@@ -487,6 +500,9 @@ bool ServerPlayer::hasNullification() const{
 
         return getHandcardNum() > getHp() && !getEquips().isEmpty();
     }
+    /*if(hasSkill("yugui") && getMark("@pu") > 0){
+        return true;
+    }*/
 
     if(hasSkill("qice")){
         foreach(const Card *card, handcards){
@@ -569,6 +585,14 @@ bool ServerPlayer::pindian(ServerPlayer *target, const QString &reason, const Ca
 }
 
 void ServerPlayer::turnOver(){
+    if(hasSkill("shibiao")){
+        LogMessage log;
+        log.type = "#Shibiao";
+        log.from = this;
+        log.arg = "shibiao";
+        room->sendLog(log);
+        return;
+    }
     setFaceUp(!faceUp());
     room->broadcastProperty(this, "faceup");
 

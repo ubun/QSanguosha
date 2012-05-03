@@ -2737,6 +2737,16 @@ void Room::broadcastProperty(ServerPlayer *player, const char *property_name, co
 }
 
 void Room::drawCards(ServerPlayer *player, int n, const QString &reason){
+    DrawStruct draw_data;
+    draw_data.draw = n;
+    draw_data.git = player;
+    QVariant data = QVariant::fromValue(draw_data);
+    if(thread->trigger(ToDrawNCards, player, data))
+        return;
+    draw_data = data.value<DrawStruct>();
+    n = draw_data.draw;
+    player = draw_data.git;
+
     if(n <= 0)
         return;
 
@@ -2791,7 +2801,7 @@ void Room::drawCards(ServerPlayer *player, int n, const QString &reason){
     }else
         broadcastInvoke("drawNCards", draw_str, player);
 
-    QVariant data = QVariant::fromValue(n);
+    data = QVariant::fromValue(n);
     thread->trigger(CardDrawnDone, player, data);
 }
 
@@ -2837,6 +2847,11 @@ RoomThread *Room::getThread() const{
 }
 
 void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, bool open){
+    if(place == Player::Equip && to->getMark("@noequip") > 0){
+        to = NULL;
+        place = Player::DiscardedPile;
+        open = true;
+    }
     QSet<ServerPlayer *> scope;
 
     if(!open){

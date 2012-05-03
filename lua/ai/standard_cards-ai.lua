@@ -14,8 +14,9 @@ function SmartAI:slashProhibit(card,enemy)
 	end
 
 	if self:isFriend(enemy) then
-		if card:inherits("FireSlash") or self.player:hasSkill("zonghuo") then
-			if self:isEquip("Vine", enemy) and not (enemy:isChained() and self:isGoodChainTarget(enemy)) then return true end
+		if card:inherits("FireSlash") or self.player:hasWeapon("fan") or self.player:hasSkill("zonghuo")
+			if (self:isEquip("Vine", enemy) or enemy:hasSkill("linjia")) and
+				not (enemy:isChained() and self:isGoodChainTarget(enemy)) then return true end
 		end
 		if enemy:isChained() and (card:inherits("NatureSlash") or self.player:hasSkill("zonghuo")) and not self:isGoodChainTarget(enemy) and
 			self:slashIsEffective(card,enemy) then return true end
@@ -48,6 +49,11 @@ function SmartAI:slashIsEffective(slash, to)
 			return false
 		end
 	end
+	if to:hasSkill("linjia") then
+		if not slash:inherits("NatureSlash") and not self.player:hasWeapon("fan") then
+			return false
+		end
+	end
 
 	local natures = {
 		Slash = sgs.DamageStruct_Normal,
@@ -69,6 +75,8 @@ function SmartAI:slashIsEffective(slash, to)
 			return not slash:isBlack()
 		elseif armor:objectName() == "vine" then
 			return nature ~= sgs.DamageStruct_Normal 
+		elseif armor:objectName() == "kawaii_dress" and to:getHp() == 1 then
+			return false
 		end
 	end
 
