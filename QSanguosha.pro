@@ -23,11 +23,14 @@ SOURCES += src/main.cpp \
 	src/core/card.cpp \
 	src/core/engine.cpp \
 	src/core/general.cpp \
+	src/core/jsonutils.cpp \
 	src/core/lua-wrapper.cpp \
 	src/core/player.cpp \
+	src/core/protocol.cpp \
 	src/core/settings.cpp \
 	src/core/skill.cpp \
 	src/core/statistics.cpp \
+	src/core/util.cpp \
 	src/dialog/cardeditor.cpp \
 	src/dialog/cardoverview.cpp \
 	src/dialog/choosegeneraldialog.cpp \
@@ -136,16 +139,13 @@ SOURCES += src/main.cpp \
 	src/lua/lbaselib.c \
 	src/lua/lauxlib.c \
 	src/lua/lapi.c \
-	swig/sanguosha_wrap.cxx \
-    src/core/protocol.cpp \
-    src/core/jsonutils.cpp \
-    src/jsoncpp/src/json_writer.cpp \
-    src/jsoncpp/src/json_valueiterator.inl \
-    src/jsoncpp/src/json_value.cpp \
-    src/jsoncpp/src/json_reader.cpp \
-    src/jsoncpp/src/json_internalmap.inl \
-    src/jsoncpp/src/json_internalarray.inl \
-    src/core/util.cpp
+	src/jsoncpp/src/json_writer.cpp \
+	src/jsoncpp/src/json_valueiterator.inl \
+	src/jsoncpp/src/json_value.cpp \
+	src/jsoncpp/src/json_reader.cpp \
+	src/jsoncpp/src/json_internalmap.inl \
+	src/jsoncpp/src/json_internalarray.inl \
+	swig/sanguosha_wrap.cxx
 
 HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
