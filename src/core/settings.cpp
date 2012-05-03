@@ -20,6 +20,8 @@ static const qreal ViewHeight = 800 * 0.8;
 const int Settings::S_CHOOSE_GENERAL_TIMEOUT = 15;
 const int Settings::S_GUANXING_TIMEOUT = 20;
 const int Settings::S_SURRNDER_REQUEST_MIN_INTERVAL = 60;
+const int Settings::S_PROGRESS_BAR_UPDATE_INTERVAL = 200;
+const int Settings::S_SERVER_TIMEOUT_GRACIOUS_PERIOD = 1000;
 
 Settings::Settings()
 
@@ -62,8 +64,8 @@ void Settings::init(){
 
     if(!contains("BanPackages")){
         QStringList banlist;
-        banlist << "nostalgia" << "yitian" << "wisdom" << "test"
-                << "disaster" << "god" << "YJCM" << "yitian_cards"
+        banlist << "nostalgia" << "nostal_general" << "yitian" << "wisdom"
+                << "disaster" << "god" << "YJCM" << "yitian_cards" << "test"
                 << "sp" << "sp_cards" << "BGM" << "YJCM2012" << "Special3v3"
                 << "joy" << "joy_equip" ;
 
@@ -140,11 +142,11 @@ void Settings::init(){
                 << "huanggai+wuguotai" << "dengshizai+caoren" << "dengshizai+shenlvbu" << "dengshizai+bgm_diaochan"
                 << "luxun+liubei" << "luxun+wolong" << "luxun+yuji" << "luxun+daqiao"
                 << "huangyueying+wolong" << "huangyueying+yuanshao" << "huangyueying+ganning"
-                << "shuangxiong+sunce" << "shuangxiong+huanggai" << "shuangxiong+huangyueying"
+                << "yanliangwenchou+sunce" << "yanliangwenchou+huanggai" << "yanliangwenchou+huangyueying"
                 << "dengai+guojia" << "dengai+simayi" << "dengai+zhangjiao"
                 << "dengai+shenzhugeliang" << "dengai+shensimayi"
                 << "jiangboyue+huangyueying" << "jiangboyue+wolong" << "jiangboyue+yuanshao"
-                << "jiangboyue+shuangxiong" << "jiangboyue+ganning" << "jiangboyue+luxun" << "jiangboyue+zhanggongqi"
+                << "jiangboyue+yanliangwenchou" << "jiangboyue+ganning" << "jiangboyue+luxun" << "jiangboyue+zhanggongqi"
                 << "weiyan+huanggai" << "caoren+shenlvbu" << "bgm_pangtong+huanggai"
                 << "fazheng+xiahoudun" << "luxun+zhanggongqi" << "sunquan+lingtong"
                 << "sunquan+sunshangxiang" << "wuguotai+guojia" << "wuguotai+xunyu"
@@ -197,4 +199,7 @@ void Settings::init(){
     QStringList forbid_packages;
     forbid_packages << "Special3v3";
     setValue("ForbidPackages", forbid_packages.join("+"));
+
+//ui
+    setValue("UI/ExpandDashboard", value("UI/ExpandDashboard", true).toBool());
 }

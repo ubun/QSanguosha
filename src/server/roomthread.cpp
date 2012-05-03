@@ -121,6 +121,10 @@ bool JudgeStruct::isBad() const{
     return ! isGood();
 }
 
+PhaseChangeStruct::PhaseChangeStruct()
+    :from(Player::NotActive), to(Player::NotActive)
+{}
+
 CardUseStruct::CardUseStruct()
     :card(NULL), from(NULL)
 {
@@ -207,7 +211,7 @@ static const int GameOver = 1;
 
 void RoomThread::run3v3(){
     QList<ServerPlayer *> warm, cool;
-    foreach(ServerPlayer *player, room->getPlayers()){
+    foreach(ServerPlayer *player, room->m_players){
         switch(player->getRoleEnum()){
         case Player::Lord: warm.prepend(player); break;
         case Player::Loyalist: warm.append(player); break;
@@ -277,7 +281,6 @@ void RoomThread::action3v3(ServerPlayer *player){
 }
 
 void RoomThread::run(){
-
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 
     if(setjmp(env) == GameOver){        
@@ -332,8 +335,12 @@ void RoomThread::run(){
                         room->setPlayerFlag(player, "-actioned");
 
                     if(player->getPhase() != Player::NotActive){
+                        PhaseChangeStruct phase;
+                        phase.from = player->getPhase();
                         room->setPlayerProperty(player, "phase", "not_active");
-                        trigger(PhaseChange, player);
+                        phase.to = player->getPhase();
+                        QVariant data = QVariant::fromValue(phase);
+                        trigger(PhaseChange, player, data);
                     }
                 }
             }

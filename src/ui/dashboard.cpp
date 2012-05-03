@@ -11,6 +11,9 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
 #include <QPixmapCache>
+#include <QStyleFactory>
+
+using namespace QSanProtocol;
 
 Dashboard::Dashboard(QGraphicsItem *button_widget)
     :left_pixmap("image/system/dashboard-equip.png"), right_pixmap("image/system/dashboard-avatar.png"),
@@ -33,6 +36,7 @@ Dashboard::Dashboard(QGraphicsItem *button_widget)
     sort_type = 0;
 
     animations = new EffectAnimation();
+    _addProgressBar();
 }
 
 void Dashboard::createLeft(){
@@ -358,6 +362,10 @@ QRectF Dashboard::boundingRect() const{
     return QRectF(0, 0, width, height);
 }
 
+int Dashboard::getTextureWidth() const{
+    return middle->brush().texture().width() + left_pixmap.width() + right_pixmap.width();
+}
+
 void Dashboard::setMiddleWidth(int middle_width){
     int left_width = left_pixmap.width();
     qreal middle_height = middle->rect().height();
@@ -376,23 +384,15 @@ void Dashboard::setMiddleWidth(int middle_width){
 }
 
 void Dashboard::setWidth(int width){
-    if(width == 0){
-        setMiddleWidth(middle->brush().texture().width());
+    qreal left_width = left->boundingRect().width();
+    qreal right_width = right->boundingRect().width();
+    qreal button_width = getButtonWidgetWidth();
+    qreal middle_width = width - left_width - right_width - button_width;
 
-        prepareGeometryChange();
-        adjustCards();
+    setMiddleWidth(middle_width);
 
-    }else if(width > 500){
-        qreal left_width = left->boundingRect().width();
-        qreal right_width = right->boundingRect().width();
-        qreal button_width = getButtonWidgetWidth();
-        qreal middle_width = width - left_width - right_width - button_width;
-
-        setMiddleWidth(middle_width);
-
-        prepareGeometryChange();
-        adjustCards();
-    }
+    prepareGeometryChange();
+    adjustCards();
 
     setX(- boundingRect().width()/2);
 }
@@ -433,21 +433,40 @@ QPushButton *Dashboard::addButton(const QString &name, int x, bool from_left){
     return button;
 }
 
-QProgressBar *Dashboard::addProgressBar(){
-    QProgressBar *progress_bar = new QProgressBar;
-    progress_bar->setMinimum(0);
-    progress_bar->setMaximum(100);
-    progress_bar->setFixedSize(300, 15);
-    progress_bar->setTextVisible(false);
-
+void Dashboard::_addProgressBar()
+{    
+    m_progressBar.setFixedSize(300, 15);
+    m_progressBar.setTextVisible(false);
+    m_progressBar.setStyle(QStyleFactory::create("macintosh"));
     QGraphicsProxyWidget *widget = new QGraphicsProxyWidget(right);
-    widget->setWidget(progress_bar);
+    widget->setWidget(&m_progressBar);
     widget->setParentItem(middle);
     widget->setPos(300, - 25);
 
-    progress_bar->hide();
+    m_progressBar.hide();    
+}
 
-    return progress_bar;
+void Dashboard::hideProgressBar()
+{
+    m_mutex.lock();
+    m_progressBar.hide();
+    m_mutex.unlock();
+    
+}
+
+void Dashboard::showProgressBar()
+{
+    m_mutex.lock();
+    m_progressBar.show();
+    m_mutex.unlock();
+}
+
+void Dashboard::changeProgress(Countdown countdown)
+{
+    m_mutex.lock();
+    m_progressBar.setValue(countdown.m_current);
+    m_progressBar.setMaximum(countdown.m_max);    
+    m_mutex.unlock();
 }
 
 void Dashboard::drawHp(QPainter *painter) const{

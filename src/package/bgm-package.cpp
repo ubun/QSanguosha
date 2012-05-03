@@ -118,10 +118,11 @@ public:
         return target->hasUsed("LihunCard");
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *diaochan, QVariant &data) const{
+    virtual bool trigger(TriggerEvent, ServerPlayer *diaochan, QVariant &data) const{
         Room *room = diaochan->getRoom();
+        PhaseChangeStruct phase_change = data.value<PhaseChangeStruct>();
 
-        if(event == PhaseChange && diaochan->getPhase() == Player::Discard){
+        if(phase_change.from == Player::Play){
             ServerPlayer *target = NULL;
             foreach(ServerPlayer *other, room->getOtherPlayers(diaochan)){
                 if(other->hasFlag("LihunTarget")){
@@ -472,6 +473,7 @@ void DaheCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
 
     if(success){
         room->setEmotion(source, "success");
+        room->setPlayerFlag(target, reason);
         QList<ServerPlayer *> to_givelist = room->getAlivePlayers();
         foreach(ServerPlayer *p, targets){
             if(p->getHp() > source->getHp())
@@ -482,7 +484,6 @@ void DaheCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *>
             ServerPlayer *to_give = room->askForPlayerChosen(source, to_givelist, reason);
             to_give->obtainCard(card2);
         }
-        room->setPlayerFlag(target, reason);
     }else{
         room->setEmotion(source, "no-success");
         if(!source->isKongcheng()){

@@ -606,7 +606,7 @@ void TiaoxinCard::onEffect(const CardEffectStruct &effect) const{
     else
         room->playSkillEffect("tiaoxin", qrand() % 2 + 1);
 
-    const Card *slash = room->askForCard(effect.to, "slash", "@tiaoxin-slash:" + effect.from->objectName());
+    const Card *slash = room->askForCard(effect.to, "slash", "@tiaoxin-slash:" + effect.from->objectName(), QVariant(), NonTrigger);
 
     if(slash){
         CardUseStruct use;
@@ -716,27 +716,27 @@ public:
 class Guzheng: public TriggerSkill{
 public:
     Guzheng():TriggerSkill("guzheng"){
-        events << CardDiscarded;
+        events << CardLost;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasSkill("guzheng");
+        return true;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *erzhang = room->findPlayerBySkillName(objectName());
+        ServerPlayer *current = room->getCurrent();
 
         if(erzhang == NULL)
             return false;
-
-        if(player->getPhase() == Player::Discard){
+        if(erzhang == current)
+            return false;
+        if(current->getPhase() == Player::Discard){
             QVariantList guzheng = erzhang->tag["Guzheng"].toList();
 
-            CardStar card = data.value<CardStar>();
-            foreach(int card_id, card->getSubcards()){
-                guzheng << card_id;
-            }
+            CardMoveStar move = data.value<CardMoveStar>();
+                guzheng << move->card_id;
 
             erzhang->tag["Guzheng"] = guzheng;
         }
@@ -826,7 +826,7 @@ public:
             log.arg = objectName();
             room->sendLog(log);
 
-            if(!room->askForCard(effect.from, "BasicCard", "@xiangle-discard", data))
+            if(!room->askForCard(effect.from, ".Basic", "@xiangle-discard", data, CardDiscarded))
                 room->setPlayerFlag(liushan, "xiangle_invoke");
         }
         else if(event == CardFinished)

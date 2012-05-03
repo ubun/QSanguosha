@@ -17,6 +17,7 @@ class GuanxingBox;
 class IrregularButton;
 class TrustButton;
 class QGroupBox;
+struct RoomLayout;
 
 #include <QGraphicsScene>
 #include <QTableWidget>
@@ -147,12 +148,21 @@ public slots:
     void removePlayer(const QString &player_name);
     void drawCards(const QList<const Card *> &cards);
     void drawNCards(ClientPlayer *player, int n);
+    // choice dialog
     void chooseGeneral(const QStringList &generals);
+    void chooseSuit(const QStringList &suits);
+    void chooseCard(const ClientPlayer *playerName, const QString &flags, const QString &reason);
+    void chooseKingdom(const QStringList &kingdoms);
+    void chooseOption(const QString& skillName, const QStringList &options);
+    void chooseOrder(QSanProtocol::Game3v3ChooseOrderCommand reason);
+    void chooseRole(const QString &scheme, const QStringList &roles);
+    void chooseDirection();
+
     void arrangeSeats(const QList<const ClientPlayer*> &seats);
     void toggleDiscards();
     void enableTargets(const Card *card);
     void useSelectedCard();
-    void updateStatus(Client::Status status);
+    void updateStatus(Client::Status oldStatus, Client::Status newStatus);
     void killPlayer(const QString &who);
     void revivePlayer(const QString &who);
     void showServerInformation();
@@ -165,8 +175,8 @@ public slots:
     void doScript();
 
     EffectAnimation * getEA() const{return animations;}
-
-protected:
+    
+protected:    
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
@@ -193,9 +203,9 @@ private:
     Window *prompt_box;
     QGraphicsItem *control_panel;
     QMap<QGraphicsItem *, const ClientPlayer *> item2player;
-    QComboBox *sort_combobox;
+    QComboBox *sort_combobox;    
+    QDialog *m_choiceDialog; // Dialog for choosing generals, suits, card/equip, or kingdoms
 
-    QProgressBar *progress_bar;
     int timer_id;
     int tick;
 
@@ -223,6 +233,7 @@ private:
     QLineEdit *chat_edit;
     QGraphicsProxyWidget *chat_box_widget;
     ChatWidget *chat_widget;
+    RoomLayout *room_layout;
 
 #ifdef AUDIO_SUPPORT
     QSharedMemory *memory;

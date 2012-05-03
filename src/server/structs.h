@@ -127,7 +127,15 @@ struct JudgeStruct{
     bool time_consuming;
 };
 
+struct PhaseChangeStruct{
+    PhaseChangeStruct();
+    Player::Phase from;
+    Player::Phase to;
+};
+
 enum TriggerEvent{
+    NonTrigger,
+
     GameStart,
     TurnStart,
     PhaseChange,
@@ -163,6 +171,8 @@ enum TriggerEvent{
     SlashProceed,
     SlashHit,
     SlashMissed,
+
+    JinkUsed,
 
     CardAsked,
     CardUsed,
@@ -205,6 +215,6 @@ Q_DECLARE_METATYPE(RecoverStruct)
 Q_DECLARE_METATYPE(JudgeStar)
 Q_DECLARE_METATYPE(DamageStar)
 Q_DECLARE_METATYPE(PindianStar)
-Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(PhaseChangeStruct)
 
 #endif // STRUCTS_H

@@ -47,6 +47,10 @@ protected:
             RoomScene *room_scene = qobject_cast<RoomScene *>(scene());
             room_scene->adjustItems(matrix());
         }
+
+        MainWindow *main_window = qobject_cast<MainWindow *>(parentWidget());
+        if(main_window)
+            main_window->setBackgroundBrush();
     }
 };
 
@@ -276,8 +280,8 @@ void MainWindow::enterRoom(){
     connect(ui->actionSaveRecord, SIGNAL(triggered()), room_scene, SLOT(saveReplayRecord()));
     connect(ui->actionExpand_dashboard, SIGNAL(toggled(bool)), room_scene, SLOT(adjustDashboard(bool)));
 
-    if(Config.value("UI/ExpandDashboard").toBool())
-        ui->actionExpand_dashboard->toggle();
+    bool expand = Config.value("UI/ExpandDashboard", true).toBool();
+    ui->actionExpand_dashboard->setChecked(expand);
 
     if(ServerInfo.FreeChoose){
         ui->menuCheat->setEnabled(true);
@@ -425,7 +429,7 @@ void MainWindow::on_actionAbout_triggered()
     window->appear();
 }
 
-void MainWindow::changeBackground(){
+void MainWindow::setBackgroundBrush(){
     if(scene){
         QPixmap pixmap(Config.BackgroundBrush);
         QBrush brush(pixmap);
@@ -448,6 +452,10 @@ void MainWindow::changeBackground(){
 
         scene->setBackgroundBrush(brush);
     }
+}
+
+void MainWindow::changeBackground(){
+    setBackgroundBrush();
 
     if(scene->inherits("RoomScene")){
         RoomScene *room_scene = qobject_cast<RoomScene *>(scene);

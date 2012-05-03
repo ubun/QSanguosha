@@ -9,6 +9,7 @@
 #include "audio.h"
 #include "protocol.h"
 #include "jsonutils.h"
+#include "structs.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -18,10 +19,6 @@
 #include <QApplication>
 
 Engine *Sanguosha = NULL;
-
-extern "C" {
-    int luaopen_sgs(lua_State *);
-}
 
 void Engine::addPackage(const QString &name){
     Package *pack = PackageAdder::packages()[name];
@@ -39,58 +36,16 @@ void Engine::addScenario(const QString &name){
         qWarning("Scenario %s cannot be loaded!", qPrintable(name));
 }
 
-
 static inline QVariant GetConfigFromLuaState(lua_State *L, const char *key){
-    lua_getglobal(L, "config");
-    lua_getfield(L, -1, key);
-
-    QVariant data;
-    switch(lua_type(L, -1)){
-    case LUA_TSTRING: {
-        data = QString::fromUtf8(lua_tostring(L, -1));
-        lua_pop(L, 1);
-        break;
-    }
-
-    case LUA_TNUMBER:{
-        data = lua_tonumber(L, -1);
-        lua_pop(L, 1);
-        break;
-    }
-
-    case LUA_TTABLE:{
-        QStringList list;
-
-        size_t size = lua_objlen(L, -1);
-        for(size_t i=0; i<size; i++){
-            lua_rawgeti(L, -1, i+1);
-            QString element = lua_tostring(L, -1);
-            lua_pop(L, 1);
-            list << element;
-        }
-
-        data = list;
-    }
-
-    default:
-        break;
-    }
-
-    lua_pop(L, 1);
-    return data;
+    return GetValueFromLuaState(L, "config", key);
 }
-
 
 Engine::Engine()
 {
     Sanguosha = this;
 
-    QString error_msg;
-    lua = createLuaState(error_msg);
-    if(lua == NULL){
-        QMessageBox::warning(NULL, tr("Lua script error"), error_msg);
-        exit(1);
-    }
+    lua = CreateLuaState();
+    DoLuaScript(lua, "lua/config.lua");
 
     QStringList package_names = GetConfigFromLuaState(lua, "package_names").toStringList();
     foreach(QString name, package_names)
@@ -99,6 +54,8 @@ Engine::Engine()
     QStringList scene_names = GetConfigFromLuaState(lua, "scene_names").toStringList();
     foreach(QString name, scene_names)
         addScenario(name);
+
+    DoLuaScript(lua, "lua/sanguosha.lua");
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -133,36 +90,6 @@ Engine::Engine()
         Skill *mutable_skill = const_cast<Skill *>(skill);
         mutable_skill->initMediaSource();
     }
-}
-
-lua_State *Engine::createLuaState(QString &error_msg){
-    lua_State *L = luaL_newstate();
-    luaL_openlibs(L);
-
-    luaopen_sgs(L);
-
-    int error = luaL_dofile(L, "lua/sanguosha.lua");
-    if(error){
-        error_msg = lua_tostring(L, -1);
-        return NULL;
-    }
-
-    return L;
-}
-
-lua_State *Engine::createLuaStateWithAI(QString &error_msg){
-    lua_State *L = createLuaState(error_msg);
-
-    if(L == NULL)
-        return NULL;
-
-    int error = luaL_dofile(L, "lua/ai/smart-ai.lua");
-    if(error){
-        error_msg = lua_tostring(L, -1);
-        return NULL;
-    }
-
-    return L;
 }
 
 lua_State *Engine::getLuaState() const{
@@ -399,17 +326,30 @@ QStringList Engine::getExtensions() const{
 }
 
 QStringList Engine::getKingdoms() const{
-    return GetConfigFromLuaState(lua, "kingdoms").toStringList();
+    static QStringList kingdoms;
+    if(kingdoms.isEmpty())
+        kingdoms = GetConfigFromLuaState(lua, "kingdoms").toStringList();
+
+    return kingdoms;
 }
 
 QColor Engine::getKingdomColor(const QString &kingdom) const{
     static QMap<QString, QColor> color_map;
     if(color_map.isEmpty()){
-        color_map["wei"] = QColor(0x54, 0x79, 0x98);
-        color_map["shu"] = QColor(0xD0, 0x79, 0x6C);
-        color_map["wu"] = QColor(0x4D, 0xB8, 0x73);
-        color_map["qun"] = QColor(0x8A, 0x80, 0x7A);
-        color_map["god"] = QColor(0x96, 0x94, 0x3D);
+        foreach(QString k, getKingdoms()){
+            QString color_str = GetConfigFromLuaState(lua,  ("color_" + k).toAscii()).toString();
+            QRegExp rx("#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})");
+            if(rx.exactMatch(color_str)){
+                QStringList results = rx.capturedTexts();
+                int red = results.at(1).toInt(NULL, 16);
+                int green = results.at(2).toInt(NULL, 16);
+                int blue = results.at(3).toInt(NULL, 16);
+
+                color_map.insert(k, QColor(red, green, blue));
+            }
+        }
+
+        Q_ASSERT(!color_map.isEmpty());
     }
 
     return color_map.value(kingdom);
@@ -458,8 +398,6 @@ QString Engine::getModeName(const QString &mode) const{
         return modes.value(mode);
     else
         return tr("%1 [Scenario mode]").arg(translate(mode));
-
-    return QString();
 }
 
 int Engine::getPlayerCount(const QString &mode) const{

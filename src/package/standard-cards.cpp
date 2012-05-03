@@ -178,7 +178,7 @@ public:
                     draw_card = true;
                 else{
                     QString prompt = "double-sword-card:" + effect.from->getGeneralName();
-                    const Card *card = room->askForCard(effect.to, ".", prompt);
+                    const Card *card = room->askForCard(effect.to, ".", prompt, QVariant(), CardDiscarded);
                     if(card){
                         room->throwCard(card);
                     }else
@@ -240,7 +240,7 @@ public:
             return false;
 
         Room *room = player->getRoom();
-        const Card *card = room->askForCard(player, "slash", "blade-slash:" + effect.to->objectName());
+        const Card *card = room->askForCard(player, "slash", "blade-slash:" + effect.to->objectName(), QVariant(), NonTrigger);
         if(card){
             // if player is drank, unset his flag
             if(player->hasFlag("drank"))
@@ -356,7 +356,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         Room *room = player->getRoom();
-        CardStar card = room->askForCard(player, "@axe", "@axe:" + effect.to->objectName(),data);
+        CardStar card = room->askForCard(player, "@axe", "@axe:" + effect.to->objectName(),data, CardDiscarded);
         if(card){
             QList<int> card_ids = card->getSubcards();
             foreach(int card_id, card_ids){
@@ -465,7 +465,7 @@ public:
         QString asked = data.toString();
         if(asked == "jink"){
             Room *room = player->getRoom();
-            if(room->askForSkillInvoke(player, objectName())){
+                if(room->askForSkillInvoke(player, objectName())){
                 JudgeStruct judge;
                 judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
                 judge.good = true;
@@ -510,8 +510,10 @@ void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
     room->fillAG(card_ids);
 
     QVariantList ag_list;
-    foreach(int card_id, card_ids)
+    foreach(int card_id, card_ids){
+        room->setCardFlag(card_id, "visible");
         ag_list << card_id;
+    }
     room->setTag("AmazingGrace", ag_list);
 
     GlobalEffect::use(room, source, players);
@@ -680,7 +682,7 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     if(on_effect){
         QString prompt = QString("collateral-slash:%1:%2")
                 .arg(source->objectName()).arg(victims.first()->objectName());
-        const Card *slash = room->askForCard(killer, "slash", prompt);
+        const Card *slash = room->askForCard(killer, "slash", prompt, QVariant(), NonTrigger);
         if (victims.first()->isDead()){
             if (source->isDead()){
                 if(killer->isAlive() && killer->getWeapon()){

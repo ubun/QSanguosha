@@ -372,7 +372,7 @@ struct SlashEffectStruct{
 	SlashEffectStruct();
 
 	const Slash *slash;
-	const Jink *jink;
+	const Card *jink;
 
 	ServerPlayer *from;
 	ServerPlayer *to;
@@ -440,9 +440,17 @@ struct PindianStruct{
 	QString reason;
 };
 
+struct PhaseChangeStruct{
+    PhaseChangeStruct();
+    Player::Phase from;
+    Player::Phase to;
+};
+
 typedef PindianStruct *PindianStar;
 
 enum TriggerEvent{
+	NonTrigger,
+	
     GameStart,
     TurnStart,
     PhaseChange,
@@ -478,11 +486,14 @@ enum TriggerEvent{
     SlashProceed,
     SlashHit,
     SlashMissed,
+	
+	JinkUsed,
 
     CardAsked,
     CardUsed,
     CardResponsed,
     CardDiscarded,
+	CardMoving,
     CardLost,
     CardLostDone,
     CardGot,
@@ -766,7 +777,6 @@ public:
 class Room : public QThread{
 public:
 	explicit Room(QObject *parent, const char *mode);
-	QString createLuaState();
 	ServerPlayer *addSocket(ClientSocket *socket);
 	bool isFull() const;
 	bool isFinished() const;
@@ -795,6 +805,8 @@ public:
 	void setPlayerFlag(ServerPlayer *player, const char *flag);
 	void setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
 	void setPlayerMark(ServerPlayer *player, const char *mark, int value);
+    void setPlayerCardLock(ServerPlayer *player, const char *name);
+    void clearPlayerCardLock(ServerPlayer *player);
     void setPlayerStatistics(ServerPlayer *player, const char *property_name, const QVariant &value);
     void setCardFlag(const Card *card, const char *flag, ServerPlayer *who = NULL);
     void setCardFlag(int card_id, const char *flag, ServerPlayer *who = NULL);
