@@ -14,7 +14,7 @@ function SmartAI:slashProhibit(card,enemy)
 	end
 
 	if self:isFriend(enemy) then
-		if card:inherits("FireSlash") or self.player:hasWeapon("fan") or self.player:hasSkill("zonghuo")
+		if card:inherits("FireSlash") or self.player:hasWeapon("fan") or self.player:hasSkill("zonghuo") then
 			if (self:isEquip("Vine", enemy) or enemy:hasSkill("linjia")) and
 				not (enemy:isChained() and self:isGoodChainTarget(enemy)) then return true end
 		end

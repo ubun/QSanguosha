@@ -70,6 +70,7 @@ SOURCES += src/main.cpp \
 	src/package/shineway/cyan.cpp \
 	src/package/shineway/green.cpp \
         src/package/shineway/purple.cpp \
+	src/scenario/scenario.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/fancheng-scenario.cpp \
