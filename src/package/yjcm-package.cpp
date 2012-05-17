@@ -386,7 +386,7 @@ void XuanhuoCard::onEffect(const CardEffectStruct &effect) const{
             effect.to->addToPile("#xuanhuo", dummy, true);
             int second_id = room->askForCardChosen(effect.from, effect.to, "he", "xuanhuo");
             dummy->addSubcard(second_id);
-            room->moveCardTo(dummy, effect.from, Player::Hand, true);
+            room->moveCardTo(dummy, effect.from, Player::Hand, false);
             delete dummy;
         }
     }
@@ -397,7 +397,7 @@ void XuanhuoCard::onEffect(const CardEffectStruct &effect) const{
         effect.to->addToPile("#xuanhuo", dummy, true);
         int second_id = room->askForCardChosen(effect.from, effect.to, "he", "xuanhuo");
         dummy->addSubcard(second_id);
-        room->moveCardTo(dummy, effect.from, Player::Hand, true);
+        room->moveCardTo(dummy, effect.from, Player::Hand, false);
         delete dummy;
     }
 }
@@ -465,27 +465,8 @@ public:
             log.arg = objectName();
             room->sendLog(log);
 
-            ServerPlayer *duanmeng = room->findPlayerBySkillName("fuchou");
-            if(!duanmeng){
-                killer->throwAllHandCards();
-                killer->throwAllEquips();
-            }
-            else{
-                log.type = "#TriggerSkill";
-                log.from = duanmeng;
-                log.arg = "fuchou";
-                room->sendLog(log);
-                duanmeng->obtainCard(killer->getWeapon());
-                duanmeng->obtainCard(killer->getArmor());
-                duanmeng->obtainCard(killer->getDefensiveHorse());
-                duanmeng->obtainCard(killer->getOffensiveHorse());
-
-                DummyCard *all_cards = killer->wholeHandCards();
-                if(all_cards){
-                    room->moveCardTo(all_cards, duanmeng, Player::Hand, false);
-                    delete all_cards;
-                }
-            }
+            killer->throwAllHandCards();
+            killer->throwAllEquips();
 
             QString killer_name = killer->getGeneralName();
             if(killer_name == "zhugeliang" || killer_name == "wolong" || killer_name == "shenzhugeliang")
@@ -521,37 +502,37 @@ public:
                     }
                 }
             }
-        }else if(event == CardLostDone && lingtong->tag.value("InvokeXuanfeng", false).toBool()){
-            lingtong->tag.remove("InvokeXuanfeng");
+        }else if(event == CardLostDone){
             lingtong->setMark("xuanfeng", 0);
             Room *room = lingtong->getRoom();
+            if(lingtong->tag.value("InvokeXuanfeng", false).toBool()){
+                lingtong->tag.remove("InvokeXuanfeng");
+                QString choice = room->askForChoice(lingtong, objectName(), "discard+nothing");
 
-            QString choice = room->askForChoice(lingtong, objectName(), "discard+nothing");
+                if(choice == "discard"){
+                    room->playSkillEffect(objectName());
+                    QList<ServerPlayer *> targets;
+                    foreach(ServerPlayer *target, room->getOtherPlayers(lingtong)){
+                        if(!target->isNude())
+                            targets << target;
+                    }
 
-
-        if(choice == "discard"){
-                room->playSkillEffect(objectName());
-                QList<ServerPlayer *> targets;
-                foreach(ServerPlayer *target, room->getOtherPlayers(lingtong)){
-                    if(!target->isNude())
-                        targets << target;
-                }
-
-                ServerPlayer *first = room->askForPlayerChosen(lingtong, targets, "xuanfeng");
-                ServerPlayer *second = NULL;
-                int first_id = -1;
-                int second_id = -1;
-                if(first != NULL){
-                    first_id = room->askForCardChosen(lingtong, first, "he", "xuanfeng");
-                    room->throwCard(first_id, first);
-                    if(first->isNude())
-                        targets.removeOne(first);
-                }
-                if(room->askForSkillInvoke(lingtong, objectName()))
-                    second = room->askForPlayerChosen(lingtong, targets, "xuanfeng");
-                if(second != NULL){
-                    second_id = room->askForCardChosen(lingtong, second, "he", "xuanfeng");
-                    room->throwCard(second_id, second);
+                    ServerPlayer *first = room->askForPlayerChosen(lingtong, targets, "xuanfeng");
+                    ServerPlayer *second = NULL;
+                    int first_id = -1;
+                    int second_id = -1;
+                    if(first != NULL){
+                        first_id = room->askForCardChosen(lingtong, first, "he", "xuanfeng");
+                        room->throwCard(first_id, first);
+                        if(first->isNude())
+                            targets.removeOne(first);
+                    }
+                    if(room->askForSkillInvoke(lingtong, objectName()))
+                        second = room->askForPlayerChosen(lingtong, targets, "xuanfeng");
+                    if(second != NULL){
+                        second_id = room->askForCardChosen(lingtong, second, "he", "xuanfeng");
+                        room->throwCard(second_id, second);
+                    }
                 }
             }
         }

@@ -254,8 +254,8 @@ QString ServerPlayer::findReasonable(const QStringList &generals, bool no_unreas
             if(Config.EnableHegemony)
             {
                 if(getGeneral())
-                    if(getGeneral()->getKingdom()
-                            != Sanguosha->getGeneral(name)->getKingdom())
+                    if((getGeneral()->getKingdom()
+                            != Sanguosha->getGeneral(name)->getKingdom()));
                         continue;
             }
         }
@@ -500,9 +500,6 @@ bool ServerPlayer::hasNullification() const{
 
         return getHandcardNum() > getHp() && !getEquips().isEmpty();
     }
-    /*if(hasSkill("yugui") && getMark("@pu") > 0){
-        return true;
-    }*/
 
     if(hasSkill("qice")){
         foreach(const Card *card, handcards){
