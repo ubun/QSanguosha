@@ -1815,6 +1815,9 @@ void RoomScene::updateTargetsEnablity(const Card *card){
                        && card->targetFilter(selected_targets, player, Self);
         else enabled = true;
 
+        if(player->hasSkill("liaoshou") && Self->distanceTo(player) > Self->getAttackRange())
+            enabled = false;
+
         //item->setOpacity(enabled ? 1.0 : 0.7);
         if(enabled)animations->effectOut(item);
         else

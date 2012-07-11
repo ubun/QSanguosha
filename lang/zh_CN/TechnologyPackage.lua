@@ -50,6 +50,11 @@ local te = {
 	["cv:zhujianping"] = "",
 	["cv:guanlu"] = "",
 	["cv:dukui"] = "",
+
+	["gongsunkang"] = "公孙康",
+	["liaoshou"] = "辽守",
+	[":liaoshou"] = "锁定技，其他角色计算与你的距离大于该角色的攻击范围时，你处于隐形状态\
+★隐形状态下，你无法被指定为杀、锦囊或技能的目标",
 }
 
 local techer = {"zhouxuan", "zhujianping", "guanlu", "dukui"}

@@ -9,15 +9,17 @@
 class Tuiyan:public TriggerSkill{
 public:
     Tuiyan():TriggerSkill("tuiyan"){
-        events << CardUsed << TurnStart;
+        events << CardUsed << PhaseChange;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *lu, QVariant &data) const{
-        if(event == TurnStart){
-            lu->tag["bo"] = 0;
-            lu->setMark("tuiyan", 0);
-            lu->getRoom()->setPlayerFlag(lu, "-Tuiyan_failed");
-            return false;
+        if(event == PhaseChange){
+            if(lu->getPhase() == Player::RoundStart){
+                lu->tag["bo"] = 0;
+                lu->setMark("tuiyan", 0);
+                lu->getRoom()->setPlayerFlag(lu, "-Tuiyan_failed");
+                return false;
+            }
         }
         Room *room = lu->getRoom();
         if(room->getCurrent() != lu)
@@ -25,7 +27,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         const Card *usecard = use.card;
 
-        if(use.card->getId() < 0){
+        if(use.card->isVirtualCard()){
             if(use.card->getSubtype() == "skill_card"
                || use.card->getSubcards().length() > 1
                || use.card->getNumber() == 0)
@@ -46,7 +48,7 @@ public:
                 log.type = "$Tuiyan";
                 log.from = lu;
                 log.to = use.to;
-                log.card_str = QString::number(usecard->getId());
+                log.card_str = usecard->getEffectIdString();
                 room->sendLog(log);
             }
             lu->addMark("tuiyan"); //the count of tuiyan
@@ -433,6 +435,9 @@ TechnologyPackage::TechnologyPackage()
 
     General *zhujianping = new General(this, "zhujianping", "god", 3);
     zhujianping->addSkill(new Bianxiang);
+
+    General *gongsunkang = new General(this, "gongsunkang", "qun");
+    gongsunkang->addSkill(new Skill("liaoshou", Skill::Compulsory));
 
     skills << new TiaoxinClone;
 }
