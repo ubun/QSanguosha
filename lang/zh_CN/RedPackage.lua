@@ -4,17 +4,15 @@ return {
 	["Red"] = "★朱雀★",
 
 --WEI#01
-	["#redzhonghui"] = "自闭的野心家",
-	["redzhonghui"] = "钟会",
-	["designer:redzhonghui"] = "淬毒",
-	["tianhui"] = "天慧",
-	[":tianhui"] = "回合开始阶段，你可展示一张手牌，则本回合内，其他角色不能使用或打出与此牌相同花色的牌。",
-	["#Tianhui"] = "%from 天慧了其他角色的 %arg 牌",
-	["jifeng"] = "机锋",
-	[":jifeng"] = "每当你受到一次伤害后，你可展示一张手牌，伤害来源需展示其所有手牌，并弃掉其中与展示牌相同颜色的牌。",
-	["#Jifeng"] = "%from 受到【%arg】技能的影响，须弃掉所有 %arg2 手牌",
-	["jifengr"] = "红色",
-	["jifengb"] = "黑色",
+	["#redcaohong"] = "骠骑将军",
+	["redcaohong"] = "曹洪",
+	["designer:redcaohong"] = "生杀自在",
+	["xianju"] = "献驹",
+	[":xianju"] = "回合开始阶段开始时，你可以失去1点体力或弃置两张手牌，然后指定一名角色，直到你下回合开始，该角色获得技能“宝马”（同时拥有+1马和-1马的距离修正效果）。每阶段限一次。",
+	["bmw"] = "宝马",
+	[":bmw"] = "<b>锁定技</b>，当你计算与其他角色的距离时，始终-1；当其他角色计算与你的距离时，始终+1。",
+	["@xianju"] = "你可以发动“献驹”，令一名角色获得宝马",
+	["@bmw"] = "宝马",
 
 --WEI#02
 	["#redxunyou"] = "杰出的战术家",
@@ -108,7 +106,7 @@ return {
 	["#GoulianAdamage"] = "%from 为 %to 承担了本次的全部伤害",
 	["#GoulianBdraw"] = "%from 的技能【%arg】生效，额外摸了两张牌",
 
-	["cv:redzhonghui"] = "",
+	["cv:redcaohong"] = "",
 	["cv:redxunyou"] = "",
 	["cv:redhejin"] = "",
 	["cv:redguansuo"] = "",
@@ -117,7 +115,7 @@ return {
 	["cv:redchunyuqiong"] = "",
 	["cv:redsunluban"] = "",
 
-	["illustrator:redzhonghui"] = "雪君S",
+	["illustrator:redcaohong"] = "hehagame",
 	["illustrator:redxunyou"] = "三国智",
 	["illustrator:redhejin"] = "legend",
 	["illustrator:redguansuo"] = "绵绵",

@@ -5,64 +5,88 @@
 #include "carditem.h"
 #include "room.h"
 
-class Tianhui: public PhaseChangeSkill{
+XianjuCard::XianjuCard(){
+}
+
+bool XianjuCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
+    return targets.isEmpty();
+}
+
+void XianjuCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    if(getSubcards().isEmpty())
+        room->loseHp(effect.from);
+    else
+        room->throwCard(this);
+
+    if(effect.from->isAlive())
+        effect.to->gainMark("@bmw");
+}
+
+class XianjuViewAsSkill: public ViewAsSkill{
 public:
-    Tianhui():PhaseChangeSkill("tianhui"){
+    XianjuViewAsSkill():ViewAsSkill("xianju"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
+        return pattern == "@@xianju";
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        if(selected.length() > 2)
+            return false;
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.length() != 2 && !cards.isEmpty())
+            return NULL;
+        else{
+            XianjuCard *card = new XianjuCard();
+            if(!cards.isEmpty())
+                card->addSubcards(cards);
+            return card;
+        }
+    }
+};
+
+class Xianju: public PhaseChangeSkill{
+public:
+    Xianju():PhaseChangeSkill("xianju"){
+        view_as_skill = new XianjuViewAsSkill;
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
         Room *room = player->getRoom();
-        if(player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
-            const Card *card = room->askForCardShow(player, player, objectName());
-            if(card){
-                QString suit = ".|" + card->getSuitString() + "|.|hand";
-                foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
-                    tmp->jilei(suit);
-                    tmp->invoke("jilei", suit);
-                }
-                LogMessage log;
-                log.type = "#Tianhui";
-                log.from = player;
-                log.arg = card->getSuitString();
-                room->sendLog(log);
-            }
+        if(player->getPhase() == Player::Start){
+            room->askForUseCard(player, "@@xianju", "@xianju");
         }
-        else if(player->getPhase() == Player::NotActive){
-            foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
-                tmp->jilei(".");
-                tmp->invoke("jilei", ".");
+        else if(player->getPhase() == Player::RoundStart){
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                if(tmp->getMark("@bmw") > 1)
+                    tmp->loseAllMarks("@bmw");
             }
         }
         return false;
     }
 };
 
-class Jifeng:public MasochismSkill{
+class BMW: public DistanceSkill{
 public:
-    Jifeng():MasochismSkill("jifeng"){
+    BMW():DistanceSkill("#bmw"){
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
-        Room *room = player->getRoom();
-        if(!damage.from || damage.from->isKongcheng())
-            return;
-        if(!player->isKongcheng() && player->askForSkillInvoke(objectName())){
-            const Card *card = room->askForCardShow(player, player, objectName());
-            LogMessage log;
-            log.type = "#Jifeng";
-            log.from = damage.from;
-            log.arg = objectName();
-            log.arg2 = card->isRed() ? "jifengr" : "jifengb";
-            room->sendLog(log);
-
-            room->showCard(player, card->getEffectiveId());
-            foreach(const Card *cd, damage.from->getHandcards()){
-                if(card->sameColorWith(cd))
-                    room->throwCard(cd);
-                else
-                    room->showCard(damage.from, cd->getEffectiveId());
-            }
-        }
+    virtual int getCorrect(const Player *from, const Player *to) const{
+        if(to->getMark("@bmw") > 0)
+            return +1;
+        else if(from->getMark("@bmw") > 0)
+            return -1;
+        else
+            return 0;
     }
 };
 
@@ -1089,9 +1113,11 @@ public:
 RedPackage::RedPackage()
     :Package("Red")
 {
-    General *redzhonghui = new General(this, "redzhonghui", "wei", 3);
-    redzhonghui->addSkill(new Tianhui);
-    redzhonghui->addSkill(new Jifeng);
+    General *redcaohong = new General(this, "redcaohong", "wei");
+    redcaohong->addSkill(new Xianju);
+    redcaohong->addSkill("feiying");
+    redcaohong->addSkill(new BMW);
+    related_skills.insertMulti("xianju", "#bmw");
 
     General *redxunyou = new General(this, "redxunyou", "wei", 3);
     redxunyou->addSkill(new Baichu);
@@ -1140,6 +1166,7 @@ RedPackage::RedPackage()
     uchihaitachi->addSkill(new MarkAssignSkill("@susa", 1));
     related_skills.insertMulti("Susa", "#@susa-1");
 
+    addMetaObject<XianjuCard>();
     addMetaObject<BaichuCard>();
     addMetaObject<TongluCard>();
     addMetaObject<XiefangCard>();
