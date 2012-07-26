@@ -272,14 +272,13 @@ void TongluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     }
 }
 
-class Liehou: public TriggerSkill{
+class Liehou: public PhaseChangeSkill{
 public:
-    Liehou():TriggerSkill("liehou"){
-        events << CardDiscarded << PhaseChange;
-        default_choice = "draw";
+    Liehou():PhaseChangeSkill("liehou"){
+        frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+    virtual bool onPhaseChange(ServerPlayer *player) const{
         Room *room = player->getRoom();
         QList<ServerPlayer *> sbmen;
         foreach(ServerPlayer *tmp, room->getAllPlayers()){
@@ -287,69 +286,15 @@ public:
                 sbmen << tmp;
         }
         if(event == PhaseChange){
-            if(player->getPhase() == Player::Finish && !player->hasFlag("liehou_on") && !sbmen.isEmpty()){
-                QString result = room->askForChoice(player, objectName(), "draw+cancel");
-                if(result == "cancel")
-                    return false;
-                LogMessage log;
-                log.type = "#InvokeSkill";
-                log.arg = objectName();
-                log.from = player;
-                room->sendLog(log);
-                ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
-                target->drawCards(1);
+            if(player->getPhase() == Player::Finish){
+                if(!sbmen.isEmpty()){
+                    ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
+                    target->drawCards(1);
+                }
+                if(!player->hasUsed("TongluCard"))
+                    player->drawCards(1);
             }
             return false;
-        }
-        if(player->getPhase() == Player::Discard && !sbmen.isEmpty()){
-
-            CardStar card = data.value<CardStar>();
-            DummyCard *dummy = new DummyCard;
-            foreach(int card_id, card->getSubcards()){
-                dummy->addSubcard(Sanguosha->getCard(card_id));
-            }
-
-            QString result = room->askForChoice(player, objectName(), "get+draw+cancel");
-            player->setFlags("liehou_on");
-            if(result == "cancel")
-                return false;
-            LogMessage log;
-            log.type = "#InvokeSkill";
-            log.arg = objectName();
-            log.from = player;
-            room->sendLog(log);
-
-            ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
-            if(result == "draw")
-                target->drawCards(1);
-            else{
-                log.type = "#Liehou";
-                log.arg = QString::number(dummy->subcardsLength());
-                log.to << target;
-                room->sendLog(log);
-
-                target->obtainCard(dummy);
-                delete dummy;
-            }
-        }
-        return false;
-    }
-};
-
-class Zide: public PhaseChangeSkill{
-public:
-    Zide():PhaseChangeSkill("zide"){
-        frequency = Compulsory;
-    }
-    virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getPhase() == Player::Finish && !player->hasUsed("TongluCard")){
-            LogMessage log;
-            log.type = "#TriggerSkill";
-            log.arg = objectName();
-            log.from = player;
-            player->getRoom()->sendLog(log);
-
-            player->drawCards(1);
         }
         return false;
     }
@@ -1126,7 +1071,6 @@ RedPackage::RedPackage()
     General *redhejin = new General(this, "redhejin", "qun", 4);
     redhejin->addSkill(new Tonglu);
     redhejin->addSkill(new Liehou);
-    redhejin->addSkill(new Zide);
 
     General *redguansuo = new General(this, "redguansuo", "shu", 2);
     redguansuo->addSkill(new Xiefang);
