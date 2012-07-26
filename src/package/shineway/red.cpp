@@ -285,16 +285,13 @@ public:
             if(!tmp->faceUp())
                 sbmen << tmp;
         }
-        if(event == PhaseChange){
-            if(player->getPhase() == Player::Finish){
-                if(!sbmen.isEmpty()){
-                    ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
-                    target->drawCards(1);
-                }
-                if(!player->hasUsed("TongluCard"))
-                    player->drawCards(1);
+        if(player->getPhase() == Player::Finish){
+            if(!sbmen.isEmpty()){
+                ServerPlayer *target = room->askForPlayerChosen(player, sbmen, "liehou");
+                target->drawCards(1);
             }
-            return false;
+            if(!player->hasUsed("TongluCard"))
+                player->drawCards(1);
         }
         return false;
     }
@@ -445,7 +442,7 @@ public:
 
         Room *room = player->getRoom();
         player->setMark("yany", 1);
-        if(room->askForSkillInvoke(player, objectName(), data)){
+        if(effect.to->isAlive() && room->askForSkillInvoke(player, objectName(), data)){
             const Card *card = room->askForCard(player, "slash", "@yanyun-slash");
             player->setMark("yany", 0);
             if(card && card->getSkillName() != "xiefang"){
@@ -734,33 +731,15 @@ GoulianCard::GoulianCard(){
 bool GoulianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
-
-    if(to_select->getMark("@goulian") > 0 || to_select->getMark("goulianA") > 0)
-        return false;
-    return to_select->getGeneral()->isMale();
+    return to_select->getGeneral()->isMale() && to_select->isWounded();
 }
 
 void GoulianCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
-    QString result = room->askForChoice(effect.to, "goulian", "a+b");
-    LogMessage log;
-    log.from = effect.to;
-    log.to << effect.from;
-    if(result == "a"){
-        log.type = "#GoulianA";
-        room->sendLog(log);
-        RecoverStruct recover;
-        recover.who = effect.from;
-        room->recover(effect.to, recover);
-        effect.to->setMark("goulianA", 1);
-    }
-    else{
-        log.type = "#GoulianB";
-        room->sendLog(log);
-        effect.to->drawCards(2);
-        effect.to->gainMark("@goulian");
-        effect.from->gainMark("@goulian");
-    }
+    RecoverStruct recover;
+    recover.who = effect.from;
+    room->recover(effect.to, recover, true);
+    effect.to->gainMark("@goulian");
 }
 
 class GoulianViewAsSkill: public OneCardViewAsSkill{
@@ -788,60 +767,36 @@ public:
 class Goulian: public TriggerSkill{
 public:
     Goulian():TriggerSkill("goulian"){
-        events << Predamaged << PhaseChange << DrawNCards;
+        events << Predamaged << PhaseChange;
         view_as_skill = new GoulianViewAsSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill("goulian") || target->getMark("@goulian") > 0;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        if(event == Predamaged && player->hasSkill("goulian")){
+        if(event == Predamaged){
             DamageStruct damage = data.value<DamageStruct>();
-            if(damage.to != player)
-                return false;
             foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
-                if(tmp->getMark("goulianA") > 0){
+                if(tmp->getMark("@goulian") > 0){
                     damage.to = tmp;
-                    tmp->setMark("goulianA", 0);
                     LogMessage log;
-                    log.type = "#GoulianAdamage";
+                    log.type = "#GoulianDamage";
                     log.from = tmp;
                     log.to << player;
                     room->sendLog(log);
 
                     DamageStruct damage2 = damage;
                     room->damage(damage2);
+                    tmp->loseAllMarks("@goulian");
                     return true;
                 }
             }
         }
         else if(event == PhaseChange){
-            if(player->getPhase() == Player::Draw && !player->hasSkill("goulian") && player->getMark("@goulian") > 0){
-                player->loseMark("@goulian");
-                return true;
-            }
-            else if(player->getPhase() == Player::Start && player->hasSkill("goulian")){
-                foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
-                    if(tmp->getMark("goulianA") > 0)
-                        tmp->setMark("goulianA", 0);
+            if(player->getPhase() == Player::RoundStart){
+                foreach(ServerPlayer *tmp, room->getAlivePlayers()){
                     if(tmp->getMark("@goulian") > 0)
-                        tmp->loseMark("@goulian");
+                        tmp->loseAllMarks("@goulian");
                 }
-            }
-        }
-        else if(event == DrawNCards){
-            if(player->hasSkill("goulian") && player->getMark("@goulian") > 0){
-                LogMessage log;
-                log.type = "#GoulianBdraw";
-                log.arg = objectName();
-                log.from = player;
-                room->sendLog(log);
-
-                player->loseMark("@goulian");
-                data = data.toInt() + 1;
             }
         }
         return false;
