@@ -1,7 +1,14 @@
 -- RedPackage's AI by Ubun.
 
--- tianhui
--- jifeng
+-- xianju
+sgs.ai_skill_use["@@xianju"] = function(self, prompt)
+	self:sort(self.friends)
+	for _, friend in ipairs(self.friends) do
+		if friend:isWeak() and not self.player:isWeak() then
+			return "#xianjucard=." .. "->" .. target:objectName()
+		end
+	end
+end
 
 -- baichu
 sgs.ai_skill_invoke["baichu"] = true
