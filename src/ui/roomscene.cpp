@@ -2115,13 +2115,14 @@ void RoomScene::updateStatus(Client::Status status){
         }
 
     case Client::ExecDialog:{
-            ClientInstance->ask_dialog->setParent(main_window, Qt::Dialog);
-            ClientInstance->ask_dialog->exec();
+            if(ClientInstance->ask_dialog != NULL){
+                ClientInstance->ask_dialog->setParent(main_window, Qt::Dialog);
+                ClientInstance->ask_dialog->exec();
 
-            ok_button->setEnabled(false);
-            cancel_button->setEnabled(true);
-            discard_button->setEnabled(false);
-
+                ok_button->setEnabled(false);
+                cancel_button->setEnabled(true);
+                discard_button->setEnabled(false);
+            }
             break;
         }
 
@@ -2488,7 +2489,7 @@ void RoomScene::changeHp(const QString &who, int delta, DamageStruct::Nature nat
     }
 }
 
-void RoomScene::changeMaxHp(const QString &who, int delta) {
+void RoomScene::changeMaxHp(const QString &, int delta) {
     if (delta < 0)
         Sanguosha->playAudio("maxhplost");
 }

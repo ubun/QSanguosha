@@ -453,9 +453,9 @@ struct PindianStruct{
 };
 
 struct PhaseChangeStruct{
-    PhaseChangeStruct();
-    Player::Phase from;
-    Player::Phase to;
+	PhaseChangeStruct();
+	Player::Phase from;
+	Player::Phase to;
 };
 
 typedef PindianStruct *PindianStar;
@@ -537,9 +537,8 @@ class Card: public QObject
 public:
 	// enumeration type
 	enum Suit {Spade, Club, Heart, Diamond, NoSuit};
-	enum Color {Red, Black, Colorless};
-
 	static const Suit AllSuits[4];
+	enum Color {Red, Black, Colorless};
 
 	// card types
 	enum CardType{
